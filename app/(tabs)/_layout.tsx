@@ -39,27 +39,6 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
         }}
       />
-      <Tabs.Screen
-        name="search"
-        options={{
-          title: 'Search',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="search.fill"  color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="bookmarks"
-        options={{
-          title: 'Saved',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="bookmark-outline.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Profile',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person-outline.fill" color={color} />,
-        }}
-      />
     </Tabs>
   );
 }
