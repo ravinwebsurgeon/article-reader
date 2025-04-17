@@ -14,7 +14,7 @@ export function useAuth() {
   }, []);
 
   const checkAuthStatus = async () => {
-    try {
+    try { 
       const token = await AsyncStorage.getItem('auth_token');
       if (token) {
         // In a real app, validate the token with your backend
