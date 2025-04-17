@@ -58,6 +58,9 @@
     "react-native-flipper": "^0.273.0",
     "react-native-performance": "^5.1.2",
     "react-test-renderer": "18.3.1",
+    "reactotron-react-native": "^5.1.12",
+    "reactotron-redux": "^3.2.0",
+    "reactotron-redux-saga": "^4.2.3",
     "redux-flipper": "^2.0.3",
     "typescript": "^5.3.3"
   },

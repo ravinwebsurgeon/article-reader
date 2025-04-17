@@ -28,6 +28,7 @@ function LoginScreen({ navigation }) {
   // const { showToast } = useToast();
 
   const { isLoading, error } = useAppSelector((state) => state.auth);
+  const [login, { isLoading:loginLoading, error:loginError }] = useLoginMutation();
   const {
     control,
     handleSubmit,
@@ -39,14 +40,14 @@ function LoginScreen({ navigation }) {
     },
   });
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit = async(data) => {
+    console.log(data,"what is the login data")
     try {
-      console.log("Login response");
+      await login(data).unwrap();
       console.log("Login successful");
-    } catch (error) {
-      console.error("Login failed", error);
-      Alert.alert("Login Error", error);
+    } catch (err) {
+      console.error("Login failed", err);
+      Alert.alert("Login Error", err.message || "An error occurred during login");
     }
   };
 

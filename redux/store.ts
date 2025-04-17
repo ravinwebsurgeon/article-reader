@@ -19,6 +19,8 @@ import themeReducer from "./slices/themeSlice";
 // Import API services
 import { api } from "./services/api";
 import { tokenRefreshMiddleware } from "./middleware/tokenRefresh";
+// Import Reactotron
+import Reactotron from '@/config/reactotron';
 
 // Persistence configuration
 const persistConfig = {
@@ -32,8 +34,8 @@ const middlewares = [api.middleware, tokenRefreshMiddleware];
 
 // Add Redux Flipper middleware in dev mode
 if (__DEV__) {
-  // const createDebugger = require("redux-flipper").default;
-  // middlewares.push(createDebugger());
+  const createDebugger = require("redux-flipper").default;
+  middlewares.push(createDebugger());
 }
 
 // Combine all reducers
@@ -46,6 +48,8 @@ const rootReducer = combineReducers({
 // Create persisted reducer
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
+const reactotronEnhancer = __DEV__ && Reactotron.createEnhancer ? Reactotron.createEnhancer() : undefined;
+
 // Configure store with middleware
 export const store = configureStore({
   reducer: persistedReducer,
@@ -57,6 +61,7 @@ export const store = configureStore({
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
     }).concat(middlewares),
+    enhancers: reactotronEnhancer ? [reactotronEnhancer] : [],
 });
 
 // Create persistor
