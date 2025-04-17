@@ -2,9 +2,10 @@ import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useForm } from 'react-hook-form';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, Input } from '@/components/ui/TextInput/input';
+import { Input } from '@/components/ui/TextInput/input';
 import { Button } from '@/components/ui/button';
 import { router } from 'expo-router';
+import { COLORS } from '@/assets';
 
 const SignUpScreen = ({ navigation }) => {
   const { control, handleSubmit, formState: { errors }, watch } = useForm({
@@ -27,8 +28,6 @@ const SignUpScreen = ({ navigation }) => {
   };
 
   const navigateToLogin = () => {
-    // Navigate to login screen
-    // navigation.navigate('Login');
     router.push('/(auth)/login');
   };
 
@@ -41,7 +40,7 @@ const SignUpScreen = ({ navigation }) => {
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.header}>
             <Text style={styles.title}>Sign Up</Text>
-            <Text style={styles.subtitle}>Sign Up to Connect.</Text>
+            {/* <Text style={styles.subtitle}>Sign Up to Connect.</Text> */}
           </View>
 
           <View style={styles.formContainer}>

@@ -3809,6 +3809,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cycle@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "cycle@npm:1.0.3"
+  checksum: b9f131094fb832a8c4ba18c6d2dc9c87fc80d3242847a45f0a5f70911b2acab68abc1c25eb23e5155fcf2135a27d8fcc3635556745b03b488c4f360cfbc352df
+  languageName: node
+  linkType: hard
+
 "data-urls@npm:^3.0.2":
   version: 3.0.2
   resolution: "data-urls@npm:3.0.2"
@@ -3817,6 +3824,13 @@ __metadata:
     whatwg-mimetype: ^3.0.0
     whatwg-url: ^11.0.0
   checksum: 033fc3dd0fba6d24bc9a024ddcf9923691dd24f90a3d26f6545d6a2f71ec6956f93462f2cdf2183cc46f10dc01ed3bcb36731a8208456eb1a08147e571fe2a76
+  languageName: node
+  linkType: hard
+
+"dayjs@npm:^1.8.29":
+  version: 1.11.13
+  resolution: "dayjs@npm:1.11.13"
+  checksum: f388db88a6aa93956c1f6121644e783391c7b738b73dbc54485578736565c8931bdfba4bb94e9b1535c6e509c97d5deb918bbe1ae6b34358d994de735055cca9
   languageName: node
   linkType: hard
 
@@ -4796,6 +4810,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"flipper-plugin-async-storage-advanced@npm:^1.0.8":
+  version: 1.0.8
+  resolution: "flipper-plugin-async-storage-advanced@npm:1.0.8"
+  dependencies:
+    immutability-helper: ^3.1.1
+    lodash: ^4.17.21
+  peerDependencies:
+    antd: "*"
+    flipper-plugin: "*"
+  checksum: a456b85eb4f22c79da880c044c4a8c5c61016bc137e6a136a70dc38c8c1ad523dd2e725f7b7d09b85f6ef4e0c847bb9cce7691c7fb403d06cccea2c9328b1874
+  languageName: node
+  linkType: hard
+
+"flipper-plugin-react-native-performance@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "flipper-plugin-react-native-performance@npm:0.6.0"
+  peerDependencies:
+    flipper: "*"
+    react-native: "*"
+  checksum: 2b612351e77205cf117764e9c92e327fc6d593d21d926b1420411bfae404c29db5ef00ee2ad93918b3ab40f3c9cc56e9758e0e1a0ed1d63b7162abc0a15920de
+  languageName: node
+  linkType: hard
+
 "flow-enums-runtime@npm:^0.0.6":
   version: 0.0.6
   resolution: "flow-enums-runtime@npm:0.0.6"
@@ -5315,6 +5352,13 @@ __metadata:
   version: 10.1.1
   resolution: "immer@npm:10.1.1"
   checksum: 07c67970b7d22aded73607193d84861bf786f07d47f7d7c98bb10016c7a88f6654ad78ae1e220b3c623695b133aabbf24f5eb8d9e8060cff11e89ccd81c9c10b
+  languageName: node
+  linkType: hard
+
+"immutability-helper@npm:^3.1.1":
+  version: 3.1.1
+  resolution: "immutability-helper@npm:3.1.1"
+  checksum: 6fdbf6d2123efa567263e904bbaff07aca0e24560d270d34967b03aab8ec20bd3e4057f394d59e50eb6c4718c9415591a6281692bb0aafd522ad72cf4887133f
   languageName: node
   linkType: hard
 
@@ -6589,7 +6633,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:^4.17.19":
+"lodash@npm:^4.17.19, lodash@npm:^4.17.21":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7
@@ -7792,13 +7836,17 @@ __metadata:
     expo-symbols: ~0.2.2
     expo-system-ui: ~4.0.9
     expo-web-browser: ~14.0.2
+    flipper-plugin-async-storage-advanced: ^1.0.8
+    flipper-plugin-react-native-performance: ^0.6.0
     jest: ^29.2.1
     jest-expo: ~52.0.6
     react: 18.3.1
     react-dom: 18.3.1
     react-hook-form: ^7.55.0
     react-native: 0.76.9
+    react-native-flipper: ^0.273.0
     react-native-gesture-handler: ~2.20.2
+    react-native-performance: ^5.1.2
     react-native-reanimated: ~3.16.1
     react-native-safe-area-context: 4.12.0
     react-native-screens: ~4.4.0
@@ -7806,6 +7854,7 @@ __metadata:
     react-native-webview: 13.12.5
     react-redux: ^9.2.0
     react-test-renderer: 18.3.1
+    redux-flipper: ^2.0.3
     redux-persist: ^6.0.0
     typescript: ^5.3.3
   languageName: unknown
@@ -8092,6 +8141,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-flipper@npm:^0.273.0":
+  version: 0.273.0
+  resolution: "react-native-flipper@npm:0.273.0"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    react-native: ">0.62.0"
+  checksum: 63bb3c1880c6c433c114ae96ed9852b475a3c991725cd6b98e75e8b6129070a035691d69157fed1f10add2d82059e1c35a28d918f61bb12a4faf2a9a4db82bd6
+  languageName: node
+  linkType: hard
+
 "react-native-gesture-handler@npm:~2.20.2":
   version: 2.20.2
   resolution: "react-native-gesture-handler@npm:2.20.2"
@@ -8127,6 +8186,15 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 4cdf2b2fb5b131f2015c26d2cb7688b4a0c5f3c8474b1bf0ddfa9eabb0263df440c87262ae8f812a6ecab0d5310df0373bddad4b51f53dabb2ffee01e9ef0f44
+  languageName: node
+  linkType: hard
+
+"react-native-performance@npm:^5.1.2":
+  version: 5.1.2
+  resolution: "react-native-performance@npm:5.1.2"
+  peerDependencies:
+    react-native: "*"
+  checksum: e0ea6616ba75a13028271c8c5cd29a9eecb35c806db2b412baa160d6ce428c0ba8e9bc0c762856b4c8bebd92b5aea925532731a4dc19591ad15af575163cccd8
   languageName: node
   linkType: hard
 
@@ -8352,6 +8420,20 @@ __metadata:
     source-map: ~0.6.1
     tslib: ^2.0.1
   checksum: 03cc7f57562238ba258d468be67bf7446ce7a707bc87a087891dad15afead46c36e9aaeedf2130e2ab5a465244a9c62bfd4127849761cf8f4085abe2f3e5f485
+  languageName: node
+  linkType: hard
+
+"redux-flipper@npm:^2.0.3":
+  version: 2.0.3
+  resolution: "redux-flipper@npm:2.0.3"
+  dependencies:
+    cycle: ^1.0.3
+    dayjs: ^1.8.29
+  peerDependencies:
+    react-native: ">=0.63.0"
+    react-native-flipper: ">=0.100.0"
+    redux: ">=4"
+  checksum: 616e2a3e92a9d15d1e9a885fc6750fd5d55e896f6b5fa7c25d41fb817e9240f560cf109002afc4645931d60433b261bb78a3d1bff9df6ee6d6db22cddee71153
   languageName: node
   linkType: hard
 

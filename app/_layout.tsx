@@ -14,6 +14,7 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import { useAppSelector } from "@/redux/hook";
 import { ReduxProvider } from "@/provider/ReduxProvider";
 import { selectActiveTheme } from "@/redux/utils";
+import { setupFlipper } from "@/config/flipper";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -24,6 +25,11 @@ export default function RootLayout() {
     PoppinsMedium: require("../assets/fonts/Poppins-Medium.ttf"),
     PoppinsBold: require("../assets/fonts/Poppins-Bold.ttf"),
   });
+
+  // Initialize Flipper
+  if (__DEV__) {
+    // setupFlipper();
+  }
 
   useEffect(() => {
     if (loaded) {
@@ -45,8 +51,8 @@ export default function RootLayout() {
 function RootLayoutNav() {
   // Get the active theme from Redux
   const activeTheme = useAppSelector(selectActiveTheme);
-  // const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
-  const isAuthenticated = false;
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  // const isAuthenticated = true;
 
   return (
     <ThemeProvider value={activeTheme === "dark" ? DarkTheme : DefaultTheme}>
@@ -65,8 +71,6 @@ function RootLayoutNav() {
 
         {/* Error screens */}
         <Stack.Screen name="+not-found" options={{ presentation: "modal" }} />
-        {/* <Stack.Screen name="(tabs)" options={{ headerShown: false }} /> */}
-        {/* <Stack.Screen name="+not-found" /> */}
       </Stack>
       <StatusBar style={activeTheme === "dark" ? "light" : "dark"} />
     </ThemeProvider>

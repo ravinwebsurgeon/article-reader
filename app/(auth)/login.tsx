@@ -13,7 +13,7 @@ import {
   SafeAreaView,
 } from "react-native";
 import { router } from "expo-router";
-import { login, resetAuthError } from "@/redux/slices/authSlice";
+import { resetAuthError } from "@/redux/slices/authSlice";
 import { Image } from "expo-image";
 import { useAppDispatch, useAppSelector } from "@/redux/hook";
 import { useForm, Controller } from "react-hook-form";
@@ -21,9 +21,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { FormInput } from "@/components/ui/form/form-input";
 import { Button } from "@/components/ui/button";
 import { COLORS } from "@/assets";
+import { useLoginMutation } from "@/redux/services/authApi";
 
 function LoginScreen({ navigation }) {
   const dispatch = useAppDispatch();
+  // const { showToast } = useToast();
+
   const { isLoading, error } = useAppSelector((state) => state.auth);
   const {
     control,
@@ -38,22 +41,20 @@ function LoginScreen({ navigation }) {
 
   const onSubmit = (data) => {
     console.log(data);
-    // Handle login logic here
-    // try {
-    //   await dispatch(login({ email, password })).unwrap();
-    //    Success! The auth slice will automatically redirect to the main app
-    // } catch (error) {
-    //    Error handling is done via the auth slice error state
-    // }
+    try {
+      console.log("Login response");
+      console.log("Login successful");
+    } catch (error) {
+      console.error("Login failed", error);
+      Alert.alert("Login Error", error);
+    }
   };
 
   const navigateToSignUp = () => {
-    // Navigate to sign up screen
     router.push("/(auth)/signup");
   };
 
   const navigateToForgotPassword = () => {
-    // Navigate to forgot password screen
     // navigation.navigate("ForgotPassword");
   };
 
@@ -90,7 +91,13 @@ function LoginScreen({ navigation }) {
               }}
               placeholder="Enter your email address"
               keyboardType="email-address"
-              icon={<Ionicons name="mail-outline" size={20} color="#1e40af" />}
+              icon={
+                <Ionicons
+                  name="mail-outline"
+                  size={20}
+                  color={COLORS.primary}
+                />
+              }
             />
 
             <FormInput
@@ -109,7 +116,7 @@ function LoginScreen({ navigation }) {
                 <Ionicons
                   name="lock-closed-outline"
                   size={20}
-                  color="#1e40af"
+                  color={COLORS.primary}
                 />
               }
             />
@@ -121,7 +128,6 @@ function LoginScreen({ navigation }) {
               <Text style={styles.forgotPasswordText}>Forgot password?</Text>
             </TouchableOpacity>
 
-            
             <Button
               title="Sign in"
               onPress={handleSubmit(onSubmit)}
