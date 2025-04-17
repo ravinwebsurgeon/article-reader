@@ -1,6 +1,5 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { handleApiError } from '../services/api';
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { authApi } from "../services/authApi";
 
 // Types
 interface User {
@@ -29,76 +28,9 @@ const initialState: AuthState = {
   error: null,
 };
 
-export const refreshAccessToken = createAsyncThunk<
-  { token: string },
-  void,
-  { state: { auth: AuthState }; rejectValue: string }
->('auth/refreshToken', async (_, { getState, rejectWithValue }) => {
-  try {
-    const { refreshToken } = getState().auth;
-    
-    if (!refreshToken) {
-      return rejectWithValue('No refresh token available');
-    }
-
-    // In a real app, you would call your API
-    const response = await fetch('https://api.yourblogapp.com/auth/refresh', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ refreshToken }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      return rejectWithValue(errorData.message || 'Token refresh failed');
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (err) {
-    return rejectWithValue(handleApiError(err));
-  }
-});
-
-
-
-// Initialize auth from storage
-export const initializeAuth = createAsyncThunk(
-  'auth/initialize',
-  async (_, { dispatch }) => {
-    try {
-      const token = await AsyncStorage.getItem('auth_token');
-      
-      if (token) {
-        // Fetch current user to validate token
-        const response = await fetch('https://getpocket.com/v4/users/current', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          return { user: data.user, token };
-        } else {
-          // Token is invalid, clear it
-          await AsyncStorage.removeItem('auth_token');
-        }
-      }
-      
-      return null;
-    } catch (error) {
-      console.error('Auth initialization error:', error);
-      return null;
-    }
-  }
-);
-
 // Slice
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
     resetAuthError(state) {
@@ -111,17 +43,92 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // Refresh token
-    builder.addCase(refreshAccessToken.fulfilled, (state, action) => {
-      state.token = action.payload.token;
+    // Login
+    builder.addMatcher(authApi.endpoints.login.matchPending, (state) => {
+      state.isLoading = true;
+      state.error = null;
     });
-    builder.addCase(refreshAccessToken.rejected, (state) => {
-      // If token refresh fails, log the user out
+    builder.addMatcher(
+      authApi.endpoints.login.matchFulfilled,
+      (state, { payload }) => {
+        state.isLoading = false;
+        state.isAuthenticated = true;
+        state.user = payload.user;
+        state.token = payload.token;
+      }
+    );
+    builder.addMatcher(
+      authApi.endpoints.login.matchRejected,
+      (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message || "Login failed";
+      }
+    );
+
+    // Register
+    builder.addMatcher(authApi.endpoints.register.matchPending, (state) => {
+      state.isLoading = true;
+      state.error = null;
+    });
+    builder.addMatcher(
+      authApi.endpoints.register.matchFulfilled,
+      (state, { payload }) => {
+        state.isLoading = false;
+        state.isAuthenticated = true;
+        state.user = payload.user;
+        state.token = payload.token;
+      }
+    );
+    builder.addMatcher(
+      authApi.endpoints.register.matchRejected,
+      (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message || "Registration failed";
+      }
+    );
+
+    // Logout
+    builder.addMatcher(authApi.endpoints.logout.matchPending, (state) => {
+      state.isLoading = true;
+    });
+    builder.addMatcher(authApi.endpoints.logout.matchFulfilled, (state) => {
+      state.isLoading = false;
+      state.isAuthenticated = false;
       state.user = null;
       state.token = null;
-      state.refreshToken = null;
-      state.isAuthenticated = false;
     });
+    builder.addMatcher(authApi.endpoints.logout.matchRejected, (state) => {
+      // Even if the API call fails, we still log out on the client
+      state.isLoading = false;
+      state.isAuthenticated = false;
+      state.user = null;
+      state.token = null;
+    });
+
+    // Token refresh
+    builder.addMatcher(
+      authApi.endpoints.refreshToken.matchFulfilled,
+      (state, { payload }) => {
+        state.token = payload.token;
+      }
+    );
+
+    // Initialize auth
+    builder.addMatcher(
+      authApi.endpoints.initializeAuth.matchFulfilled,
+      (state, { payload }) => {
+        if (payload) {
+          state.user = payload.user;
+          state.token = payload.token;
+          state.isAuthenticated = true;
+        } else {
+          state.user = null;
+          state.token = null;
+          state.isAuthenticated = false;
+        }
+        state.isLoading = false;
+      }
+    );
   },
 });
 
