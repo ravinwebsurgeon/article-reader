@@ -120,7 +120,7 @@ export function useAuth() {
       const resultData = await response.json();
       console.warn("resultData", resultData);
       if (!response.ok) {
-        throw new Error(resultData.message || "Something went wrong");
+        throw new Error(resultData.errors || "Something went wrong");
       }   
       return resultData;
     } catch (error: any) {   

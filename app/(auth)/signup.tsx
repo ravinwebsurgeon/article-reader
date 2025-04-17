@@ -68,7 +68,7 @@ const SignUpScreen = ({ navigation }) => {
       }
       if (!response.ok) {
         throw new Error(
-          resultData.message || resultData?.errors || "Something went wrong"
+           resultData?.errors || "Something went wrong"
         );
       }
     } catch (error: any) {
