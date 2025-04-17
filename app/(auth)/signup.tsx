@@ -1,43 +1,95 @@
-import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { useForm } from 'react-hook-form';
-import { Ionicons } from '@expo/vector-icons';
-import { Input } from '@/components/ui/TextInput/input';
-import { Button } from '@/components/ui/button';
-import { router } from 'expo-router';
-import { COLORS } from '@/assets';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Alert,
+  Image,
+  ActivityIndicator,
+} from "react-native";
+import { useForm } from "react-hook-form";
+import { Ionicons } from "@expo/vector-icons";
+import { Input } from "@/components/ui/TextInput/input";
+import { Button } from "@/components/ui/button";
+import { router } from "expo-router";
+import { COLORS } from "@/assets";
+import { useAuth } from "@/hooks/useAuth";
 
 const SignUpScreen = ({ navigation }) => {
-  const { control, handleSubmit, formState: { errors }, watch } = useForm({
+  const [loader, setLoader] = useState(false);
+  const { registerUser } = useAuth();
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    watch,
+    reset,
+  } = useForm({
     defaultValues: {
-      fullName: '',
-      email: '',
-      phone: '',
-      address: '',
-      zipCode: '',
-      password: '',
-      confirmPassword: '',
-    }
+      userName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
   });
 
-  const password = watch('password');
+  const password = watch("password");
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data: any) => {
     console.log(data);
-    // Handle sign up logic here
+    setLoader(true);
+    try {
+      const response = await fetch("https://api.pckt.dev/v4/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user: {
+            username: data?.username,
+            email: data?.email,
+            password: data?.password,
+          },
+        }),
+      });
+      console.warn("response", response);
+      const resultData = await response.json();
+      console.warn("resultData", resultData?.errors);
+      if (resultData?.errors) {
+        Alert.alert("Error", resultData?.errors[0]);
+      }
+      if (response.ok) {
+        Alert.alert("Success", "You are registered successfully!");
+      }
+      if (!response.ok) {
+        throw new Error(
+          resultData.message || resultData?.errors || "Something went wrong"
+        );
+      }
+    } catch (error: any) {
+      console.log(error);
+    } finally {
+      setLoader(false);
+    }   
   };
 
   const navigateToLogin = () => {
-    router.push('/(auth)/login');
+    router.push("/(auth)/login");
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardAvoidingContainer}
       >
         <ScrollView contentContainerStyle={styles.scrollContainer}>
+          {loader && <ActivityIndicator size="small" color="#007AFF" />}
           <View style={styles.header}>
             <Text style={styles.title}>Sign Up</Text>
             {/* <Text style={styles.subtitle}>Sign Up to Connect.</Text> */}
@@ -46,11 +98,17 @@ const SignUpScreen = ({ navigation }) => {
           <View style={styles.formContainer}>
             <Input
               control={control}
-              name="fullName"
-              label="Full Name"
-              rules={{ required: 'Full name is required' }}
-              placeholder="Enter your Full Name"
-              icon={<Ionicons name="person-outline" size={20} color={COLORS.primary} />}
+              name="userName"
+              label="Username"
+              rules={{ required: "Username is required" }}
+              placeholder="Enter your Username"
+              icon={
+                <Ionicons
+                  name="person-outline"
+                  size={20}
+                  color={COLORS.primary}
+                />
+              }
               autoCapitalize="words"
             />
 
@@ -59,57 +117,21 @@ const SignUpScreen = ({ navigation }) => {
               name="email"
               label="Email"
               rules={{
-                required: 'Email is required',
+                required: "Email is required",
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: 'Invalid email address'
-                }
+                  message: "Invalid email address",
+                },
               }}
               placeholder="Enter your Email"
               keyboardType="email-address"
-              icon={<Ionicons name="mail-outline" size={20} color={COLORS.primary} />}
-            />
-
-            <Input
-              control={control}
-              name="phone"
-              label="Phone"
-              rules={{
-                required: 'Phone number is required',
-                pattern: {
-                  value: /^[0-9]{10}$/,
-                  message: 'Please enter a valid 10-digit phone number'
-                }
-              }}
-              placeholder="Enter your Phone"
-              keyboardType="phone-pad"
-              icon={<Ionicons name="call-outline" size={20} color={COLORS.primary} />}
-            />
-
-            <Input
-              control={control}
-              name="address"
-              label="Address"
-              rules={{ required: 'Address is required' }}
-              placeholder="Enter your Address"
-              icon={<Ionicons name="location-outline" size={20} color={COLORS.primary} />}
-              autoCapitalize="words"
-            />
-
-            <Input
-              control={control}
-              name="zipCode"
-              label="Zip Code"
-              rules={{
-                required: 'Zip code is required',
-                pattern: {
-                  value: /^[0-9]{5}(-[0-9]{4})?$/,
-                  message: 'Please enter a valid zip code'
-                }
-              }}
-              placeholder="Enter your Zip Code"
-              keyboardType="numeric"
-              icon={<Ionicons name="map-outline" size={20} color={COLORS.primary} />}
+              icon={
+                <Ionicons
+                  name="mail-outline"
+                  size={20}
+                  color={COLORS.primary}
+                />
+              }
             />
 
             <Input
@@ -117,19 +139,27 @@ const SignUpScreen = ({ navigation }) => {
               name="password"
               label="Password"
               rules={{
-                required: 'Password is required',
+                required: "Password is required",
                 minLength: {
                   value: 8,
-                  message: 'Password must be at least 8 characters'
+                  message: "Password must be at least 8 characters",
                 },
                 pattern: {
-                  value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                  message: 'Password must contain uppercase, lowercase, number and special character'
-                }
+                  value:
+                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                  message:
+                    "Password must contain uppercase, lowercase, number and special character",
+                },
               }}
               placeholder="Enter your Password"
               secureTextEntry
-              icon={<Ionicons name="lock-closed-outline" size={20} color={COLORS.primary} />}
+              icon={
+                <Ionicons
+                  name="lock-closed-outline"
+                  size={20}
+                  color={COLORS.primary}
+                />
+              }
             />
 
             <Input
@@ -137,16 +167,23 @@ const SignUpScreen = ({ navigation }) => {
               name="confirmPassword"
               label="Confirm Password"
               rules={{
-                required: 'Please confirm your password',
-                validate: (value) => value === password || 'Passwords do not match'
+                required: "Please confirm your password",
+                validate: (value) =>
+                  value === password || "Passwords do not match",
               }}
               placeholder="Confirm your Password"
               secureTextEntry
-              icon={<Ionicons name="lock-closed-outline" size={20} color={COLORS.primary} />}
+              icon={
+                <Ionicons
+                  name="lock-closed-outline"
+                  size={20}
+                  color={COLORS.primary}
+                />
+              }
             />
 
             <Button
-              title="Sign Up"
+              title={loader ? "Submiting..." : "Sign Up"}
               onPress={handleSubmit(onSubmit)}
               style={styles.signUpButton}
             />
@@ -177,14 +214,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 40,
     paddingBottom: 24,
+    justifyContent: "center",
+    alignItems: "center",
   },
   header: {
     marginBottom: 24,
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: COLORS.text,
+    textAlign: "center",
     marginBottom: 8,
   },
   subtitle: {
@@ -193,15 +233,15 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   formContainer: {
-    width: '100%',
+    width: "100%",
     marginBottom: 24,
   },
   signUpButton: {
     marginTop: 16,
   },
   loginContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginTop: 16,
   },
   loginText: {
@@ -211,7 +251,7 @@ const styles = StyleSheet.create({
   loginLinkText: {
     color: COLORS.primary,
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
 
