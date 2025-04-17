@@ -19,23 +19,6 @@ interface AuthState {
   error: string | null;
 }
 
-interface LoginCredentials {
-  email: string;
-  password: string;
-}
-
-interface SignupCredentials {
-  name: string;
-  email: string;
-  password: string;
-}
-
-interface AuthResponse {
-  user: User;
-  token: string;
-  refreshToken: string;
-}
-
 // Initial state
 const initialState: AuthState = {
   user: null,
@@ -45,61 +28,6 @@ const initialState: AuthState = {
   isLoading: false,
   error: null,
 };
-
-// Async thunks
-export const login = createAsyncThunk<
-  AuthResponse,
-  LoginCredentials,
-  { rejectValue: string }
->('auth/login', async (credentials, { rejectWithValue }) => {
-  try {
-    // In a real app, you would call your API
-    const response = await fetch('https://api.yourblogapp.com/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(credentials),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      return rejectWithValue(errorData.message || 'Login failed');
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (err) {
-    return rejectWithValue(handleApiError(err));
-  }
-});
-
-export const signup = createAsyncThunk<
-  AuthResponse,
-  SignupCredentials,
-  { rejectValue: string }
->('auth/signup', async (credentials, { rejectWithValue }) => {
-  try {
-    // In a real app, you would call your API
-    const response = await fetch('https://api.yourblogapp.com/auth/signup', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(credentials),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      return rejectWithValue(errorData.message || 'Signup failed');
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (err) {
-    return rejectWithValue(handleApiError(err));
-  }
-});
 
 export const refreshAccessToken = createAsyncThunk<
   { token: string },
@@ -134,11 +62,39 @@ export const refreshAccessToken = createAsyncThunk<
   }
 });
 
-export const logout = createAsyncThunk('auth/logout', async () => {
-  // Clear any auth-related storage
-  await AsyncStorage.removeItem('auth_token');
-  return;
-});
+
+
+// Initialize auth from storage
+export const initializeAuth = createAsyncThunk(
+  'auth/initialize',
+  async (_, { dispatch }) => {
+    try {
+      const token = await AsyncStorage.getItem('auth_token');
+      
+      if (token) {
+        // Fetch current user to validate token
+        const response = await fetch('https://getpocket.com/v4/users/current', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          return { user: data.user, token };
+        } else {
+          // Token is invalid, clear it
+          await AsyncStorage.removeItem('auth_token');
+        }
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Auth initialization error:', error);
+      return null;
+    }
+  }
+);
 
 // Slice
 const authSlice = createSlice({
@@ -155,54 +111,12 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // Login
-    builder.addCase(login.pending, (state) => {
-      state.isLoading = true;
-      state.error = null;
-    });
-    builder.addCase(login.fulfilled, (state, action) => {
-      state.isLoading = false;
-      state.isAuthenticated = true;
-      state.user = action.payload.user;
-      state.token = action.payload.token;
-      state.refreshToken = action.payload.refreshToken;
-    });
-    builder.addCase(login.rejected, (state, action) => {
-      state.isLoading = false;
-      state.error = action.payload || 'Login failed';
-    });
-
-    // Signup
-    builder.addCase(signup.pending, (state) => {
-      state.isLoading = true;
-      state.error = null;
-    });
-    builder.addCase(signup.fulfilled, (state, action) => {
-      state.isLoading = false;
-      state.isAuthenticated = true;
-      state.user = action.payload.user;
-      state.token = action.payload.token;
-      state.refreshToken = action.payload.refreshToken;
-    });
-    builder.addCase(signup.rejected, (state, action) => {
-      state.isLoading = false;
-      state.error = action.payload || 'Signup failed';
-    });
-
     // Refresh token
     builder.addCase(refreshAccessToken.fulfilled, (state, action) => {
       state.token = action.payload.token;
     });
     builder.addCase(refreshAccessToken.rejected, (state) => {
       // If token refresh fails, log the user out
-      state.user = null;
-      state.token = null;
-      state.refreshToken = null;
-      state.isAuthenticated = false;
-    });
-
-    // Logout
-    builder.addCase(logout.fulfilled, (state) => {
       state.user = null;
       state.token = null;
       state.refreshToken = null;
