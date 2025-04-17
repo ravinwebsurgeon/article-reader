@@ -13,8 +13,8 @@ import {
 } from "redux-persist";
 
 // Import reducers
-import authReducer from './slices/authSlice';
-import themeReducer from './slices/themeSlice';
+import authReducer from "./slices/authSlice";
+import themeReducer from "./slices/themeSlice";
 
 // Import API services
 import { api } from "./services/api";
@@ -27,6 +27,14 @@ const persistConfig = {
   whitelist: ["auth", "theme"], // Only persist these reducers
   blacklist: [api.reducerPath], // Don't persist API cache
 };
+
+const middlewares = [api.middleware, tokenRefreshMiddleware];
+
+// Add Redux Flipper middleware in dev mode
+if (__DEV__) {
+  // const createDebugger = require("redux-flipper").default;
+  // middlewares.push(createDebugger());
+}
 
 // Combine all reducers
 const rootReducer = combineReducers({
@@ -48,9 +56,7 @@ export const store = configureStore({
         // Ignore these action types for serializability check
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    })
-      .concat(api.middleware)
-      .concat(tokenRefreshMiddleware),
+    }).concat(middlewares),
 });
 
 // Create persistor
