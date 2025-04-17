@@ -57,3 +57,11 @@ export interface User {
     notes?: string;
     page_variant_id?: number;
   }
+
+  export interface RefreshTokenRequest {
+    refreshToken: string;
+  }
+  
+  export interface RefreshTokenResponse {
+    token: string;
+  }

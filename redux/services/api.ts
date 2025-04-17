@@ -86,13 +86,16 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
   // In production or if plugin isn't available, just use the regular fetch
   return fetch(input, init);
 };
+
+
+
 // Create our API service with a base URL and endpoints
 export const api = createApi({
   reducerPath: 'api',
   tagTypes: ['Blogs', 'User', 'Tags', 'Comments', 'Bookmarks'],
   baseQuery: fetchBaseQuery({
     baseUrl: API_URL,
-    fetchFn: customFetch,
+    // fetchFn: customFetch,
     // Include auth token in all requests if available
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as RootState).auth.token;
