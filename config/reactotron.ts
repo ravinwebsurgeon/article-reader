@@ -1,25 +1,25 @@
 // src/config/reactotron.js
-import Reactotron from 'reactotron-react-native';
-import { reactotronRedux } from 'reactotron-redux';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { NativeModules } from 'react-native';
-import { createReactotronEnhancer } from 'reactotron-redux';
+import Reactotron from "reactotron-react-native";
+import { reactotronRedux } from "reactotron-redux";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { NativeModules } from "react-native";
+import { createReactotronEnhancer } from "reactotron-redux";
 
 let reactotron;
 
 // Get IP address for connecting in dev
-let host = 'localhost';
+let host = "localhost";
 if (__DEV__) {
-  const { scriptURL } = NativeModules.SourceCode;
-  const scriptHostname = scriptURL.split('://')[1].split(':')[0];
+  const { scriptURL } =
+    NativeModules.SourceCode || NativeModules?.SourceCode?.scriptURL;
+  const scriptHostname = scriptURL.split("://")[1].split(":")[0];
   host = scriptHostname;
 }
 
 if (__DEV__) {
-  reactotron = Reactotron
-    .setAsyncStorageHandler(AsyncStorage)
+  reactotron = Reactotron.setAsyncStorageHandler(AsyncStorage)
     .configure({
-      name: 'Pocket App',
+      name: "Pocket App",
       host,
     })
     .useReactNative({
