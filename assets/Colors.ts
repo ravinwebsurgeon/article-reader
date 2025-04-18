@@ -55,8 +55,6 @@ export const COLORS = {
   textGreenMain: '#495644',
   lightGreen: '#b5e48b',
   accentLight: '#f34f4f', // Carnation
-  // success: '#b5e48b', // Yellow Green
-  // warning: '#f5a524', // Buttercup
   yellow: '#f8e61b', // Ripe Lemon
   background: '#f8f9fa',
   cardBackground: '#FFFFFF',
@@ -64,4 +62,31 @@ export const COLORS = {
   placeholder: '#9E9E9E',
   border: '#E0E0E0',
   buttonText: '#FFFFFF',// Yellow Green from new palette
+  
+  // Gray palette
+  gray: {
+    100: '#F5F5F5',
+    200: '#EEEEEE',
+    300: '#E0E0E0',
+    400: '#BDBDBD',
+    500: '#9E9E9E',
+    600: '#757575',
+    700: '#616161',
+    800: '#424242',
+    900: '#212121',
+  },
+  green: {
+    500: '#4CAF50',
+  },
+  blue: {
+    500: '#2196F3',
+  },
+  
+  // Status colors
+  status: {
+    success: '#4CAF50',
+    warning: '#FFC107',
+    error: '#F44336',
+    info: '#2196F3',
+  },
 };

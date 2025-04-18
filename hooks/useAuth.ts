@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { router } from 'expo-router';
+import { useState, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router } from "expo-router";
+import { Alert } from "react-native";
 
 // This is a simplified auth hook - in a real app you would use a more robust solution
 export function useAuth() {
@@ -15,17 +16,17 @@ export function useAuth() {
 
   const checkAuthStatus = async () => {
     try {
-      const token = await AsyncStorage.getItem('auth_token');
+      const token = await AsyncStorage.getItem("auth_token");
       if (token) {
         // In a real app, validate the token with your backend
-        const userData = await AsyncStorage.getItem('user_data');
+        const userData = await AsyncStorage.getItem("user_data");
         setUser(userData ? JSON.parse(userData) : null);
         setIsAuthenticated(true);
       } else {
         setIsAuthenticated(false);
       }
     } catch (error) {
-      console.error('Auth check failed:', error);
+      console.error("Auth check failed:", error);
       setIsAuthenticated(false);
     } finally {
       setLoading(false);
@@ -37,19 +38,19 @@ export function useAuth() {
     try {
       // Replace with actual API call
       const response = await mockLoginApi(email, password);
-      
+
       // Store auth data
-      await AsyncStorage.setItem('auth_token', response.token);
-      await AsyncStorage.setItem('user_data', JSON.stringify(response.user));
-      
+      await AsyncStorage.setItem("auth_token", response.token);
+      await AsyncStorage.setItem("user_data", JSON.stringify(response.user));
+
       setUser(response.user);
       setIsAuthenticated(true);
-      
+
       // Navigate to the home screen
-      router.replace('/(tabs)');
+      router.replace("/(tabs)");
       return { success: true };
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error("Login failed:", error);
       return { success: false, error };
     } finally {
       setLoading(false);
@@ -60,16 +61,16 @@ export function useAuth() {
     setLoading(true);
     try {
       // Clear auth data
-      await AsyncStorage.removeItem('auth_token');
-      await AsyncStorage.removeItem('user_data');
-      
+      await AsyncStorage.removeItem("auth_token");
+      await AsyncStorage.removeItem("user_data");
+
       setUser(null);
       setIsAuthenticated(false);
-      
+
       // Navigate to the login screen
-      router.replace('/(auth)/login');
+      router.replace("/(auth)/login");
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
     } finally {
       setLoading(false);
     }
@@ -81,22 +82,59 @@ export function useAuth() {
       setTimeout(() => {
         if (email && password) {
           resolve({
-            token: 'mock-jwt-token',
-            user: { id: '1', email, name: 'User Name' }
+            token: "mock-jwt-token",
+            user: { id: "1", email, name: "User Name" },
           });
         } else {
-          reject(new Error('Invalid credentials'));
+          reject(new Error("Invalid credentials"));
         }
       }, 1000);
     });
   };
 
+  const registerUser = async ({
+    username,
+    email,
+    password,
+  }: {
+    username: string;
+    email: string;
+    password: string;
+  }) => {
+    console.warn("Yaha");
+    try {
+      const response = await fetch("https://api.pckt.dev/v4/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user: {
+            username: username,
+            email: email,
+            password: password,
+          },
+        }),
+      });
+      console.warn("response", response);
+      const resultData = await response.json();
+      console.warn("resultData", resultData);
+      if (!response.ok) {
+        throw new Error(resultData.errors || "Something went wrong");
+      }   
+      return resultData;
+    } catch (error: any) {   
+      console.log(error)    
+      return error;
+    }
+  };
   return {
     isAuthenticated,
     user,
     loading,
     login,
     logout,
-    checkAuthStatus
+    registerUser,
+    checkAuthStatus,
   };
 }

@@ -19,6 +19,19 @@ export const itemsApi = api.injectEndpoints({
             ]
           : [{ type: 'Items', id: 'LIST' }],
     }),
+
+     // Search items
+     searchItems: builder.query<ItemsResponse, { 
+      query: string;
+      cursor_id?: number; 
+      limit?: number;
+    }>({
+      query: (params) => ({
+        url: '/items/search',
+        params,
+      }),
+      providesTags: [{ type: 'Items', id: 'SEARCH' }],
+    }),
     
     // Get a single item
     getItem: builder.query<{ item: Item }, number>({
@@ -54,14 +67,37 @@ export const itemsApi = api.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Items', id: 'LIST' }],
     }),
+
+    // Toggle favorite status
+    toggleFavorite: builder.mutation<{ item: Item }, { id: number; favorite: boolean }>({
+      query: ({ id, favorite }) => ({
+        url: `/items/${id}`,
+        method: 'PATCH',
+        body: { item: { favorite } },
+      }),
+      invalidatesTags: (_, __, { id }) => [{ type: 'Items', id }, { type: 'Items', id: 'LIST' }],
+    }),
+
+    // Toggle archive status
+    toggleArchive: builder.mutation<{ item: Item }, { id: number; archived: boolean }>({
+      query: ({ id, archived }) => ({
+        url: `/items/${id}`,
+        method: 'PATCH',
+        body: { item: { archived } },
+      }),
+      invalidatesTags: (_, __, { id }) => [{ type: 'Items', id }, { type: 'Items', id: 'LIST' }],
+    }),
   }),
 });
 
 // Export hooks
 export const {
   useGetItemsQuery,
+  useSearchItemsQuery,
   useGetItemQuery,
   useCreateItemMutation,
   useUpdateItemMutation,
   useDeleteItemMutation,
+  useToggleFavoriteMutation,
+  useToggleArchiveMutation,
 } = itemsApi;
