@@ -6,22 +6,6 @@ import Constants from 'expo-constants';
 const API_URL = Constants.expoConfig?.extra?.apiUrl || 'https://getpocket.com/v4';
 
 
-// Setup network debugging in dev mode
-if (__DEV__) {
-  try {
-    // Only import in dev mode to avoid bundling in production
-    const { addPlugin } = require('react-native-flipper');
-    const { createNetworkFlipperPlugin } = require('react-native-flipper-network-plugin');
-    const networkFlipperPlugin = createNetworkFlipperPlugin();
-    addPlugin(networkFlipperPlugin);
-    
-    // Store plugin globally for use with fetchBaseQuery
-    global.networkFlipperPlugin = networkFlipperPlugin;
-  } catch (error) {
-    console.warn('Could not setup Flipper Network plugin', error);
-  }
-}
-
 // Custom fetch function that logs to Flipper
 const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
   // Only track in dev mode when plugin is available
