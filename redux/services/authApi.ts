@@ -46,6 +46,7 @@ export const authApi = api.injectEndpoints({
       async onQueryStarted(_, { queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
+          console.log("is it coming here successful", data);
           await AsyncStorage.setItem("auth_token", data.token);
         } catch (error) {
           // Handle error if needed
@@ -129,7 +130,7 @@ export const authApi = api.injectEndpoints({
 
           // If we have a token, try to get the current user
           const response = await fetch(
-            "https://getpocket.com/v4/users/current",
+            "https://api.pckt.dev/v4/users/current",
             {
               headers: {
                 Authorization: `Bearer ${token}`,

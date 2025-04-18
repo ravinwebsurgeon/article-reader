@@ -1,0 +1,563 @@
+// src/app/reader/[id].tsx
+import React, { useState, useRef } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  Dimensions,
+  SafeAreaView,
+  Share,
+} from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@/assets';
+import { useAppSelector } from '@/redux/hook';
+import { selectActiveTheme } from '@/redux/utils';
+import {
+  useGetItemQuery,
+  useToggleFavoriteMutation,
+  useToggleArchiveMutation,
+  useUpdateItemMutation,
+} from '@/redux/services/itemsApi';
+import HTML from 'react-native-render-html';
+
+// Font sizes
+const FONT_SIZES = {
+  small: 16,
+  medium: 18,
+  large: 20,
+  xlarge: 22,
+};
+
+// Reader themes
+const READER_THEMES = {
+  light: {
+    backgroundColor: '#FFFFFF',
+    textColor: '#212121',
+  },
+  sepia: {
+    backgroundColor: '#F8F1E3',
+    textColor: '#5B4636',
+  },
+  dark: {
+    backgroundColor: '#121212',
+    textColor: '#E0E0E0',
+  },
+};
+
+// Get window width for content sizing
+const { width } = Dimensions.get('window');
+
+export default function ArticleReaderScreen() {
+  const { id } = useLocalSearchParams();
+  const router = useRouter();
+  const activeTheme = useAppSelector(selectActiveTheme);
+  const systemIsDark = activeTheme === 'dark';
+  
+  // Refs
+  const scrollViewRef = useRef<ScrollView>(null);
+  
+  // State
+  const [fontSize, setFontSize] = useState<keyof typeof FONT_SIZES>('medium');
+  const [readerTheme, setReaderTheme] = useState<keyof typeof READER_THEMES>(
+    systemIsDark ? 'dark' : 'light'
+  );
+  const [showControls, setShowControls] = useState(true);
+  const [progress, setProgress] = useState(0);
+  
+  // Get item data
+  const { 
+    data, 
+    isLoading, 
+    error 
+  } = useGetItemQuery(Number(id));
+  
+  // Mutations
+  const [toggleFavorite] = useToggleFavoriteMutation();
+  const [toggleArchive] = useToggleArchiveMutation();
+  const [updateItem] = useUpdateItemMutation();
+  
+  // Current theme colors
+  const currentTheme = READER_THEMES[readerTheme];
+  
+  // Handle navigation back
+  const handleBack = () => {
+    // Save reading progress before navigating back
+    if (data?.item) {
+      updateItem({
+        id: data.item.id,
+        item: { progress },
+      });
+    }
+    router.back();
+  };
+  
+  // Handle scroll to track reading progress
+  const handleScroll = (event: any) => {
+    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+    
+    if (contentSize.height > 0) {
+      const newProgress = Math.min(
+        contentOffset.y / (contentSize.height - layoutMeasurement.height),
+        1
+      );
+      
+      // Only update if significant change (avoid too many API calls)
+      if (Math.abs(newProgress - progress) > 0.05) {
+        setProgress(newProgress);
+      }
+    }
+  };
+  
+  // Handle screen tap to toggle controls
+  const handleToggleControls = () => {
+    setShowControls(!showControls);
+  };
+  
+  // Handle favorite toggle
+  const handleFavoriteToggle = async () => {
+    if (data?.item) {
+      await toggleFavorite({
+        id: data.item.id,
+        favorite: !data.item.favorite,
+      });
+    }
+  };
+  
+  // Handle archive toggle
+  const handleArchiveToggle = async () => {
+    if (data?.item) {
+      await toggleArchive({
+        id: data.item.id,
+        archived: !data.item.archived,
+      });
+    }
+  };
+  
+  // Handle share
+  const handleShare = async () => {
+    if (data?.item) {
+      try {
+        await Share.share({
+          message: `Check out this article: ${data.item.title} - ${data.item.url}`,
+          url: data.item.url,
+        });
+      } catch (error) {
+        console.error('Error sharing article:', error);
+      }
+    }
+  };
+  
+  // Handle font size change
+  const handleFontSizeChange = (size: keyof typeof FONT_SIZES) => {
+    setFontSize(size);
+  };
+  
+  // Handle theme change
+  const handleThemeChange = (theme: keyof typeof READER_THEMES) => {
+    setReaderTheme(theme);
+  };
+  
+  // If loading, show loading indicator
+  if (isLoading) {
+    return (
+      <View style={[
+        styles.loadingContainer,
+        { backgroundColor: currentTheme.backgroundColor }
+      ]}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+      </View>
+    );
+  }
+  
+  // If error or no data, show error message
+  if (error || !data?.item) {
+    return (
+      <View style={[
+        styles.errorContainer,
+        { backgroundColor: currentTheme.backgroundColor }
+      ]}>
+        <Text style={[styles.errorText, { color: currentTheme.textColor }]}>
+          Could not load the article. Please try again.
+        </Text>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={handleBack}
+        >
+          <Text style={styles.backButtonText}>Go Back</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+  
+  const item = data.item;
+  
+  return (
+    <SafeAreaView 
+      style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}
+    >
+      <StatusBar style={readerTheme === 'dark' ? 'light' : 'dark'} />
+      
+      {/* Header controls - shown only when controls are visible */}
+      {showControls && (
+        <View style={styles.header}>
+          <TouchableOpacity onPress={handleBack}>
+            <Ionicons 
+              name="arrow-back" 
+              size={24} 
+              color={currentTheme.textColor} 
+            />
+          </TouchableOpacity>
+          
+          <View style={styles.headerRightActions}>
+            <TouchableOpacity 
+              style={styles.headerActionButton}
+              onPress={handleFavoriteToggle}
+            >
+              <Ionicons 
+                name={item.favorite ? "star" : "star-outline"} 
+                size={24} 
+                color={item.favorite ? COLORS.yellow : currentTheme.textColor} 
+              />
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.headerActionButton}
+              onPress={handleArchiveToggle}
+            >
+              <Ionicons 
+                name="archive-outline" 
+                size={24} 
+                color={currentTheme.textColor} 
+              />
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.headerActionButton}
+              onPress={handleShare}
+            >
+              <Ionicons 
+                name="share-outline" 
+                size={24} 
+                color={currentTheme.textColor} 
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+      
+      {/* Article content */}
+      <ScrollView
+        ref={scrollViewRef}
+        style={styles.scrollView}
+        contentContainerStyle={styles.contentContainer}
+        onScroll={handleScroll}
+        scrollEventThrottle={400} // Throttle to avoid too many events
+      >
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={handleToggleControls}
+          style={styles.contentTouchable}
+        >
+          <Text style={[
+            styles.title,
+            { 
+              color: currentTheme.textColor,
+              fontSize: FONT_SIZES[fontSize] + 6,
+            }
+          ]}>
+            {item.title}
+          </Text>
+          
+          <View style={styles.metaContainer}>
+            {item.source && (
+              <Text style={[
+                styles.metaText,
+                { 
+                  color: currentTheme.textColor,
+                  opacity: 0.7,
+                  fontSize: FONT_SIZES[fontSize] - 2,
+                }
+              ]}>
+                {item.source}
+              </Text>
+            )}
+            
+            {/* Simplified HTML content rendering */}
+            <HTML
+              source={{ html: item.content || item.excerpt }}
+              contentWidth={width - 40} // 20px padding on each side
+              baseStyle={{
+                color: currentTheme.textColor,
+                fontSize: FONT_SIZES[fontSize],
+                lineHeight: FONT_SIZES[fontSize] * 1.5,
+              }}
+              tagsStyles={{
+                p: { marginBottom: 16 },
+                h1: { 
+                  fontSize: FONT_SIZES[fontSize] * 1.5,
+                  marginBottom: 16,
+                  marginTop: 24,
+                  color: currentTheme.textColor,
+                },
+                h2: { 
+                  fontSize: FONT_SIZES[fontSize] * 1.3,
+                  marginBottom: 16,
+                  marginTop: 24,
+                  color: currentTheme.textColor,
+                },
+                h3: { 
+                  fontSize: FONT_SIZES[fontSize] * 1.2,
+                  marginBottom: 16,
+                  marginTop: 20,
+                  color: currentTheme.textColor,
+                },
+                a: { color: COLORS.primary },
+                img: { marginVertical: 16 },
+                ul: { marginBottom: 16, marginLeft: 16 },
+                ol: { marginBottom: 16, marginLeft: 16 },
+                li: { marginBottom: 8 },
+                blockquote: {
+                  borderLeftWidth: 2,
+                  borderLeftColor: COLORS.primary,
+                  paddingLeft: 16,
+                  marginLeft: 0,
+                  marginRight: 0,
+                  marginVertical: 16,
+                  fontStyle: 'italic',
+                },
+                figure: { marginVertical: 16 },
+                figcaption: {
+                  fontSize: FONT_SIZES[fontSize] - 2,
+                  opacity: 0.7,
+                  fontStyle: 'italic',
+                },
+              }}
+            />
+          </View>
+        </TouchableOpacity>
+      </ScrollView>
+      
+      {/* Footer controls - shown only when controls are visible */}
+      {showControls && (
+        <View style={styles.footer}>
+          {/* Font size controls */}
+          <View style={styles.fontSizeControls}>
+            <TouchableOpacity
+              style={[
+                styles.fontSizeButton,
+                fontSize === 'small' && styles.activeFontSizeButton,
+              ]}
+              onPress={() => handleFontSizeChange('small')}
+            >
+              <Text style={[
+                styles.fontSizeButtonText,
+                { color: currentTheme.textColor },
+                fontSize === 'small' && styles.activeFontSizeButtonText,
+              ]}>
+                A
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[
+                styles.fontSizeButton,
+                fontSize === 'medium' && styles.activeFontSizeButton,
+              ]}
+              onPress={() => handleFontSizeChange('medium')}
+            >
+              <Text style={[
+                styles.fontSizeButtonText,
+                { color: currentTheme.textColor, fontSize: 18 },
+                fontSize === 'medium' && styles.activeFontSizeButtonText,
+              ]}>
+                A
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[
+                styles.fontSizeButton,
+                fontSize === 'large' && styles.activeFontSizeButton,
+              ]}
+              onPress={() => handleFontSizeChange('large')}
+            >
+              <Text style={[
+                styles.fontSizeButtonText,
+                { color: currentTheme.textColor, fontSize: 20 },
+                fontSize === 'large' && styles.activeFontSizeButtonText,
+              ]}>
+                A
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[
+                styles.fontSizeButton,
+                fontSize === 'xlarge' && styles.activeFontSizeButton,
+              ]}
+              onPress={() => handleFontSizeChange('xlarge')}
+            >
+              <Text style={[
+                styles.fontSizeButtonText,
+                { color: currentTheme.textColor, fontSize: 22 },
+                fontSize === 'xlarge' && styles.activeFontSizeButtonText,
+              ]}>
+                A
+              </Text>
+            </TouchableOpacity>
+          </View>
+          
+          {/* Theme buttons */}
+          <View style={styles.themeButtons}>
+            <TouchableOpacity
+              style={[
+                styles.themeButton,
+                readerTheme === 'light' && styles.activeThemeButton,
+                { backgroundColor: READER_THEMES.light.backgroundColor },
+              ]}
+              onPress={() => handleThemeChange('light')}
+            />
+            
+            <TouchableOpacity
+              style={[
+                styles.themeButton,
+                readerTheme === 'sepia' && styles.activeThemeButton,
+                { backgroundColor: READER_THEMES.sepia.backgroundColor },
+              ]}
+              onPress={() => handleThemeChange('sepia')}
+            />
+            
+            <TouchableOpacity
+              style={[
+                styles.themeButton,
+                readerTheme === 'dark' && styles.activeThemeButton,
+                { backgroundColor: READER_THEMES.dark.backgroundColor },
+              ]}
+              onPress={() => handleThemeChange('dark')}
+            />
+          </View>
+        </View>
+      )}
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  backButton: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  backButtonText: {
+    color: COLORS.white,
+    fontSize: 16,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  headerRightActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerActionButton: {
+    padding: 8,
+    marginLeft: 16,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  contentContainer: {
+    paddingBottom: 60,
+  },
+  contentTouchable: {
+    padding: 20,
+  },
+  title: {
+    fontWeight: '700',
+    marginBottom: 16,
+    lineHeight: 38,
+  },
+  metaContainer: {
+    marginBottom: 24,
+  },
+  metaText: {
+    marginBottom: 16,
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  fontSizeControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  fontSizeButton: {
+    width: 36,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 18,
+    marginRight: 8,
+  },
+  activeFontSizeButton: {
+    backgroundColor: COLORS.primary,
+  },
+  fontSizeButtonText: {
+    fontWeight: '600',
+  },
+  activeFontSizeButtonText: {
+    color: COLORS.white,
+  },
+  themeButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  themeButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    marginLeft: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  activeThemeButton: {
+    borderWidth: 2,
+    borderColor: COLORS.primary,
+  },
+});
