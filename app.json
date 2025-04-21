@@ -9,7 +9,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.gurditsingh77.pocketapp"
     },
     "android": {
       "adaptiveIcon": {
@@ -33,11 +34,33 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      ["@skam22/watermelondb-expo-plugin"],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "extraPods": [
+              {
+                "name": "simdjson",
+                "configurations": ["Debug", "Release"],
+                "path": "../node_modules/@nozbe/simdjson",
+                "modular_headers": true
+              }
+            ]
+          },
+          "android": {
+            "packagingOptions": {
+              "pickFirst": ["**/libc++_shared.so"]
+            }
+          }
+        }
+      ],
+      ["@morrowdigital/watermelondb-expo-plugin"]
     ],
+
     "experiments": {
       "typedRoutes": true
-    },
-    "jsEngine": "hermes"
+    }
   }
 }
