@@ -13,8 +13,8 @@ import { useAppSelector } from "@/redux/hook";
 import { ReduxProvider } from "@/provider/ReduxProvider";
 import { selectActiveTheme } from "@/redux/utils";
 import { useInitializeAuthQuery } from "@/redux/services/authApi";
-import { DatabaseProvider } from "@/database/provider/DatabaseProvider";
-import NetworkProvider from "@/provider/NetworkProvider";
+// import { DatabaseProvider } from "@/database/provider/DatabaseProvider";
+// import NetworkProvider from "@/provider/NetworkProvider";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -40,9 +40,9 @@ export default function RootLayout() {
   return (
     <ReduxProvider>
       {/* <DatabaseProvider> */}
-        <NetworkProvider>
+        {/* <NetworkProvider> */}
           <RootLayoutNav />
-        </NetworkProvider>
+        {/* </NetworkProvider> */}
       {/* </DatabaseProvider> */}
     </ReduxProvider>
   );
