@@ -48,7 +48,7 @@ const rootReducer = combineReducers({
 // Create persisted reducer
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-const reactotronEnhancer = __DEV__ && Reactotron.createEnhancer ? Reactotron.createEnhancer() : undefined;
+// const reactotronEnhancer = __DEV__ && Reactotron.createEnhancer ? Reactotron.createEnhancer() : undefined;
 
 // Configure store with middleware
 export const store = configureStore({
@@ -61,7 +61,7 @@ export const store = configureStore({
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
     }).concat(middlewares),
-    enhancers: reactotronEnhancer ? [reactotronEnhancer] : [],
+    // enhancers: reactotronEnhancer ? [reactotronEnhancer] : [],
 });
 
 // Create persistor

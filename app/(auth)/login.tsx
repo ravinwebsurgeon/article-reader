@@ -2,9 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
-  TextInput,
   TouchableOpacity,
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -14,7 +12,6 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { resetAuthError } from "@/redux/slices/authSlice";
-import { Image } from "expo-image";
 import { useAppDispatch, useAppSelector } from "@/redux/hook";
 import { useForm, Controller } from "react-hook-form";
 import { Ionicons } from "@expo/vector-icons";
@@ -35,19 +32,19 @@ function LoginScreen({ navigation }) {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
     },
   });
 
   const onSubmit = async(data) => {
-    console.log(data,"what is the login data")
     try {
-      await login(data).unwrap();
-      console.log("Login successful");
+      await login({user:{
+        username: data.username,
+        password: data.password,
+      }}).unwrap();
     } catch (err) {
       console.error("Login failed", err);
-      Alert.alert("Login Error", err.message || "An error occurred during login");
     }
   };
 
@@ -82,16 +79,17 @@ function LoginScreen({ navigation }) {
           <View style={styles.formContainer}>
             <FormInput
               control={control}
-              name="email"
+              name="username"
               rules={{
-                required: "Email is required",
-                pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: "Invalid email address",
-                },
+                required: "Username is required",
+                // pattern: {
+                //   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                //   message: "Invalid email address",
+                // },
               }}
-              placeholder="Enter your email address"
-              keyboardType="email-address"
+              placeholder="Enter your username"
+              // keyboardType="email-address"
+
               icon={
                 <Ionicons
                   name="mail-outline"

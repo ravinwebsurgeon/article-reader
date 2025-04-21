@@ -18,10 +18,12 @@ import { Button } from "@/components/ui/button";
 import { router } from "expo-router";
 import { COLORS } from "@/assets";
 import { useAuth } from "@/hooks/useAuth";
+import { useRegisterMutation } from "@/redux/services/authApi";
 
 const SignUpScreen = ({ navigation }) => {
   const [loader, setLoader] = useState(false);
-  const { registerUser } = useAuth();
+    const [register, { isLoading:registerLoading, error:registerError }] = useRegisterMutation();
+  
 
   const {
     control,
@@ -44,33 +46,11 @@ const SignUpScreen = ({ navigation }) => {
     console.log(data);
     setLoader(true);
     try {
-      const response = await fetch("https://api.pckt.dev/v4/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user: {
-            username: data?.username,
-            email: data?.email,
-            password: data?.password,
-          },
-        }),
-      });
-      console.warn("response", response);
-      const resultData = await response.json();
-      console.warn("resultData", resultData?.errors);
-      if (resultData?.errors) {
-        Alert.alert("Error", resultData?.errors[0]);
-      }
-      if (response.ok) {
-        Alert.alert("Success", "You are registered successfully!");
-      }
-      if (!response.ok) {
-        throw new Error(
-           resultData?.errors || "Something went wrong"
-        );
-      }
+      await register({user:{
+        username: data.username,
+        email: data.email,
+        password: data.password,
+      }}).unwrap();
     } catch (error: any) {
       console.log(error);
     } finally {
