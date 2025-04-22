@@ -8,7 +8,7 @@ const API_URL = Constants.expoConfig?.extra?.apiUrl || 'https://api.pckt.dev/v4'
 // Create our API service with a base URL and endpoints
 export const api = createApi({
   reducerPath: 'api',
-  tagTypes: ['Blogs', 'User', 'Tags', 'Comments', 'Bookmarks'],
+  tagTypes: ['Blogs', 'User', 'Tags', 'Comments', 'Bookmarks','Items'],
   baseQuery: fetchBaseQuery({
     baseUrl: API_URL,
     // Include auth token in all requests if available

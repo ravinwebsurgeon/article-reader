@@ -11,8 +11,21 @@ interface ArticleCardProps {
 }
 
 const ArticleCard: React.FC<ArticleCardProps> = ({ item, onPress, onMenuPress }) => {
+  console.log('ArticleCard', item);
   const formatReadTime = (minutes: number) => {
     return `${minutes} min`;
+  };
+
+  // Calculate approximate read time based on word count (average 200-250 words per minute)
+  const calculateReadTime = (wordCount: number) => {
+    const minutes = Math.ceil(wordCount / 200);
+    return `${minutes} min`;
+  };
+
+  // Format publish date
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
   return (
@@ -28,9 +41,11 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ item, onPress, onMenuPress })
           </Text>
         </View>
         <View style={styles.metaContainer}>
-          <Text style={styles.source}>{item.source}</Text>
+          <Text style={styles.source}>{item.site_name || item.domain}</Text>
           <Text style={styles.dot}>•</Text>
-          <Text style={styles.readTime}>{formatReadTime(item.readTime)}</Text>
+          <Text style={styles.readTime}>{calculateReadTime(item.word_count)}</Text>
+          <Text style={styles.dot}>•</Text>
+          <Text style={styles.date}>{formatDate(item.published_at)}</Text>
         </View>
         <View style={styles.tagsContainer}>
           {item.favorite && (
@@ -55,10 +70,10 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ item, onPress, onMenuPress })
         </View>
       </View>
       
-      {item.thumbnail && (
+      {item.image_url && (
         <View style={styles.thumbnailContainer}>
           <Image 
-            source={{ uri: item.thumbnail }} 
+            source={{ uri: item.image_url }} 
             style={styles.thumbnail}
             resizeMode="cover"
           />
@@ -73,7 +88,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.lightBorder,
+    borderBottomColor: COLORS.colorTextInputBorder,
     backgroundColor: COLORS.white,
   },
   contentContainer: {

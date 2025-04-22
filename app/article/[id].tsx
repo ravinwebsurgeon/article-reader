@@ -22,9 +22,11 @@ import {
   useToggleArchiveMutation,
 } from '@/redux/services/itemsApi';
 import { useGetItemQuery } from '@/redux/services/itemsApi';
+import { formatDate } from '@/utils/formatter';
 
 export default function ArticleDetailScreen() {
   const { id } = useLocalSearchParams();
+  console.log('Article ID:', id);
   const router = useRouter();
   const activeTheme = useAppSelector(selectActiveTheme);
   const isDarkMode = activeTheme === 'dark';
@@ -37,10 +39,12 @@ export default function ArticleDetailScreen() {
     data, 
     isLoading, 
     error 
-  } = useGetItemQuery(Number(id), {
+  } = useGetItemQuery(id, {
     // If we have an error, don't keep refetching
     skip: !!error,
   });
+
+  console.log('Item data:', data);
   
   // Mutations
   const [toggleFavorite, { isLoading: isTogglingFavorite }] = useToggleFavoriteMutation();
