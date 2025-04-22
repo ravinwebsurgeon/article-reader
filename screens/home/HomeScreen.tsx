@@ -42,7 +42,7 @@ export default function ListScreen() {
     error 
   } = useGetItemsQuery({ 
     filter: filter !== 'all' ? filter : undefined,
-    limit: 20
+    limit: 50
   });
 
   // Handle pull-to-refresh

@@ -1,5 +1,5 @@
 // src/app/blog/[id].tsx
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -10,58 +10,73 @@ import {
   Share,
   ActivityIndicator,
   Alert,
-} from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '@/assets';
-import { useAppSelector } from '@/redux/hook';
-import { selectActiveTheme } from '@/redux/utils';
+} from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { Ionicons } from "@expo/vector-icons";
+import { COLORS } from "@/assets";
+import { useAppSelector } from "@/redux/hook";
+import { selectActiveTheme } from "@/redux/utils";
 import {
   useToggleFavoriteMutation,
   useToggleArchiveMutation,
-} from '@/redux/services/itemsApi';
-import { useGetItemQuery } from '@/redux/services/itemsApi';
-import { formatDate } from '@/utils/formatter';
+} from "@/redux/services/itemsApi";
+import { useGetItemQuery } from "@/redux/services/itemsApi";
+// import { formatDate } from "@/utils/formatter";
+
+// Helper function to format date
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
+};
+
+// Helper function to calculate read time
+const calculateReadTime = (wordCount) => {
+  if (!wordCount) return 0;
+  return Math.ceil(wordCount / 200); // Assuming average reading speed of 200 words per minute
+};
 
 export default function ArticleDetailScreen() {
   const { id } = useLocalSearchParams();
-  console.log('Article ID:', id);
+  console.log("Article ID:", id);
   const router = useRouter();
   const activeTheme = useAppSelector(selectActiveTheme);
-  const isDarkMode = activeTheme === 'dark';
-  
+  const isDarkMode = activeTheme === "dark";
+
   // State
   const [isActionMenuVisible, setIsActionMenuVisible] = useState(false);
-  
+
   // Get item data
-  const { 
-    data, 
-    isLoading, 
-    error 
-  } = useGetItemQuery(id, {
+  const { data, isLoading, error } = useGetItemQuery(id, {
     // If we have an error, don't keep refetching
     skip: !!error,
   });
 
-  console.log('Item data:', data);
-  
+  console.log("Item data:", data);
+
   // Mutations
-  const [toggleFavorite, { isLoading: isTogglingFavorite }] = useToggleFavoriteMutation();
-  const [toggleArchive, { isLoading: isTogglingArchive }] = useToggleArchiveMutation();
-  
+  const [toggleFavorite, { isLoading: isTogglingFavorite }] =
+    useToggleFavoriteMutation();
+  const [toggleArchive, { isLoading: isTogglingArchive }] =
+    useToggleArchiveMutation();
+
   // Handle back navigation
   const handleBack = () => {
     router.back();
   };
-  
+
   // Handle read article
   const handleReadArticle = () => {
     if (data?.item) {
       router.push(`/reader/${data.item.id}`);
     }
   };
-  
+
   // Handle favorite toggle
   const handleFavoriteToggle = async () => {
     if (data?.item) {
@@ -71,11 +86,11 @@ export default function ArticleDetailScreen() {
           favorite: !data.item.favorite,
         }).unwrap();
       } catch (error) {
-        Alert.alert('Error', 'Failed to update favorite status');
+        Alert.alert("Error", "Failed to update favorite status");
       }
     }
   };
-  
+
   // Handle archive toggle
   const handleArchiveToggle = async () => {
     if (data?.item) {
@@ -85,11 +100,11 @@ export default function ArticleDetailScreen() {
           archived: !data.item.archived,
         }).unwrap();
       } catch (error) {
-        Alert.alert('Error', 'Failed to update archive status');
+        Alert.alert("Error", "Failed to update archive status");
       }
     }
   };
-  
+
   // Handle share
   const handleShare = async () => {
     if (data?.item) {
@@ -99,257 +114,327 @@ export default function ArticleDetailScreen() {
           url: data.item.url,
         });
       } catch (error) {
-        console.error('Error sharing article:', error);
+        console.error("Error sharing article:", error);
       }
     }
   };
-  
+
   // Toggle action menu
   const toggleActionMenu = () => {
     setIsActionMenuVisible(!isActionMenuVisible);
   };
-  
+
   // If loading, show loading indicator
   if (isLoading) {
     return (
-      <View style={[
-        styles.loadingContainer,
-        { backgroundColor: isDarkMode ? COLORS.darkBackground : COLORS.background }
-      ]}>
-        <StatusBar style={isDarkMode ? 'light' : 'dark'} />
+      <View
+        style={[
+          styles.loadingContainer,
+          {
+            backgroundColor: isDarkMode
+              ? COLORS.darkBackground
+              : COLORS.background,
+          },
+        ]}
+      >
+        <StatusBar style={isDarkMode ? "light" : "dark"} />
         <ActivityIndicator size="large" color={COLORS.primary} />
       </View>
     );
   }
-  
+
   // If error, show error message
   if (error || !data?.item) {
     return (
-      <View style={[
-        styles.errorContainer,
-        { backgroundColor: isDarkMode ? COLORS.darkBackground : COLORS.background }
-      ]}>
-        <StatusBar style={isDarkMode ? 'light' : 'dark'} />
-        <Text style={[
-          styles.errorText,
-          { color: isDarkMode ? COLORS.white : COLORS.text }
-        ]}>
+      <View
+        style={[
+          styles.errorContainer,
+          {
+            backgroundColor: isDarkMode
+              ? COLORS.darkBackground
+              : COLORS.background,
+          },
+        ]}
+      >
+        <StatusBar style={isDarkMode ? "light" : "dark"} />
+        <Text
+          style={[
+            styles.errorText,
+            { color: isDarkMode ? COLORS.white : COLORS.text },
+          ]}
+        >
           Could not load the article. Please try again.
         </Text>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={handleBack}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
           <Text style={styles.backButtonText}>Go Back</Text>
         </TouchableOpacity>
       </View>
     );
   }
-  
+
   const item = data.item;
-  
+  const readTime = calculateReadTime(item.word_count);
+
   return (
-    <View style={[
-      styles.container,
-      { backgroundColor: isDarkMode ? COLORS.darkBackground : COLORS.background }
-    ]}>
-      <StatusBar style={isDarkMode ? 'light' : 'dark'} />
-      
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: isDarkMode
+            ? COLORS.darkBackground
+            : COLORS.background,
+        },
+      ]}
+    >
+      <StatusBar style={isDarkMode ? "light" : "dark"} />
+
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={handleBack}>
-          <Ionicons 
-            name="arrow-back" 
-            size={24} 
-            color={isDarkMode ? COLORS.white : COLORS.text} 
+          <Ionicons
+            name="arrow-back"
+            size={24}
+            color={isDarkMode ? COLORS.white : COLORS.text}
           />
         </TouchableOpacity>
-        
+
         <TouchableOpacity onPress={toggleActionMenu}>
-          <Ionicons 
-            name="ellipsis-horizontal" 
-            size={24} 
-            color={isDarkMode ? COLORS.white : COLORS.text} 
+          <Ionicons
+            name="ellipsis-horizontal"
+            size={24}
+            color={isDarkMode ? COLORS.white : COLORS.text}
           />
         </TouchableOpacity>
       </View>
-      
+
       {/* Content */}
       <ScrollView style={styles.scrollView}>
-        {item.thumbnail && (
+        {item.image_url && (
           <Image
-            source={{ uri: item.thumbnail }}
+            source={{ uri: item.image_url }}
             style={styles.thumbnail}
             resizeMode="cover"
           />
         )}
-        
+
         <View style={styles.content}>
-          <Text style={[
-            styles.title,
-            { color: isDarkMode ? COLORS.white : COLORS.text }
-          ]}>
+          <Text
+            style={[
+              styles.title,
+              { color: isDarkMode ? COLORS.white : COLORS.text },
+            ]}
+          >
             {item.title}
           </Text>
-          
+
           <View style={styles.metaContainer}>
-            {item.source && (
-              <Text style={styles.metaText}>{item.source}</Text>
+            {item.site_name && (
+              <Text style={styles.metaText}>{item.site_name}</Text>
             )}
-            
+
             <Text style={styles.dotSeparator}>•</Text>
-            
-            <Text style={styles.metaText}>
-              {formatDate(item.updated_at)}
-            </Text>
-            
-            {item.readTime > 0 && (
+
+            <Text style={styles.metaText}>{formatDate(item.published_at)}</Text>
+
+            {readTime > 0 && (
               <>
                 <Text style={styles.dotSeparator}>•</Text>
-                <Text style={styles.metaText}>{item.readTime} min read</Text>
+                <Text style={styles.metaText}>{readTime} min read</Text>
               </>
             )}
           </View>
-          
+
           {/* Tags */}
           {item.tags && item.tags.length > 0 && (
             <View style={styles.tagsContainer}>
               {item.tags.map((tag, index) => (
                 <View key={index} style={styles.tagItem}>
-                  <Ionicons name="pricetag-outline" size={14} color={COLORS.darkGray} />
+                  <Ionicons
+                    name="pricetag-outline"
+                    size={14}
+                    color={COLORS.darkGray}
+                  />
                   <Text style={styles.tagText}>{tag}</Text>
                 </View>
               ))}
             </View>
           )}
+
+          {/* Progress indicator */}
+          {item.progress && parseFloat(item.progress) > 0 && (
+            <View style={styles.progressContainer}>
+              <View style={styles.progressBar}>
+                <View 
+                  style={[
+                    styles.progressFill,
+                    { width: `${parseFloat(item.progress) * 100}%` }
+                  ]} 
+                />
+              </View>
+              <Text style={styles.progressText}>
+                {Math.round(parseFloat(item.progress) * 100)}% read
+              </Text>
+            </View>
+          )}
           
+
           {/* Article excerpt */}
-          <Text style={[
-            styles.excerpt,
-            { color: isDarkMode ? COLORS.lightGray : COLORS.darkGray }
-          ]}>
-            {item.excerpt}
+          <Text
+            style={[
+              styles.excerpt,
+              { color: isDarkMode ? COLORS.lightGray : COLORS.darkGray },
+            ]}
+          >
+            {item.description}
           </Text>
         </View>
       </ScrollView>
-      
+
       {/* Action buttons */}
-      <View style={[
-        styles.actionBar,
-        { 
-          backgroundColor: isDarkMode ? COLORS.darkBackground : COLORS.background,
-          borderTopColor: isDarkMode ? COLORS.darkBorder : COLORS.lightBorder 
-        }
-      ]}>
-        <TouchableOpacity 
-          style={styles.readButton}
-          onPress={handleReadArticle}
-        >
+      <View
+        style={[
+          styles.actionBar,
+          {
+            backgroundColor: isDarkMode
+              ? COLORS.darkBackground
+              : COLORS.background,
+            borderTopColor: isDarkMode ? COLORS.darkBorder : COLORS.lightBorder,
+          },
+        ]}
+      >
+        <TouchableOpacity style={styles.readButton} onPress={handleReadArticle}>
           <Text style={styles.readButtonText}>Read</Text>
         </TouchableOpacity>
-        
+
         <View style={styles.actionButtons}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.actionButton}
             onPress={handleFavoriteToggle}
             disabled={isTogglingFavorite}
           >
-            <Ionicons 
-              name={item.favorite ? "star" : "star-outline"} 
-              size={24} 
-              color={item.favorite ? COLORS.yellow : isDarkMode ? COLORS.white : COLORS.text} 
+            <Ionicons
+              name={item.favorite ? "star" : "star-outline"}
+              size={24}
+              color={
+                item.favorite
+                  ? COLORS.yellow
+                  : isDarkMode
+                  ? COLORS.white
+                  : COLORS.text
+              }
             />
           </TouchableOpacity>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={styles.actionButton}
             onPress={handleArchiveToggle}
             disabled={isTogglingArchive}
           >
-            <Ionicons 
-              name="archive-outline" 
-              size={24} 
-              color={isDarkMode ? COLORS.white : COLORS.text} 
+            <Ionicons
+              name="archive-outline"
+              size={24}
+              color={isDarkMode ? COLORS.white : COLORS.text}
             />
           </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={styles.actionButton}
-            onPress={handleShare}
-          >
-            <Ionicons 
-              name="share-outline" 
-              size={24} 
-              color={isDarkMode ? COLORS.white : COLORS.text} 
+
+          <TouchableOpacity style={styles.actionButton} onPress={handleShare}>
+            <Ionicons
+              name="share-outline"
+              size={24}
+              color={isDarkMode ? COLORS.white : COLORS.text}
             />
           </TouchableOpacity>
         </View>
       </View>
-      
+
       {/* Action Menu (conditionally rendered) */}
       {isActionMenuVisible && (
         <View style={styles.actionMenuOverlay}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.actionMenuBackdrop}
             onPress={toggleActionMenu}
             activeOpacity={1}
           />
-          
-          <View style={[
-            styles.actionMenu,
-            { backgroundColor: isDarkMode ? COLORS.darkGray : COLORS.white }
-          ]}>
-            <TouchableOpacity 
+
+          <View
+            style={[
+              styles.actionMenu,
+              { backgroundColor: isDarkMode ? COLORS.darkGray : COLORS.white },
+            ]}
+          >
+            <TouchableOpacity
               style={styles.actionMenuItem}
               onPress={() => {
                 handleShare();
                 toggleActionMenu();
               }}
             >
-              <Ionicons name="share-outline" size={22} color={isDarkMode ? COLORS.white : COLORS.text} />
-              <Text style={[
-                styles.actionMenuText,
-                { color: isDarkMode ? COLORS.white : COLORS.text }
-              ]}>Share</Text>
+              <Ionicons
+                name="share-outline"
+                size={22}
+                color={isDarkMode ? COLORS.white : COLORS.text}
+              />
+              <Text
+                style={[
+                  styles.actionMenuText,
+                  { color: isDarkMode ? COLORS.white : COLORS.text },
+                ]}
+              >
+                Share
+              </Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.actionMenuItem}
               onPress={() => {
                 handleFavoriteToggle();
                 toggleActionMenu();
               }}
             >
-              <Ionicons 
-                name={item.favorite ? "star" : "star-outline"} 
-                size={22} 
-                color={item.favorite ? COLORS.yellow : isDarkMode ? COLORS.white : COLORS.text} 
+              <Ionicons
+                name={item.favorite ? "star" : "star-outline"}
+                size={22}
+                color={
+                  item.favorite
+                    ? COLORS.yellow
+                    : isDarkMode
+                    ? COLORS.white
+                    : COLORS.text
+                }
               />
-              <Text style={[
-                styles.actionMenuText,
-                { color: isDarkMode ? COLORS.white : COLORS.text }
-              ]}>
+              <Text
+                style={[
+                  styles.actionMenuText,
+                  { color: isDarkMode ? COLORS.white : COLORS.text },
+                ]}
+              >
                 {item.favorite ? "Unfavorite" : "Favorite"}
               </Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.actionMenuItem}
               onPress={() => {
                 handleArchiveToggle();
                 toggleActionMenu();
               }}
             >
-              <Ionicons name="archive-outline" size={22} color={isDarkMode ? COLORS.white : COLORS.text} />
-              <Text style={[
-                styles.actionMenuText,
-                { color: isDarkMode ? COLORS.white : COLORS.text }
-              ]}>
+              <Ionicons
+                name="archive-outline"
+                size={22}
+                color={isDarkMode ? COLORS.white : COLORS.text}
+              />
+              <Text
+                style={[
+                  styles.actionMenuText,
+                  { color: isDarkMode ? COLORS.white : COLORS.text },
+                ]}
+              >
                 {item.archived ? "Unarchive" : "Archive"}
               </Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.actionMenuItem}
               onPress={toggleActionMenu}
             >
@@ -371,18 +456,18 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   errorContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
   },
   errorText: {
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 20,
   },
   backButton: {
@@ -396,9 +481,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingTop: 48,
     paddingBottom: 16,
@@ -407,7 +492,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   thumbnail: {
-    width: '100%',
+    width: "100%",
     height: 240,
   },
   content: {
@@ -415,14 +500,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: "700",
     marginBottom: 16,
     lineHeight: 32,
   },
   metaContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
     marginBottom: 16,
   },
   metaText: {
@@ -435,13 +520,13 @@ const styles = StyleSheet.create({
     marginHorizontal: 6,
   },
   tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     marginBottom: 20,
   },
   tagItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: COLORS.lightGray,
     paddingHorizontal: 10,
     paddingVertical: 6,
@@ -459,9 +544,9 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   actionBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderTopWidth: 1,
@@ -475,50 +560,69 @@ const styles = StyleSheet.create({
   readButtonText: {
     color: COLORS.white,
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   actionButtons: {
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   actionButton: {
     marginLeft: 20,
     padding: 4,
   },
   actionMenuOverlay: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
     zIndex: 1000,
   },
   actionMenuBackdrop: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
   },
   actionMenu: {
-    width: '80%',
+    width: "80%",
     borderRadius: 12,
     padding: 8,
     elevation: 5,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },
   actionMenuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 16,
   },
   actionMenuText: {
     fontSize: 16,
     marginLeft: 16,
+  },
+  progressContainer: {
+    marginBottom: 16,
+  },
+  progressBar: {
+    height: 4,
+    backgroundColor: COLORS.lightGray,
+    borderRadius: 2,
+    overflow: 'hidden',
+    marginBottom: 4,
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: COLORS.primary,
+    borderRadius: 2,
+  },
+  progressText: {
+    fontSize: 12,
+    color: COLORS.darkGray,
   },
 });
