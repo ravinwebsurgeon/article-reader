@@ -7,11 +7,12 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Text,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Item, ItemFilter } from '@/types/item';
-import { COLORS } from '@/assets';
+import { COLORS, Images } from '@/assets';
 import { useAppSelector } from '@/redux/hook';
 import { selectActiveTheme } from '@/redux/utils';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,6 +21,7 @@ import ArticleCard from '@/components/common/card/ArticalCard';
 import FilterTabs from '@/components/common/tabBar/FilterTabs';
 import ActionMenu from '@/components/common/menu/ActionMenu';
 import NoItemsFound from '@/components/common/emptyState/NoUIFound';
+import { scaler } from '@/utils';
 
 export default function ListScreen() {
   const router = useRouter();
@@ -56,7 +58,7 @@ export default function ListScreen() {
   // Navigate to article detail
   const navigateToArticle = (item: Item) => {
     router.push({
-      pathname: `/blog/${item.id}`,
+      pathname: `/article/${item.id}`,
       params: { id: item.id.toString() }
     });
   };
@@ -113,13 +115,14 @@ export default function ListScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.logoContainer}>
-          <View style={[styles.logoIcon, { backgroundColor: COLORS.primary }]}>
+          {/* <View style={[styles.logoIcon, { backgroundColor: COLORS.primary }]}>
             <View style={styles.logoHeart} />
           </View>
           <Text style={[
             styles.logoText, 
             { color: isDarkMode ? COLORS.white : COLORS.black }
-          ]}>pocket</Text>
+          ]}>pocket</Text> */}
+          <Image style={styles.logoIcon} source={Images.pa_logo} />
         </View>
 
         <View style={styles.headerActions}>
@@ -190,9 +193,9 @@ const styles = StyleSheet.create({
     // flex: 1,
   },
   header: {
-    paddingHorizontal: 16,
-    paddingTop: 48,
-    paddingBottom: 12,
+    paddingHorizontal: scaler(16),
+    paddingTop: scaler(48),
+    paddingBottom: scaler(12),
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -200,32 +203,34 @@ const styles = StyleSheet.create({
   logoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    width: scaler(50),
+    height: scaler(30),
   },
   logoIcon: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: scaler(120),
+    height: scaler(30),
+    // borderRadius: scaler(15),
     justifyContent: 'center',
     alignItems: 'center',
   },
   logoHeart: {
-    width: 14,
-    height: 14,
+    width: scaler(14),
+    height: scaler(14),
     backgroundColor: 'white',
-    borderRadius: 7,
+    borderRadius: scaler(7),
   },
   logoText: {
-    fontSize: 24,
+    fontSize: scaler(24),
     fontWeight: 'bold',
-    marginLeft: 8,
+    marginLeft: scaler(8),
   },
   headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   iconButton: {
-    marginLeft: 20,
-    padding: 4,
+    marginLeft: scaler(20),
+    padding: scaler(4),
   },
   loadingContainer: {
     flex: 1,
@@ -233,7 +238,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   listContent: {
-    paddingBottom: 20,
+    paddingBottom: scaler(20),
   },
   emptyList: {
     flex: 1,
@@ -241,7 +246,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   footerContainer: {
-    padding: 16,
+    padding: scaler(16),
     alignItems: 'center',
   },
 });

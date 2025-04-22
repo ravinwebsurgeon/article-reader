@@ -32,7 +32,7 @@ function LoginScreen({ navigation }) {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
     },
   });
@@ -40,7 +40,7 @@ function LoginScreen({ navigation }) {
   const onSubmit = async(data) => {
     try {
       await login({user:{
-        username: data.username,
+        email: data.email,
         password: data.password,
       }}).unwrap();
     } catch (err) {
@@ -79,16 +79,16 @@ function LoginScreen({ navigation }) {
           <View style={styles.formContainer}>
             <FormInput
               control={control}
-              name="username"
+              name="email"
               rules={{
-                required: "Username is required",
-                // pattern: {
-                //   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                //   message: "Invalid email address",
-                // },
+                required: "email is required",
+                pattern: {
+                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                  message: "Invalid email address",
+                },
               }}
-              placeholder="Enter your username"
-              // keyboardType="email-address"
+              placeholder="Enter your email"
+              keyboardType="email-address"
 
               icon={
                 <Ionicons

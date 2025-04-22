@@ -74,7 +74,7 @@ export default function ArticleReaderScreen() {
     data, 
     isLoading, 
     error 
-  } = useGetItemQuery(Number(id));
+  } = useGetItemQuery(id);
   
   // Mutations
   const [toggleFavorite] = useToggleFavoriteMutation();

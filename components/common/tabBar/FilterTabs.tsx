@@ -9,6 +9,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/assets';
 import { ItemFilter } from '@/types/item';
+import { scaler } from '@/utils';
 
 interface FilterTabsProps {
   currentFilter: ItemFilter;
@@ -37,7 +38,7 @@ const FilterTabs: React.FC<FilterTabsProps> = ({
       contentContainerStyle={styles.scrollContainer}
       style={[
         styles.container,
-        { borderBottomColor: isDarkMode ? COLORS.darkBorder : COLORS.lightBorder }
+        { borderBottomColor: isDarkMode ? COLORS.darkBorder : COLORS.tasksConBorder }
       ]}
     >
       {filterOptions.map((option) => (
@@ -94,22 +95,23 @@ const FilterTabs: React.FC<FilterTabsProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    borderBottomWidth: 1,
+    borderBottomWidth: scaler(1),
     borderBottomColor: COLORS.lightBorder,
   },
   scrollContainer: {
-    paddingHorizontal: 12,
-    paddingVertical: 12,
+    paddingHorizontal: scaler(12),
+    paddingVertical: scaler(12),
   },
   tab: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginHorizontal: 4,
-    borderRadius: 20,
+    paddingHorizontal: scaler(16),
+    paddingVertical: scaler(10),
+    marginHorizontal: scaler(4),
+    borderRadius: scaler(20),
     backgroundColor: COLORS.lightGray,
     alignSelf: 'center',
+    height: scaler(40),
   },
   activeTab: {
     backgroundColor: COLORS.primary,
@@ -121,10 +123,10 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.darkGray,
   },
   icon: {
-    marginRight: 4,
+    marginRight: scaler(4),
   },
   tabText: {
-    fontSize: 14,
+    fontSize: scaler(14),
     fontWeight: '500',
     color: COLORS.text,
   },
