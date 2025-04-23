@@ -14,7 +14,7 @@ import {
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
-import { COLORS } from "@/assets";
+import { COLORS, lightColors } from "@/theme";
 import { useAppSelector } from "@/redux/hook";
 import { selectActiveTheme } from "@/redux/utils";
 import {
@@ -133,12 +133,12 @@ export default function ArticleDetailScreen() {
           {
             backgroundColor: isDarkMode
               ? COLORS.darkBackground
-              : COLORS.background,
+              : lightColors.background.default,
           },
         ]}
       >
         <StatusBar style={isDarkMode ? "light" : "dark"} />
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={COLORS.primary.main} />
       </View>
     );
   }
@@ -152,7 +152,7 @@ export default function ArticleDetailScreen() {
           {
             backgroundColor: isDarkMode
               ? COLORS.darkBackground
-              : COLORS.background,
+              : lightColors.background.default,
           },
         ]}
       >
@@ -182,7 +182,7 @@ export default function ArticleDetailScreen() {
         {
           backgroundColor: isDarkMode
             ? COLORS.darkBackground
-            : COLORS.background,
+            : lightColors.background.default,
         },
       ]}
     >
@@ -297,7 +297,7 @@ export default function ArticleDetailScreen() {
           {
             backgroundColor: isDarkMode
               ? COLORS.darkBackground
-              : COLORS.background,
+              : lightColors.background.default,
             borderTopColor: isDarkMode ? COLORS.darkBorder : COLORS.lightBorder,
           },
         ]}
@@ -317,7 +317,7 @@ export default function ArticleDetailScreen() {
               size={24}
               color={
                 item.favorite
-                  ? COLORS.yellow
+                  ? COLORS.favorite
                   : isDarkMode
                   ? COLORS.white
                   : COLORS.text
@@ -396,7 +396,7 @@ export default function ArticleDetailScreen() {
                 size={22}
                 color={
                   item.favorite
-                    ? COLORS.yellow
+                    ? COLORS.favorite
                     : isDarkMode
                     ? COLORS.white
                     : COLORS.text
@@ -438,8 +438,8 @@ export default function ArticleDetailScreen() {
               style={styles.actionMenuItem}
               onPress={toggleActionMenu}
             >
-              <Ionicons name="trash-outline" size={22} color={COLORS.error} />
-              <Text style={[styles.actionMenuText, { color: COLORS.error }]}>
+              <Ionicons name="trash-outline" size={22} color={COLORS.error.main} />
+              <Text style={[styles.actionMenuText, { color: COLORS.error.main }]}>
                 Delete
               </Text>
             </TouchableOpacity>
@@ -471,7 +471,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   backButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primary.main,
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,
@@ -552,7 +552,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
   },
   readButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primary.main,
     paddingHorizontal: 30,
     paddingVertical: 12,
     borderRadius: 24,
@@ -618,7 +618,7 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: '100%',
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primary.main,
     borderRadius: 2,
   },
   progressText: {

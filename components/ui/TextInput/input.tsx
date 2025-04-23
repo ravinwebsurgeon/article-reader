@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { Controller } from 'react-hook-form';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '@/assets';
+import { COLORS, lightColors } from '@/theme';
+import { scaler } from '@/utils';
+import { ThemeText } from '@/components/core';
+import { useDarkMode } from '@/theme';
 
 // Reusable Input Component
 export const Input = ({ 
@@ -21,6 +24,7 @@ export const Input = ({
   style,
 }) => {
   const [isSecureTextVisible, setIsSecureTextVisible] = useState(false);
+  const dark = useDarkMode();
 
   return (
     <Controller
@@ -29,7 +33,7 @@ export const Input = ({
       rules={rules}
       render={({ field: { value, onChange, onBlur }, fieldState: { error } }) => (
         <View style={[styles.inputWrapper, style]}>
-          {label && <Text style={styles.inputLabel}>{label}</Text>}
+          {label && <ThemeText style={styles.inputLabel}>{label}</ThemeText>}
           <View style={styles.inputContainer}>
             {icon && <View style={styles.iconContainer}>{icon}</View>}
             <TextInput
@@ -40,6 +44,7 @@ export const Input = ({
               secureTextEntry={secureTextEntry && !isSecureTextVisible}
               style={[
                 styles.input, 
+                {color: dark ? lightColors.text.disabled :COLORS.text},
                 error && styles.inputError,
                 icon && styles.inputWithIcon,
                 secureTextEntry && styles.inputWithSecureToggle,
@@ -48,7 +53,7 @@ export const Input = ({
               keyboardType={keyboardType}
               autoCapitalize={autoCapitalize}
               autoCorrect={autoCorrect}
-              placeholderTextColor={COLORS.placeholder}
+              placeholderTextColor={lightColors.text.disabled}
               multiline={multiline}
               numberOfLines={multiline ? numberOfLines : 1}
               textAlignVertical={multiline ? 'top' : 'center'}
@@ -61,7 +66,7 @@ export const Input = ({
                 <Ionicons 
                   name={isSecureTextVisible ? 'eye-off-outline' : 'eye-outline'} 
                   size={20} 
-                  color={COLORS.placeholder} 
+                  color={lightColors.text.disabled} 
                 />
               </TouchableOpacity>
             )}
@@ -81,13 +86,13 @@ export const Input = ({
 const styles = StyleSheet.create({
   // Input styles
   inputWrapper: {
-    marginBottom: 16,
+    marginBottom: scaler(16),
     width: '100%',
   },
   inputLabel: {
-    fontSize: 14,
-    marginBottom: 8,
-    color: COLORS.text,
+    fontSize: scaler(14),
+    marginBottom: scaler(8),
+    // color: COLORS.text,
     fontWeight: '500',
   },
   inputContainer: {
@@ -95,49 +100,49 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   input: {
-    height: 56,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    backgroundColor: COLORS.cardBackground,
-    color: COLORS.text,
+    height: scaler(56),
+    borderWidth: scaler(1),
+    borderColor: lightColors.divider,
+    borderRadius: scaler(12),
+    paddingHorizontal: scaler(16),
+    fontSize: scaler(16),
+    // backgroundColor: COLORS.white,
+    
   },
   multilineInput: {
-    height: 120,
-    paddingTop: 12,
-    paddingBottom: 12,
+    height: scaler(120),
+    paddingTop: scaler(12),
+    paddingBottom: scaler(12),
     textAlignVertical: 'top',
   },
   inputWithIcon: {
-    paddingLeft: 44,
+    paddingLeft: scaler(44),
   },
   inputWithSecureToggle: {
-    paddingRight: 44,
+    paddingRight: scaler(44),
   },
   inputError: {
-    borderColor: COLORS.error,
+    borderColor: COLORS.error.main,
   },
   iconContainer: {
     position: 'absolute',
-    left: 16,
+    left: scaler(16),
     top: '50%',
     transform: [{ translateY: -10 }],
     zIndex: 1,
   },
   secureTextToggle: {
     position: 'absolute',
-    right: 16,
+    right: scaler(16),
     top: '50%',
     transform: [{ translateY: -10 }],
     zIndex: 1,
   },
   errorText: {
-    color: COLORS.error,
-    fontSize: 12,
-    marginTop: 4,
-    marginLeft: 4,
+    color: COLORS.error.main,
+    fontSize: scaler(12),
+    marginTop: scaler(4),
+    marginLeft: scaler(4),
   },
 
   // Button styles
@@ -145,79 +150,79 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 28,
+    borderRadius: scaler(28),
   },
   fullWidth: {
     width: '100%',
   },
   primaryButton: {
-    backgroundColor: COLORS.primary,
-    shadowColor: COLORS.primary,
+    backgroundColor: COLORS.primary.main,
+    shadowColor: COLORS.primary.main,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    shadowOpacity: scaler(0.25),
+    shadowRadius: scaler(4),
+    elevation: scaler(5),
   },
   secondaryButton: {
     backgroundColor: COLORS.accent,
     shadowColor: COLORS.accent,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    shadowOpacity: scaler(0.25),
+    shadowRadius: scaler(4),
+    elevation: scaler(5),
   },
   outlineButton: {
     backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: COLORS.primary,
+    borderWidth: scaler(1),
+    borderColor: COLORS.primary.main,
   },
   textButton: {
     backgroundColor: 'transparent',
   },
   smallButton: {
-    height: 40,
-    paddingHorizontal: 16,
+    height: scaler(40),
+    paddingHorizontal: scaler(16),
   },
   mediumButton: {
-    height: 56,
-    paddingHorizontal: 24,
+    height: scaler(56),
+    paddingHorizontal: scaler(24),
   },
   largeButton: {
-    height: 64,
-    paddingHorizontal: 32,
+    height: scaler(64),
+    paddingHorizontal: scaler(32),
   },
   disabledButton: {
     backgroundColor: '#E0E0E0',
-    shadowOpacity: 0,
-    elevation: 0,
+    shadowOpacity: scaler(0),
+    elevation: scaler(0),
   },
   primaryButtonText: {
-    color: COLORS.buttonText,
-    fontSize: 16,
+    color: COLORS.white,
+    fontSize: scaler(16),
     fontWeight: '600',
   },
   secondaryButtonText: {
-    color: COLORS.buttonText,
-    fontSize: 16,
+    color: COLORS.white,
+    fontSize: scaler(16),
     fontWeight: '600',
   },
   outlineButtonText: {
-    color: COLORS.primary,
-    fontSize: 16,
+    color: COLORS.primary.main,
+    fontSize: scaler(16),
     fontWeight: '600',
   },
   textButtonText: {
-    color: COLORS.primary,
-    fontSize: 16,
+    color: COLORS.primary.main,
+    fontSize: scaler(16),
     fontWeight: '600',
   },
   disabledButtonText: {
     color: '#9E9E9E',
   },
   leftIcon: {
-    marginRight: 8,
+    marginRight: scaler(8),
   },
   rightIcon: {
-    marginLeft: 8,
+    marginLeft: scaler(8),
   },
 });

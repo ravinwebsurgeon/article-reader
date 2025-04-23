@@ -16,14 +16,19 @@ import { Ionicons } from "@expo/vector-icons";
 import { Input } from "@/components/ui/TextInput/input";
 import { Button } from "@/components/ui/button";
 import { router } from "expo-router";
-import { COLORS } from "@/assets";
+import { COLORS, lightColors } from "@/theme";
 import { useAuth } from "@/hooks/useAuth";
 import { useRegisterMutation } from "@/redux/services/authApi";
+import { useTheme } from "@/theme";
+import { ThemeText, ThemeView } from "@/components";
+import { scaler } from "@/utils";
 
 const SignUpScreen = ({ navigation }) => {
   const [loader, setLoader] = useState(false);
-    const [register, { isLoading:registerLoading, error:registerError }] = useRegisterMutation();
-  
+  const [register, { isLoading: registerLoading, error: registerError }] =
+    useRegisterMutation();
+
+  const theme = useTheme();
 
   const {
     control,
@@ -46,16 +51,18 @@ const SignUpScreen = ({ navigation }) => {
     console.log(data);
     setLoader(true);
     try {
-      await register({user:{
-        username: data.username,
-        email: data.email,
-        password: data.password,
-      }}).unwrap();
+      await register({
+        user: {
+          username: data.username,
+          email: data.email,
+          password: data.password,
+        },
+      }).unwrap();
     } catch (error: any) {
       console.log(error);
     } finally {
       setLoader(false);
-    }   
+    }
   };
 
   const navigateToLogin = () => {
@@ -63,17 +70,17 @@ const SignUpScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background.default }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardAvoidingContainer}
       >
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           {loader && <ActivityIndicator size="small" color="#007AFF" />}
-          <View style={styles.header}>
-            <Text style={styles.title}>Sign Up</Text>
+          <ThemeView style={styles.header}>
+            <ThemeText variant="h2" style={styles.title}>Sign Up</ThemeText>
             {/* <Text style={styles.subtitle}>Sign Up to Connect.</Text> */}
-          </View>
+          </ThemeView>
 
           <View style={styles.formContainer}>
             <Input
@@ -86,7 +93,7 @@ const SignUpScreen = ({ navigation }) => {
                 <Ionicons
                   name="person-outline"
                   size={20}
-                  color={COLORS.primary}
+                  color={COLORS.primary.main}
                 />
               }
               autoCapitalize="words"
@@ -109,7 +116,7 @@ const SignUpScreen = ({ navigation }) => {
                 <Ionicons
                   name="mail-outline"
                   size={20}
-                  color={COLORS.primary}
+                  color={COLORS.primary.main}
                 />
               }
             />
@@ -137,7 +144,7 @@ const SignUpScreen = ({ navigation }) => {
                 <Ionicons
                   name="lock-closed-outline"
                   size={20}
-                  color={COLORS.primary}
+                  color={COLORS.primary.main}
                 />
               }
             />
@@ -157,7 +164,7 @@ const SignUpScreen = ({ navigation }) => {
                 <Ionicons
                   name="lock-closed-outline"
                   size={20}
-                  color={COLORS.primary}
+                  color={COLORS.primary.main}
                 />
               }
             />
@@ -170,10 +177,10 @@ const SignUpScreen = ({ navigation }) => {
           </View>
 
           <View style={styles.loginContainer}>
-            <Text style={styles.loginText}>Already have an account? </Text>
-            <Text style={styles.loginLinkText} onPress={navigateToLogin}>
+            <ThemeText style={styles.loginText}>Already have an account? </ThemeText>
+            <ThemeText style={styles.loginLinkText} onPress={navigateToLogin}>
               Sign in
-            </Text>
+            </ThemeText>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -184,53 +191,53 @@ const SignUpScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: lightColors.background.default,
   },
   keyboardAvoidingContainer: {
     flex: 1,
   },
   scrollContainer: {
     flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 40,
-    paddingBottom: 24,
+    paddingHorizontal: scaler(24),
+    paddingTop: scaler(40),
+    paddingBottom: scaler(24),
     justifyContent: "center",
     alignItems: "center",
   },
   header: {
-    marginBottom: 24,
+    marginBottom: scaler(24),
   },
   title: {
-    fontSize: 28,
+    fontSize: scaler(28),
     fontWeight: "bold",
-    color: COLORS.text,
+    // color: COLORS.text,
     textAlign: "center",
-    marginBottom: 8,
+    marginBottom: scaler(8),
   },
   subtitle: {
-    fontSize: 16,
-    color: COLORS.placeholder,
-    marginBottom: 16,
+    fontSize: scaler(16),
+    color: lightColors.text.disabled,
+    marginBottom: scaler(16),
   },
   formContainer: {
     width: "100%",
-    marginBottom: 24,
+    marginBottom: scaler(24),
   },
   signUpButton: {
-    marginTop: 16,
+    marginTop: scaler(16),
   },
   loginContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: 16,
+    marginTop: scaler(16),
   },
   loginText: {
-    color: COLORS.text,
-    fontSize: 16,
+    // color: COLORS.text,
+    fontSize: scaler(16),
   },
   loginLinkText: {
-    color: COLORS.primary,
-    fontSize: 16,
+    color: COLORS.primary.main,
+    fontSize: scaler(16),
     fontWeight: "600",
   },
 });

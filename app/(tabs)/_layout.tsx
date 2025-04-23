@@ -4,14 +4,10 @@ import { Platform, SafeAreaView } from "react-native";
 import { HapticTab } from "@/components/HapticTab";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
-import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import {
-  BottomNavigation,
-  bottomNavigationExample,
-} from "@/components/common/bottomNavigation";
 import { SvgIcon } from "@/components/SvgIcon";
 import { scaler } from "@/utils";
+import { COLORS } from "@/theme";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -19,7 +15,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+        tabBarActiveTintColor: COLORS[colorScheme ?? "light"].tint,
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,

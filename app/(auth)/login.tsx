@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
-  View,
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   Alert,
-  Text,
   SafeAreaView,
 } from "react-native";
 import { router } from "expo-router";
@@ -17,15 +15,20 @@ import { useForm, Controller } from "react-hook-form";
 import { Ionicons } from "@expo/vector-icons";
 import { FormInput } from "@/components/ui/form/form-input";
 import { Button } from "@/components/ui/button";
-import { COLORS } from "@/assets";
+import { COLORS, lightColors } from "@/theme";
 import { useLoginMutation } from "@/redux/services/authApi";
+import { useTheme } from "@/theme";
+import { ThemeText, ThemeView } from "@/components";
+import { scaler } from "@/utils";
 
 function LoginScreen({ navigation }) {
   const dispatch = useAppDispatch();
-  // const { showToast } = useToast();
+  const theme = useTheme();
+  console.log("theme in login", theme);
 
   const { isLoading, error } = useAppSelector((state) => state.auth);
-  const [login, { isLoading:loginLoading, error:loginError }] = useLoginMutation();
+  const [login, { isLoading: loginLoading, error: loginError }] =
+    useLoginMutation();
   const {
     control,
     handleSubmit,
@@ -37,12 +40,14 @@ function LoginScreen({ navigation }) {
     },
   });
 
-  const onSubmit = async(data) => {
+  const onSubmit = async (data) => {
     try {
-      await login({user:{
-        email: data.email,
-        password: data.password,
-      }}).unwrap();
+      await login({
+        user: {
+          email: data.email,
+          password: data.password,
+        },
+      }).unwrap();
     } catch (err) {
       console.error("Login failed", err);
     }
@@ -65,18 +70,23 @@ function LoginScreen({ navigation }) {
   }, [error, dispatch]);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[
+        styles.container,
+        { backgroundColor: theme.colors.background.default },
+      ]}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardAvoidingContainer}
       >
         <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Welcome Back!</Text>
-            <Text style={styles.subtitle}>Let's Make Reading Simple.</Text>
-          </View>
+          <ThemeView style={styles.header}>
+            <ThemeText variant="h2" style={styles.title}>Welcome Back!</ThemeText>
+            <ThemeText variant="h4" style={styles.subtitle}>Let's Make Reading Simple.</ThemeText>
+          </ThemeView>
 
-          <View style={styles.formContainer}>
+          <ThemeView style={styles.formContainer}>
             <FormInput
               control={control}
               name="email"
@@ -89,12 +99,11 @@ function LoginScreen({ navigation }) {
               }}
               placeholder="Enter your email"
               keyboardType="email-address"
-
               icon={
                 <Ionicons
                   name="mail-outline"
                   size={20}
-                  color={COLORS.primary}
+                  color={COLORS.primary.main}
                 />
               }
             />
@@ -115,7 +124,7 @@ function LoginScreen({ navigation }) {
                 <Ionicons
                   name="lock-closed-outline"
                   size={20}
-                  color={COLORS.primary}
+                  color={COLORS.primary.main}
                 />
               }
             />
@@ -124,7 +133,7 @@ function LoginScreen({ navigation }) {
               style={styles.forgotPasswordContainer}
               onPress={navigateToForgotPassword}
             >
-              <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+              <ThemeText style={styles.forgotPasswordText}>Forgot password?</ThemeText>
             </TouchableOpacity>
 
             <Button
@@ -132,14 +141,14 @@ function LoginScreen({ navigation }) {
               onPress={handleSubmit(onSubmit)}
               style={styles.signInButton}
             />
-          </View>
+          </ThemeView>
 
-          <View style={styles.signUpContainer}>
-            <Text style={styles.signUpText}>Don't have an account? </Text>
+          <ThemeView style={styles.signUpContainer}>
+            <ThemeText style={styles.signUpText}>Don't have an account? </ThemeText>
             <TouchableOpacity onPress={navigateToSignUp}>
-              <Text style={styles.signUpLinkText}>Sign Up</Text>
+              <ThemeText style={styles.signUpLinkText}>Sign Up</ThemeText>
             </TouchableOpacity>
-          </View>
+          </ThemeView>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -149,121 +158,119 @@ function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: lightColors.background.default,
   },
   keyboardAvoidingContainer: {
     flex: 1,
   },
   scrollContainer: {
     flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 40,
-    paddingBottom: 24,
+    paddingHorizontal: scaler(24),
+    paddingTop: scaler(40),
+    paddingBottom: scaler(24),
     justifyContent: "center",
     alignItems: "center",
   },
   header: {
     alignItems: "center",
-    marginBottom: 40,
+    marginBottom: scaler(40),
   },
   logoContainer: {
-    marginBottom: 24,
+    marginBottom: scaler(24),
   },
   logoCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: COLORS.primary,
+    width: scaler(80),
+    height: scaler(80),
+    borderRadius: scaler(40),
+    backgroundColor: COLORS.primary.main,
     justifyContent: "center",
     alignItems: "center",
-    padding: 15,
+    padding: scaler(15),
   },
   logoHeart: {
-    width: 30,
-    height: 30,
-    backgroundColor: COLORS.primaryLight,
-    borderRadius: 15,
+    width: scaler(30),
+    height: scaler(30),
+    backgroundColor: COLORS.primary.light,
+    borderRadius: scaler(15),
   },
   title: {
-    fontSize: 28,
+    fontSize: scaler(28),
     fontWeight: "bold",
-    color: COLORS.text,
-    marginBottom: 8,
+    marginBottom: scaler(8),
   },
   subtitle: {
-    fontSize: 16,
-    color: COLORS.placeholder,
-    marginBottom: 16,
+    fontSize: scaler(16),
+    color: lightColors.text.disabled,
+    marginBottom: scaler(16),
   },
   formContainer: {
     width: "100%",
-    marginBottom: 24,
+    marginBottom: scaler(24),
   },
   inputContainer: {
-    marginBottom: 20,
+    marginBottom: scaler(20),
   },
   iconContainer: {
     position: "absolute",
-    left: 12,
-    top: 15,
+    left: scaler(12),
+    top: scaler(15),
     zIndex: 1,
   },
   input: {
-    height: 56,
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
-    borderRadius: 12,
-    paddingHorizontal: 45,
-    fontSize: 16,
+    height: scaler(56),
+    borderWidth: scaler(1),
+    borderColor: lightColors.divider,
+    borderRadius: scaler(12),
+    paddingHorizontal: scaler(45),
+    fontSize: scaler(16),
     backgroundColor: "#FFFFFF",
     color: COLORS.text,
   },
   inputError: {
-    borderColor: COLORS.error,
+    borderColor: COLORS.error.main,
   },
   errorText: {
-    color: COLORS.error,
-    fontSize: 12,
-    marginTop: 4,
-    marginLeft: 12,
+    color: COLORS.error.main,
+    fontSize: scaler(12),
+    marginTop: scaler(4),
+    marginLeft: scaler(12),
   },
   forgotPasswordContainer: {
     alignSelf: "flex-end",
-    marginBottom: 24,
+    marginBottom: scaler(24),
   },
   forgotPasswordText: {
-    color: COLORS.primary,
-    fontSize: 14,
+    color: COLORS.primary.main,
+    fontSize: scaler(14),
   },
   signInButton: {
-    backgroundColor: COLORS.primary,
-    height: 56,
-    borderRadius: 28,
+    backgroundColor: COLORS.primary.main,
+    height: scaler(56),
+    borderRadius: scaler(28),
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: COLORS.primary,
+    shadowColor: COLORS.primary.main,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    shadowOpacity: scaler(0.25),
+    shadowRadius: scaler(4),
+    elevation: scaler(5),
   },
   signInButtonText: {
-    color: COLORS.buttonText,
-    fontSize: 18,
+    color: COLORS.white,
+    fontSize: scaler(18),
     fontWeight: "600",
   },
   signUpContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: 24,
+    marginTop: scaler(24),
   },
   signUpText: {
-    color: COLORS.text,
-    fontSize: 16,
+    fontSize: scaler(16),
   },
   signUpLinkText: {
-    color: COLORS.primary,
-    fontSize: 16,
+    color: COLORS.primary.main,
+    fontSize: scaler(16),
     fontWeight: "600",
   },
 });

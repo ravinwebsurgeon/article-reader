@@ -15,11 +15,11 @@ import {
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '@/assets';
 import { useAppSelector } from '@/redux/hook';
 import { selectActiveTheme } from '@/redux/utils';
 import { useCreateItemMutation } from '@/redux/services/itemsApi';
 import { isValidUrl } from '@/utils/validation';
+import { COLORS, lightColors } from '@/theme';
 
 export default function AddArticleScreen() {
   const router = useRouter();
@@ -97,7 +97,7 @@ export default function AddArticleScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={[
         styles.container,
-        { backgroundColor: isDarkMode ? COLORS.darkBackground : COLORS.background }
+        { backgroundColor: isDarkMode ? COLORS.darkBackground : lightColors.background.default }
       ]}
     >
       <StatusBar style={isDarkMode ? 'light' : 'dark'} />
@@ -137,7 +137,7 @@ export default function AddArticleScreen() {
               }
             ]}
             placeholder="https://example.com/article"
-            placeholderTextColor={COLORS.placeholder}
+            placeholderTextColor={lightColors.text.disabled}
             value={url}
             onChangeText={setUrl}
             autoCapitalize="none"
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     fontSize: 16,
-    color: COLORS.primary,
+    color: COLORS.primary.main,
     padding: 4,
   },
   headerTitle: {
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   saveButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primary.main,
     height: 50,
     borderRadius: 25,
     justifyContent: 'center',

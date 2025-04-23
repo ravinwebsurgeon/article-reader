@@ -3,6 +3,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Button } from "@/components/ui/button";
 import { useLogoutMutation } from "@/redux/services/authApi";
+import { ThemeText } from "@/components";
 
 export default function TabTwoScreen() {
 
@@ -18,7 +19,7 @@ export default function TabTwoScreen() {
   };
   return (
     <ThemedView style={styles.titleContainer}>
-      <ThemedText type="title">Explore</ThemedText>
+      <ThemeText variant="h2">Explore</ThemeText>
       <Button
         title="Sign in"
         onPress={handleSubmit}
