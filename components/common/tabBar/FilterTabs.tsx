@@ -7,7 +7,7 @@ import {
   TouchableOpacity 
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '@/assets';
+import { COLORS } from '@/theme';
 import { ItemFilter } from '@/types/item';
 import { scaler } from '@/utils';
 
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     height: scaler(40),
   },
   activeTab: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primary.main,
   },
   inactiveTab: {
     backgroundColor: COLORS.lightGray,

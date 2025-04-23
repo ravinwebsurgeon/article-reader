@@ -1,7 +1,7 @@
 // src/components/NoItemsFound.tsx
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { COLORS } from '@/assets';
+import { COLORS } from '@/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { ItemFilter } from '@/types/item';
 

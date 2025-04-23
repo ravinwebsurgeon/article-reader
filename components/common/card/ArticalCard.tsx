@@ -1,17 +1,35 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { COLORS } from '@/assets';
-import { Item } from '@/types/item';
-import { Ionicons } from '@expo/vector-icons';
+import React from "react";
+import {
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  ViewStyle,
+  StyleProp,
+  View,
+} from "react-native";
+import { COLORS, lightColors } from "@/theme";
+import { Item } from "@/types/item";
+import { Ionicons } from "@expo/vector-icons";
+import { useDarkMode, useTheme } from "@/theme";
+import { ThemeText, ThemeTouchable, ThemeView } from "@/components/core";
+import { scaler } from "@/utils";
 
 interface ArticleCardProps {
   item: Item;
   onPress: () => void;
   onMenuPress: () => void;
+  style?: StyleProp<ViewStyle>;
 }
 
-const ArticleCard: React.FC<ArticleCardProps> = ({ item, onPress, onMenuPress }) => {
-  console.log('ArticleCard', item);
+const ArticleCard: React.FC<ArticleCardProps> = ({
+  item,
+  onPress,
+  onMenuPress,
+  style,
+}) => {
+  const theme = useTheme();
+  const dark = useDarkMode();
+  console.log("ArticleCard", item);
   const formatReadTime = (minutes: number) => {
     return `${minutes} min`;
   };
@@ -25,55 +43,97 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ item, onPress, onMenuPress })
   // Format publish date
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
   };
 
   return (
-    <TouchableOpacity 
-      style={styles.container} 
+    <TouchableOpacity
+      style={[
+        styles.container,
+        style,
+        {
+          borderBottomColor: dark ? COLORS.text : lightColors.divider,
+        },
+      ]}
       onPress={onPress}
       activeOpacity={0.7}
     >
       <View style={styles.contentContainer}>
         <View style={styles.header}>
-          <Text numberOfLines={2} style={styles.title}>
+          <ThemeText numberOfLines={2} style={styles.title}>
             {item.title}
-          </Text>
+          </ThemeText>
         </View>
         <View style={styles.metaContainer}>
-          <Text style={styles.source}>{item.site_name || item.domain}</Text>
-          <Text style={styles.dot}>•</Text>
-          <Text style={styles.readTime}>{calculateReadTime(item.word_count)}</Text>
-          <Text style={styles.dot}>•</Text>
-          <Text style={styles.date}>{formatDate(item.published_at)}</Text>
+          <ThemeText color={theme.colors.text.secondary} style={styles.source}>
+            {item.site_name || item.domain}
+          </ThemeText>
+          <ThemeText
+            variant="caption"
+            color={theme.colors.text.secondary}
+            style={styles.dot}
+          >
+            •
+          </ThemeText>
+          <ThemeText
+            variant="caption"
+            color={theme.colors.text.secondary}
+            style={styles.readTime}
+          >
+            {calculateReadTime(item.word_count)}
+          </ThemeText>
+          <ThemeText
+            variant="caption"
+            color={theme.colors.text.secondary}
+            style={styles.dot}
+          >
+            •
+          </ThemeText>
+          <ThemeText
+            // variant="caption"
+            color={theme.colors.text.secondary}
+            style={styles.date}
+          >
+            {formatDate(item.published_at)}
+          </ThemeText>
         </View>
         <View style={styles.tagsContainer}>
           {item.favorite && (
             <View style={styles.favoriteContainer}>
-              <Ionicons name="star" size={16} color={COLORS.yellow} />
+              <Ionicons name="star" size={16} color={COLORS.favorite} />
             </View>
           )}
-          
-          {item.tags && item.tags.map((tag, index) => (
-            <View key={index} style={styles.tagContainer}>
-              <Ionicons name="pricetag-outline" size={14} color={COLORS.darkGray} />
-              <Text style={styles.tagText}>{tag}</Text>
-            </View>
-          ))}
-          
-          <TouchableOpacity 
-            style={styles.menuButton}
-            onPress={onMenuPress}
-          >
-            <Ionicons name="ellipsis-horizontal" size={20} color={COLORS.darkGray} />
+
+          {item.tags &&
+            item.tags.map((tag, index) => (
+              <View key={index} style={styles.tagContainer}>
+                <Ionicons
+                  name="pricetag-outline"
+                  size={14}
+                  color={COLORS.darkGray}
+                />
+                <ThemeText style={styles.tagText}>{tag}</ThemeText>
+              </View>
+            ))}
+
+          <TouchableOpacity style={styles.menuButton} onPress={onMenuPress}>
+            <Ionicons
+              name="ellipsis-horizontal"
+              size={20}
+              color={COLORS.darkGray}
+            />
           </TouchableOpacity>
         </View>
       </View>
-      
+
       {item.image_url && (
         <View style={styles.thumbnailContainer}>
-          <Image 
-            source={{ uri: item.image_url }} 
+          <Image
+            source={{ uri: item.image_url }}
             style={styles.thumbnail}
             resizeMode="cover"
           />
@@ -85,80 +145,77 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ item, onPress, onMenuPress })
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.colorTextInputBorder,
-    backgroundColor: COLORS.white,
+    flexDirection: "row",
+    padding: scaler(16),
+    borderBottomWidth: scaler(0.5),
   },
   contentContainer: {
     flex: 1,
-    marginRight: 12,
+    marginRight: scaler(12),
   },
   header: {
-    marginBottom: 8,
+    marginBottom: scaler(8),
   },
   title: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.text,
-    lineHeight: 22,
+    fontSize: scaler(16),
+    fontWeight: "600",
+    lineHeight: scaler(22),
   },
   metaContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: scaler(8),
   },
   source: {
-    fontSize: 14,
+    fontSize: scaler(14),
     color: COLORS.darkGray,
   },
   dot: {
-    fontSize: 14,
+    fontSize: scaler(14),
     color: COLORS.darkGray,
-    marginHorizontal: 4,
+    marginHorizontal: scaler(4),
   },
   readTime: {
-    fontSize: 14,
+    fontSize: scaler(14),
     color: COLORS.darkGray,
   },
   tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    marginTop: 4,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    marginTop: scaler(4),
   },
   favoriteContainer: {
-    marginRight: 8,
+    marginRight: scaler(8),
   },
   tagContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: COLORS.lightGray,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginRight: 8,
-    marginBottom: 4,
+    paddingHorizontal: scaler(8),
+    paddingVertical: scaler(4),
+    borderRadius: scaler(12),
+    marginRight: scaler(8),
+    marginBottom: scaler(4),
   },
   tagText: {
-    fontSize: 12,
+    fontSize: scaler(12),
     color: COLORS.darkGray,
-    marginLeft: 4,
+    marginLeft: scaler(4),
   },
   menuButton: {
-    marginLeft: 'auto',
-    padding: 4,
+    marginLeft: "auto",
+    padding: scaler(4),
   },
   thumbnailContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 4,
-    overflow: 'hidden',
+    width: scaler(80),
+    height: scaler(80),
+    borderRadius: scaler(4),
+    overflow: "hidden",
   },
   thumbnail: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
   },
 });
 

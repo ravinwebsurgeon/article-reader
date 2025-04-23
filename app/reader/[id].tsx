@@ -14,7 +14,7 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '@/assets';
+import { COLORS } from '@/theme';
 import { useAppSelector } from '@/redux/hook';
 import { selectActiveTheme } from '@/redux/utils';
 import {
@@ -169,7 +169,7 @@ export default function ArticleReaderScreen() {
         styles.loadingContainer,
         { backgroundColor: currentTheme.backgroundColor }
       ]}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={COLORS.primary.main} />
       </View>
     );
   }
@@ -221,7 +221,7 @@ export default function ArticleReaderScreen() {
               <Ionicons 
                 name={item.favorite ? "star" : "star-outline"} 
                 size={24} 
-                color={item.favorite ? COLORS.yellow : currentTheme.textColor} 
+                color={item.favorite ? COLORS.favorite : currentTheme.textColor} 
               />
             </TouchableOpacity>
             
@@ -316,14 +316,14 @@ export default function ArticleReaderScreen() {
                   marginTop: 20,
                   color: currentTheme.textColor,
                 },
-                a: { color: COLORS.primary },
+                a: { color: COLORS.primary.main },
                 img: { marginVertical: 16 },
                 ul: { marginBottom: 16, marginLeft: 16 },
                 ol: { marginBottom: 16, marginLeft: 16 },
                 li: { marginBottom: 8 },
                 blockquote: {
                   borderLeftWidth: 2,
-                  borderLeftColor: COLORS.primary,
+                  borderLeftColor: COLORS.primary.main,
                   paddingLeft: 16,
                   marginLeft: 0,
                   marginRight: 0,
@@ -468,7 +468,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   backButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primary.main,
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,
@@ -536,7 +536,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   activeFontSizeButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primary.main,
   },
   fontSizeButtonText: {
     fontWeight: '600',
@@ -558,6 +558,6 @@ const styles = StyleSheet.create({
   },
   activeThemeButton: {
     borderWidth: 2,
-    borderColor: COLORS.primary,
+    borderColor: COLORS.primary.main,
   },
 });

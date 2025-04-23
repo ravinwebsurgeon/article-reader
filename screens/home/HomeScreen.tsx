@@ -12,7 +12,7 @@ import {
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Item, ItemFilter } from '@/types/item';
-import { COLORS, Images } from '@/assets';
+import { Images } from '@/assets';
 import { useAppSelector } from '@/redux/hook';
 import { selectActiveTheme } from '@/redux/utils';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,6 +22,7 @@ import FilterTabs from '@/components/common/tabBar/FilterTabs';
 import ActionMenu from '@/components/common/menu/ActionMenu';
 import NoItemsFound from '@/components/common/emptyState/NoUIFound';
 import { scaler } from '@/utils';
+import { COLORS, lightColors } from '@/theme';
 
 export default function ListScreen() {
   const router = useRouter();
@@ -100,7 +101,7 @@ export default function ListScreen() {
     
     return (
       <View style={styles.footerContainer}>
-        <ActivityIndicator size="small" color={COLORS.primary} />
+        <ActivityIndicator size="small" color={COLORS.primary.main} />
       </View>
     );
   };
@@ -108,14 +109,14 @@ export default function ListScreen() {
   return (
     <View style={[
       styles.container, 
-      { backgroundColor: isDarkMode ? COLORS.darkBackground : COLORS.background }
+      { backgroundColor: isDarkMode ? COLORS.darkBackground : lightColors.background.default }
     ]}>
       <StatusBar style={isDarkMode ? 'light' : 'dark'} />
       
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.logoContainer}>
-          {/* <View style={[styles.logoIcon, { backgroundColor: COLORS.primary }]}>
+          {/* <View style={[styles.logoIcon, { backgroundColor: COLORS.primary.main }]}>
             <View style={styles.logoHeart} />
           </View>
           <Text style={[
@@ -152,7 +153,7 @@ export default function ListScreen() {
       {/* Article List */}
       {isLoading && !data ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator size="large" color={COLORS.primary.main} />
         </View>
       ) : (
         <FlatList
@@ -169,8 +170,8 @@ export default function ListScreen() {
             <RefreshControl
               refreshing={isFetching && !isLoading}
               onRefresh={handleRefresh}
-              colors={[COLORS.primary]}
-              tintColor={COLORS.primary}
+              colors={[COLORS.primary.main]}
+              tintColor={COLORS.primary.main}
             />
           }
         />
