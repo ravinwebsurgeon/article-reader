@@ -6,9 +6,12 @@ import {
   ActivityIndicator,
   TouchableOpacityProps,
   ViewStyle,
-  TextStyle
+  TextStyle,
+  View
 } from 'react-native';
-import { colors, typography, spacing } from '../../../styles';
+import { typography, spacing } from '../../../styles';
+import { COLORS as colors } from '@/assets';
+
 
 export type ButtonVariant = 'primary' | 'secondary' | 'tertiary' | 'icon';
 export type ButtonSize = 'small' | 'medium' | 'large';

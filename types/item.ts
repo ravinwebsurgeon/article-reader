@@ -1,6 +1,6 @@
 export interface Item {
     id: number;
-    url: string;
+    canonical_url: string;
     title: string;
     excerpt: string;
     archived: boolean;

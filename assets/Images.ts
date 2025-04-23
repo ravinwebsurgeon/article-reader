@@ -1,4 +1,3 @@
-// import ic_google from './images/ic_google.svg';
 // import EntypoIcon from 'react-native-vector-icons/Entypo';
 // import Ionicons from 'react-native-vector-icons/Ionicons';
 // import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
@@ -26,6 +25,5 @@ export const Images = {
   //   colors.textGreenMain,
   // ),
 
-  // ic_home: require('./images/ic_home.png'),
-  // ic_calendar: require('./images/ic_calendar.png'),
+  pa_logo: require('./images/Logo.png'),
 };
