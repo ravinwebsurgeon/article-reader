@@ -14,7 +14,7 @@ import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { useDebounce } from '@/utils/hooks';
-import { COLORS } from '@/assets';
+import { COLORS, lightColors } from '@/theme';
 import { useAppSelector } from '@/redux/hook';
 import { selectActiveTheme } from '@/redux/utils';
 import { Item } from '@/types/item';
@@ -90,7 +90,7 @@ export default function SearchScreen() {
   return (
     <View style={[
       styles.container,
-      { backgroundColor: isDarkMode ? COLORS.darkBackground : COLORS.background }
+      { backgroundColor: isDarkMode ? COLORS.darkBackground : lightColors.background.default }
     ]}>
       <StatusBar style={isDarkMode ? 'light' : 'dark'} />
       
@@ -110,7 +110,7 @@ export default function SearchScreen() {
               { color: isDarkMode ? COLORS.white : COLORS.text }
             ]}
             placeholder="Search your Saves"
-            placeholderTextColor={COLORS.placeholder}
+            placeholderTextColor={lightColors.text.disabled}
             value={searchText}
             onChangeText={setSearchText}
             autoFocus
@@ -147,7 +147,7 @@ export default function SearchScreen() {
           </Text>
           
           <View style={styles.logoContainer}>
-            <View style={[styles.logoIcon, { backgroundColor: COLORS.primary }]}>
+            <View style={[styles.logoIcon, { backgroundColor: COLORS.primary.main }]}>
               <View style={styles.logoHeart} />
             </View>
             <Text style={[
@@ -159,7 +159,7 @@ export default function SearchScreen() {
       ) : isLoading || isFetching ? (
         // Loading state
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator size="large" color={COLORS.primary.main} />
         </View>
       ) : data?.items.length === 0 ? (
         // No results state
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
   },
   cancelText: {
     fontSize: 16,
-    color: COLORS.primary,
+    color: COLORS.primary.main,
   },
   emptyStateContainer: {
     flex: 1,

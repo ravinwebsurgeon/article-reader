@@ -1,4 +1,4 @@
-import { COLORS } from "@/assets";
+import { COLORS, lightColors } from "@/theme";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 
@@ -95,11 +95,11 @@ const styles = StyleSheet.create({
   input: {
     height: 56,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: lightColors.divider,
     borderRadius: 12,
     paddingHorizontal: 16,
     fontSize: 16,
-    backgroundColor: COLORS.cardBackground,
+    backgroundColor: COLORS.white,
     color: COLORS.text,
   },
   multilineInput: {
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     paddingRight: 44,
   },
   inputError: {
-    borderColor: COLORS.error,
+    borderColor: COLORS.error.main,
   },
   iconContainer: {
     position: "absolute",
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   errorText: {
-    color: COLORS.error,
+    color: COLORS.error.main,
     fontSize: 12,
     marginTop: 4,
     marginLeft: 4,
@@ -149,8 +149,8 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   primaryButton: {
-    backgroundColor: COLORS.primary,
-    shadowColor: COLORS.primary,
+    backgroundColor: COLORS.primary.main,
+    shadowColor: COLORS.primary.main,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   outlineButton: {
     backgroundColor: "transparent",
     borderWidth: 1,
-    borderColor: COLORS.primary,
+    borderColor: COLORS.primary.main,
   },
   textButton: {
     backgroundColor: "transparent",
@@ -190,22 +190,22 @@ const styles = StyleSheet.create({
     elevation: 0,
   },
   primaryButtonText: {
-    color: COLORS.buttonText,
+    color: COLORS.white,
     fontSize: 16,
     fontWeight: "600",
   },
   secondaryButtonText: {
-    color: COLORS.buttonText,
+    color: COLORS.white,
     fontSize: 16,
     fontWeight: "600",
   },
   outlineButtonText: {
-    color: COLORS.primary,
+    color: COLORS.primary.main,
     fontSize: 16,
     fontWeight: "600",
   },
   textButtonText: {
-    color: COLORS.primary,
+    color: COLORS.primary.main,
     fontSize: 16,
     fontWeight: "600",
   },

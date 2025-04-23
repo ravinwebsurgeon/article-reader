@@ -7,7 +7,7 @@ import {
   TouchableOpacity, 
   TouchableWithoutFeedback 
 } from 'react-native';
-import { COLORS } from '@/assets';
+import { COLORS } from '@/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { 
   useToggleFavoriteMutation,
@@ -95,7 +95,7 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ itemId, onClose, items }) => {
                 <Ionicons 
                   name={currentItem?.favorite ? "star" : "star-outline"} 
                   size={24} 
-                  color={currentItem?.favorite ? COLORS.yellow : COLORS.text} 
+                  color={currentItem?.favorite ? COLORS.favorite : COLORS.text} 
                 />
                 <Text style={styles.menuText}>
                   {currentItem?.favorite ? "Unfavorite" : "Favorite"}
@@ -118,8 +118,8 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ itemId, onClose, items }) => {
               
               {/* Delete - red text */}
               <TouchableOpacity style={styles.menuItem} onPress={handleDelete}>
-                <Ionicons name="trash-outline" size={24} color={COLORS.error} />
-                <Text style={[styles.menuText, { color: COLORS.error }]}>Delete</Text>
+                <Ionicons name="trash-outline" size={24} color={COLORS.error.main} />
+                <Text style={[styles.menuText, { color: COLORS.error.main }]}>Delete</Text>
               </TouchableOpacity>
             </View>
           </TouchableWithoutFeedback>

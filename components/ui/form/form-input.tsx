@@ -1,7 +1,12 @@
 import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { useForm, Controller } from 'react-hook-form';
+import { View, TextInput, StyleSheet } from 'react-native';
+import { Controller } from 'react-hook-form';
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS, lightColors } from '@/theme';
+import { ThemeText } from '@/components/core';
+import { ThemedView } from '@/components/ThemedView';
+import { scaler } from '@/utils';
+import { useDarkMode } from '@/theme';
 
 // Custom Input Component for reusability
 export const FormInput = ({ 
@@ -13,13 +18,14 @@ export const FormInput = ({
   icon,
   keyboardType = 'default'
 }) => {
+  const dark = useDarkMode();
   return (
     <Controller
       control={control}
       name={name}
       rules={rules}
       render={({ field: { value, onChange, onBlur }, fieldState: { error } }) => (
-        <View style={styles.inputContainer}>
+        <ThemedView style={styles.inputContainer}>
           {icon && <View style={styles.iconContainer}>{icon}</View>}
           <TextInput
             value={value}
@@ -32,143 +38,129 @@ export const FormInput = ({
             placeholderTextColor="#9E9E9E"
           />
           {error && (
-            <Text style={styles.errorText}>{error.message}</Text>
+            <ThemeText style={styles.errorText}>{error.message}</ThemeText>
           )}
-        </View>
+        </ThemedView>
       )}
     />
   );
 };
 
-// Colors from the palette
-const COLORS = {
-  primary: '#1e40af', // Deep blue from image
-  primaryLight: '#3b82f6', // Light blue from image
-  accent: '#ef3e55', // Amaranth from image
-  accentLight: '#f34f4f', // Lighter red (Carnation) from image
-  background: '#f8f9fa',
-  text: '#333333',
-  placeholder: '#9E9E9E',
-  error: '#ef3e55',
-  buttonText: '#FFFFFF',
-};
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: lightColors.background.default,
   },
   keyboardAvoidingContainer: {
     flex: 1,
   },
   scrollContainer: {
     flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 40,
-    paddingBottom: 24,
+    paddingHorizontal: scaler(24),
+    paddingTop: scaler(40),
+    paddingBottom: scaler(24),
   },
   header: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: scaler(40),
   },
   logoContainer: {
-    marginBottom: 24,
+    marginBottom: scaler(24),
   },
   logoCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: COLORS.primary,
+    width: scaler(80),
+    height: scaler(80),
+    borderRadius: scaler(40),
+    backgroundColor: COLORS.primary.main,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 15,
+    padding: scaler(15),
   },
   logoHeart: {
-    width: 30,
-    height: 30,
-    backgroundColor: COLORS.primaryLight,
-    borderRadius: 15,
+    width: scaler(30),
+    height: scaler(30),
+    backgroundColor: COLORS.primary.light,
+    borderRadius: scaler(15),
   },
   title: {
-    fontSize: 28,
+    fontSize: scaler(28),
     fontWeight: 'bold',
     color: COLORS.text,
-    marginBottom: 8,
+    marginBottom: scaler(8),
   },
   subtitle: {
     fontSize: 16,
-    color: COLORS.placeholder,
-    marginBottom: 16,
+    color: lightColors.text.disabled,
+    marginBottom: scaler(16),
   },
   formContainer: {
     width: '100%',
-    marginBottom: 24,
+    marginBottom: scaler(24),
   },
   inputContainer: {
-    marginBottom: 20,
+    marginBottom: scaler(20),
   },
   iconContainer: {
     position: 'absolute',
-    left: 12,
-    top: 15,
+    left: scaler(12),
+    top: scaler(15),
     zIndex: 1,
   },
   input: {
-    height: 56,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 12,
-    paddingHorizontal: 45,
-    fontSize: 16,
-    backgroundColor: '#FFFFFF',
-    color: COLORS.text,
+    height: scaler(56),
+    borderWidth: scaler(1),
+    borderColor: lightColors.divider,
+    borderRadius: scaler(12),
+    paddingHorizontal: scaler(45),
+    fontSize: scaler(16),
+    color: lightColors.text.disabled,
   },
   inputError: {
-    borderColor: COLORS.error,
+    borderColor: COLORS.error.main,
   },
   errorText: {
-    color: COLORS.error,
-    fontSize: 12,
-    marginTop: 4,
-    marginLeft: 12,
+    color: COLORS.error.main,
+    fontSize: scaler(12),
+    marginTop: scaler(4),
+    marginLeft: scaler(12),
   },
   forgotPasswordContainer: {
     alignSelf: 'flex-end',
-    marginBottom: 24,
+    marginBottom: scaler(24),
   },
   forgotPasswordText: {
-    color: COLORS.primary,
-    fontSize: 14,
+    color: COLORS.primary.main,
+    fontSize: scaler(14),
   },
   signInButton: {
-    backgroundColor: COLORS.primary,
-    height: 56,
-    borderRadius: 28,
+    backgroundColor: COLORS.primary.main,
+    height: scaler(56),
+    borderRadius: scaler(28),
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: COLORS.primary,
+    shadowColor: COLORS.primary.main,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    shadowRadius: scaler(4),
+    elevation: scaler(5),
   },
   signInButtonText: {
     color: COLORS.buttonText,
-    fontSize: 18,
+    fontSize: scaler(18),
     fontWeight: '600',
   },
   signUpContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 24,
+    marginTop: scaler(24),
   },
   signUpText: {
     color: COLORS.text,
-    fontSize: 16,
+    fontSize: scaler(16),
   },
   signUpLinkText: {
-    color: COLORS.primary,
-    fontSize: 16,
+    color: COLORS.primary.main,
+    fontSize: scaler(16),
     fontWeight: '600',
   },
 });
