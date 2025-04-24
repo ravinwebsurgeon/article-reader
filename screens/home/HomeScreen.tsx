@@ -39,7 +39,7 @@ export default function ListScreen() {
 
   // Get items from database with the current filter
   const { items, isLoading } = useItems(filter);
-
+  console.log("items", items)
   // Handle pull-to-refresh - sync with server
   const handleRefresh = useCallback(async () => {
     try {
@@ -140,7 +140,7 @@ export default function ListScreen() {
 
   // Render loading footer for pagination
   const renderFooter = () => {
-    if (!isFetching) return null;
+    // if (!isFetching) return null;
     
     return (
       <View style={styles.footerContainer}>
@@ -205,7 +205,7 @@ export default function ListScreen() {
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={[
             styles.listContent,
-            items.length == 0 && styles.emptyList
+            items?.length == 0 && styles.emptyList
           ]}
           ListEmptyComponent={<NoItemsFound filter={filter} />}
           ListFooterComponent={renderFooter}
