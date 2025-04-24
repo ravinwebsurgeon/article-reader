@@ -35,7 +35,9 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      ["@skam22/watermelondb-expo-plugin"],
+      [
+        "@skam22/watermelondb-expo-plugin"
+      ],
       [
         "expo-build-properties",
         {
@@ -43,7 +45,10 @@
             "extraPods": [
               {
                 "name": "simdjson",
-                "configurations": ["Debug", "Release"],
+                "configurations": [
+                  "Debug",
+                  "Release"
+                ],
                 "path": "../node_modules/@nozbe/simdjson",
                 "modular_headers": true
               }
@@ -51,16 +56,27 @@
           },
           "android": {
             "packagingOptions": {
-              "pickFirst": ["**/libc++_shared.so"]
+              "pickFirst": [
+                "**/libc++_shared.so"
+              ]
             }
           }
         }
       ],
-      ["@morrowdigital/watermelondb-expo-plugin"]
+      [
+        "@morrowdigital/watermelondb-expo-plugin"
+      ]
     ],
-
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "9d74e179-2832-4c29-ab20-4f59873a43ef"
+      }
     }
   }
 }
