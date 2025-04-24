@@ -1,4 +1,4 @@
-// src/app/blog/[id].tsx
+// src/app/article/[id].tsx
 import React, { useState } from "react";
 import {
   View,

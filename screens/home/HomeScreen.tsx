@@ -23,6 +23,8 @@ import ActionMenu from '@/components/common/menu/ActionMenu';
 import NoItemsFound from '@/components/common/emptyState/NoUIFound';
 import { scaler } from '@/utils';
 import { COLORS, lightColors } from '@/theme';
+import { syncEngine } from '@/database/sync/SyncEngine';
+import { useItems, updateItem, deleteItem } from '@/database/hooks';
 
 export default function ListScreen() {
   const router = useRouter();
@@ -33,23 +35,39 @@ export default function ListScreen() {
   const [filter, setFilter] = useState<ItemFilter>('all');
   const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
   const [showActionMenu, setShowActionMenu] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  // Get items from database with the current filter
+  const { items, isLoading } = useItems(filter);
+
+  // Handle pull-to-refresh - sync with server
+  const handleRefresh = useCallback(async () => {
+    try {
+      setIsSyncing(true);
+      await syncEngine.sync();
+    } catch (error) {
+      console.error('Sync failed:', error);
+    } finally {
+      setIsSyncing(false);
+    }
+  }, []);
   
   // Get items from API with the current filter
-  const { 
-    data, 
-    isLoading, 
-    isFetching, 
-    refetch, 
-    error 
-  } = useGetItemsQuery({ 
-    filter: filter !== 'all' ? filter : undefined,
-    limit: 50
-  });
+  // const { 
+  //   data, 
+  //   isLoading, 
+  //   isFetching, 
+  //   refetch, 
+  //   error 
+  // } = useGetItemsQuery({ 
+  //   filter: filter !== 'all' ? filter : undefined,
+  //   limit: 50
+  // });
 
   // Handle pull-to-refresh
-  const handleRefresh = useCallback(() => {
-    refetch();
-  }, [refetch]);
+  // const handleRefresh = useCallback(() => {
+  //   refetch();
+  // }, [refetch]);
 
   // Handle filter change
   const handleFilterChange = (newFilter: ItemFilter) => {
@@ -84,6 +102,31 @@ export default function ListScreen() {
   // Navigate to add article screen
   const navigateToAddArticle = () => {
     router.push('/add-article');
+  };
+
+  // Action handlers
+  const handleFavoriteToggle = async (id: string, value: boolean) => {
+    try {
+      await updateItem(id, { favorite: value });
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    }
+  };
+  
+  const handleArchiveToggle = async (id: string, value: boolean) => {
+    try {
+      await updateItem(id, { archived: value });
+    } catch (error) {
+      console.error('Error toggling archive:', error);
+    }
+  };
+  
+  const handleDeleteItem = async (id: string) => {
+    try {
+      await deleteItem(id);
+    } catch (error) {
+      console.error('Error deleting item:', error);
+    }
   };
 
   // Render the article item
@@ -151,24 +194,24 @@ export default function ListScreen() {
       />
       
       {/* Article List */}
-      {isLoading && !data ? (
+      {isLoading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={COLORS.primary.main} />
         </View>
       ) : (
         <FlatList
-          data={data?.items || []}
+          data={items}
           renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={[
             styles.listContent,
-            !data?.items.length && styles.emptyList
+            items.length == 0 && styles.emptyList
           ]}
           ListEmptyComponent={<NoItemsFound filter={filter} />}
           ListFooterComponent={renderFooter}
           refreshControl={
             <RefreshControl
-              refreshing={isFetching && !isLoading}
+              refreshing={isSyncing}
               onRefresh={handleRefresh}
               colors={[COLORS.primary.main]}
               tintColor={COLORS.primary.main}
@@ -182,7 +225,10 @@ export default function ListScreen() {
         <ActionMenu
           itemId={selectedItemId}
           onClose={closeActionMenu}
-          items={data?.items}
+          items={items}
+          onFavoriteToggle={handleFavoriteToggle}
+          onArchiveToggle={handleArchiveToggle}
+          onDeleteItem={handleDeleteItem}
         />
       )}
     </View>
@@ -210,7 +256,6 @@ const styles = StyleSheet.create({
   logoIcon: {
     width: scaler(120),
     height: scaler(30),
-    // borderRadius: scaler(15),
     justifyContent: 'center',
     alignItems: 'center',
   },
