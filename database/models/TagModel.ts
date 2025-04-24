@@ -1,34 +1,14 @@
-// src/database/models/TagModel.ts
-import { Model, Query } from "@nozbe/watermelondb";
-import {
-  field,
-  date,
-  children,
-  text,
-} from "@nozbe/watermelondb/decorators";
-import { associations } from "@nozbe/watermelondb/Model";
-import { ItemTagModel } from "./ItemTagModel";
+// src/database/models/Tag.ts
+import { Model } from '@nozbe/watermelondb';
+import { field, date, readonly, text, children } from '@nozbe/watermelondb/decorators';
 
-export class TagModel extends Model {
-  static table = "tags";
-
-  static associations = associations(["item_tags"]);
-
-  @text("name") name!: string;
-  @text("remote_id") remoteId?: string;
-  @date("created_at") createdAt!: Date;
-  @date("updated_at") updatedAt!: Date;
-  @field("synced") synced!: boolean;
-
-  @children("item_tags") itemTags!: Query<ItemTagModel>;
-
-  // Helper getter to fetch all related items
-  async items() {
-    const itemTags = await this.itemTags.fetch();
-    return Promise.all(
-      itemTags.map(async (itemTag) => {
-        return await itemTag.item.fetch();
-      })
-    );
-  }
+export default class Tag extends Model {
+  static table = 'tags';
+  
+  @text('name') name;
+  
+  @readonly @date('created_at') createdAt;
+  @readonly @date('updated_at') updatedAt;
+  
+  @children('item_tags') itemTags;
 }

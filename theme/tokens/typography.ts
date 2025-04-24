@@ -108,4 +108,7 @@ export const typography = {
   
   // Button text
   button: createTextStyle(14, 20, '600'),
+  button_small: createTextStyle(12, 18, '600'),
+  button_medium: createTextStyle(14, 20, '600'),
+  button_large: createTextStyle(16, 24, '600'),
 };
