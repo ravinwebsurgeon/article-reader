@@ -63,3 +63,17 @@ export const darkShadows: ShadowsDefinition = {
   4: { ...createShadow(4), shadowColor: '#222222', elevation: 8 },
   5: { ...createShadow(5), shadowColor: '#222222', elevation: 10 },
 };
+
+// export const shadows = {
+//   top: Platform.select({
+//     ios: {
+//       shadowColor: '#000',
+//       shadowOffset: { width: 0, height: -2 },
+//       shadowOpacity: 0.1,
+//       shadowRadius: 3,
+//     },
+//     android: {
+//       elevation: 4,
+//     },
+//   }),
+// };

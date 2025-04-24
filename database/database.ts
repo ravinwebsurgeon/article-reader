@@ -1,30 +1,25 @@
 import { Database } from "@nozbe/watermelondb";
 import SQLiteAdapter from "@nozbe/watermelondb/adapters/sqlite";
-import { Platform } from "react-native";
-
 import migrations from "./migration/index";
-import { ItemModel } from "./models/ItemModel";
-import { UserModel } from "./models/UserModel";
-import { schemas } from "./schemas";
-import { TagModel } from "./models";
+import schema from './schemas/schema';
+import Item from './models/ItemModel';
+import Tag from './models/TagModel';
+import ItemTag from './models/ItemTagModel';
 
+
+// Initialize the database
 const adapter = new SQLiteAdapter({
-  schema: schemas,
+  schema,
   migrations,
-  //   jsi: Platform.OS === 'ios', // Enable JSI on iOS for better performance
-  jsi: false,
-  onSetUpError: (error) => {
-    console.error("Database setup error:", error);
+  jsi: true, // Enable JSI for better performance (optional)
+  onSetUpError: error => {
+    console.error('Database setup error:', error);
   },
 });
 
 export const database = new Database({
   adapter,
-  modelClasses: [
-    ItemModel,
-    // UserModel,
-    // TagModel
-  ],
+  modelClasses: [Item, Tag, ItemTag],
 });
 
 export default database;

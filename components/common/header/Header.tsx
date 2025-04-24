@@ -1,15 +1,12 @@
-// src/components/common/Header/Header.tsx
+// src/components/ui/Header.tsx
 import React from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
-  StatusBar 
-} from 'react-native';
-import { colors, typography, spacing, shadows } from '../../../styles';
-import { BackIcon, SearchIcon, MoreIcon } from '../Icons';
+import { StyleSheet, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+
+// Import themed components and hooks
+import { ThemeView, ThemeText, ThemeTouchable } from '@/components/core';
+import { useTheme, useDarkMode } from '@/theme/hooks';
 
 interface HeaderProps {
   title?: string;
@@ -23,6 +20,7 @@ interface HeaderProps {
   renderRight?: () => React.ReactNode;
   backgroundColor?: string;
   titleColor?: string;
+  elevation?: 0 | 1 | 2 | 3 | 4 | 5;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -35,9 +33,17 @@ export const Header: React.FC<HeaderProps> = ({
   onMenuPress,
   renderLeft,
   renderRight,
-  backgroundColor = colors.white,
-  titleColor = colors.text.primary,
+  backgroundColor,
+  titleColor,
+  elevation = 1,
 }) => {
+  const theme = useTheme();
+  const isDarkMode = useDarkMode();
+  
+  // Default colors from theme if not specified
+  const bgColor = backgroundColor || theme.colors.background.paper;
+  const txtColor = titleColor || theme.colors.text.primary;
+  
   const renderLeftContent = () => {
     if (renderLeft) {
       return renderLeft();
@@ -45,13 +51,16 @@ export const Header: React.FC<HeaderProps> = ({
     
     if (showBack) {
       return (
-        <TouchableOpacity
+        <ThemeTouchable
           style={styles.iconButton}
           onPress={onBackPress}
-          hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
         >
-          <BackIcon size={24} color={colors.text.primary} />
-        </TouchableOpacity>
+          <Ionicons 
+            name="arrow-back" 
+            size={24} 
+            color={theme.colors.text.primary} 
+          />
+        </ThemeTouchable>
       );
     }
     
@@ -64,50 +73,61 @@ export const Header: React.FC<HeaderProps> = ({
     }
     
     return (
-      <View style={styles.rightContainer}>
+      <ThemeView style={styles.rightContainer} row>
         {showSearch && (
-          <TouchableOpacity
+          <ThemeTouchable
             style={styles.iconButton}
             onPress={onSearchPress}
-            hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
           >
-            <SearchIcon size={24} color={colors.text.primary} />
-          </TouchableOpacity>
+            <Ionicons 
+              name="search" 
+              size={24} 
+              color={theme.colors.text.primary} 
+            />
+          </ThemeTouchable>
         )}
         
         {showMenu && (
-          <TouchableOpacity
+          <ThemeTouchable
             style={styles.iconButton}
             onPress={onMenuPress}
-            hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
           >
-            <MoreIcon size={24} color={colors.text.primary} />
-          </TouchableOpacity>
+            <Ionicons 
+              name="ellipsis-horizontal" 
+              size={24} 
+              color={theme.colors.text.primary} 
+            />
+          </ThemeTouchable>
         )}
-      </View>
+      </ThemeView>
     );
   };
 
   return (
-    <SafeAreaView edges={['top']} style={[styles.safeArea, { backgroundColor }]}>
+    <SafeAreaView edges={['top']} style={[styles.safeArea, { backgroundColor: bgColor }]}>
       <StatusBar
-        barStyle="dark-content"
-        backgroundColor={backgroundColor}
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+        backgroundColor={bgColor}
         translucent={false}
       />
-      <View style={styles.container}>
-        <View style={styles.leftContainer}>
+      <ThemeView style={styles.container} row backgroundColor={bgColor} elevation={elevation}>
+        <ThemeView style={styles.leftContainer}>
           {renderLeftContent()}
-        </View>
+        </ThemeView>
         
         {title && (
-          <Text style={[styles.title, { color: titleColor }]} numberOfLines={1}>
+          <ThemeText 
+            variant="h6"
+            color={txtColor}
+            style={styles.title} 
+            numberOfLines={1}
+          >
             {title}
-          </Text>
+          </ThemeText>
         )}
         
         {renderRightContent()}
-      </View>
+      </ThemeView>
     </SafeAreaView>
   );
 };
@@ -116,14 +136,12 @@ const styles = StyleSheet.create({
   safeArea: {
     width: '100%',
     zIndex: 10,
-    ...shadows.small,
   },
   container: {
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     height: 56,
   },
   leftContainer: {
@@ -132,17 +150,15 @@ const styles = StyleSheet.create({
     minWidth: 40,
   },
   rightContainer: {
-    flexDirection: 'row',
     alignItems: 'center',
     minWidth: 40,
   },
   title: {
     flex: 1,
-    ...typography.h6,
     textAlign: 'center',
   },
   iconButton: {
-    padding: spacing.xs,
-    marginHorizontal: spacing.xs,
+    padding: 4,
+    marginHorizontal: 4,
   },
 });
