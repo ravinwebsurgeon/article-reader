@@ -1,63 +1,54 @@
-// src/database/models/ItemModel.ts
-import { Model, Query, Relation } from "@nozbe/watermelondb";
-import {
-  field,
-  date,
-  relation,
-  children,
-  text,
-} from "@nozbe/watermelondb/decorators";
-import { associations } from "@nozbe/watermelondb/Model";
-import { UserModel } from "./UserModel";
-import { ItemTagModel } from "./ItemTagModel";
+// src/database/models/Item.ts
+import { Model } from '@nozbe/watermelondb';
+import { field, date, readonly, text, relation, children } from '@nozbe/watermelondb/decorators';
 
-export class ItemModel extends Model {
-  static table = "items";
-
-  static associations = associations([
-    "item_tags",
-    { type: "belongs_to", key: "user_id", foreignKey: "id" },
-  ]);
-
-  @text("title") title!: string;
-  @text("content") content?: string;
-  @text("url") url?: string;
-  @field("favorite") favorite!: boolean;
-  @field("archived") archived!: boolean;
-  @date("created_at") createdAt!: Date;
-  @date("updated_at") updatedAt!: Date;
-  @field("synced") synced!: boolean;
-  @text("remote_id") remoteId?: string;
-  @text("user_id") userId!: string;
-
-  @relation("users", "user_id") user!: Relation<UserModel>;
-  @children("item_tags") itemTags!: Query<ItemTagModel>;
-
-  // Helper getter to fetch all related tags
-  async tags() {
-    const itemTags = await this.itemTags.fetch();
-    return Promise.all(
-      itemTags.map(async (itemTag) => {
-        return await itemTag.tag.fetch();
-      })
-    );
+export default class Item extends Model {
+  static table = 'items';
+  
+  // Fields
+  @text('url') url;
+  @text('canonical_url') canonicalUrl;
+  @text('domain') domain;
+  @text('title') title;
+  @text('description') description;
+  @text('site_name') siteName;
+  @text('image_url') imageUrl;
+  @date('published_at') publishedAt;
+  @field('word_count') wordCount;
+  @field('archived') archived;
+  @field('favorite') favorite;
+  @field('progress') progress;
+  @text('notes') notes;
+  
+  // Timestamps
+  @readonly @date('created_at') createdAt;
+  @readonly @date('updated_at') updatedAt;
+  
+  // Relationships
+  @children('item_tags') itemTags;
+  
+  // Computed properties
+  get readTime() {
+    if (!this.wordCount) return 0;
+    return Math.ceil(this.wordCount / 200); // Assuming 200 words per minute
   }
-
-  // Prepare for synchronization with the API
-  prepareForSync() {
+  
+  // Helper methods to sync with Item type expected by components
+  toJSON() {
     return {
-      id: this.remoteId,
-      title: this.title,
-      content: this.content,
+      id: this.id,
       url: this.url,
+      title: this.title || '',
+      description: this.description || '',
+      site_name: this.siteName || '',
+      source: this.siteName || this.domain || '',
+      image_url: this.imageUrl,
+      readTime: this.readTime,
       favorite: this.favorite,
       archived: this.archived,
-      created_at: this.createdAt.toISOString(),
-      updated_at: this.updatedAt.toISOString(),
+      progress: this.progress || 0,
+      // Convert relationships as needed
+      tags: [], // This would need to be populated from itemTags
     };
   }
 }
-
-
-
-
