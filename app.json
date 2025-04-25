@@ -36,9 +36,6 @@
         }
       ],
       [
-        "@skam22/watermelondb-expo-plugin"
-      ],
-      [
         "expo-build-properties",
         {
           "ios": {
@@ -62,9 +59,6 @@
             }
           }
         }
-      ],
-      [
-        "@morrowdigital/watermelondb-expo-plugin"
       ]
     ],
     "experiments": {

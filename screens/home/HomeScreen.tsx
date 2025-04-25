@@ -30,7 +30,7 @@ export default function ListScreen() {
   const router = useRouter();
   const activeTheme = useAppSelector(selectActiveTheme);
   const isDarkMode = activeTheme === 'dark';
-  
+
   // State for filter and action menu
   const [filter, setFilter] = useState<ItemFilter>('all');
   const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
@@ -39,27 +39,27 @@ export default function ListScreen() {
 
   // Get items from database with the current filter
   const { items, isLoading } = useItems(filter);
-  console.log("items", items)
+  console.log('items', items);
   // Handle pull-to-refresh - sync with server
-  const handleRefresh = useCallback(async () => {
+  const handleRefresh = useCallback(() => {
     try {
       setIsSyncing(true);
-      await syncEngine.sync();
+      syncEngine.sync();
     } catch (error) {
       console.error('Sync failed:', error);
     } finally {
       setIsSyncing(false);
     }
   }, []);
-  
+
   // Get items from API with the current filter
-  // const { 
-  //   data, 
-  //   isLoading, 
-  //   isFetching, 
-  //   refetch, 
-  //   error 
-  // } = useGetItemsQuery({ 
+  // const {
+  //   data,
+  //   isLoading,
+  //   isFetching,
+  //   refetch,
+  //   error
+  // } = useGetItemsQuery({
   //   filter: filter !== 'all' ? filter : undefined,
   //   limit: 50
   // });
@@ -78,7 +78,7 @@ export default function ListScreen() {
   const navigateToArticle = (item: Item) => {
     router.push({
       pathname: `/article/${item.id}`,
-      params: { id: item.id.toString() }
+      params: { id: item.id.toString() },
     });
   };
 
@@ -112,7 +112,7 @@ export default function ListScreen() {
       console.error('Error toggling favorite:', error);
     }
   };
-  
+
   const handleArchiveToggle = async (id: string, value: boolean) => {
     try {
       await updateItem(id, { archived: value });
@@ -120,7 +120,7 @@ export default function ListScreen() {
       console.error('Error toggling archive:', error);
     }
   };
-  
+
   const handleDeleteItem = async (id: string) => {
     try {
       await deleteItem(id);
@@ -131,17 +131,13 @@ export default function ListScreen() {
 
   // Render the article item
   const renderItem = ({ item }: { item: Item }) => (
-    <ArticleCard
-      item={item}
-      onPress={() => navigateToArticle(item)}
-      onMenuPress={() => openActionMenu(item.id)}
-    />
+    <ArticleCard item={item} onPress={() => navigateToArticle(item)} onMenuPress={() => openActionMenu(item.id)} />
   );
 
   // Render loading footer for pagination
   const renderFooter = () => {
     // if (!isFetching) return null;
-    
+
     return (
       <View style={styles.footerContainer}>
         <ActivityIndicator size="small" color={COLORS.primary.main} />
@@ -150,12 +146,14 @@ export default function ListScreen() {
   };
 
   return (
-    <View style={[
-      styles.container, 
-      { backgroundColor: isDarkMode ? COLORS.darkBackground : lightColors.background.default }
-    ]}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: isDarkMode ? COLORS.darkBackground : lightColors.background.default },
+      ]}
+    >
       <StatusBar style={isDarkMode ? 'light' : 'dark'} />
-      
+
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.logoContainer}>
@@ -170,29 +168,19 @@ export default function ListScreen() {
         </View>
 
         <View style={styles.headerActions}>
-          <TouchableOpacity 
-            style={styles.iconButton}
-            onPress={navigateToSearch}
-          >
+          <TouchableOpacity style={styles.iconButton} onPress={navigateToSearch}>
             <Ionicons name="search" size={24} color={isDarkMode ? COLORS.white : COLORS.black} />
           </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={styles.iconButton}
-            onPress={navigateToAddArticle}
-          >
+
+          <TouchableOpacity style={styles.iconButton} onPress={navigateToAddArticle}>
             <Ionicons name="add" size={24} color={isDarkMode ? COLORS.white : COLORS.black} />
           </TouchableOpacity>
         </View>
       </View>
-      
+
       {/* Filter Tabs */}
-      <FilterTabs
-        currentFilter={filter}
-        onFilterChange={handleFilterChange}
-        isDarkMode={isDarkMode}
-      />
-      
+      <FilterTabs currentFilter={filter} onFilterChange={handleFilterChange} isDarkMode={isDarkMode} />
+
       {/* Article List */}
       {isLoading ? (
         <View style={styles.loadingContainer}>
@@ -203,10 +191,7 @@ export default function ListScreen() {
           data={items}
           renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={[
-            styles.listContent,
-            items?.length == 0 && styles.emptyList
-          ]}
+          contentContainerStyle={[styles.listContent, items?.length == 0 && styles.emptyList]}
           ListEmptyComponent={<NoItemsFound filter={filter} />}
           ListFooterComponent={renderFooter}
           refreshControl={
@@ -219,7 +204,7 @@ export default function ListScreen() {
           }
         />
       )}
-      
+
       {/* Action Menu Modal */}
       {showActionMenu && selectedItemId && (
         <ActionMenu

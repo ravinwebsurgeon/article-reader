@@ -19,7 +19,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [error, setError] = useState<Error | null>(null);
   const token = useAppSelector(selectAuthToken);
   const theme = useTheme();
-  
+
   // Initialize database and sync
   useEffect(() => {
     const initialize = async () => {
@@ -27,11 +27,11 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         // Set token in sync engine if available
         if (token) {
           syncEngine.setToken(token);
-          
+
           // Perform initial sync
           await syncEngine.sync();
         }
-        
+
         setIsReady(true);
       } catch (err) {
         console.error('Database initialization error:', err);
@@ -39,15 +39,15 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setIsReady(true); // Still set ready to true so the app can function offline
       }
     };
-    
+
     initialize();
   }, [token]);
-  
+
   // Update token in sync engine when it changes
   useEffect(() => {
     syncEngine.setToken(token);
   }, [token]);
-  
+
   if (!isReady) {
     return (
       <ThemeView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -56,16 +56,12 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       </ThemeView>
     );
   }
-  
+
   if (error) {
     console.warn('Database initialized with errors, continuing in offline mode');
   }
-  
-  return (
-    <DatabaseContext.Provider value={database}>
-      {children}
-    </DatabaseContext.Provider>
-  );
+
+  return <DatabaseContext.Provider value={database}>{children}</DatabaseContext.Provider>;
 };
 
 // Hook to access the database

@@ -32,7 +32,11 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
   console.log("ArticleCard", item);
   const formatReadTime = (minutes: number) => {
     return `${minutes} min`;
+
+
   };
+
+  console.log("item in article card", item);
 
   // Calculate approximate read time based on word count (average 200-250 words per minute)
   const calculateReadTime = (wordCount: number) => {
@@ -130,10 +134,10 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
         </View>
       </View>
 
-      {item.image_url && (
+      {item.imageUrl && (
         <View style={styles.thumbnailContainer}>
           <Image
-            source={{ uri: item.image_url }}
+            source={{ uri: item.imageUrl }}
             style={styles.thumbnail}
             resizeMode="cover"
           />

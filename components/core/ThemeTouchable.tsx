@@ -91,9 +91,9 @@ export const ThemeTouchable: React.FC<ThemeTouchableProps> = ({
   ];
   
   return (
-    <View style={combinedStyle} {...otherProps}>
+    <TouchableOpacity style={combinedStyle} {...otherProps}>
       {children}
-    </View>
+    </TouchableOpacity>
   );
 };
 
