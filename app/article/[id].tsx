@@ -1,121 +1,102 @@
-// src/app/article/[id].tsx
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-  Share,
-  ActivityIndicator,
-  Alert,
-} from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { StatusBar } from "expo-status-bar";
-import { Ionicons } from "@expo/vector-icons";
-import { COLORS, lightColors } from "@/theme";
-import { useAppSelector } from "@/redux/hook";
-import { selectActiveTheme } from "@/redux/utils";
-import {
-  useToggleFavoriteMutation,
-  useToggleArchiveMutation,
-} from "@/redux/services/itemsApi";
-import { useGetItemQuery } from "@/redux/services/itemsApi";
-// import { formatDate } from "@/utils/formatter";
+// src/screens/ArticleDetailScreen.tsx
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Share, Alert, Image, TouchableOpacity } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { Ionicons } from '@expo/vector-icons';
+import { format } from 'date-fns';
 
-// Helper function to format date
-const formatDate = (dateString) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  });
-};
+// Import themed components and hooks
+import { ThemeView, ThemeText, ThemeTouchable, ThemeButton, ThemeImage } from '@/components/core';
+import { useTheme, useDarkMode } from '@/theme/hooks';
 
-// Helper function to calculate read time
-const calculateReadTime = (wordCount) => {
-  if (!wordCount) return 0;
-  return Math.ceil(wordCount / 200); // Assuming average reading speed of 200 words per minute
-};
+// Import database hooks
+import { useDatabase } from '@/database/provider/DatabaseProvider';
+import { updateItem, deleteItem } from '@/database/hooks/useItems';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { withObservables } from '@nozbe/watermelondb/react';
+import { ScrollView } from 'react-native-gesture-handler';
+import { COLORS } from '@/theme';
 
-export default function ArticleDetailScreen() {
-  const { id } = useLocalSearchParams();
-  console.log("Article ID:", id);
+// ItemDetailComponent receives the item from the HOC below
+const ItemDetailComponent = ({ item, onBack }) => {
   const router = useRouter();
-  const activeTheme = useAppSelector(selectActiveTheme);
-  const isDarkMode = activeTheme === "dark";
+  const theme = useTheme();
+  const isDarkMode = useDarkMode();
 
   // State
   const [isActionMenuVisible, setIsActionMenuVisible] = useState(false);
 
-  // Get item data
-  const { data, isLoading, error } = useGetItemQuery(id, {
-    // If we have an error, don't keep refetching
-    skip: !!error,
-  });
+  // Helper functions
+  const formatDate = (date) => {
+    if (!date) return '';
+    return format(new Date(date), 'MMM d, yyyy');
+  };
 
-  console.log("Item data:", data);
+  // Calculate read time
+  const calculateReadTime = (wordCount) => {
+    if (!wordCount) return 0;
+    return Math.ceil(wordCount / 200); // Assuming average reading speed of 200 words per minute
+  };
 
-  // Mutations
-  const [toggleFavorite, { isLoading: isTogglingFavorite }] =
-    useToggleFavoriteMutation();
-  const [toggleArchive, { isLoading: isTogglingArchive }] =
-    useToggleArchiveMutation();
+  const readTime = calculateReadTime(item.wordCount);
 
   // Handle back navigation
   const handleBack = () => {
-    router.back();
+    onBack ? onBack() : router.back();
   };
 
   // Handle read article
   const handleReadArticle = () => {
-    if (data?.item) {
-      router.push(`/reader/${data.item.id}`);
-    }
+    router.push(`/reader/${item.id}`);
   };
 
   // Handle favorite toggle
   const handleFavoriteToggle = async () => {
-    if (data?.item) {
-      try {
-        await toggleFavorite({
-          id: data.item.id,
-          favorite: !data.item.favorite,
-        }).unwrap();
-      } catch (error) {
-        Alert.alert("Error", "Failed to update favorite status");
-      }
+    try {
+      await updateItem(item.id, { favorite: !item.favorite });
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update favorite status');
     }
   };
 
   // Handle archive toggle
   const handleArchiveToggle = async () => {
-    if (data?.item) {
-      try {
-        await toggleArchive({
-          id: data.item.id,
-          archived: !data.item.archived,
-        }).unwrap();
-      } catch (error) {
-        Alert.alert("Error", "Failed to update archive status");
-      }
+    try {
+      await updateItem(item.id, { archived: !item.archived });
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update archive status');
     }
+  };
+
+  // Handle delete
+  const handleDelete = async () => {
+    Alert.alert('Delete Article', 'Are you sure you want to delete this article?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await deleteItem(item.id);
+            router.back();
+          } catch (error) {
+            Alert.alert('Error', 'Failed to delete article');
+          }
+        },
+      },
+    ]);
   };
 
   // Handle share
   const handleShare = async () => {
-    if (data?.item) {
-      try {
-        await Share.share({
-          message: `Check out this article: ${data.item.title} - ${data.item.url}`,
-          url: data.item.url,
-        });
-      } catch (error) {
-        console.error("Error sharing article:", error);
-      }
+    try {
+      await Share.share({
+        message: `Check out this article: ${item.title} - ${item.url}`,
+        url: item.url,
+      });
+    } catch (error) {
+      console.error('Error sharing article:', error);
     }
   };
 
@@ -124,267 +105,166 @@ export default function ArticleDetailScreen() {
     setIsActionMenuVisible(!isActionMenuVisible);
   };
 
-  // If loading, show loading indicator
-  if (isLoading) {
+  if (!item) {
     return (
-      <View
-        style={[
-          styles.loadingContainer,
-          {
-            backgroundColor: isDarkMode
-              ? COLORS.darkBackground
-              : lightColors.background.default,
-          },
-        ]}
-      >
-        <StatusBar style={isDarkMode ? "light" : "dark"} />
-        <ActivityIndicator size="large" color={COLORS.primary.main} />
-      </View>
+      <ThemeView style={{ flex: 1 }} centered>
+        <ThemeText>Article not found</ThemeText>
+        <ThemeButton title="Go Back" onPress={handleBack} style={{ marginTop: 16 }} />
+      </ThemeView>
     );
   }
-
-  // If error, show error message
-  if (error || !data?.item) {
-    return (
-      <View
-        style={[
-          styles.errorContainer,
-          {
-            backgroundColor: isDarkMode
-              ? COLORS.darkBackground
-              : lightColors.background.default,
-          },
-        ]}
-      >
-        <StatusBar style={isDarkMode ? "light" : "dark"} />
-        <Text
-          style={[
-            styles.errorText,
-            { color: isDarkMode ? COLORS.white : COLORS.text },
-          ]}
-        >
-          Could not load the article. Please try again.
-        </Text>
-        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Text style={styles.backButtonText}>Go Back</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
-  const item = data.item;
-  const readTime = calculateReadTime(item.word_count);
 
   return (
-    <View
-      style={[
-        styles.container,
-        {
-          backgroundColor: isDarkMode
-            ? COLORS.darkBackground
-            : lightColors.background.default,
-        },
-      ]}
+    <SafeAreaView
+      style={{
+        flex: 1,
+        backgroundColor: theme.colors.background.default,
+      }}
+      edges={['top']}
     >
-      <StatusBar style={isDarkMode ? "light" : "dark"} />
+      <StatusBar style={isDarkMode ? 'light' : 'dark'} />
 
       {/* Header */}
-      <View style={styles.header}>
+      <ThemeView style={styles.header} row>
         <TouchableOpacity onPress={handleBack}>
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={isDarkMode ? COLORS.white : COLORS.text}
-          />
+          <Ionicons name="arrow-back" size={24} color={theme.colors.text.primary} />
         </TouchableOpacity>
 
         <TouchableOpacity onPress={toggleActionMenu}>
-          <Ionicons
-            name="ellipsis-horizontal"
-            size={24}
-            color={isDarkMode ? COLORS.white : COLORS.text}
-          />
+          <Ionicons name="ellipsis-horizontal" size={24} color={theme.colors.text.primary} />
         </TouchableOpacity>
-      </View>
+      </ThemeView>
 
       {/* Content */}
-      <ScrollView style={styles.scrollView}>
-        {item.image_url && (
-          <Image
-            source={{ uri: item.image_url }}
-            style={styles.thumbnail}
-            resizeMode="cover"
-          />
-        )}
+      <ThemeView style={styles.scrollView}>
+        {item.imageUrl && <ThemeImage source={{ uri: item.imageUrl }} style={styles.thumbnail} size="fill" />}
 
-        <View style={styles.content}>
-          <Text
-            style={[
-              styles.title,
-              { color: isDarkMode ? COLORS.white : COLORS.text },
-            ]}
-          >
+        <ThemeView style={styles.content} padded="lg">
+          <ThemeText variant="h4" style={styles.title}>
             {item.title}
-          </Text>
+          </ThemeText>
 
-          <View style={styles.metaContainer}>
-            {item.site_name && (
-              <Text style={styles.metaText}>{item.site_name}</Text>
+          <ThemeView style={styles.metaContainer} row>
+            {item.siteName && (
+              <ThemeText variant="body2" color={theme.colors.text.secondary}>
+                {item.siteName}
+              </ThemeText>
             )}
 
-            <Text style={styles.dotSeparator}>•</Text>
+            <ThemeText variant="body2" color={theme.colors.text.secondary} style={styles.dotSeparator}>
+              •
+            </ThemeText>
 
-            <Text style={styles.metaText}>{formatDate(item.published_at)}</Text>
+            <ThemeText variant="body2" color={theme.colors.text.secondary}>
+              {formatDate(item.publishedAt)}
+            </ThemeText>
 
             {readTime > 0 && (
               <>
-                <Text style={styles.dotSeparator}>•</Text>
-                <Text style={styles.metaText}>{readTime} min read</Text>
+                <ThemeText variant="body2" color={theme.colors.text.secondary} style={styles.dotSeparator}>
+                  •
+                </ThemeText>
+                <ThemeText variant="body2" color={theme.colors.text.secondary}>
+                  {readTime} min read
+                </ThemeText>
               </>
             )}
-          </View>
-
-          {/* Tags */}
-          {item.tags && item.tags.length > 0 && (
-            <View style={styles.tagsContainer}>
-              {item.tags.map((tag, index) => (
-                <View key={index} style={styles.tagItem}>
-                  <Ionicons
-                    name="pricetag-outline"
-                    size={14}
-                    color={COLORS.darkGray}
-                  />
-                  <Text style={styles.tagText}>{tag}</Text>
-                </View>
-              ))}
-            </View>
-          )}
+          </ThemeView>
 
           {/* Progress indicator */}
           {item.progress && parseFloat(item.progress) > 0 && (
-            <View style={styles.progressContainer}>
-              <View style={styles.progressBar}>
-                <View 
+            <ThemeView style={styles.progressContainer}>
+              <ThemeView style={styles.progressBar}>
+                <ThemeView
                   style={[
                     styles.progressFill,
-                    { width: `${parseFloat(item.progress) * 100}%` }
-                  ]} 
+                    {
+                      width: `${parseFloat(item.progress) * 100}%`,
+                      backgroundColor: theme.colors.primary.main,
+                    },
+                  ]}
                 />
-              </View>
-              <Text style={styles.progressText}>
+              </ThemeView>
+              <ThemeText variant="caption" color={theme.colors.text.secondary}>
                 {Math.round(parseFloat(item.progress) * 100)}% read
-              </Text>
-            </View>
+              </ThemeText>
+            </ThemeView>
           )}
-          
 
           {/* Article excerpt */}
-          <Text
-            style={[
-              styles.excerpt,
-              { color: isDarkMode ? COLORS.lightGray : COLORS.darkGray },
-            ]}
-          >
-            {item.description}
-          </Text>
-        </View>
-      </ScrollView>
+          <ThemeText variant="body1" color={theme.colors.text.secondary} style={styles.excerpt}>
+            {item.description || 'No description available.'}
+          </ThemeText>
+        </ThemeView>
+      </ThemeView>
 
       {/* Action buttons */}
-      <View
-        style={[
-          styles.actionBar,
-          {
-            backgroundColor: isDarkMode
-              ? COLORS.darkBackground
-              : lightColors.background.default,
-            borderTopColor: isDarkMode ? COLORS.darkBorder : COLORS.lightBorder,
-          },
-        ]}
-      >
-        <TouchableOpacity style={styles.readButton} onPress={handleReadArticle}>
-          <Text style={styles.readButtonText}>Read</Text>
-        </TouchableOpacity>
+      <ThemeView style={styles.actionBar} row backgroundColor={theme.colors.background.paper} elevation={2}>
+        <ThemeButton
+          title="Read"
+          variant="filled"
+          size="md"
+          color="primary"
+          onPress={handleReadArticle}
+          style={styles.readButton}
+        />
 
-        <View style={styles.actionButtons}>
+        <ThemeView style={styles.actionButtons} row>
           <TouchableOpacity
             style={styles.actionButton}
             onPress={handleFavoriteToggle}
-            disabled={isTogglingFavorite}
+            // disabled={isTogglingFavorite}
           >
             <Ionicons
-              name={item.favorite ? "star" : "star-outline"}
+              name={item.favorite ? 'star' : 'star-outline'}
               size={24}
-              color={
-                item.favorite
-                  ? COLORS.favorite
-                  : isDarkMode
-                  ? COLORS.white
-                  : COLORS.text
-              }
+              color={item.favorite ? theme.colors.favorite : theme.colors.text.primary}
             />
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.actionButton}
             onPress={handleArchiveToggle}
-            disabled={isTogglingArchive}
+            // disabled={isTogglingArchive}
           >
-            <Ionicons
-              name="archive-outline"
-              size={24}
-              color={isDarkMode ? COLORS.white : COLORS.text}
-            />
+            <Ionicons name="archive-outline" size={24} color={theme.colors.text.primary} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionButton} onPress={handleShare}>
-            <Ionicons
-              name="share-outline"
-              size={24}
-              color={isDarkMode ? COLORS.white : COLORS.text}
-            />
-          </TouchableOpacity>
-        </View>
-      </View>
+          <ThemeTouchable style={styles.actionButton} onPress={handleShare}>
+            <Ionicons name="share-outline" size={24} color={theme.colors.text.primary} />
+          </ThemeTouchable>
 
-      {/* Action Menu (conditionally rendered) */}
+          <TouchableOpacity style={styles.actionMenuItem} onPress={toggleActionMenu}>
+            <Ionicons name="trash-outline" size={22} color={COLORS.error.main} />
+          </TouchableOpacity>
+        </ThemeView>
+      </ThemeView>
+
+      {/* Action Menu Modal */}
       {isActionMenuVisible && (
-        <View style={styles.actionMenuOverlay}>
-          <TouchableOpacity
-            style={styles.actionMenuBackdrop}
-            onPress={toggleActionMenu}
-            activeOpacity={1}
-          />
+        <ThemeView style={styles.actionMenuOverlay}>
+          <ThemeTouchable style={styles.actionMenuBackdrop} onPress={toggleActionMenu} activeOpacity={1} />
 
-          <View
-            style={[
-              styles.actionMenu,
-              { backgroundColor: isDarkMode ? COLORS.darkGray : COLORS.white },
-            ]}
+          <ThemeView
+            style={styles.actionMenu}
+            backgroundColor={theme.colors.background.paper}
+            rounded="md"
+            elevation={3}
           >
-            <TouchableOpacity
+            <ThemeTouchable
               style={styles.actionMenuItem}
               onPress={() => {
                 handleShare();
                 toggleActionMenu();
               }}
             >
-              <Ionicons
-                name="share-outline"
-                size={22}
-                color={isDarkMode ? COLORS.white : COLORS.text}
-              />
-              <Text
-                style={[
-                  styles.actionMenuText,
-                  { color: isDarkMode ? COLORS.white : COLORS.text },
-                ]}
-              >
+              <Ionicons name="share-outline" size={22} color={theme.colors.text.primary} />
+              <ThemeText variant="body1" style={styles.actionMenuText}>
                 Share
-              </Text>
-            </TouchableOpacity>
+              </ThemeText>
+            </ThemeTouchable>
 
-            <TouchableOpacity
+            <ThemeTouchable
               style={styles.actionMenuItem}
               onPress={() => {
                 handleFavoriteToggle();
@@ -392,237 +272,193 @@ export default function ArticleDetailScreen() {
               }}
             >
               <Ionicons
-                name={item.favorite ? "star" : "star-outline"}
+                name={item.favorite ? 'star' : 'star-outline'}
                 size={22}
-                color={
-                  item.favorite
-                    ? COLORS.favorite
-                    : isDarkMode
-                    ? COLORS.white
-                    : COLORS.text
-                }
+                color={item.favorite ? theme.colors.favorite : theme.colors.text.primary}
               />
-              <Text
-                style={[
-                  styles.actionMenuText,
-                  { color: isDarkMode ? COLORS.white : COLORS.text },
-                ]}
-              >
-                {item.favorite ? "Unfavorite" : "Favorite"}
-              </Text>
-            </TouchableOpacity>
+              <ThemeText variant="body1" style={styles.actionMenuText}>
+                {item.favorite ? 'Unfavorite' : 'Favorite'}
+              </ThemeText>
+            </ThemeTouchable>
 
-            <TouchableOpacity
+            <ThemeTouchable
               style={styles.actionMenuItem}
               onPress={() => {
                 handleArchiveToggle();
                 toggleActionMenu();
               }}
             >
-              <Ionicons
-                name="archive-outline"
-                size={22}
-                color={isDarkMode ? COLORS.white : COLORS.text}
-              />
-              <Text
-                style={[
-                  styles.actionMenuText,
-                  { color: isDarkMode ? COLORS.white : COLORS.text },
-                ]}
-              >
-                {item.archived ? "Unarchive" : "Archive"}
-              </Text>
-            </TouchableOpacity>
+              <Ionicons name="archive-outline" size={22} color={theme.colors.text.primary} />
+              <ThemeText variant="body1" style={styles.actionMenuText}>
+                {item.archived ? 'Unarchive' : 'Archive'}
+              </ThemeText>
+            </ThemeTouchable>
 
-            <TouchableOpacity
+            <ThemeTouchable
               style={styles.actionMenuItem}
-              onPress={toggleActionMenu}
+              onPress={() => {
+                toggleActionMenu();
+                handleDelete();
+              }}
             >
-              <Ionicons name="trash-outline" size={22} color={COLORS.error.main} />
-              <Text style={[styles.actionMenuText, { color: COLORS.error.main }]}>
+              <Ionicons name="trash-outline" size={22} color={theme.colors.error.main} />
+              <ThemeText variant="body1" style={styles.actionMenuText} color={theme.colors.error.main}>
                 Delete
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+              </ThemeText>
+            </ThemeTouchable>
+          </ThemeView>
+        </ThemeView>
       )}
-    </View>
+    </SafeAreaView>
   );
+};
+
+// HOC to observe a single item from the database
+const enhanced = withObservables(['id'], ({ id, database }) => ({
+  item: database.collections.get('items').findAndObserve(id),
+}));
+
+const EnhancedItemDetailComponent = enhanced(ItemDetailComponent);
+
+// Wrapper component to handle params and provide database
+export default function ArticleDetailScreen() {
+  const { id } = useLocalSearchParams();
+  const database = useDatabase();
+  const router = useRouter();
+  const theme = useTheme();
+  const [isLoading, setIsLoading] = useState(true);
+  const [exists, setExists] = useState(true);
+
+  // Check if the item exists
+  useEffect(() => {
+    const checkItem = async () => {
+      try {
+        await database.collections.get('items').find(id.toString());
+        setExists(true);
+      } catch (error) {
+        console.error('Item not found:', error);
+        setExists(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkItem();
+  }, [id, database]);
+
+  if (isLoading) {
+    return (
+      <ThemeView style={{ flex: 1 }} centered>
+        <ThemeText>Loading article...</ThemeText>
+      </ThemeView>
+    );
+  }
+
+  if (!exists) {
+    return (
+      <ThemeView style={{ flex: 1 }} centered>
+        <ThemeText>Article not found</ThemeText>
+        <ThemeButton title="Go Back" onPress={() => router.back()} style={{ marginTop: 16 }} />
+      </ThemeView>
+    );
+  }
+
+  return <EnhancedItemDetailComponent id={id.toString()} database={database} onBack={() => router.back()} />;
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  errorText: {
-    fontSize: 16,
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  backButton: {
-    backgroundColor: COLORS.primary.main,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  backButtonText: {
-    color: COLORS.white,
-    fontSize: 16,
-  },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: 48,
-    paddingBottom: 16,
+    paddingVertical: 16,
   },
   scrollView: {
     flex: 1,
   },
   thumbnail: {
-    width: "100%",
+    width: '100%',
     height: 240,
   },
   content: {
-    padding: 20,
+    flex: 1,
   },
   title: {
-    fontSize: 24,
-    fontWeight: "700",
     marginBottom: 16,
     lineHeight: 32,
   },
   metaContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    alignItems: "center",
+    flexWrap: 'wrap',
+    alignItems: 'center',
     marginBottom: 16,
   },
-  metaText: {
-    fontSize: 14,
-    color: COLORS.darkGray,
-  },
   dotSeparator: {
-    fontSize: 14,
-    color: COLORS.darkGray,
     marginHorizontal: 6,
-  },
-  tagsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginBottom: 20,
-  },
-  tagItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: COLORS.lightGray,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 16,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  tagText: {
-    fontSize: 12,
-    color: COLORS.darkGray,
-    marginLeft: 4,
-  },
-  excerpt: {
-    fontSize: 16,
-    lineHeight: 24,
-  },
-  actionBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderTopWidth: 1,
-  },
-  readButton: {
-    backgroundColor: COLORS.primary.main,
-    paddingHorizontal: 30,
-    paddingVertical: 12,
-    borderRadius: 24,
-  },
-  readButtonText: {
-    color: COLORS.white,
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  actionButtons: {
-    flexDirection: "row",
-  },
-  actionButton: {
-    marginLeft: 20,
-    padding: 4,
-  },
-  actionMenuOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 1000,
-  },
-  actionMenuBackdrop: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  actionMenu: {
-    width: "80%",
-    borderRadius: 12,
-    padding: 8,
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  actionMenuItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 16,
-  },
-  actionMenuText: {
-    fontSize: 16,
-    marginLeft: 16,
   },
   progressContainer: {
     marginBottom: 16,
   },
   progressBar: {
     height: 4,
-    backgroundColor: COLORS.lightGray,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
     borderRadius: 2,
     overflow: 'hidden',
     marginBottom: 4,
   },
   progressFill: {
     height: '100%',
-    backgroundColor: COLORS.primary.main,
     borderRadius: 2,
   },
-  progressText: {
-    fontSize: 12,
-    color: COLORS.darkGray,
+  excerpt: {
+    lineHeight: 24,
+    marginTop: 16,
+  },
+  actionBar: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  readButton: {
+    paddingHorizontal: 30,
+  },
+  actionButtons: {
+    alignItems: 'center',
+  },
+  actionButton: {
+    marginLeft: 20,
+    padding: 4,
+  },
+  actionMenuOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  actionMenuBackdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  actionMenu: {
+    width: '80%',
+    padding: 8,
+  },
+  actionMenuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+  },
+  actionMenuText: {
+    marginLeft: 16,
   },
 });
