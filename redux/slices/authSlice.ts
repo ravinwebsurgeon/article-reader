@@ -1,14 +1,8 @@
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { authApi } from "../services/authApi";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { authApi } from '../services/authApi';
+import { User } from '../../types/api';
 
 // Types
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  avatar?: string;
-}
-
 interface AuthState {
   user: User | null;
   token: string | null;
@@ -30,7 +24,7 @@ const initialState: AuthState = {
 
 // Slice
 const authSlice = createSlice({
-  name: "auth",
+  name: 'auth',
   initialState,
   reducers: {
     resetAuthError(state) {
@@ -48,44 +42,32 @@ const authSlice = createSlice({
       state.isLoading = true;
       state.error = null;
     });
-    builder.addMatcher(
-      authApi.endpoints.login.matchFulfilled,
-      (state, { payload }) => {
-        state.isLoading = false;
-        state.isAuthenticated = true;
-        state.user = payload.user;
-        state.token = payload.token;
-      }
-    );
-    builder.addMatcher(
-      authApi.endpoints.login.matchRejected,
-      (state, action) => {
-        state.isLoading = false;
-        state.error = action.error.message || "Login failed";
-      }
-    );
+    builder.addMatcher(authApi.endpoints.login.matchFulfilled, (state, { payload }) => {
+      state.isLoading = false;
+      state.isAuthenticated = true;
+      state.user = payload.user;
+      state.token = payload.token;
+    });
+    builder.addMatcher(authApi.endpoints.login.matchRejected, (state, action) => {
+      state.isLoading = false;
+      state.error = action.error.message || 'Login failed';
+    });
 
     // Register
     builder.addMatcher(authApi.endpoints.register.matchPending, (state) => {
       state.isLoading = true;
       state.error = null;
     });
-    builder.addMatcher(
-      authApi.endpoints.register.matchFulfilled,
-      (state, { payload }) => {
-        state.isLoading = false;
-        state.isAuthenticated = true;
-        state.user = payload.user;
-        state.token = payload.token;
-      }
-    );
-    builder.addMatcher(
-      authApi.endpoints.register.matchRejected,
-      (state, action) => {
-        state.isLoading = false;
-        state.error = action.error.message || "Registration failed";
-      }
-    );
+    builder.addMatcher(authApi.endpoints.register.matchFulfilled, (state, { payload }) => {
+      state.isLoading = false;
+      state.isAuthenticated = true;
+      state.user = payload.user;
+      state.token = payload.token;
+    });
+    builder.addMatcher(authApi.endpoints.register.matchRejected, (state, action) => {
+      state.isLoading = false;
+      state.error = action.error.message || 'Registration failed';
+    });
 
     // Logout
     builder.addMatcher(authApi.endpoints.logout.matchPending, (state) => {
@@ -106,29 +88,23 @@ const authSlice = createSlice({
     });
 
     // Token refresh
-    builder.addMatcher(
-      authApi.endpoints.refreshToken.matchFulfilled,
-      (state, { payload }) => {
-        state.token = payload.token;
-      }
-    );
+    builder.addMatcher(authApi.endpoints.refreshToken.matchFulfilled, (state, { payload }) => {
+      state.token = payload.token;
+    });
 
     // Initialize auth
-    builder.addMatcher(
-      authApi.endpoints.initializeAuth.matchFulfilled,
-      (state, { payload }) => {
-        if (payload) {
-          state.user = payload.user;
-          state.token = payload.token;
-          state.isAuthenticated = true;
-        } else {
-          state.user = null;
-          state.token = null;
-          state.isAuthenticated = false;
-        }
-        state.isLoading = false;
+    builder.addMatcher(authApi.endpoints.initializeAuth.matchFulfilled, (state, { payload }) => {
+      if (payload) {
+        state.user = payload.user;
+        state.token = payload.token;
+        state.isAuthenticated = true;
+      } else {
+        state.user = null;
+        state.token = null;
+        state.isAuthenticated = false;
       }
-    );
+      state.isLoading = false;
+    });
   },
 });
 
