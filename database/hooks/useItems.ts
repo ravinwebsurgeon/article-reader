@@ -8,21 +8,12 @@ import database from '../database';
 
 const itemsCollection = database.collections.get('items');
 
-// Hook to get filtered items
-export const useItems =  (filter?: string) => {
+// DEPRECATED: This hook uses useState which is inefficient - use enhanced components with withObservables instead
+// See the withItems HOC at the bottom of this file for the proper reactive approach
+export const useItems = (filter?: string) => {
   const database = useDatabase();
   const [items, setItems] = useState<Item[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  // const itemsCollection2 = database.get('items');
-  // const allPosts = await database.get('items').query().fetch()
-  // const numberOfStarredPosts = await database.get('items').query(
-  //   Q.where('archived', true)
-  // ).observe().subscribe((posts) => {
-  //   console.log('numberOfStarredPosts booba booba', posts);
-  //   return posts.length;
-  // });
-  // console.log('numberOfStarredPosts archieved', numberOfStarredPosts);
 
   useEffect(() => {
     setIsLoading(true);
@@ -38,25 +29,18 @@ export const useItems =  (filter?: string) => {
         Q.unsafeSqlQuery('SELECT items.* FROM items JOIN item_tags ON items.id = item_tags.item_id')
       );
     } else if (filter === 'short') {
-      query = itemsCollection.query(Q.where('word_count', Q?.lessThanOrEqual(800)), Q.where('archived', false));
+      query = itemsCollection.query(Q.where('word_count', Q.lte(800)), Q.where('archived', false));
     } else if (filter === 'long') {
-      query = itemsCollection.query(Q.where('word_count', Q?.greaterThan(800)), Q.where('archived', false));
+      query = itemsCollection.query(Q.where('word_count', Q.gt(800)), Q.where('archived', false));
     } else {
       // Default to unarchived items
-      query = itemsCollection.query(Q?.where('archived', false),Q.take(20));
+      query = itemsCollection.query(Q.where('archived', false));
     }
 
-    const subscription = query.observe().subscribe(
-      (newItems) => {
-        console.log('newItems is coming??', newItems);
-        setItems(newItems);
-        setIsLoading(false);
-      },
-      // (error) => {
-      //   console.error('Error observing items:', error);
-      //   setIsLoading(false);
-      // }
-    );
+    const subscription = query.observe().subscribe((newItems) => {
+      setItems(newItems);
+      setIsLoading(false);
+    });
 
     return () => subscription.unsubscribe();
   }, [filter, database]);
@@ -128,4 +112,32 @@ export const withItem = (id: string) => {
   return withObservables(['id'], () => ({
     item: itemsCollection.findAndObserve(id),
   }));
+};
+
+// The preferred reactive approach - use this HOC instead of useItems hook
+export const withItems = ({ filter = 'all' }) => {
+  return withObservables(['filter'], () => {
+    let query;
+
+    if (filter === 'favorites') {
+      query = itemsCollection.query(Q.where('favorite', true), Q.where('archived', false));
+    } else if (filter === 'archived') {
+      query = itemsCollection.query(Q.where('archived', true));
+    } else if (filter === 'tagged') {
+      query = itemsCollection.query(
+        Q.unsafeSqlQuery('SELECT items.* FROM items JOIN item_tags ON items.id = item_tags.item_id')
+      );
+    } else if (filter === 'short') {
+      query = itemsCollection.query(Q.where('word_count', Q.lte(800)), Q.where('archived', false));
+    } else if (filter === 'long') {
+      query = itemsCollection.query(Q.where('word_count', Q.gt(800)), Q.where('archived', false));
+    } else {
+      // Default to unarchived items
+      query = itemsCollection.query(Q.where('archived', false));
+    }
+
+    return {
+      items: query,
+    };
+  });
 };
