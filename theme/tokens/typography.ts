@@ -1,4 +1,3 @@
-// src/theme/tokens/typography.ts
 import { Platform, TextStyle } from 'react-native';
 
 // Font family definitions
@@ -30,7 +29,7 @@ export const getFontFamily = (weight: TextStyle['fontWeight'] = '400'): string =
   if (Platform.OS === 'ios') {
     return 'Poppins';
   }
-  
+
   switch (weight) {
     case '100':
       return fontFamily.poppins.thin;
@@ -63,7 +62,7 @@ export const createTextStyle = (
   lineHeight: number,
   fontWeight: TextStyle['fontWeight'] = '400',
   letterSpacing: number = 0,
-  fontStyle: TextStyle['fontStyle'] = 'normal',
+  fontStyle: TextStyle['fontStyle'] = 'normal'
 ): TextStyle => {
   const style: TextStyle = {
     fontSize: size,
@@ -72,7 +71,7 @@ export const createTextStyle = (
     fontStyle,
     includeFontPadding: false, // For consistency between iOS and Android
   };
-  
+
   if (Platform.OS === 'ios') {
     style.fontFamily = 'Poppins';
     style.fontWeight = fontWeight;
@@ -80,7 +79,7 @@ export const createTextStyle = (
     style.fontFamily = getFontFamily(fontWeight);
     // Android handles weight through font file selection
   }
-  
+
   return style;
 };
 
@@ -93,19 +92,19 @@ export const typography = {
   h4: createTextStyle(22, 28, '600'),
   h5: createTextStyle(20, 26, '600'),
   h6: createTextStyle(18, 24, '600'),
-  
+
   // Body text
   body1: createTextStyle(16, 24, '400'),
   body2: createTextStyle(14, 20, '400'),
   body1Bold: createTextStyle(16, 24, '700'),
   body2Bold: createTextStyle(14, 20, '700'),
-  
+
   // Other text styles
   subtitle1: createTextStyle(16, 24, '500'),
   subtitle2: createTextStyle(14, 20, '500'),
   caption: createTextStyle(12, 16, '400'),
   overline: createTextStyle(10, 14, '500', 1.5),
-  
+
   // Button text
   button: createTextStyle(14, 20, '600'),
   button_small: createTextStyle(12, 18, '600'),

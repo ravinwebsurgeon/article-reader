@@ -1,4 +1,3 @@
-// src/app/reader/[id].tsx
 import React, { useState, useRef } from 'react';
 import {
   View,
@@ -6,7 +5,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  ActivityIndicator,
   Dimensions,
   SafeAreaView,
   Share,
@@ -17,12 +15,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/theme';
 import { useAppSelector } from '@/redux/hook';
 import { selectActiveTheme } from '@/redux/utils';
-import {
-  useGetItemQuery,
-  useToggleFavoriteMutation,
-  useToggleArchiveMutation,
-  useUpdateItemMutation,
-} from '@/redux/services/itemsApi';
+import { withObservables } from '@nozbe/watermelondb/react';
+import { useDatabase } from '@/database/provider/DatabaseProvider';
+import Item from '@/database/models/ItemModel';
 import HTML from 'react-native-render-html';
 
 // Font sizes
@@ -52,204 +47,118 @@ const READER_THEMES = {
 // Get window width for content sizing
 const { width } = Dimensions.get('window');
 
-export default function ArticleReaderScreen() {
-  const { id } = useLocalSearchParams();
+// Base component that receives the item as a prop
+const ReaderComponent = ({ item }: { item: Item }) => {
   const router = useRouter();
   const activeTheme = useAppSelector(selectActiveTheme);
   const systemIsDark = activeTheme === 'dark';
-  
+
   // Refs
   const scrollViewRef = useRef<ScrollView>(null);
-  
+
   // State
   const [fontSize, setFontSize] = useState<keyof typeof FONT_SIZES>('medium');
   const [readerTheme, setReaderTheme] = useState<keyof typeof READER_THEMES>(
     systemIsDark ? 'dark' : 'light'
   );
   const [showControls, setShowControls] = useState(true);
-  const [progress, setProgress] = useState(0);
-  
-  // Get item data
-  const { 
-    data, 
-    isLoading, 
-    error 
-  } = useGetItemQuery(id);
-  
-  // Mutations
-  const [toggleFavorite] = useToggleFavoriteMutation();
-  const [toggleArchive] = useToggleArchiveMutation();
-  const [updateItem] = useUpdateItemMutation();
-  
+  const [progress, setProgress] = useState(item.progress || 0);
+
   // Current theme colors
   const currentTheme = READER_THEMES[readerTheme];
-  
+
   // Handle navigation back
-  const handleBack = () => {
+  const handleBack = async () => {
     // Save reading progress before navigating back
-    if (data?.item) {
-      updateItem({
-        id: data.item.id,
-        item: { progress },
-      });
-    }
+    await item.setProgress(progress);
     router.back();
   };
-  
+
   // Handle scroll to track reading progress
   const handleScroll = (event: any) => {
     const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
-    
+
     if (contentSize.height > 0) {
       const newProgress = Math.min(
         contentOffset.y / (contentSize.height - layoutMeasurement.height),
         1
       );
-      
+
       // Only update if significant change (avoid too many API calls)
       if (Math.abs(newProgress - progress) > 0.05) {
         setProgress(newProgress);
       }
     }
   };
-  
+
   // Handle screen tap to toggle controls
   const handleToggleControls = () => {
     setShowControls(!showControls);
   };
-  
+
   // Handle favorite toggle
   const handleFavoriteToggle = async () => {
-    if (data?.item) {
-      await toggleFavorite({
-        id: data.item.id,
-        favorite: !data.item.favorite,
-      });
-    }
+    await item.toggleFavorite();
   };
-  
+
   // Handle archive toggle
   const handleArchiveToggle = async () => {
-    if (data?.item) {
-      await toggleArchive({
-        id: data.item.id,
-        archived: !data.item.archived,
-      });
-    }
+    await item.toggleArchived();
   };
-  
+
   // Handle share
   const handleShare = async () => {
-    if (data?.item) {
-      try {
-        await Share.share({
-          message: `Check out this article: ${data.item.title} - ${data.item.url}`,
-          url: data.item.url,
-        });
-      } catch (error) {
-        console.error('Error sharing article:', error);
-      }
+    try {
+      await Share.share({
+        message: `Check out this article: ${item.title} - ${item.url}`,
+        url: item.url,
+      });
+    } catch (error) {
+      console.error('Error sharing article:', error);
     }
   };
-  
+
   // Handle font size change
   const handleFontSizeChange = (size: keyof typeof FONT_SIZES) => {
     setFontSize(size);
   };
-  
+
   // Handle theme change
   const handleThemeChange = (theme: keyof typeof READER_THEMES) => {
     setReaderTheme(theme);
   };
-  
-  // If loading, show loading indicator
-  if (isLoading) {
-    return (
-      <View style={[
-        styles.loadingContainer,
-        { backgroundColor: currentTheme.backgroundColor }
-      ]}>
-        <ActivityIndicator size="large" color={COLORS.primary.main} />
-      </View>
-    );
-  }
-  
-  // If error or no data, show error message
-  if (error || !data?.item) {
-    return (
-      <View style={[
-        styles.errorContainer,
-        { backgroundColor: currentTheme.backgroundColor }
-      ]}>
-        <Text style={[styles.errorText, { color: currentTheme.textColor }]}>
-          Could not load the article. Please try again.
-        </Text>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={handleBack}
-        >
-          <Text style={styles.backButtonText}>Go Back</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-  
-  const item = data.item;
-  
+
   return (
-    <SafeAreaView 
-      style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}
-    >
+    <SafeAreaView style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
       <StatusBar style={readerTheme === 'dark' ? 'light' : 'dark'} />
-      
+
       {/* Header controls - shown only when controls are visible */}
       {showControls && (
         <View style={styles.header}>
           <TouchableOpacity onPress={handleBack}>
-            <Ionicons 
-              name="arrow-back" 
-              size={24} 
-              color={currentTheme.textColor} 
-            />
+            <Ionicons name="arrow-back" size={24} color={currentTheme.textColor} />
           </TouchableOpacity>
-          
+
           <View style={styles.headerRightActions}>
-            <TouchableOpacity 
-              style={styles.headerActionButton}
-              onPress={handleFavoriteToggle}
-            >
-              <Ionicons 
-                name={item.favorite ? "star" : "star-outline"} 
-                size={24} 
-                color={item.favorite ? COLORS.favorite : currentTheme.textColor} 
+            <TouchableOpacity style={styles.headerActionButton} onPress={handleFavoriteToggle}>
+              <Ionicons
+                name={item.favorite ? 'star' : 'star-outline'}
+                size={24}
+                color={item.favorite ? COLORS.favorite : currentTheme.textColor}
               />
             </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={styles.headerActionButton}
-              onPress={handleArchiveToggle}
-            >
-              <Ionicons 
-                name="archive-outline" 
-                size={24} 
-                color={currentTheme.textColor} 
-              />
+
+            <TouchableOpacity style={styles.headerActionButton} onPress={handleArchiveToggle}>
+              <Ionicons name="archive-outline" size={24} color={currentTheme.textColor} />
             </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={styles.headerActionButton}
-              onPress={handleShare}
-            >
-              <Ionicons 
-                name="share-outline" 
-                size={24} 
-                color={currentTheme.textColor} 
-              />
+
+            <TouchableOpacity style={styles.headerActionButton} onPress={handleShare}>
+              <Ionicons name="share-outline" size={24} color={currentTheme.textColor} />
             </TouchableOpacity>
           </View>
         </View>
       )}
-      
+
       {/* Article content */}
       <ScrollView
         ref={scrollViewRef}
@@ -263,33 +172,37 @@ export default function ArticleReaderScreen() {
           onPress={handleToggleControls}
           style={styles.contentTouchable}
         >
-          <Text style={[
-            styles.title,
-            { 
-              color: currentTheme.textColor,
-              fontSize: FONT_SIZES[fontSize] + 6,
-            }
-          ]}>
+          <Text
+            style={[
+              styles.title,
+              {
+                color: currentTheme.textColor,
+                fontSize: FONT_SIZES[fontSize] + 6,
+              },
+            ]}
+          >
             {item.title}
           </Text>
-          
+
           <View style={styles.metaContainer}>
-            {item.source && (
-              <Text style={[
-                styles.metaText,
-                { 
-                  color: currentTheme.textColor,
-                  opacity: 0.7,
-                  fontSize: FONT_SIZES[fontSize] - 2,
-                }
-              ]}>
-                {item.source}
+            {item.siteName && (
+              <Text
+                style={[
+                  styles.metaText,
+                  {
+                    color: currentTheme.textColor,
+                    opacity: 0.7,
+                    fontSize: FONT_SIZES[fontSize] - 2,
+                  },
+                ]}
+              >
+                {item.siteName}
               </Text>
             )}
-            
+
             {/* Simplified HTML content rendering */}
             <HTML
-              source={{ html: item.content || item.excerpt }}
+              source={{ html: item.description || '' }}
               contentWidth={width - 40} // 20px padding on each side
               baseStyle={{
                 color: currentTheme.textColor,
@@ -298,19 +211,19 @@ export default function ArticleReaderScreen() {
               }}
               tagsStyles={{
                 p: { marginBottom: 16 },
-                h1: { 
+                h1: {
                   fontSize: FONT_SIZES[fontSize] * 1.5,
                   marginBottom: 16,
                   marginTop: 24,
                   color: currentTheme.textColor,
                 },
-                h2: { 
+                h2: {
                   fontSize: FONT_SIZES[fontSize] * 1.3,
                   marginBottom: 16,
                   marginTop: 24,
                   color: currentTheme.textColor,
                 },
-                h3: { 
+                h3: {
                   fontSize: FONT_SIZES[fontSize] * 1.2,
                   marginBottom: 16,
                   marginTop: 20,
@@ -341,77 +254,73 @@ export default function ArticleReaderScreen() {
           </View>
         </TouchableOpacity>
       </ScrollView>
-      
+
       {/* Footer controls - shown only when controls are visible */}
       {showControls && (
         <View style={styles.footer}>
           {/* Font size controls */}
           <View style={styles.fontSizeControls}>
             <TouchableOpacity
-              style={[
-                styles.fontSizeButton,
-                fontSize === 'small' && styles.activeFontSizeButton,
-              ]}
+              style={[styles.fontSizeButton, fontSize === 'small' && styles.activeFontSizeButton]}
               onPress={() => handleFontSizeChange('small')}
             >
-              <Text style={[
-                styles.fontSizeButtonText,
-                { color: currentTheme.textColor },
-                fontSize === 'small' && styles.activeFontSizeButtonText,
-              ]}>
+              <Text
+                style={[
+                  styles.fontSizeButtonText,
+                  { color: currentTheme.textColor },
+                  fontSize === 'small' && styles.activeFontSizeButtonText,
+                ]}
+              >
                 A
               </Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity
-              style={[
-                styles.fontSizeButton,
-                fontSize === 'medium' && styles.activeFontSizeButton,
-              ]}
+              style={[styles.fontSizeButton, fontSize === 'medium' && styles.activeFontSizeButton]}
               onPress={() => handleFontSizeChange('medium')}
             >
-              <Text style={[
-                styles.fontSizeButtonText,
-                { color: currentTheme.textColor, fontSize: 18 },
-                fontSize === 'medium' && styles.activeFontSizeButtonText,
-              ]}>
+              <Text
+                style={[
+                  styles.fontSizeButtonText,
+                  { color: currentTheme.textColor, fontSize: 18 },
+                  fontSize === 'medium' && styles.activeFontSizeButtonText,
+                ]}
+              >
                 A
               </Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity
-              style={[
-                styles.fontSizeButton,
-                fontSize === 'large' && styles.activeFontSizeButton,
-              ]}
+              style={[styles.fontSizeButton, fontSize === 'large' && styles.activeFontSizeButton]}
               onPress={() => handleFontSizeChange('large')}
             >
-              <Text style={[
-                styles.fontSizeButtonText,
-                { color: currentTheme.textColor, fontSize: 20 },
-                fontSize === 'large' && styles.activeFontSizeButtonText,
-              ]}>
+              <Text
+                style={[
+                  styles.fontSizeButtonText,
+                  { color: currentTheme.textColor, fontSize: 20 },
+                  fontSize === 'large' && styles.activeFontSizeButtonText,
+                ]}
+              >
                 A
               </Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity
-              style={[
-                styles.fontSizeButton,
-                fontSize === 'xlarge' && styles.activeFontSizeButton,
-              ]}
+              style={[styles.fontSizeButton, fontSize === 'xlarge' && styles.activeFontSizeButton]}
               onPress={() => handleFontSizeChange('xlarge')}
             >
-              <Text style={[
-                styles.fontSizeButtonText,
-                { color: currentTheme.textColor, fontSize: 22 },
-                fontSize === 'xlarge' && styles.activeFontSizeButtonText,
-              ]}>
+              <Text
+                style={[
+                  styles.fontSizeButtonText,
+                  { color: currentTheme.textColor, fontSize: 22 },
+                  fontSize === 'xlarge' && styles.activeFontSizeButtonText,
+                ]}
+              >
                 A
               </Text>
             </TouchableOpacity>
           </View>
-          
+
           {/* Theme buttons */}
           <View style={styles.themeButtons}>
             <TouchableOpacity
@@ -422,7 +331,7 @@ export default function ArticleReaderScreen() {
               ]}
               onPress={() => handleThemeChange('light')}
             />
-            
+
             <TouchableOpacity
               style={[
                 styles.themeButton,
@@ -431,7 +340,7 @@ export default function ArticleReaderScreen() {
               ]}
               onPress={() => handleThemeChange('sepia')}
             />
-            
+
             <TouchableOpacity
               style={[
                 styles.themeButton,
@@ -445,16 +354,37 @@ export default function ArticleReaderScreen() {
       )}
     </SafeAreaView>
   );
+};
+
+// Enhanced component that observes the item from the database
+interface EnhancedReaderProps {
+  id: string;
+  database: any; // TODO: Import proper Database type from WatermelonDB
+}
+
+const EnhancedReader = withObservables(['id'], ({ id, database }: EnhancedReaderProps) => ({
+  item: database.collections.get('items').findAndObserve(id),
+}))(ReaderComponent);
+
+// Wrapper component that provides the database context
+export default function ReaderScreen() {
+  const { id } = useLocalSearchParams();
+  const database = useDatabase();
+
+  if (!id) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>No article ID provided</Text>
+      </View>
+    );
+  }
+
+  return <EnhancedReader id={id} database={database} />;
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   errorContainer: {
     flex: 1,
@@ -466,16 +396,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     marginBottom: 20,
-  },
-  backButton: {
-    backgroundColor: COLORS.primary.main,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  backButtonText: {
-    color: COLORS.white,
-    fontSize: 16,
   },
   header: {
     flexDirection: 'row',

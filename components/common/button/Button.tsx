@@ -1,17 +1,16 @@
 import React from 'react';
-import { 
-  TouchableOpacity, 
-  Text, 
-  StyleSheet, 
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
   ActivityIndicator,
   TouchableOpacityProps,
   ViewStyle,
   TextStyle,
-  View
+  View,
 } from 'react-native';
-import { typography, spacing } from '../../../styles';
-import { COLORS as colors } from '@/assets';
-
+import { typography, spacing } from '@/theme/tokens';
+import { lightColors } from '@/theme/tokens/colors';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'tertiary' | 'icon';
 export type ButtonSize = 'small' | 'medium' | 'large';
@@ -47,7 +46,7 @@ export const Button: React.FC<ButtonProps> = ({
     const variantStyle = styles[`button_${variant}`];
     const sizeStyle = styles[`button_${size}`];
     const disabledStyle = disabled ? styles.button_disabled : {};
-    
+
     return {
       ...baseStyle,
       ...variantStyle,
@@ -62,7 +61,7 @@ export const Button: React.FC<ButtonProps> = ({
     const variantStyle = styles[`text_${variant}`];
     const sizeStyle = styles[`text_${size}`];
     const disabledStyle = disabled ? styles.text_disabled : {};
-    
+
     return {
       ...baseStyle,
       ...variantStyle,
@@ -74,7 +73,11 @@ export const Button: React.FC<ButtonProps> = ({
 
   const renderContent = () => {
     if (isLoading) {
-      return <ActivityIndicator color={variant === 'primary' ? colors.white : colors.primary} />;
+      return (
+        <ActivityIndicator
+          color={variant === 'primary' ? lightColors.white : lightColors.primary.main}
+        />
+      );
     }
 
     if (icon && !title) {
@@ -110,10 +113,10 @@ const styles = StyleSheet.create({
     borderRadius: 24,
   },
   button_primary: {
-    backgroundColor: colors.primary,
+    backgroundColor: lightColors.primary.main,
   },
   button_secondary: {
-    backgroundColor: colors.gray[200],
+    backgroundColor: lightColors.gray[200],
   },
   button_tertiary: {
     backgroundColor: 'transparent',
@@ -142,16 +145,16 @@ const styles = StyleSheet.create({
     ...typography.button,
   },
   text_primary: {
-    color: colors.white,
+    color: lightColors.white,
   },
   text_secondary: {
-    color: colors.text.primary,
+    color: lightColors.text.primary,
   },
   text_tertiary: {
-    color: colors.primary,
+    color: lightColors.primary.main,
   },
   text_icon: {
-    color: colors.text.primary,
+    color: lightColors.text.primary,
   },
   text_small: {
     ...typography.button_small,

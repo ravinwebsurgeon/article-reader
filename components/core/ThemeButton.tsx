@@ -1,6 +1,12 @@
-// src/components/core/ThemeButton.tsx
 import React from 'react';
-import { TouchableOpacity, ActivityIndicator, StyleSheet, StyleProp, ViewStyle, TextStyle } from 'react-native';
+import {
+  TouchableOpacity,
+  ActivityIndicator,
+  StyleSheet,
+  StyleProp,
+  ViewStyle,
+  TextStyle,
+} from 'react-native';
 import { ThemeView } from './ThemeView';
 import { useTheme } from '@/theme/hooks';
 import { ThemeText } from './ThemeText';
@@ -41,27 +47,30 @@ export const ThemeButton: React.FC<ThemeButtonProps> = ({
   uppercase = false,
 }) => {
   const theme = useTheme();
-  
+
   // Get base color from theme
   const getBaseColor = () => theme.colors[color].main;
   const getContrastColor = () => theme.colors[color].contrast;
-  
+
   // Get padding based on size
   const getPadding = () => {
     switch (size) {
-      case 'sm': return { vertical: theme.spacing.xs, horizontal: theme.spacing.sm };
-      case 'lg': return { vertical: theme.spacing.md, horizontal: theme.spacing.lg };
-      default: return { vertical: theme.spacing.sm, horizontal: theme.spacing.md };
+      case 'sm':
+        return { vertical: theme.spacing.xs, horizontal: theme.spacing.sm };
+      case 'lg':
+        return { vertical: theme.spacing.md, horizontal: theme.spacing.lg };
+      default:
+        return { vertical: theme.spacing.sm, horizontal: theme.spacing.md };
     }
   };
-  
+
   // Get background color based on variant and state
   const getBackgroundColor = () => {
     if (disabled) return theme.colors.gray[300];
     if (variant === 'filled') return getBaseColor();
     return 'transparent';
   };
-  
+
   // Get border style based on variant
   const getBorderStyle = () => {
     if (variant === 'outlined') {
@@ -72,26 +81,29 @@ export const ThemeButton: React.FC<ThemeButtonProps> = ({
     }
     return {};
   };
-  
+
   // Get text color based on variant and state
   const getTextColor = () => {
     if (disabled) return theme.colors.gray[500];
     if (variant === 'filled') return getContrastColor();
     return getBaseColor();
   };
-  
+
   // Button padding
   const { vertical, horizontal } = getPadding();
-  
+
   // Get font size based on button size
   const getFontVariant = () => {
     switch (size) {
-      case 'sm': return 'body2Bold';
-      case 'lg': return 'subtitle1';
-      default: return 'body1Bold';
+      case 'sm':
+        return 'body2Bold';
+      case 'lg':
+        return 'subtitle1';
+      default:
+        return 'body1Bold';
     }
   };
-  
+
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -112,12 +124,8 @@ export const ThemeButton: React.FC<ThemeButtonProps> = ({
       ]}
     >
       <ThemeView row centered style={styles.content}>
-        {leftIcon && !loading && (
-          <ThemeView style={styles.leftIcon}>
-            {leftIcon}
-          </ThemeView>
-        )}
-        
+        {leftIcon && !loading && <ThemeView style={styles.leftIcon}>{leftIcon}</ThemeView>}
+
         {loading && (
           <ActivityIndicator
             size={size === 'sm' ? 'small' : 'small'}
@@ -125,24 +133,17 @@ export const ThemeButton: React.FC<ThemeButtonProps> = ({
             style={styles.loader}
           />
         )}
-        
+
         <ThemeText
           variant={getFontVariant()}
           color={getTextColor()}
           uppercase={uppercase}
-          style={[
-            loading && styles.hiddenText,
-            textStyle,
-          ]}
+          style={[loading && styles.hiddenText, textStyle]}
         >
           {title}
         </ThemeText>
-        
-        {rightIcon && !loading && (
-          <ThemeView style={styles.rightIcon}>
-            {rightIcon}
-          </ThemeView>
-        )}
+
+        {rightIcon && !loading && <ThemeView style={styles.rightIcon}>{rightIcon}</ThemeView>}
       </ThemeView>
     </TouchableOpacity>
   );

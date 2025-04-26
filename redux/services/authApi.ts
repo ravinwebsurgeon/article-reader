@@ -1,5 +1,4 @@
-// src/services/authApi.ts
-import { api } from "./api";
+import { api } from './api';
 import {
   User,
   AuthToken,
@@ -7,26 +6,23 @@ import {
   UserRegistration,
   RefreshTokenResponse,
   RefreshTokenRequest,
-} from "../../types/api";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+} from '../../types/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Auth API endpoints
 export const authApi = api.injectEndpoints({
   endpoints: (builder) => ({
     // Register a new user
-    register: builder.mutation<
-      { token: string; user: User },
-      { user: UserRegistration }
-    >({
+    register: builder.mutation<{ token: string; user: User }, { user: UserRegistration }>({
       query: (data) => ({
-        url: "/users",
-        method: "POST",
+        url: '/users',
+        method: 'POST',
         body: data,
       }),
       async onQueryStarted(_, { queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          await AsyncStorage.setItem("auth_token", data.token);
+          await AsyncStorage.setItem('auth_token', data.token);
         } catch (error) {
           // Handle error if needed
         }
@@ -34,20 +30,17 @@ export const authApi = api.injectEndpoints({
     }),
 
     // Login
-    login: builder.mutation<
-      { token: string; user: User },
-      { user: UserCredentials }
-    >({
+    login: builder.mutation<{ token: string; user: User }, { user: UserCredentials }>({
       query: (data) => ({
-        url: "/sessions",
-        method: "POST",
+        url: '/sessions',
+        method: 'POST',
         body: data,
       }),
       async onQueryStarted(_, { queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          console.log("is it coming here successful", data);
-          await AsyncStorage.setItem("auth_token", data.token);
+          console.log('is it coming here successful', data);
+          await AsyncStorage.setItem('auth_token', data.token);
         } catch (error) {
           // Handle error if needed
         }
@@ -57,60 +50,57 @@ export const authApi = api.injectEndpoints({
     // Logout
     logout: builder.mutation<void, void>({
       query: () => ({
-        url: "/sessions",
-        method: "DELETE",
+        url: '/sessions',
+        method: 'DELETE',
       }),
       // Clear tokens on logout
       async onQueryStarted(_, { queryFulfilled }) {
         try {
           await queryFulfilled;
-          await AsyncStorage.removeItem("auth_token");
+          await AsyncStorage.removeItem('auth_token');
         } catch (error) {
           // Force remove token even if API call fails
-          await AsyncStorage.removeItem("auth_token");
+          await AsyncStorage.removeItem('auth_token');
         }
       },
     }),
 
     // Get current user
     getCurrentUser: builder.query<{ user: User }, void>({
-      query: () => "/users/current",
-      providesTags: ["User"],
+      query: () => '/users/current',
+      providesTags: ['User'],
     }),
 
     // Update current user
-    updateCurrentUser: builder.mutation<
-      { user: User },
-      { user: Partial<UserRegistration> }
-    >({
+    updateCurrentUser: builder.mutation<{ user: User }, { user: Partial<UserRegistration> }>({
       query: (data) => ({
-        url: "/users/current",
-        method: "PATCH",
+        url: '/users/current',
+        method: 'PATCH',
         body: data,
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: ['User'],
     }),
 
     // Delete current user
     deleteCurrentUser: builder.mutation<void, void>({
       query: () => ({
-        url: "/users/current",
-        method: "DELETE",
+        url: '/users/current',
+        method: 'DELETE',
       }),
     }),
 
     // Refresh token
     refreshToken: builder.mutation<RefreshTokenResponse, RefreshTokenRequest>({
       query: (data) => ({
-        url: "/auth/refresh",
-        method: "POST",
+        url: '/auth/refresh',
+        method: 'POST',
         body: data,
       }),
       // Automatically store new token on success
       async onQueryStarted(_, { queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          await AsyncStorage.setItem("auth_token", data.token);
+          await AsyncStorage.setItem('auth_token', data.token);
         } catch (error) {
           // Handle error if needed
         }
@@ -122,25 +112,22 @@ export const authApi = api.injectEndpoints({
     initializeAuth: builder.query<any | null, void>({
       queryFn: async () => {
         try {
-          const token = await AsyncStorage.getItem("auth_token");
+          const token = await AsyncStorage.getItem('auth_token');
 
           if (!token) {
             return { data: null };
           }
 
           // If we have a token, try to get the current user
-          const response = await fetch(
-            "https://api.pckt.dev/v4/users/current",
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
+          const response = await fetch('https://api.pckt.dev/v4/users/current', {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
           if (!response.ok) {
             // Token is invalid, clear it
-            await AsyncStorage.removeItem("auth_token");
+            await AsyncStorage.removeItem('auth_token');
             return { data: null };
           }
 
@@ -149,8 +136,8 @@ export const authApi = api.injectEndpoints({
         } catch (error) {
           return {
             error: {
-              status: "CUSTOM_ERROR",
-              error: "Failed to initialize auth",
+              status: 'CUSTOM_ERROR',
+              error: 'Failed to initialize auth',
             },
           };
         }

@@ -1,52 +1,10 @@
-// src/database/hooks/useItems.ts
-import { useDatabase } from '../provider/DatabaseProvider';
 import { Q } from '@nozbe/watermelondb';
 import { withObservables } from '@nozbe/watermelondb/react';
-import { useEffect, useState } from 'react';
 import Item from '../models/ItemModel';
 import database from '../database';
+import { ItemFilter } from '@/types/item';
 
-const itemsCollection = database.collections.get('items');
-
-// DEPRECATED: This hook uses useState which is inefficient - use enhanced components with withObservables instead
-// See the withItems HOC at the bottom of this file for the proper reactive approach
-export const useItems = (filter?: string) => {
-  const database = useDatabase();
-  const [items, setItems] = useState<Item[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    setIsLoading(true);
-
-    let query;
-    if (filter === 'favorites') {
-      query = itemsCollection.query(Q.where('favorite', true), Q.where('archived', false));
-    } else if (filter === 'archived') {
-      query = itemsCollection.query(Q.where('archived', true));
-    } else if (filter === 'tagged') {
-      // This would need to be implemented with a join
-      query = itemsCollection.query(
-        Q.unsafeSqlQuery('SELECT items.* FROM items JOIN item_tags ON items.id = item_tags.item_id')
-      );
-    } else if (filter === 'short') {
-      query = itemsCollection.query(Q.where('word_count', Q.lte(800)), Q.where('archived', false));
-    } else if (filter === 'long') {
-      query = itemsCollection.query(Q.where('word_count', Q.gt(800)), Q.where('archived', false));
-    } else {
-      // Default to unarchived items
-      query = itemsCollection.query(Q.where('archived', false));
-    }
-
-    const subscription = query.observe().subscribe((newItems) => {
-      setItems(newItems);
-      setIsLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, [filter, database]);
-
-  return { items, isLoading };
-};
+const itemsCollection = database.collections.get<Item>('items');
 
 // Create a new item
 export const createItem = async (url: string) => {
@@ -57,36 +15,13 @@ export const createItem = async (url: string) => {
       item.favorite = false;
       item.progress = 0;
     });
-
     return newItem;
   });
 };
 
-// Update item properties
-export const updateItem = async (
-  id: string,
-  data: Partial<{
-    favorite: boolean;
-    archived: boolean;
-    progress: number;
-    notes: string;
-  }>
-) => {
-  return database.write(async () => {
-    const item = await itemsCollection.find(id);
-    return item.update((record) => {
-      if (data.favorite !== undefined) record.favorite = data.favorite;
-      if (data.archived !== undefined) record.archived = data.archived;
-      if (data.progress !== undefined) record.progress = data.progress;
-      if (data.notes !== undefined) record.notes = data.notes;
-    });
-  });
-};
-
 // Delete an item
-export const deleteItem = async (id: string) => {
+export const deleteItem = async (item: Item) => {
   return database.write(async () => {
-    const item = await itemsCollection.find(id);
     await item.markAsDeleted();
   });
 };
@@ -114,30 +49,72 @@ export const withItem = (id: string) => {
   }));
 };
 
-// The preferred reactive approach - use this HOC instead of useItems hook
-export const withItems = ({ filter = 'all' }) => {
+interface WithItemsProps {
+  filter?: ItemFilter;
+}
+
+// HOC to observe items with a filter
+export const withItems = ({ filter = 'all' }: WithItemsProps = {}) => {
   return withObservables(['filter'], () => {
     let query;
 
     if (filter === 'favorites') {
-      query = itemsCollection.query(Q.where('favorite', true), Q.where('archived', false));
+      query = itemsCollection.query(
+        Q.where('favorite', true),
+        Q.where('archived', false),
+        Q.sortBy('id', Q.desc)
+      );
     } else if (filter === 'archived') {
-      query = itemsCollection.query(Q.where('archived', true));
+      query = itemsCollection.query(Q.where('archived', true), Q.sortBy('id', Q.desc));
     } else if (filter === 'tagged') {
       query = itemsCollection.query(
-        Q.unsafeSqlQuery('SELECT items.* FROM items JOIN item_tags ON items.id = item_tags.item_id')
+        Q.unsafeSqlQuery(
+          'SELECT items.* FROM items JOIN item_tags ON items.id = item_tags.item_id ORDER BY items.id DESC'
+        )
       );
     } else if (filter === 'short') {
-      query = itemsCollection.query(Q.where('word_count', Q.lte(800)), Q.where('archived', false));
+      query = itemsCollection.query(
+        Q.where('word_count', Q.lte(800)),
+        Q.where('archived', false),
+        Q.sortBy('id', Q.desc)
+      );
     } else if (filter === 'long') {
-      query = itemsCollection.query(Q.where('word_count', Q.gt(800)), Q.where('archived', false));
+      query = itemsCollection.query(
+        Q.where('word_count', Q.gt(800)),
+        Q.where('archived', false),
+        Q.sortBy('id', Q.desc)
+      );
     } else {
       // Default to unarchived items
-      query = itemsCollection.query(Q.where('archived', false));
+      query = itemsCollection.query(Q.where('archived', false), Q.sortBy('id', Q.desc));
     }
 
     return {
-      items: query,
+      items: query.observe(),
+    };
+  });
+};
+
+interface WithSearchProps {
+  query?: string;
+}
+
+// HOC to observe search results
+export const withSearch = ({ query }: WithSearchProps = {}) => {
+  return withObservables(['query'], ({ query }: { query?: string }) => {
+    const searchTerm = (query || '').toLowerCase();
+
+    return {
+      items: itemsCollection
+        .query(
+          Q.or(
+            Q.where('title', Q.like(`%${searchTerm}%`)),
+            Q.where('description', Q.like(`%${searchTerm}%`)),
+            Q.where('url', Q.like(`%${searchTerm}%`)),
+            Q.where('site_name', Q.like(`%${searchTerm}%`))
+          )
+        )
+        .observe(),
     };
   });
 };

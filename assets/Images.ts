@@ -3,12 +3,11 @@
 // import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 // import AntDesign from 'react-native-vector-icons/AntDesign';
 // import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {COLORS as colors} from './Colors';
 
 export const Images = {
   // ic_document: Ionicons.getImageSourceSync('document', 15, colors.primary),
   // ic_gallery: MaterialIcon.getImageSourceSync('photo', 20, colors.primary),
-  
+
   // ic_menu_dot: EntypoIcon.getImageSourceSync(
   //   'dots-three-vertical',
   //   15,

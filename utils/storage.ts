@@ -18,7 +18,7 @@ export const storage = {
       throw error;
     }
   },
-  
+
   /**
    * Retrieves a value from AsyncStorage
    * @param key Storage key
@@ -34,7 +34,7 @@ export const storage = {
       return defaultValue;
     }
   },
-  
+
   /**
    * Removes a value from AsyncStorage
    * @param key Storage key
@@ -47,7 +47,7 @@ export const storage = {
       throw error;
     }
   },
-  
+
   /**
    * Clears all values from AsyncStorage
    */
@@ -59,19 +59,20 @@ export const storage = {
       throw error;
     }
   },
-  
+
   /**
    * Gets all keys from AsyncStorage
    */
   async getAllKeys(): Promise<string[]> {
     try {
-      return await AsyncStorage.getAllKeys();
+      const keys = await AsyncStorage.getAllKeys();
+      return [...keys]; // Convert readonly array to mutable array
     } catch (error) {
       console.error('AsyncStorage getAllKeys error:', error);
       return [];
     }
   },
-  
+
   /**
    * Gets multiple values from AsyncStorage
    * @param keys Storage keys
@@ -80,7 +81,9 @@ export const storage = {
     try {
       const result = await AsyncStorage.multiGet(keys);
       return result.reduce((acc, [key, value]) => {
-        acc[key] = value ? JSON.parse(value) : null;
+        if (value) {
+          acc[key] = JSON.parse(value);
+        }
         return acc;
       }, {} as Record<string, T>);
     } catch (error) {

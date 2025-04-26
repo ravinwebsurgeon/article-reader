@@ -1,32 +1,32 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
-  Image,
   ActivityIndicator,
-} from "react-native";
-import { useForm } from "react-hook-form";
-import { Ionicons } from "@expo/vector-icons";
-import { Input } from "@/components/ui/TextInput/input";
-import { Button } from "@/components/ui/button";
-import { router } from "expo-router";
-import { COLORS, lightColors } from "@/theme";
-import { useAuth } from "@/hooks/useAuth";
-import { useRegisterMutation } from "@/redux/services/authApi";
-import { useTheme } from "@/theme";
-import { ThemeText, ThemeView } from "@/components";
-import { scaler } from "@/utils";
+} from 'react-native';
+import { useForm } from 'react-hook-form';
+import { Ionicons } from '@expo/vector-icons';
+import { Input } from '@/components/ui/TextInput/input';
+import { Button } from '@/components/ui/button';
+import { router } from 'expo-router';
+import { COLORS, lightColors } from '@/theme';
+import { useRegisterMutation } from '@/redux/services/authApi';
+import { useTheme } from '@/theme';
+import { ThemeText, ThemeView } from '@/components';
+import { scaler } from '@/utils';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-const SignUpScreen = ({ navigation }) => {
+type SignUpScreenProps = {
+  navigation: NativeStackNavigationProp<any>;
+};
+
+const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
   const [loader, setLoader] = useState(false);
-  const [register, { isLoading: registerLoading, error: registerError }] =
-    useRegisterMutation();
+  const [register, { isLoading: registerLoading, error: registerError }] = useRegisterMutation();
 
   const theme = useTheme();
 
@@ -38,14 +38,14 @@ const SignUpScreen = ({ navigation }) => {
     reset,
   } = useForm({
     defaultValues: {
-      userName: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
+      userName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
     },
   });
 
-  const password = watch("password");
+  const password = watch('password');
 
   const onSubmit = async (data: any) => {
     console.log(data);
@@ -66,19 +66,21 @@ const SignUpScreen = ({ navigation }) => {
   };
 
   const navigateToLogin = () => {
-    router.push("/(auth)/login");
+    router.push('/(auth)/login');
   };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background.default }]}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingContainer}
       >
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           {loader && <ActivityIndicator size="small" color="#007AFF" />}
           <ThemeView style={styles.header}>
-            <ThemeText variant="h2" style={styles.title}>Sign Up</ThemeText>
+            <ThemeText variant="h2" style={styles.title}>
+              Sign Up
+            </ThemeText>
             {/* <Text style={styles.subtitle}>Sign Up to Connect.</Text> */}
           </ThemeView>
 
@@ -87,16 +89,11 @@ const SignUpScreen = ({ navigation }) => {
               control={control}
               name="userName"
               label="Username"
-              rules={{ required: "Username is required" }}
+              rules={{ required: 'Username is required' }}
               placeholder="Enter your Username"
-              icon={
-                <Ionicons
-                  name="person-outline"
-                  size={20}
-                  color={COLORS.primary.main}
-                />
-              }
+              icon={<Ionicons name="person-outline" size={20} color={COLORS.primary.main} />}
               autoCapitalize="words"
+              style={styles.input}
             />
 
             <Input
@@ -104,21 +101,16 @@ const SignUpScreen = ({ navigation }) => {
               name="email"
               label="Email"
               rules={{
-                required: "Email is required",
+                required: 'Email is required',
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: "Invalid email address",
+                  message: 'Invalid email address',
                 },
               }}
               placeholder="Enter your Email"
               keyboardType="email-address"
-              icon={
-                <Ionicons
-                  name="mail-outline"
-                  size={20}
-                  color={COLORS.primary.main}
-                />
-              }
+              icon={<Ionicons name="mail-outline" size={20} color={COLORS.primary.main} />}
+              style={styles.input}
             />
 
             <Input
@@ -126,27 +118,20 @@ const SignUpScreen = ({ navigation }) => {
               name="password"
               label="Password"
               rules={{
-                required: "Password is required",
+                required: 'Password is required',
                 minLength: {
                   value: 8,
-                  message: "Password must be at least 8 characters",
+                  message: 'Password must be at least 8 characters',
                 },
                 pattern: {
-                  value:
-                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                  message:
-                    "Password must contain uppercase, lowercase, number and special character",
+                  value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                  message: 'Password must contain uppercase, lowercase, number and special character',
                 },
               }}
               placeholder="Enter your Password"
               secureTextEntry
-              icon={
-                <Ionicons
-                  name="lock-closed-outline"
-                  size={20}
-                  color={COLORS.primary.main}
-                />
-              }
+              icon={<Ionicons name="lock-closed-outline" size={20} color={COLORS.primary.main} />}
+              style={styles.input}
             />
 
             <Input
@@ -154,25 +139,21 @@ const SignUpScreen = ({ navigation }) => {
               name="confirmPassword"
               label="Confirm Password"
               rules={{
-                required: "Please confirm your password",
-                validate: (value) =>
-                  value === password || "Passwords do not match",
+                required: 'Please confirm your password',
+                validate: (value: string) => value === password || 'Passwords do not match',
               }}
               placeholder="Confirm your Password"
               secureTextEntry
-              icon={
-                <Ionicons
-                  name="lock-closed-outline"
-                  size={20}
-                  color={COLORS.primary.main}
-                />
-              }
+              icon={<Ionicons name="lock-closed-outline" size={20} color={COLORS.primary.main} />}
+              style={styles.input}
             />
 
             <Button
-              title={loader ? "Submiting..." : "Sign Up"}
+              title={loader ? 'Submiting...' : 'Sign Up'}
               onPress={handleSubmit(onSubmit)}
               style={styles.signUpButton}
+              leftIcon={<Ionicons name="person-add-outline" size={20} color="white" />}
+              rightIcon={null}
             />
           </View>
 
@@ -201,17 +182,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: scaler(24),
     paddingTop: scaler(40),
     paddingBottom: scaler(24),
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
     marginBottom: scaler(24),
   },
   title: {
     fontSize: scaler(28),
-    fontWeight: "bold",
+    fontWeight: 'bold',
     // color: COLORS.text,
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: scaler(8),
   },
   subtitle: {
@@ -220,15 +201,15 @@ const styles = StyleSheet.create({
     marginBottom: scaler(16),
   },
   formContainer: {
-    width: "100%",
+    width: '100%',
     marginBottom: scaler(24),
   },
   signUpButton: {
     marginTop: scaler(16),
   },
   loginContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
     marginTop: scaler(16),
   },
   loginText: {
@@ -238,7 +219,10 @@ const styles = StyleSheet.create({
   loginLinkText: {
     color: COLORS.primary.main,
     fontSize: scaler(16),
-    fontWeight: "600",
+    fontWeight: '600',
+  },
+  input: {
+    marginBottom: scaler(16),
   },
 });
 

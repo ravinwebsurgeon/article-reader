@@ -1,4 +1,3 @@
-// src/database/schema/schema.ts
 import { appSchema, tableSchema } from '@nozbe/watermelondb';
 
 /**

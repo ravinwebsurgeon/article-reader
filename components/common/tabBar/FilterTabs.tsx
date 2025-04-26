@@ -1,11 +1,5 @@
 import React from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ScrollView, 
-  TouchableOpacity 
-} from 'react-native';
+import { Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/theme';
 import { ItemFilter } from '@/types/item';
@@ -17,7 +11,13 @@ interface FilterTabsProps {
   isDarkMode: boolean;
 }
 
-const filterOptions: { id: ItemFilter; label: string; icon: string }[] = [
+interface FilterOption {
+  id: ItemFilter;
+  label: string;
+  icon: string;
+}
+
+const filterOptions: FilterOption[] = [
   { id: 'all', label: 'All', icon: 'list-outline' },
   { id: 'favorites', label: 'Favorites', icon: 'star-outline' },
   { id: 'tagged', label: 'Tagged', icon: 'pricetag-outline' },
@@ -26,19 +26,22 @@ const filterOptions: { id: ItemFilter; label: string; icon: string }[] = [
   { id: 'archived', label: 'Archived', icon: 'archive-outline' },
 ];
 
-const FilterTabs: React.FC<FilterTabsProps> = ({ 
-  currentFilter, 
-  onFilterChange,
-  isDarkMode
-}) => {
+const FilterTabs: React.FC<FilterTabsProps> = ({ currentFilter, onFilterChange, isDarkMode }) => {
+  const getTabColor = (option: FilterOption) => {
+    if (currentFilter === option.id) {
+      return option.id === 'all' ? COLORS.white : isDarkMode ? COLORS.white : COLORS.text;
+    }
+    return isDarkMode ? COLORS.lightGray : COLORS.darkGray;
+  };
+
   return (
-    <ScrollView 
+    <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.scrollContainer}
       style={[
         styles.container,
-        { borderBottomColor: isDarkMode ? COLORS.darkBorder : COLORS.tasksConBorder }
+        { borderBottomColor: isDarkMode ? COLORS.darkBorder : COLORS.tasksConBorder },
       ]}
     >
       {filterOptions.map((option) => (
@@ -46,31 +49,18 @@ const FilterTabs: React.FC<FilterTabsProps> = ({
           key={option.id}
           style={[
             styles.tab,
-            currentFilter === option.id && (
-              option.id === 'all' 
-                ? styles.activeTab 
-                : styles.inactiveTab
-            ),
-            isDarkMode && styles.darkTab
+            currentFilter === option.id &&
+              (option.id === 'all' ? styles.activeTab : styles.inactiveTab),
+            isDarkMode && styles.darkTab,
           ]}
           onPress={() => onFilterChange(option.id)}
           activeOpacity={0.7}
         >
-          {option.id === 'all' ? null : (
-            <Ionicons 
+          {option.id !== 'all' && (
+            <Ionicons
               name={option.icon as any}
-              size={16} 
-              color={
-                currentFilter === option.id
-                  ? option.id === 'all'
-                    ? COLORS.white
-                    : isDarkMode
-                      ? COLORS.white
-                      : COLORS.text
-                  : isDarkMode
-                    ? COLORS.lightGray
-                    : COLORS.darkGray
-              } 
+              size={16}
+              color={getTabColor(option)}
               style={styles.icon}
             />
           )}
@@ -79,10 +69,8 @@ const FilterTabs: React.FC<FilterTabsProps> = ({
               styles.tabText,
               currentFilter === option.id && option.id === 'all' && styles.activeTabText,
               isDarkMode && {
-                color: currentFilter === option.id
-                  ? COLORS.white
-                  : COLORS.lightGray
-              }
+                color: currentFilter === option.id ? COLORS.white : COLORS.lightGray,
+              },
             ]}
           >
             {option.label}

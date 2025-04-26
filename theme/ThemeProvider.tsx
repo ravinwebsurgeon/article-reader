@@ -1,4 +1,3 @@
-// src/theme/ThemeProvider.tsx
 import React, { createContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useColorScheme } from 'react-native';
 import { useAppSelector, useAppDispatch } from '@/redux/hook';
@@ -24,7 +23,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const deviceColorScheme = useColorScheme();
   const themePreference = useAppSelector(selectThemeMode);
   const systemPrefersDark = useAppSelector(selectSystemPrefersDark);
-  
+
   // Determine which theme mode to use
   const resolvedMode = useMemo(() => {
     if (themePreference === 'system') {
@@ -32,40 +31,42 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
     return themePreference;
   }, [themePreference, systemPrefersDark]);
-  
+
   // Create theme object based on resolved mode
   const theme = useMemo(() => {
     return createTheme(resolvedMode);
   }, [resolvedMode]);
-  
+
   // Update system preference when device theme changes
   useEffect(() => {
     if (deviceColorScheme) {
       dispatch(setSystemPrefersDark(deviceColorScheme === 'dark'));
     }
   }, [deviceColorScheme, dispatch]);
-  
+
   // Toggle between light and dark mode
   const toggleTheme = useCallback(() => {
     const newMode = resolvedMode === 'light' ? 'dark' : 'light';
     dispatch({ type: 'theme/setThemeMode', payload: newMode });
   }, [resolvedMode, dispatch]);
-  
+
   // Set specific theme mode
-  const setMode = useCallback((mode: 'light' | 'dark' | 'system') => {
-    dispatch({ type: 'theme/setThemeMode', payload: mode });
-  }, [dispatch]);
-  
-  // Context value
-  const contextValue = useMemo(() => ({
-    theme,
-    toggleTheme,
-    setThemeMode: setMode,
-  }), [theme, toggleTheme, setMode]);
-  
-  return (
-    <ThemeContext.Provider value={contextValue}>
-      {children}
-    </ThemeContext.Provider>
+  const setMode = useCallback(
+    (mode: 'light' | 'dark' | 'system') => {
+      dispatch({ type: 'theme/setThemeMode', payload: mode });
+    },
+    [dispatch]
   );
+
+  // Context value
+  const contextValue = useMemo(
+    () => ({
+      theme,
+      toggleTheme,
+      setThemeMode: setMode,
+    }),
+    [theme, toggleTheme, setMode]
+  );
+
+  return <ThemeContext.Provider value={contextValue}>{children}</ThemeContext.Provider>;
 };

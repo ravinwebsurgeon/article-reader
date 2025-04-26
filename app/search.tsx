@@ -1,5 +1,4 @@
-// src/app/search.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -7,195 +6,196 @@ import {
   TextInput,
   FlatList,
   TouchableOpacity,
-  ActivityIndicator,
   Keyboard,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import { useDebounce } from '@/utils/hooks';
 import { COLORS, lightColors } from '@/theme';
 import { useAppSelector } from '@/redux/hook';
 import { selectActiveTheme } from '@/redux/utils';
-import { Item } from '@/types/item';
-import { useSearchItemsQuery } from '@/redux/services/itemsApi';
-import ArticleCard from '@/components/common/card/ArticalCard';
+import ArticleCard from '@/components/common/card/ArticleCard';
+import ActionMenu from '@/components/common/menu/ActionMenu';
+import ItemModel from '@/database/models/ItemModel';
+import { withSearch } from '@/database/hooks/useItems';
 
-export default function SearchScreen() {
+// Base component without database connection
+const SearchScreenComponent = ({
+  items = [],
+  searchQuery,
+  onSearchQueryChange,
+}: {
+  items?: ItemModel[];
+  searchQuery: string;
+  onSearchQueryChange: (query: string) => void;
+}) => {
   const router = useRouter();
   const activeTheme = useAppSelector(selectActiveTheme);
   const isDarkMode = activeTheme === 'dark';
-  
+
   // State
-  const [searchText, setSearchText] = useState('');
-  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+  const [selectedItem, setSelectedItem] = useState<ItemModel | null>(null);
   const [showActionMenu, setShowActionMenu] = useState(false);
-  
-  // Debounce search query to avoid too many API calls
-  const debouncedSearchQuery = useDebounce(searchText, 500);
-  
-  // Only search if there's a query
-  const shouldSearch = debouncedSearchQuery.trim().length > 0;
-  
-  // Query hook with conditional fetching
-  const { 
-    data,
-    isLoading,
-    isFetching,
-  } = useSearchItemsQuery(
-    { query: debouncedSearchQuery },
-    { skip: !shouldSearch }
-  );
-  
+
+  // Determine if we should show results or empty/no-results state
+  const shouldShowResults = searchQuery.trim().length > 0;
+
   // Clear input and dismiss keyboard
   const handleClearSearch = () => {
-    setSearchText('');
+    onSearchQueryChange('');
     Keyboard.dismiss();
   };
-  
+
   // Handle back navigation
   const handleBack = () => {
     router.back();
   };
-  
+
   // Navigate to article detail
-  const navigateToArticle = (item: Item) => {
+  const navigateToArticle = (item: ItemModel) => {
     router.push({
-      pathname: `/blog/${item.id}`,
-      params: { id: item.id.toString() }
+      pathname: '/reader/[id]' as const,
+      params: { id: item.id },
     });
   };
-  
+
   // Open action menu for an item
-  const openActionMenu = (id: number) => {
-    setSelectedItemId(id);
+  const openActionMenu = (item: ItemModel) => {
+    setSelectedItem(item);
     setShowActionMenu(true);
   };
-  
+
   // Close action menu
   const closeActionMenu = () => {
     setShowActionMenu(false);
-    setSelectedItemId(null);
+    setSelectedItem(null);
   };
-  
+
   // Render article item
-  const renderItem = ({ item }: { item: Item }) => (
+  const renderItem = ({ item }: { item: ItemModel }) => (
     <ArticleCard
       item={item}
       onPress={() => navigateToArticle(item)}
-      onMenuPress={() => openActionMenu(item.id)}
+      onMenuPress={() => openActionMenu(item)}
     />
   );
-  
+
   return (
-    <View style={[
-      styles.container,
-      { backgroundColor: isDarkMode ? COLORS.darkBackground : lightColors.background.default }
-    ]}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: isDarkMode ? COLORS.darkBackground : lightColors.background.default },
+      ]}
+    >
       <StatusBar style={isDarkMode ? 'light' : 'dark'} />
-      
+
       {/* Search Header */}
       <View style={styles.searchHeader}>
         <View style={styles.searchInputContainer}>
-          <Ionicons 
-            name="search" 
-            size={20} 
-            color={COLORS.darkGray} 
-            style={styles.searchIcon}
-          />
-          
+          <Ionicons name="search" size={20} color={COLORS.darkGray} style={styles.searchIcon} />
+
           <TextInput
-            style={[
-              styles.searchInput,
-              { color: isDarkMode ? COLORS.white : COLORS.text }
-            ]}
+            style={[styles.searchInput, { color: isDarkMode ? COLORS.white : COLORS.text }]}
             placeholder="Search your Saves"
             placeholderTextColor={lightColors.text.disabled}
-            value={searchText}
-            onChangeText={setSearchText}
+            value={searchQuery}
+            onChangeText={onSearchQueryChange}
             autoFocus
             returnKeyType="search"
           />
-          
-          {searchText.length > 0 && (
-            <TouchableOpacity 
-              onPress={handleClearSearch}
-              style={styles.clearButton}
-            >
+
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={handleClearSearch} style={styles.clearButton}>
               <Ionicons name="close-circle" size={20} color={COLORS.darkGray} />
             </TouchableOpacity>
           )}
         </View>
-        
-        <TouchableOpacity 
-          style={styles.cancelButton} 
-          onPress={handleBack}
-        >
+
+        <TouchableOpacity style={styles.cancelButton} onPress={handleBack}>
           <Text style={styles.cancelText}>Cancel</Text>
         </TouchableOpacity>
       </View>
-      
+
       {/* Content */}
-      {!shouldSearch ? (
-        // Empty search state
+      {!shouldShowResults ? (
+        // Initial Empty search state
         <View style={styles.emptyStateContainer}>
-          <Text style={[
-            styles.emptyStateText,
-            { color: isDarkMode ? COLORS.lightGray : COLORS.darkGray }
-          ]}>
+          <Text
+            style={[
+              styles.emptyStateText,
+              { color: isDarkMode ? COLORS.lightGray : COLORS.darkGray },
+            ]}
+          >
             "Let's find that thing you saved"
           </Text>
-          
+
           <View style={styles.logoContainer}>
             <View style={[styles.logoIcon, { backgroundColor: COLORS.primary.main }]}>
               <View style={styles.logoHeart} />
             </View>
-            <Text style={[
-              styles.logoText, 
-              { color: isDarkMode ? COLORS.white : COLORS.text }
-            ]}>pocket</Text>
+            <Text style={[styles.logoText, { color: isDarkMode ? COLORS.white : COLORS.text }]}>
+              pocket
+            </Text>
           </View>
         </View>
-      ) : isLoading || isFetching ? (
-        // Loading state
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary.main} />
-        </View>
-      ) : data?.items.length === 0 ? (
-        // No results state
+      ) : items && items.length === 0 ? (
+        // No results state (only shown if shouldShowResults is true)
         <View style={styles.noResultsContainer}>
-          <Text style={[
-            styles.noResultsText,
-            { color: isDarkMode ? COLORS.white : COLORS.text }
-          ]}>
-            No results found for "{debouncedSearchQuery}"
+          <Text style={[styles.noResultsText, { color: isDarkMode ? COLORS.white : COLORS.text }]}>
+            No results found for "{searchQuery}"
           </Text>
-          <Text style={[
-            styles.noResultsSubtext,
-            { color: isDarkMode ? COLORS.lightGray : COLORS.darkGray }
-          ]}>
+          <Text
+            style={[
+              styles.noResultsSubtext,
+              { color: isDarkMode ? COLORS.lightGray : COLORS.darkGray },
+            ]}
+          >
             Try a different search term or check your spelling
           </Text>
         </View>
       ) : (
-        // Results list
+        // Results list (only shown if shouldShowResults is true and items exist)
         <FlatList
-          data={data?.items || []}
+          data={items}
           renderItem={renderItem}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContainer}
         />
       )}
-      
+
       {/* Action Menu Modal */}
-      {showActionMenu && selectedItemId && (
-        <ActionMenu
-          itemId={selectedItemId}
-          onClose={closeActionMenu}
-          items={data?.items}
-        />
+      {showActionMenu && selectedItem && (
+        <ActionMenu item={selectedItem} onClose={closeActionMenu} />
       )}
     </View>
+  );
+};
+
+// Define props for SearchScreenComponent to use with rest spread
+interface SearchScreenComponentProps {
+  searchQuery: string;
+  onSearchQueryChange: (query: string) => void;
+}
+
+// Create the enhanced component ONCE outside the main component
+// It receives the raw `items` observable based on the `query` prop
+const EnhancedSearchScreen = withSearch()(
+  ({ items, ...props }: { items: ItemModel[] } & SearchScreenComponentProps) => (
+    <SearchScreenComponent items={items} {...props} />
+  )
+);
+
+// Wrapper component that provides the search query state
+export default function SearchScreen() {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  return (
+    // Pass the changing searchQuery as a prop to the stable EnhancedSearchScreen
+    <EnhancedSearchScreen
+      query={searchQuery}
+      searchQuery={searchQuery} // Pass to SearchScreenComponent for display/input
+      onSearchQueryChange={setSearchQuery}
+    />
   );
 }
 
@@ -273,11 +273,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginLeft: 8,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   noResultsContainer: {
     flex: 1,
