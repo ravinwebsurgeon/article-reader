@@ -11,14 +11,15 @@ export default class Item extends Model {
 
   // Fields
   @text('url') url!: string;
-  @text('canonical_url') canonicalUrl?: string | null;
-  @text('domain') domain?: string | null;
-  @text('title') title?: string | null;
-  @text('description') description?: string | null;
-  @text('site_name') siteName?: string | null;
-  @text('image_url') imageUrl?: string | null;
-  @date('published_at') publishedAt?: Date | null;
-  @field('word_count') wordCount?: number | null;
+  @readonly @text('canonical_url') canonicalUrl?: string | null;
+  @readonly @text('domain') domain?: string | null;
+  @readonly @text('title') title?: string | null;
+  @readonly @text('description') description?: string | null;
+  @readonly @text('site_name') siteName?: string | null;
+  @readonly @text('image_url') imageUrl?: string | null;
+  @readonly @date('published_at') publishedAt?: Date | null;
+  @readonly @field('word_count') wordCount?: number | null;
+  @readonly @text('content') content?: string | null;
   @field('archived') archived!: boolean;
   @field('favorite') favorite!: boolean;
   @field('progress') progress!: number;
