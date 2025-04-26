@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -21,6 +21,7 @@ import { withObservables } from '@nozbe/watermelondb/react';
 import { useDatabase } from '@/database/provider/DatabaseProvider';
 import Item from '@/database/models/ItemModel';
 import { RenderHTML } from 'react-native-render-html';
+import { marked } from 'marked';
 
 // Font sizes
 const FONT_SIZES = {
@@ -68,6 +69,11 @@ const ReaderComponent = ({ item }: { item: Item }) => {
 
   // Current theme colors
   const currentTheme = READER_THEMES[readerTheme];
+
+  // Process markdown content
+  const processedContent = useMemo(() => {
+    return marked.parse(item.content || '') as string;
+  }, [item.content]);
 
   // Handle navigation back
   const handleBack = async () => {
@@ -202,9 +208,9 @@ const ReaderComponent = ({ item }: { item: Item }) => {
               </Text>
             )}
 
-            {/* Simplified HTML content rendering */}
+            {/* Markdown content rendering */}
             <RenderHTML
-              source={{ html: item.description || '' }}
+              source={{ html: processedContent }}
               contentWidth={width - 40} // 20px padding on each side
               baseStyle={{
                 color: currentTheme.textColor,
