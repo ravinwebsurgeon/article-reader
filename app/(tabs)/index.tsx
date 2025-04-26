@@ -1,10 +1,8 @@
 import { StyleSheet } from 'react-native';
-import ListScreen from '@/screens/home/HomeScreen';
+import ListScreen from '@/screens/home/EnhancedHomeScreen';
 
 export default function HomeScreen() {
-  return (
-      <ListScreen />
-  );
+  return <ListScreen />;
 }
 
 const styles = StyleSheet.create({

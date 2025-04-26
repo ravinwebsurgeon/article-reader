@@ -1,18 +1,11 @@
-import React from "react";
-import {
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-  ViewStyle,
-  StyleProp,
-  View,
-} from "react-native";
-import { COLORS, lightColors } from "@/theme";
-import { Item } from "@/types/item";
-import { Ionicons } from "@expo/vector-icons";
-import { useDarkMode, useTheme } from "@/theme";
-import { ThemeText, ThemeTouchable, ThemeView } from "@/components/core";
-import { scaler } from "@/utils";
+import React from 'react';
+import { StyleSheet, Image, TouchableOpacity, ViewStyle, StyleProp, View } from 'react-native';
+import { COLORS, lightColors } from '@/theme';
+import { Item } from '@/types/item';
+import { Ionicons } from '@expo/vector-icons';
+import { useDarkMode, useTheme } from '@/theme';
+import { ThemeText, ThemeTouchable, ThemeView } from '@/components/core';
+import { scaler } from '@/utils';
 
 interface ArticleCardProps {
   item: Item;
@@ -21,22 +14,17 @@ interface ArticleCardProps {
   style?: StyleProp<ViewStyle>;
 }
 
-const ArticleCard: React.FC<ArticleCardProps> = ({
-  item,
-  onPress,
-  onMenuPress,
-  style,
-}) => {
+const ArticleCard: React.FC<ArticleCardProps> = ({ item, onPress, onMenuPress, style }) => {
   const theme = useTheme();
   const dark = useDarkMode();
-  console.log("ArticleCard", item);
+  // console.log('ArticleCard', item);
   const formatReadTime = (minutes: number) => {
     return `${minutes} min`;
-
-
   };
 
-  console.log("item in article card", item);
+  // console.log('item in article card', item);
+
+  console.log('render article card', item.id);
 
   // Calculate approximate read time based on word count (average 200-250 words per minute)
   const calculateReadTime = (wordCount: number) => {
@@ -47,10 +35,10 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
   // Format publish date
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
     });
   };
 
@@ -76,25 +64,13 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
           <ThemeText color={theme.colors.text.secondary} style={styles.source}>
             {item.site_name || item.domain}
           </ThemeText>
-          <ThemeText
-            variant="caption"
-            color={theme.colors.text.secondary}
-            style={styles.dot}
-          >
+          <ThemeText variant="caption" color={theme.colors.text.secondary} style={styles.dot}>
             •
           </ThemeText>
-          <ThemeText
-            variant="caption"
-            color={theme.colors.text.secondary}
-            style={styles.readTime}
-          >
+          <ThemeText variant="caption" color={theme.colors.text.secondary} style={styles.readTime}>
             {calculateReadTime(item.word_count)}
           </ThemeText>
-          <ThemeText
-            variant="caption"
-            color={theme.colors.text.secondary}
-            style={styles.dot}
-          >
+          <ThemeText variant="caption" color={theme.colors.text.secondary} style={styles.dot}>
             •
           </ThemeText>
           <ThemeText
@@ -115,32 +91,20 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
           {item.tags &&
             item.tags.map((tag, index) => (
               <View key={index} style={styles.tagContainer}>
-                <Ionicons
-                  name="pricetag-outline"
-                  size={14}
-                  color={COLORS.darkGray}
-                />
+                <Ionicons name="pricetag-outline" size={14} color={COLORS.darkGray} />
                 <ThemeText style={styles.tagText}>{tag}</ThemeText>
               </View>
             ))}
 
           <TouchableOpacity style={styles.menuButton} onPress={onMenuPress}>
-            <Ionicons
-              name="ellipsis-horizontal"
-              size={20}
-              color={COLORS.darkGray}
-            />
+            <Ionicons name="ellipsis-horizontal" size={20} color={COLORS.darkGray} />
           </TouchableOpacity>
         </View>
       </View>
 
       {item.imageUrl && (
         <View style={styles.thumbnailContainer}>
-          <Image
-            source={{ uri: item.imageUrl }}
-            style={styles.thumbnail}
-            resizeMode="cover"
-          />
+          <Image source={{ uri: item.imageUrl }} style={styles.thumbnail} resizeMode="cover" />
         </View>
       )}
     </TouchableOpacity>
@@ -149,7 +113,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row",
+    flexDirection: 'row',
     padding: scaler(16),
     borderBottomWidth: scaler(0.5),
   },
@@ -162,12 +126,12 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: scaler(16),
-    fontWeight: "600",
+    fontWeight: '600',
     lineHeight: scaler(22),
   },
   metaContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: scaler(8),
   },
   source: {
@@ -184,17 +148,17 @@ const styles = StyleSheet.create({
     color: COLORS.darkGray,
   },
   tagsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    alignItems: "center",
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
     marginTop: scaler(4),
   },
   favoriteContainer: {
     marginRight: scaler(8),
   },
   tagContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: COLORS.lightGray,
     paddingHorizontal: scaler(8),
     paddingVertical: scaler(4),
@@ -208,19 +172,19 @@ const styles = StyleSheet.create({
     marginLeft: scaler(4),
   },
   menuButton: {
-    marginLeft: "auto",
+    marginLeft: 'auto',
     padding: scaler(4),
   },
   thumbnailContainer: {
     width: scaler(80),
     height: scaler(80),
     borderRadius: scaler(4),
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   thumbnail: {
-    width: "100%",
-    height: "100%",
+    width: '100%',
+    height: '100%',
   },
 });
 
-export default ArticleCard;
+export default React.memo(ArticleCard);
