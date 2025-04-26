@@ -1,4 +1,3 @@
-// src/database/migrations/index.ts
 import { schemaMigrations } from '@nozbe/watermelondb/Schema/migrations';
 
 // Define your database migrations here

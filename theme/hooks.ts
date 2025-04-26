@@ -1,4 +1,3 @@
-// src/theme/hooks.ts
 import { useContext } from 'react';
 import { ThemeContext } from './ThemeProvider';
 import { useAppSelector } from '@/redux/hook';
@@ -21,16 +20,14 @@ export const useDarkMode = () => {
 
 // Hook to get text color based on theme
 export const useTextColor = (
-  variant: 'primary' | 'secondary' | 'disabled' | 'hint' = 'primary',
+  variant: 'primary' | 'secondary' | 'disabled' | 'hint' = 'primary'
 ) => {
   const theme = useTheme();
   return theme.colors.text[variant];
 };
 
 // Hook to get background color based on theme
-export const useBackgroundColor = (
-  variant: 'default' | 'paper' | 'elevated' = 'default',
-) => {
+export const useBackgroundColor = (variant: 'default' | 'paper' | 'elevated' = 'default') => {
   const theme = useTheme();
   return theme.colors.background[variant];
 };

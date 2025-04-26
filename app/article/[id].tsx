@@ -1,4 +1,3 @@
-// src/screens/ArticleDetailScreen.tsx
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Share, Alert, Image, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -12,14 +11,19 @@ import { useTheme, useDarkMode } from '@/theme/hooks';
 
 // Import database hooks
 import { useDatabase } from '@/database/provider/DatabaseProvider';
-import { updateItem, deleteItem } from '@/database/hooks/useItems';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { withObservables } from '@nozbe/watermelondb/react';
-import { ScrollView } from 'react-native-gesture-handler';
 import { COLORS } from '@/theme';
+import Item from '@/database/models/ItemModel';
+import { Database } from '@nozbe/watermelondb';
 
 // ItemDetailComponent receives the item from the HOC below
-const ItemDetailComponent = ({ item, onBack }) => {
+interface ItemDetailComponentProps {
+  item: Item;
+  onBack: () => void;
+}
+
+const ItemDetailComponent = ({ item, onBack }: ItemDetailComponentProps) => {
   const router = useRouter();
   const theme = useTheme();
   const isDarkMode = useDarkMode();
@@ -28,18 +32,12 @@ const ItemDetailComponent = ({ item, onBack }) => {
   const [isActionMenuVisible, setIsActionMenuVisible] = useState(false);
 
   // Helper functions
-  const formatDate = (date) => {
+  const formatDate = (date: string | number | Date | null | undefined): string => {
     if (!date) return '';
     return format(new Date(date), 'MMM d, yyyy');
   };
 
-  // Calculate read time
-  const calculateReadTime = (wordCount) => {
-    if (!wordCount) return 0;
-    return Math.ceil(wordCount / 200); // Assuming average reading speed of 200 words per minute
-  };
-
-  const readTime = calculateReadTime(item.wordCount);
+  const readTime = item.readTime;
 
   // Handle back navigation
   const handleBack = () => {
@@ -54,7 +52,7 @@ const ItemDetailComponent = ({ item, onBack }) => {
   // Handle favorite toggle
   const handleFavoriteToggle = async () => {
     try {
-      await updateItem(item.id, { favorite: !item.favorite });
+      await item.toggleFavorite();
     } catch (error) {
       Alert.alert('Error', 'Failed to update favorite status');
     }
@@ -63,7 +61,7 @@ const ItemDetailComponent = ({ item, onBack }) => {
   // Handle archive toggle
   const handleArchiveToggle = async () => {
     try {
-      await updateItem(item.id, { archived: !item.archived });
+      await item.toggleArchived();
     } catch (error) {
       Alert.alert('Error', 'Failed to update archive status');
     }
@@ -78,7 +76,7 @@ const ItemDetailComponent = ({ item, onBack }) => {
         style: 'destructive',
         onPress: async () => {
           try {
-            await deleteItem(item.id);
+            await item.markAsDeleted();
             router.back();
           } catch (error) {
             Alert.alert('Error', 'Failed to delete article');
@@ -137,7 +135,9 @@ const ItemDetailComponent = ({ item, onBack }) => {
 
       {/* Content */}
       <ThemeView style={styles.scrollView}>
-        {item.imageUrl && <ThemeImage source={{ uri: item.imageUrl }} style={styles.thumbnail} size="fill" />}
+        {item.imageUrl && (
+          <ThemeImage source={{ uri: item.imageUrl }} style={styles.thumbnail} size="fill" />
+        )}
 
         <ThemeView style={styles.content} padded="lg">
           <ThemeText variant="h4" style={styles.title}>
@@ -151,7 +151,11 @@ const ItemDetailComponent = ({ item, onBack }) => {
               </ThemeText>
             )}
 
-            <ThemeText variant="body2" color={theme.colors.text.secondary} style={styles.dotSeparator}>
+            <ThemeText
+              variant="body2"
+              color={theme.colors.text.secondary}
+              style={styles.dotSeparator}
+            >
               •
             </ThemeText>
 
@@ -161,7 +165,11 @@ const ItemDetailComponent = ({ item, onBack }) => {
 
             {readTime > 0 && (
               <>
-                <ThemeText variant="body2" color={theme.colors.text.secondary} style={styles.dotSeparator}>
+                <ThemeText
+                  variant="body2"
+                  color={theme.colors.text.secondary}
+                  style={styles.dotSeparator}
+                >
                   •
                 </ThemeText>
                 <ThemeText variant="body2" color={theme.colors.text.secondary}>
@@ -172,21 +180,21 @@ const ItemDetailComponent = ({ item, onBack }) => {
           </ThemeView>
 
           {/* Progress indicator */}
-          {item.progress && parseFloat(item.progress) > 0 && (
+          {item.progress && item.progress > 0 && (
             <ThemeView style={styles.progressContainer}>
               <ThemeView style={styles.progressBar}>
                 <ThemeView
                   style={[
                     styles.progressFill,
                     {
-                      width: `${parseFloat(item.progress) * 100}%`,
+                      width: `${item.progress * 100}%`,
                       backgroundColor: theme.colors.primary.main,
                     },
                   ]}
                 />
               </ThemeView>
               <ThemeText variant="caption" color={theme.colors.text.secondary}>
-                {Math.round(parseFloat(item.progress) * 100)}% read
+                {Math.round(item.progress * 100)}% read
               </ThemeText>
             </ThemeView>
           )}
@@ -199,7 +207,12 @@ const ItemDetailComponent = ({ item, onBack }) => {
       </ThemeView>
 
       {/* Action buttons */}
-      <ThemeView style={styles.actionBar} row backgroundColor={theme.colors.background.paper} elevation={2}>
+      <ThemeView
+        style={styles.actionBar}
+        row
+        backgroundColor={theme.colors.background.paper}
+        elevation={2}
+      >
         <ThemeButton
           title="Read"
           variant="filled"
@@ -243,7 +256,11 @@ const ItemDetailComponent = ({ item, onBack }) => {
       {/* Action Menu Modal */}
       {isActionMenuVisible && (
         <ThemeView style={styles.actionMenuOverlay}>
-          <ThemeTouchable style={styles.actionMenuBackdrop} onPress={toggleActionMenu} activeOpacity={1} />
+          <ThemeTouchable
+            style={styles.actionMenuBackdrop}
+            onPress={toggleActionMenu}
+            activeOpacity={1}
+          />
 
           <ThemeView
             style={styles.actionMenu}
@@ -302,7 +319,11 @@ const ItemDetailComponent = ({ item, onBack }) => {
               }}
             >
               <Ionicons name="trash-outline" size={22} color={theme.colors.error.main} />
-              <ThemeText variant="body1" style={styles.actionMenuText} color={theme.colors.error.main}>
+              <ThemeText
+                variant="body1"
+                style={styles.actionMenuText}
+                color={theme.colors.error.main}
+              >
                 Delete
               </ThemeText>
             </ThemeTouchable>
@@ -314,11 +335,16 @@ const ItemDetailComponent = ({ item, onBack }) => {
 };
 
 // HOC to observe a single item from the database
-const enhanced = withObservables(['id'], ({ id, database }) => ({
+interface EnhancedProps {
+  id: string;
+  database: Database;
+}
+
+const enhanced = withObservables(['id'], ({ id, database }: EnhancedProps) => ({
   item: database.collections.get('items').findAndObserve(id),
 }));
 
-const EnhancedItemDetailComponent = enhanced(ItemDetailComponent);
+const EnhancedItemDetailComponent = enhanced(ItemDetailComponent as any);
 
 // Wrapper component to handle params and provide database
 export default function ArticleDetailScreen() {
@@ -363,7 +389,13 @@ export default function ArticleDetailScreen() {
     );
   }
 
-  return <EnhancedItemDetailComponent id={id.toString()} database={database} onBack={() => router.back()} />;
+  return (
+    <EnhancedItemDetailComponent
+      id={id.toString()}
+      database={database}
+      onBack={() => router.back()}
+    />
+  );
 }
 
 const styles = StyleSheet.create({

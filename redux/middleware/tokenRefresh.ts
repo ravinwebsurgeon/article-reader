@@ -10,13 +10,13 @@ export const tokenRefreshMiddleware: Middleware =
     // We need to check if this is a rejected action due to 401 error
     if (isRejectedWithValue(action) && action.payload?.status === 401) {
       const { auth } = getState();
-      
+
       // Only attempt to refresh if we have a refresh token
       if (auth.refreshToken) {
         try {
           // Try to get a new token
           await dispatch(refreshAccessToken()).unwrap();
-          
+
           // If successful, retry the original request
           // This assumes your API services have a way to retry the failed request
           const retryResult = await dispatch(action.meta.arg);
@@ -27,6 +27,6 @@ export const tokenRefreshMiddleware: Middleware =
         }
       }
     }
-    
+
     return next(action);
   };

@@ -1,4 +1,3 @@
-// src/database/provider/DatabaseProvider.tsx
 import React, { useEffect, useState } from 'react';
 import { useAppSelector } from '@/redux/hook';
 import { selectAuthToken } from '@/redux/utils';

@@ -1,4 +1,3 @@
-// src/components/ui/Header.tsx
 import React from 'react';
 import { StyleSheet, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -39,64 +38,43 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const theme = useTheme();
   const isDarkMode = useDarkMode();
-  
+
   // Default colors from theme if not specified
   const bgColor = backgroundColor || theme.colors.background.paper;
   const txtColor = titleColor || theme.colors.text.primary;
-  
+
   const renderLeftContent = () => {
     if (renderLeft) {
       return renderLeft();
     }
-    
+
     if (showBack) {
       return (
-        <ThemeTouchable
-          style={styles.iconButton}
-          onPress={onBackPress}
-        >
-          <Ionicons 
-            name="arrow-back" 
-            size={24} 
-            color={theme.colors.text.primary} 
-          />
+        <ThemeTouchable style={styles.iconButton} onPress={onBackPress}>
+          <Ionicons name="arrow-back" size={24} color={theme.colors.text.primary} />
         </ThemeTouchable>
       );
     }
-    
+
     return null;
   };
-  
+
   const renderRightContent = () => {
     if (renderRight) {
       return renderRight();
     }
-    
+
     return (
       <ThemeView style={styles.rightContainer} row>
         {showSearch && (
-          <ThemeTouchable
-            style={styles.iconButton}
-            onPress={onSearchPress}
-          >
-            <Ionicons 
-              name="search" 
-              size={24} 
-              color={theme.colors.text.primary} 
-            />
+          <ThemeTouchable style={styles.iconButton} onPress={onSearchPress}>
+            <Ionicons name="search" size={24} color={theme.colors.text.primary} />
           </ThemeTouchable>
         )}
-        
+
         {showMenu && (
-          <ThemeTouchable
-            style={styles.iconButton}
-            onPress={onMenuPress}
-          >
-            <Ionicons 
-              name="ellipsis-horizontal" 
-              size={24} 
-              color={theme.colors.text.primary} 
-            />
+          <ThemeTouchable style={styles.iconButton} onPress={onMenuPress}>
+            <Ionicons name="ellipsis-horizontal" size={24} color={theme.colors.text.primary} />
           </ThemeTouchable>
         )}
       </ThemeView>
@@ -111,21 +89,14 @@ export const Header: React.FC<HeaderProps> = ({
         translucent={false}
       />
       <ThemeView style={styles.container} row backgroundColor={bgColor} elevation={elevation}>
-        <ThemeView style={styles.leftContainer}>
-          {renderLeftContent()}
-        </ThemeView>
-        
+        <ThemeView style={styles.leftContainer}>{renderLeftContent()}</ThemeView>
+
         {title && (
-          <ThemeText 
-            variant="h6"
-            color={txtColor}
-            style={styles.title} 
-            numberOfLines={1}
-          >
+          <ThemeText variant="h6" color={txtColor} style={styles.title} numberOfLines={1}>
             {title}
           </ThemeText>
         )}
-        
+
         {renderRightContent()}
       </ThemeView>
     </SafeAreaView>

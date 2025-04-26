@@ -1,4 +1,8 @@
-import { DarkTheme, DefaultTheme, ThemeProvider as ThemeProviderNative } from '@react-navigation/native';
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider as ThemeProviderNative,
+} from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -64,6 +68,9 @@ function RootLayoutNav() {
 
           {/* Main app group (protected routes) */}
           <Stack.Screen name="(tabs)" redirect={!isAuthenticated} />
+
+          {/* Reader route */}
+          <Stack.Screen name="reader/[id]" />
 
           {/* Error screens */}
           <Stack.Screen name="+not-found" options={{ presentation: 'modal' }} />

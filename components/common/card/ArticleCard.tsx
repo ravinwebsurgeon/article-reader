@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Image, TouchableOpacity, ViewStyle, StyleProp, View } from 'react-native';
 import { COLORS, lightColors } from '@/theme';
-import { Item } from '@/types/item';
+import Item from '@/database/models/ItemModel';
+import ItemTag from '@/database/models/ItemTagModel';
 import { Ionicons } from '@expo/vector-icons';
 import { useDarkMode, useTheme } from '@/theme';
-import { ThemeText, ThemeTouchable, ThemeView } from '@/components/core';
+import { ThemeText } from '@/components/core';
 import { scaler } from '@/utils';
+import { withObservables } from '@nozbe/watermelondb/react';
+import { format } from 'date-fns';
 
 interface ArticleCardProps {
   item: Item;
@@ -17,6 +20,15 @@ interface ArticleCardProps {
 const ArticleCard: React.FC<ArticleCardProps> = ({ item, onPress, onMenuPress, style }) => {
   const theme = useTheme();
   const dark = useDarkMode();
+  const [tags, setTags] = useState<ItemTag[]>([]);
+
+  useEffect(() => {
+    if (item.itemTags) {
+      const subscription = item.itemTags.observe().subscribe(setTags);
+      return () => subscription.unsubscribe();
+    }
+  }, [item.itemTags]);
+
   // console.log('ArticleCard', item);
   const formatReadTime = (minutes: number) => {
     return `${minutes} min`;
@@ -26,21 +38,12 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ item, onPress, onMenuPress, s
 
   console.log('render article card', item.id);
 
-  // Calculate approximate read time based on word count (average 200-250 words per minute)
-  const calculateReadTime = (wordCount: number) => {
-    const minutes = Math.ceil(wordCount / 200);
-    return `${minutes} min`;
+  const formatDate = (date: string | number | Date | null | undefined): string => {
+    if (!date) return '';
+    return format(new Date(date), 'MMM d, yyyy');
   };
 
-  // Format publish date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-  };
+  const readTime = item.readTime;
 
   return (
     <TouchableOpacity
@@ -62,23 +65,19 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ item, onPress, onMenuPress, s
         </View>
         <View style={styles.metaContainer}>
           <ThemeText color={theme.colors.text.secondary} style={styles.source}>
-            {item.site_name || item.domain}
+            {item.siteName || item.domain}
           </ThemeText>
           <ThemeText variant="caption" color={theme.colors.text.secondary} style={styles.dot}>
             •
           </ThemeText>
           <ThemeText variant="caption" color={theme.colors.text.secondary} style={styles.readTime}>
-            {calculateReadTime(item.word_count)}
+            {formatReadTime(readTime)}
           </ThemeText>
           <ThemeText variant="caption" color={theme.colors.text.secondary} style={styles.dot}>
             •
           </ThemeText>
-          <ThemeText
-            // variant="caption"
-            color={theme.colors.text.secondary}
-            style={styles.date}
-          >
-            {formatDate(item.published_at)}
+          <ThemeText color={theme.colors.text.secondary} style={styles.date}>
+            {formatDate(item.publishedAt)}
           </ThemeText>
         </View>
         <View style={styles.tagsContainer}>
@@ -88,13 +87,12 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ item, onPress, onMenuPress, s
             </View>
           )}
 
-          {item.tags &&
-            item.tags.map((tag, index) => (
-              <View key={index} style={styles.tagContainer}>
-                <Ionicons name="pricetag-outline" size={14} color={COLORS.darkGray} />
-                <ThemeText style={styles.tagText}>{tag}</ThemeText>
-              </View>
-            ))}
+          {tags.map((itemTag: ItemTag, index: number) => (
+            <View key={index} style={styles.tagContainer}>
+              <Ionicons name="pricetag-outline" size={14} color={COLORS.darkGray} />
+              <ThemeText style={styles.tagText}>{itemTag.tag.name}</ThemeText>
+            </View>
+          ))}
 
           <TouchableOpacity style={styles.menuButton} onPress={onMenuPress}>
             <Ionicons name="ellipsis-horizontal" size={20} color={COLORS.darkGray} />
@@ -185,6 +183,15 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  date: {
+    fontSize: scaler(14),
+    color: COLORS.darkGray,
+  },
 });
 
-export default React.memo(ArticleCard);
+// Enhance the component to observe the 'item' prop
+const enhance = withObservables(['item'], ({ item }: { item: Item }) => ({
+  item: item.observe(), // Observe the specific item passed in
+}));
+
+export default enhance(ArticleCard);

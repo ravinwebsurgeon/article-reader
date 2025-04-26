@@ -11,9 +11,9 @@ const API_URL = Constants.expoConfig?.extra?.apiUrl || 'https://api.pckt.dev/v4'
  * Using WatermelonDB's synchronization capabilities
  */
 class SyncEngine {
-  private database: Database;
+  public database: Database;
   // Authentication token required for API requests
-  private token: string | null = null;
+  public token: string | null = null;
 
   constructor(database: Database) {
     this.database = database;
