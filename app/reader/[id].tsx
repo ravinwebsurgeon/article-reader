@@ -8,6 +8,8 @@ import {
   Dimensions,
   SafeAreaView,
   Share,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -18,7 +20,7 @@ import { selectActiveTheme } from '@/redux/utils';
 import { withObservables } from '@nozbe/watermelondb/react';
 import { useDatabase } from '@/database/provider/DatabaseProvider';
 import Item from '@/database/models/ItemModel';
-import HTML from 'react-native-render-html';
+import { RenderHTML } from 'react-native-render-html';
 
 // Font sizes
 const FONT_SIZES = {
@@ -75,7 +77,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
   };
 
   // Handle scroll to track reading progress
-  const handleScroll = (event: any) => {
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
 
     if (contentSize.height > 0) {
@@ -201,7 +203,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
             )}
 
             {/* Simplified HTML content rendering */}
-            <HTML
+            <RenderHTML
               source={{ html: item.description || '' }}
               contentWidth={width - 40} // 20px padding on each side
               baseStyle={{
@@ -249,6 +251,9 @@ const ReaderComponent = ({ item }: { item: Item }) => {
                   opacity: 0.7,
                   fontStyle: 'italic',
                 },
+              }}
+              defaultTextProps={{
+                selectable: true,
               }}
             />
           </View>
