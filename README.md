@@ -30,12 +30,13 @@ You can start developing by editing the files inside the **app** directory. This
 When you're ready, run:
 
 ```bash
-npm run reset-project
+yarn run reset-project
 ```
 
 This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
 ## Theme System
+
 The theme system is the foundation of the UI, providing consistent styling across the app.
 Theme Tokens
 Core values that define the visual identity:
@@ -51,11 +52,11 @@ tsx// Example usage
 import { ThemeProvider } from '@/theme';
 
 export default function App() {
-  return (
-    <ThemeProvider>
-      <YourApp />
-    </ThemeProvider>
-  );
+return (
+<ThemeProvider>
+<YourApp />
+</ThemeProvider>
+);
 }
 Theme Hooks
 Custom hooks for accessing theme values:
@@ -71,17 +72,17 @@ tsx// Example usage
 import { useTheme, useColors } from '@/theme';
 
 function MyComponent() {
-  const theme = useTheme();
-  const colors = useColors();
-  
-  return (
-    <View style={{ 
+const theme = useTheme();
+const colors = useColors();
+
+return (
+<View style={{
       padding: theme.spacing.md,
       backgroundColor: colors.background.default
     }}>
-      {/* Component content */}
-    </View>
-  );
+{/_ Component content _/}
+</View>
+);
 }
 Component Library
 Core Components
@@ -98,11 +99,11 @@ tsx// Example usage
 import { ThemeView, ThemeText } from '@/components/core';
 
 function MyComponent() {
-  return (
-    <ThemeView padded rounded elevation={2}>
-      <ThemeText variant="h2">Hello World</ThemeText>
-    </ThemeView>
-  );
+return (
+<ThemeView padded rounded elevation={2}>
+<ThemeText variant="h2">Hello World</ThemeText>
+</ThemeView>
+);
 }
 UI Components
 Specialized components for specific UI patterns:
@@ -119,73 +120,72 @@ tsx// Example usage
 import { Card, Tag, SearchInput } from '@/components/ui';
 
 function MyComponent() {
-  return (
-    <Card>
-      <SearchInput placeholder="Search..." />
-      <Tag label="Important" active />
-    </Card>
-  );
+return (
+<Card>
+<SearchInput placeholder="Search..." />
+<Tag label="Important" active />
+</Card>
+);
 }
 Core Component API
 ThemeView
 A themed replacement for the standard View component.
 tsx<ThemeView
-  backgroundColor="string"    // Optional custom background color
-  elevation={0-5}            // Optional shadow elevation (0-5)
-  padded={true|'xs'|'sm'|'md'|'lg'|'xl'} // Optional padding
-  margin={true|'xs'|'sm'|'md'|'lg'|'xl'} // Optional margin
-  rounded={true|'sm'|'md'|'lg'|'full'}  // Optional border radius
-  centered={true|false}      // Center children (both axes)
-  row={true|false}           // Use row direction
-  style={StyleProp}          // Optional additional styles
-  {...ViewProps}             // All standard View props
+backgroundColor="string" // Optional custom background color
+elevation={0-5} // Optional shadow elevation (0-5)
+padded={true|'xs'|'sm'|'md'|'lg'|'xl'} // Optional padding
+margin={true|'xs'|'sm'|'md'|'lg'|'xl'} // Optional margin
+rounded={true|'sm'|'md'|'lg'|'full'} // Optional border radius
+centered={true|false} // Center children (both axes)
+row={true|false} // Use row direction
+style={StyleProp} // Optional additional styles
+{...ViewProps} // All standard View props
 />
 ThemeText
 A themed replacement for the standard Text component.
 tsx<ThemeText
-  variant="h1"|"h2"|"h3"|"h4"|"h5"|"h6"|"body1"|"body2"|"body1Bold"|"body2Bold"|"subtitle1"|"subtitle2"|"caption"|"overline"|"button"
-  color="string"             // Optional custom text color
-  align="auto"|"left"|"right"|"center"|"justify" // Text alignment
-  bold={true|false}          // Make text bold
-  italic={true|false}        // Make text italic
-  underline={true|false}     // Add underline
-  uppercase={true|false}     // Transform to uppercase
-  lowercase={true|false}     // Transform to lowercase
-  capitalize={true|false}    // Capitalize first letter of each word
-  style={StyleProp}          // Optional additional styles
-  {...TextProps}             // All standard Text props
+variant="h1"|"h2"|"h3"|"h4"|"h5"|"h6"|"body1"|"body2"|"body1Bold"|"body2Bold"|"subtitle1"|"subtitle2"|"caption"|"overline"|"button"
+color="string" // Optional custom text color
+align="auto"|"left"|"right"|"center"|"justify" // Text alignment
+bold={true|false} // Make text bold
+italic={true|false} // Make text italic
+underline={true|false} // Add underline
+uppercase={true|false} // Transform to uppercase
+lowercase={true|false} // Transform to lowercase
+capitalize={true|false} // Capitalize first letter of each word
+style={StyleProp} // Optional additional styles
+{...TextProps} // All standard Text props
 />
 ThemeButton
 A configurable button component with various styles.
 tsx<ThemeButton
-  title="string"             // Button text
-  onPress={function}         // Press handler
-  variant="filled"|"outlined"|"text" // Button style variant
-  size="sm"|"md"|"lg"        // Button size
-  color="primary"|"secondary"|"success"|"error"|"warning"|"info" // Button color
-  disabled={true|false}      // Disable button
-  loading={true|false}       // Show loading indicator
-  fullWidth={true|false}     // Take full width
-  leftIcon={ReactNode}       // Optional icon on the left
-  rightIcon={ReactNode}      // Optional icon on the right
-  style={StyleProp}          // Optional container styles
-  textStyle={StyleProp}      // Optional text styles
-  uppercase={true|false}     // Transform text to uppercase
+title="string" // Button text
+onPress={function} // Press handler
+variant="filled"|"outlined"|"text" // Button style variant
+size="sm"|"md"|"lg" // Button size
+color="primary"|"secondary"|"success"|"error"|"warning"|"info" // Button color
+disabled={true|false} // Disable button
+loading={true|false} // Show loading indicator
+fullWidth={true|false} // Take full width
+leftIcon={ReactNode} // Optional icon on the left
+rightIcon={ReactNode} // Optional icon on the right
+style={StyleProp} // Optional container styles
+textStyle={StyleProp} // Optional text styles
+uppercase={true|false} // Transform text to uppercase
 />
 UI Component Examples
 Card
 tsx<Card
-  elevation={2}
-  padded="md"
-  rounded="md"
-  contentStyle={{ gap: 16 }}
->
-  <ThemeText variant="h6">Card Title</ThemeText>
-  <ThemeText>Card content goes here.</ThemeText>
-</Card>
-ArticleCard
-tsx<ArticleCard
-  item={{
+elevation={2}
+padded="md"
+rounded="md"
+contentStyle={{ gap: 16 }}
+
+> <ThemeText variant="h6">Card Title</ThemeText> > <ThemeText>Card content goes here.</ThemeText> > </Card>
+> ArticleCard
+> tsx<ArticleCard
+> item={{
+
     id: 1,
     title: "Article Title",
     source: "Source Name",
@@ -193,19 +193,20 @@ tsx<ArticleCard
     thumbnail: "https://example.com/image.jpg",
     favorite: true,
     tags: ["Technology", "Science"]
-  }}
-  onPress={() => console.log("Article pressed")}
-  onMenuPress={() => console.log("Menu pressed")}
+
+}}
+onPress={() => console.log("Article pressed")}
+onMenuPress={() => console.log("Menu pressed")}
 />
 FilterTabs
 tsx<FilterTabs
-  currentFilter="all"
-  onFilterChange={(filter) => console.log("Filter changed:", filter)}
-  options={[
-    { id: 'all', label: 'All', icon: 'list-outline' },
-    { id: 'favorites', label: 'Favorites', icon: 'star-outline' },
-    { id: 'tagged', label: 'Tagged', icon: 'pricetag-outline' }
-  ]}
+currentFilter="all"
+onFilterChange={(filter) => console.log("Filter changed:", filter)}
+options={[
+{ id: 'all', label: 'All', icon: 'list-outline' },
+{ id: 'favorites', label: 'Favorites', icon: 'star-outline' },
+{ id: 'tagged', label: 'Tagged', icon: 'pricetag-outline' }
+]}
 />
 State Management
 The app uses Redux with RTK Query for state management and API interactions.
