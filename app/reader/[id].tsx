@@ -88,12 +88,12 @@ const ReaderComponent = ({ item }: { item: Item }) => {
 
     if (contentSize.height > 0) {
       const newProgress = Math.min(
-        contentOffset.y / (contentSize.height - layoutMeasurement.height),
+        Math.max(0, contentOffset.y / (contentSize.height - layoutMeasurement.height)),
         1
       );
 
       // Only update if significant change (avoid too many API calls)
-      if (Math.abs(newProgress - progress) > 0.05) {
+      if (Math.abs(newProgress - progress) > 0.01) {
         setProgress(newProgress);
       }
     }
