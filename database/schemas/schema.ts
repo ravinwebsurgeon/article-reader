@@ -30,7 +30,7 @@ export default appSchema({
     tableSchema({
       name: 'tags',
       columns: [
-        { name: 'name', type: 'string' },
+        { name: 'name', type: 'string', isIndexed: true },
         { name: 'created_at', type: 'number' },
         { name: 'updated_at', type: 'number' },
       ],

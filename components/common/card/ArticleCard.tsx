@@ -2,7 +2,7 @@ import React, { useEffect, useState, memo } from 'react';
 import { StyleSheet, Image, TouchableOpacity, ViewStyle, StyleProp, View } from 'react-native';
 import { COLORS, lightColors } from '@/theme';
 import Item from '@/database/models/ItemModel';
-import ItemTag from '@/database/models/ItemTagModel';
+import Tag from '@/database/models/TagModel';
 import { Ionicons } from '@expo/vector-icons';
 import { useDarkMode, useTheme } from '@/theme';
 import { ThemeText } from '@/components/core';
@@ -15,22 +15,21 @@ export const ARTICLE_CARD_HEIGHT = scaler(140);
 
 interface ArticleCardProps {
   item: Item;
+  tags: Tag[];
   onPress: () => void;
   onMenuPress: () => void;
   style?: StyleProp<ViewStyle>;
 }
 
-const ArticleCard: React.FC<ArticleCardProps> = ({ item, onPress, onMenuPress, style }) => {
+const ArticleCardComponent: React.FC<ArticleCardProps> = ({
+  item,
+  tags,
+  onPress,
+  onMenuPress,
+  style,
+}) => {
   const theme = useTheme();
   const dark = useDarkMode();
-  const [tags, setTags] = useState<ItemTag[]>([]);
-
-  useEffect(() => {
-    if (item.itemTags) {
-      const subscription = item.itemTags.observe().subscribe(setTags);
-      return () => subscription.unsubscribe();
-    }
-  }, [item.itemTags]);
 
   // console.log('ArticleCard', item);
   const formatReadTime = (minutes: number) => {
@@ -90,11 +89,11 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ item, onPress, onMenuPress, s
             </View>
           )}
 
-          {tags.map((itemTag: ItemTag, index: number) => (
+          {tags.map((tag: Tag, index: number) => (
             <View key={index} style={styles.tagContainer}>
               <Ionicons name="pricetag-outline" size={14} color={COLORS.darkGray} />
               <ThemeText numberOfLines={1} style={styles.tagText}>
-                {itemTag.tag.name}
+                {tag.name}
               </ThemeText>
             </View>
           ))}
@@ -195,10 +194,11 @@ const styles = StyleSheet.create({
   },
 });
 
-// Enhance the component to observe the 'item' prop
+// Enhance the component to observe the 'item' and its 'tags'
 const enhance = withObservables(['item'], ({ item }: { item: Item }) => ({
-  item: item.observe(), // Observe the specific item passed in
+  item: item.observe(),
+  tags: item.tags.observe(),
 }));
 
 // Apply memo to prevent unnecessary re-renders
-export default enhance(memo(ArticleCard));
+export default enhance(memo(ArticleCardComponent));
