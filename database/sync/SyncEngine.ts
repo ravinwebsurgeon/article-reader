@@ -286,6 +286,8 @@ class SyncEngine {
         unsafeTurbo: useTurbo,
         // Specify the schema version at which migrations are enabled.
         migrationsEnabledAtVersion: 1,
+        // Created records are sent as updated records.
+        sendCreatedAsUpdated: true,
       });
       // --- End Synchronization Logic ---
 
