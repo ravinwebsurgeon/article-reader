@@ -97,13 +97,15 @@ export const withItems = ({ filter = 'all' }: WithItemsProps = {}) => {
       );
     } else if (filter === 'short') {
       query = itemsCollection.query(
-        Q.where('word_count', Q.lte(800)),
+        // 260wpm * 4min = 1040 words
+        Q.where('word_count', Q.lte(1040)),
         Q.where('archived', false),
         Q.sortBy('id', Q.desc)
       );
     } else if (filter === 'long') {
       query = itemsCollection.query(
-        Q.where('word_count', Q.gt(800)),
+        // 260wpm * 10min = 2600 words
+        Q.where('word_count', Q.gte(2600)),
         Q.where('archived', false),
         Q.sortBy('id', Q.desc)
       );
