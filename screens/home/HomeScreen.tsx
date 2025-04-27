@@ -22,7 +22,7 @@ import NoItemsFound from '@/components/common/emptyState/NoUIFound';
 import { scaler } from '@/utils';
 import { COLORS, lightColors } from '@/theme';
 import { syncEngine } from '@/database/sync/SyncEngine';
-import { withItems } from '@/database/hooks/useItems';
+import { withItems } from '@/database/hooks/withItems';
 import Item from '@/database/models/ItemModel';
 
 // Use the exported fixed height from ArticleCard component

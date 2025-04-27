@@ -4,9 +4,16 @@ import Item from '../models/ItemModel';
 import database from '../database';
 import { ItemFilter } from '@/types/item';
 
+/**
+ * Access to the items collection in the WatermelonDB database
+ */
 const itemsCollection = database.collections.get<Item>('items');
 
-// Create a new item
+/**
+ * Creates a new item in the database with the provided URL
+ * @param url - The URL to be saved
+ * @returns The newly created Item instance
+ */
 export const createItem = async (url: string) => {
   return database.write(async () => {
     const newItem = await itemsCollection.create((item) => {
@@ -19,14 +26,21 @@ export const createItem = async (url: string) => {
   });
 };
 
-// Delete an item
+/**
+ * Marks an item as deleted in the database
+ * @param item - The Item instance to delete
+ */
 export const deleteItem = async (item: Item) => {
   return database.write(async () => {
     await item.markAsDeleted();
   });
 };
 
-// Search items
+/**
+ * Searches for items matching the provided query
+ * @param query - Search term to find in item fields
+ * @returns Promise resolving to matching items
+ */
 export const searchItems = (query: string) => {
   const searchTerm = query.toLowerCase();
 
@@ -42,7 +56,11 @@ export const searchItems = (query: string) => {
     .fetch();
 };
 
-// HOC to observe a single item
+/**
+ * Creates a reactive subscription to a single item by ID
+ * @param id - Item ID to observe
+ * @returns A function that provides the item as a prop to components
+ */
 export const withItem = (id: string) => {
   return withObservables(['id'], () => ({
     item: itemsCollection.findAndObserve(id),
@@ -53,7 +71,11 @@ interface WithItemsProps {
   filter?: ItemFilter;
 }
 
-// HOC to observe items with a filter
+/**
+ * Creates a reactive subscription to a filtered list of items
+ * @param filter - Optional filter type to apply ('all', 'favorites', 'archived', etc.)
+ * @returns A function that provides the filtered items as props to components
+ */
 export const withItems = ({ filter = 'all' }: WithItemsProps = {}) => {
   return withObservables(['filter'], () => {
     let query;
@@ -99,7 +121,11 @@ interface WithSearchProps {
   query?: string;
 }
 
-// HOC to observe search results
+/**
+ * Creates a reactive subscription to search results
+ * @param query - Optional search term to filter items
+ * @returns A function that provides the search results as props to components
+ */
 export const withSearch = ({ query }: WithSearchProps = {}) => {
   return withObservables(['query'], ({ query }: { query?: string }) => {
     const searchTerm = (query || '').toLowerCase();

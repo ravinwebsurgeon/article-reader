@@ -17,7 +17,7 @@ import { selectActiveTheme } from '@/redux/utils';
 import ArticleCard from '@/components/common/card/ArticleCard';
 import ActionMenu from '@/components/common/menu/ActionMenu';
 import ItemModel from '@/database/models/ItemModel';
-import { withSearch } from '@/database/hooks/useItems';
+import { withSearch } from '@/database/hooks/withItems';
 
 // Base component without database connection
 const SearchScreenComponent = ({
