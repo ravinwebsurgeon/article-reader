@@ -1,4 +1,8 @@
-import { DarkTheme, DefaultTheme, ThemeProvider as ThemeProviderNative } from '@react-navigation/native';
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider as ThemeProviderNative,
+} from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -8,7 +12,6 @@ import 'react-native-reanimated';
 import { useAppSelector } from '@/redux/hook';
 import { ReduxProvider } from '@/provider/ReduxProvider';
 import { selectActiveTheme } from '@/redux/utils';
-import { useInitializeAuthQuery } from '@/redux/services/authApi';
 import { ThemeProvider } from '@/theme';
 import { DatabaseProvider } from '@/database/provider/DatabaseProvider';
 import NetworkProvider from '@/provider/NetworkProvider';
@@ -48,8 +51,6 @@ export default function RootLayout() {
 function RootLayoutNav() {
   // Get the active theme from Redux
   const activeTheme = useAppSelector(selectActiveTheme);
-  const { isLoading, data } = useInitializeAuthQuery();
-
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
   return (
@@ -64,6 +65,9 @@ function RootLayoutNav() {
 
           {/* Main app group (protected routes) */}
           <Stack.Screen name="(tabs)" redirect={!isAuthenticated} />
+
+          {/* Reader route */}
+          <Stack.Screen name="reader/[id]" />
 
           {/* Error screens */}
           <Stack.Screen name="+not-found" options={{ presentation: 'modal' }} />

@@ -1,4 +1,3 @@
-// src/components/NoItemsFound.tsx
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS } from '@/theme';
@@ -19,9 +18,9 @@ const NoItemsFound: React.FC<NoItemsFoundProps> = ({ filter }) => {
       case 'archived':
         return "You haven't archived any articles yet";
       case 'short':
-        return "No short articles found";
+        return 'No short articles found';
       case 'long':
-        return "No long articles found";
+        return 'No long articles found';
       default:
         return "You don't have any saved articles yet";
     }
@@ -30,26 +29,22 @@ const NoItemsFound: React.FC<NoItemsFoundProps> = ({ filter }) => {
   const getIcon = () => {
     switch (filter) {
       case 'favorites':
-        return "star-outline";
+        return 'star-outline';
       case 'tagged':
-        return "pricetag-outline";
+        return 'pricetag-outline';
       case 'archived':
-        return "archive-outline";
+        return 'archive-outline';
       case 'short':
       case 'long':
-        return "book-outline";
+        return 'book-outline';
       default:
-        return "bookmark-outline";
+        return 'bookmark-outline';
     }
   };
 
   return (
     <View style={styles.container}>
-      <Ionicons 
-        name={getIcon() as any} 
-        size={64} 
-        color={COLORS.lightGray} 
-      />
+      <Ionicons name={getIcon() as any} size={64} color={COLORS.lightGray} />
       <Text style={styles.message}>{getMessage()}</Text>
       <Text style={styles.subMessage}>
         Add content using the + button or share to Pocket from other apps

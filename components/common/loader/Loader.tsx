@@ -1,13 +1,6 @@
-// src/components/common/Loader/Loader.tsx
 import React from 'react';
-import {
-  View,
-  ActivityIndicator,
-  StyleSheet,
-  Text,
-  ViewStyle,
-} from 'react-native';
-import { colors, typography, spacing } from '../../../styles';
+import { View, ActivityIndicator, Text, ViewStyle, TextStyle } from 'react-native';
+import { useColors, useTypography, useSpacing } from '@/theme/hooks';
 
 interface LoaderProps {
   size?: 'small' | 'large';
@@ -19,32 +12,22 @@ interface LoaderProps {
 
 export const Loader: React.FC<LoaderProps> = ({
   size = 'large',
-  color = colors.primary,
+  color,
   text,
   fullScreen = false,
   style,
 }) => {
-  const rootStyle = [
-    styles.container,
-    fullScreen && styles.fullScreen,
-    style,
-  ];
+  const colors = useColors();
+  const typography = useTypography();
+  const spacing = useSpacing();
 
-  return (
-    <View style={rootStyle}>
-      <ActivityIndicator size={size} color={color} />
-      {text && <Text style={styles.text}>{text}</Text>}
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
+  const containerStyle: ViewStyle = {
     padding: spacing.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  fullScreen: {
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+  };
+
+  const fullScreenStyle: ViewStyle = {
     position: 'absolute',
     top: 0,
     left: 0,
@@ -52,11 +35,23 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: colors.white,
     zIndex: 10,
-  },
-  text: {
+  };
+
+  const textStyle: TextStyle = {
     ...typography.body2,
     color: colors.text.secondary,
     marginTop: spacing.md,
-    textAlign: 'center',
-  },
-});
+    textAlign: 'center' as const,
+  };
+
+  const rootStyle: ViewStyle[] = [containerStyle, fullScreen && fullScreenStyle, style].filter(
+    Boolean,
+  ) as ViewStyle[];
+
+  return (
+    <View style={rootStyle}>
+      <ActivityIndicator size={size} color={color || colors.primary.main} />
+      {text && <Text style={textStyle}>{text}</Text>}
+    </View>
+  );
+};

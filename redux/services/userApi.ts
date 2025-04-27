@@ -1,4 +1,4 @@
-import { api } from "./api";
+import { api } from './api';
 
 // Types
 export interface UserProfile {
@@ -28,40 +28,34 @@ export const userApi = api.injectEndpoints({
   endpoints: (builder) => ({
     // Get current user profile
     getProfile: builder.query<UserProfile, void>({
-      query: () => "/user/profile",
-      providesTags: ["User"],
+      query: () => '/user/profile',
+      providesTags: ['User'],
     }),
 
     // Update user profile
     updateProfile: builder.mutation<UserProfile, UpdateProfileRequest>({
       query: (profileData) => ({
-        url: "/user/profile",
-        method: "PATCH",
+        url: '/user/profile',
+        method: 'PATCH',
         body: profileData,
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: ['User'],
     }),
 
     // Change password
-    changePassword: builder.mutation<
-      { success: boolean },
-      ChangePasswordRequest
-    >({
+    changePassword: builder.mutation<{ success: boolean }, ChangePasswordRequest>({
       query: (passwordData) => ({
-        url: "/user/change-password",
-        method: "POST",
+        url: '/user/change-password',
+        method: 'POST',
         body: passwordData,
       }),
     }),
 
     // Request password reset
-    requestPasswordReset: builder.mutation<
-      { success: boolean },
-      { email: string }
-    >({
+    requestPasswordReset: builder.mutation<{ success: boolean }, { email: string }>({
       query: (data) => ({
-        url: "/auth/reset-password",
-        method: "POST",
+        url: '/auth/reset-password',
+        method: 'POST',
         body: data,
       }),
     }),
@@ -72,20 +66,17 @@ export const userApi = api.injectEndpoints({
       { email: string; otp: string }
     >({
       query: (data) => ({
-        url: "/auth/verify-otp",
-        method: "POST",
+        url: '/auth/verify-otp',
+        method: 'POST',
         body: data,
       }),
     }),
 
     // Reset password with token
-    resetPassword: builder.mutation<
-      { success: boolean },
-      { token: string; newPassword: string }
-    >({
+    resetPassword: builder.mutation<{ success: boolean }, { token: string; newPassword: string }>({
       query: (data) => ({
-        url: "/auth/reset-password/confirm",
-        method: "POST",
+        url: '/auth/reset-password/confirm',
+        method: 'POST',
         body: data,
       }),
     }),

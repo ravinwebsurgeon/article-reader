@@ -1,28 +1,54 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
-import { Controller } from 'react-hook-form';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  ViewStyle,
+  KeyboardTypeOptions,
+} from 'react-native';
+import { Controller, Control, FieldValues, Path } from 'react-hook-form';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, lightColors } from '@/theme';
 import { scaler } from '@/utils';
 import { ThemeText } from '@/components/core';
 import { useDarkMode } from '@/theme';
 
+interface InputProps<T extends FieldValues> {
+  control: Control<T>;
+  name: Path<T>;
+  rules?: Record<string, any>;
+  placeholder?: string;
+  label?: string;
+  secureTextEntry?: boolean;
+  keyboardType?: KeyboardTypeOptions;
+  icon?: React.ReactNode;
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  autoCorrect?: boolean;
+  spellCheck?: boolean;
+  multiline?: boolean;
+  numberOfLines?: number;
+  style?: ViewStyle;
+}
+
 // Reusable Input Component
-export const Input = ({ 
-  control, 
-  name, 
-  rules = {}, 
-  placeholder, 
+export const Input = <T extends FieldValues>({
+  control,
+  name,
+  rules = {},
+  placeholder,
   label,
-  secureTextEntry = false, 
+  secureTextEntry = false,
   keyboardType = 'default',
   icon,
   autoCapitalize = 'none',
   autoCorrect = false,
+  spellCheck = false,
   multiline = false,
   numberOfLines = 1,
   style,
-}) => {
+}: InputProps<T>) => {
   const [isSecureTextVisible, setIsSecureTextVisible] = useState(false);
   const dark = useDarkMode();
 
@@ -43,44 +69,41 @@ export const Input = ({
               placeholder={placeholder}
               secureTextEntry={secureTextEntry && !isSecureTextVisible}
               style={[
-                styles.input, 
-                {color: dark ? lightColors.text.disabled :COLORS.text},
-                error && styles.inputError,
-                icon && styles.inputWithIcon,
-                secureTextEntry && styles.inputWithSecureToggle,
-                multiline && styles.multilineInput
+                styles.input,
+                { color: dark ? lightColors.text.disabled : COLORS.text },
+                error ? styles.inputError : undefined,
+                icon ? styles.inputWithIcon : undefined,
+                secureTextEntry ? styles.inputWithSecureToggle : undefined,
+                multiline ? styles.multilineInput : undefined,
               ]}
               keyboardType={keyboardType}
               autoCapitalize={autoCapitalize}
               autoCorrect={autoCorrect}
+              spellCheck={spellCheck}
               placeholderTextColor={lightColors.text.disabled}
               multiline={multiline}
               numberOfLines={multiline ? numberOfLines : 1}
               textAlignVertical={multiline ? 'top' : 'center'}
             />
             {secureTextEntry && (
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.secureTextToggle}
                 onPress={() => setIsSecureTextVisible(!isSecureTextVisible)}
               >
-                <Ionicons 
-                  name={isSecureTextVisible ? 'eye-off-outline' : 'eye-outline'} 
-                  size={20} 
-                  color={lightColors.text.disabled} 
+                <Ionicons
+                  name={isSecureTextVisible ? 'eye-off-outline' : 'eye-outline'}
+                  size={20}
+                  color={lightColors.text.disabled}
                 />
               </TouchableOpacity>
             )}
           </View>
-          {error && (
-            <Text style={styles.errorText}>{error.message}</Text>
-          )}
+          {error && <Text style={styles.errorText}>{error.message}</Text>}
         </View>
       )}
     />
   );
 };
-
-
 
 // Styles for form components
 const styles = StyleSheet.create({
@@ -107,7 +130,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: scaler(16),
     fontSize: scaler(16),
     // backgroundColor: COLORS.white,
-    
   },
   multilineInput: {
     height: scaler(120),

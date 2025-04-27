@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   FlatList,
@@ -6,45 +6,54 @@ import {
   RefreshControl,
   TouchableOpacity,
   ActivityIndicator,
-  Text,
   Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { Item, ItemFilter } from '@/types/item';
+import { ItemFilter } from '@/types/item';
 import { Images } from '@/assets';
 import { useAppSelector } from '@/redux/hook';
 import { selectActiveTheme } from '@/redux/utils';
 import { Ionicons } from '@expo/vector-icons';
-import { useGetItemsQuery } from '@/redux/services/itemsApi';
-import ArticleCard from '@/components/common/card/ArticalCard';
+import ArticleCard, { ARTICLE_CARD_HEIGHT } from '@/components/common/card/ArticleCard';
 import FilterTabs from '@/components/common/tabBar/FilterTabs';
 import ActionMenu from '@/components/common/menu/ActionMenu';
 import NoItemsFound from '@/components/common/emptyState/NoUIFound';
 import { scaler } from '@/utils';
 import { COLORS, lightColors } from '@/theme';
 import { syncEngine } from '@/database/sync/SyncEngine';
-import { useItems, updateItem, deleteItem } from '@/database/hooks';
+import { withItems } from '@/database/hooks/withItems';
+import Item from '@/database/models/ItemModel';
 
-export default function ListScreen() {
+// Use the exported fixed height from ArticleCard component
+const ITEM_HEIGHT = ARTICLE_CARD_HEIGHT;
+
+// The base HomeScreen component without database connection
+// This is the "dumb" presentational component that just renders UI based on props
+const HomeScreenComponent = ({
+  items,
+  filter,
+  onFilterChange,
+}: {
+  items: Item[];
+  filter: ItemFilter;
+  onFilterChange: (filter: ItemFilter) => void;
+}) => {
   const router = useRouter();
   const activeTheme = useAppSelector(selectActiveTheme);
   const isDarkMode = activeTheme === 'dark';
 
-  // State for filter and action menu
-  const [filter, setFilter] = useState<ItemFilter>('all');
-  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+  // State for action menu
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [showActionMenu, setShowActionMenu] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  // Get items from database with the current filter
-  const { items, isLoading } = useItems(filter);
-  console.log('items', items);
   // Handle pull-to-refresh - sync with server
-  const handleRefresh = useCallback(() => {
+  const handleRefresh = useCallback(async () => {
     try {
       setIsSyncing(true);
-      syncEngine.sync();
+      console.log('Performing refresh sync');
+      await syncEngine.sync();
     } catch (error) {
       console.error('Sync failed:', error);
     } finally {
@@ -52,98 +61,66 @@ export default function ListScreen() {
     }
   }, []);
 
-  // Get items from API with the current filter
-  // const {
-  //   data,
-  //   isLoading,
-  //   isFetching,
-  //   refetch,
-  //   error
-  // } = useGetItemsQuery({
-  //   filter: filter !== 'all' ? filter : undefined,
-  //   limit: 50
-  // });
-
-  // Handle pull-to-refresh
-  // const handleRefresh = useCallback(() => {
-  //   refetch();
-  // }, [refetch]);
-
-  // Handle filter change
-  const handleFilterChange = (newFilter: ItemFilter) => {
-    setFilter(newFilter);
-  };
-
   // Navigate to article detail
-  const navigateToArticle = (item: Item) => {
-    router.push({
-      pathname: `/article/${item.id}`,
-      params: { id: item.id.toString() },
-    });
-  };
-
-  // Open action menu for an item
-  const openActionMenu = (id: number) => {
-    setSelectedItemId(id);
-    setShowActionMenu(true);
-  };
-
-  // Close action menu
-  const closeActionMenu = () => {
-    setShowActionMenu(false);
-    setSelectedItemId(null);
-  };
-
-  // Navigate to search screen
-  const navigateToSearch = () => {
-    router.push('/search');
-  };
-
-  // Navigate to add article screen
-  const navigateToAddArticle = () => {
-    router.push('/add-article');
-  };
-
-  // Action handlers
-  const handleFavoriteToggle = async (id: string, value: boolean) => {
-    try {
-      await updateItem(id, { favorite: value });
-    } catch (error) {
-      console.error('Error toggling favorite:', error);
-    }
-  };
-
-  const handleArchiveToggle = async (id: string, value: boolean) => {
-    try {
-      await updateItem(id, { archived: value });
-    } catch (error) {
-      console.error('Error toggling archive:', error);
-    }
-  };
-
-  const handleDeleteItem = async (id: string) => {
-    try {
-      await deleteItem(id);
-    } catch (error) {
-      console.error('Error deleting item:', error);
-    }
-  };
-
-  // Render the article item
-  const renderItem = ({ item }: { item: Item }) => (
-    <ArticleCard item={item} onPress={() => navigateToArticle(item)} onMenuPress={() => openActionMenu(item.id)} />
+  const navigateToArticle = useCallback(
+    (item: Item) => {
+      router.push({
+        pathname: '/reader/[id]',
+        params: { id: item.id },
+      });
+    },
+    [router],
   );
 
-  // Render loading footer for pagination
-  const renderFooter = () => {
-    // if (!isFetching) return null;
+  // Open action menu for an item
+  const openActionMenu = useCallback((id: string) => {
+    setSelectedItemId(id);
+    setShowActionMenu(true);
+  }, []);
 
-    return (
-      <View style={styles.footerContainer}>
-        <ActivityIndicator size="small" color={COLORS.primary.main} />
-      </View>
-    );
-  };
+  // Close action menu
+  const closeActionMenu = useCallback(() => {
+    setShowActionMenu(false);
+    setSelectedItemId(null);
+  }, []);
+
+  // Navigate to search screen
+  const navigateToSearch = useCallback(() => {
+    router.push('/search');
+  }, [router]);
+
+  // Navigate to add article screen
+  const navigateToAddArticle = useCallback(() => {
+    router.push('/add-article');
+  }, [router]);
+
+  // Render the article item - wrapped in useCallback to prevent recreating on each render
+  const renderItem = useCallback(
+    ({ item }: { item: Item }) => (
+      <ArticleCard
+        item={item}
+        onPress={() => navigateToArticle(item)}
+        onMenuPress={() => openActionMenu(item.id)}
+      />
+    ),
+    [navigateToArticle, openActionMenu],
+  );
+
+  // Memoize keyExtractor to prevent recreation on each render
+  const keyExtractor = useCallback((item: Item) => item.id, []);
+
+  // Implement getItemLayout for fixed height items
+  // This allows FlatList to know item dimensions without measuring them
+  const getItemLayout = useCallback(
+    (_data: any, index: number) => ({
+      length: ITEM_HEIGHT,
+      offset: ITEM_HEIGHT * index,
+      index,
+    }),
+    [],
+  );
+
+  const isLoading = false; // We never show loading state - WatermelonDB handles this
 
   return (
     <View
@@ -157,13 +134,6 @@ export default function ListScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.logoContainer}>
-          {/* <View style={[styles.logoIcon, { backgroundColor: COLORS.primary.main }]}>
-            <View style={styles.logoHeart} />
-          </View>
-          <Text style={[
-            styles.logoText, 
-            { color: isDarkMode ? COLORS.white : COLORS.black }
-          ]}>pocket</Text> */}
           <Image style={styles.logoIcon} source={Images.pa_logo} />
         </View>
 
@@ -179,7 +149,7 @@ export default function ListScreen() {
       </View>
 
       {/* Filter Tabs */}
-      <FilterTabs currentFilter={filter} onFilterChange={handleFilterChange} isDarkMode={isDarkMode} />
+      <FilterTabs currentFilter={filter} onFilterChange={onFilterChange} isDarkMode={isDarkMode} />
 
       {/* Article List */}
       {isLoading ? (
@@ -190,10 +160,9 @@ export default function ListScreen() {
         <FlatList
           data={items}
           renderItem={renderItem}
-          keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={[styles.listContent, items?.length == 0 && styles.emptyList]}
+          keyExtractor={keyExtractor}
+          contentContainerStyle={[styles.listContent, items?.length === 0 && styles.emptyList]}
           ListEmptyComponent={<NoItemsFound filter={filter} />}
-          ListFooterComponent={renderFooter}
           refreshControl={
             <RefreshControl
               refreshing={isSyncing}
@@ -202,27 +171,30 @@ export default function ListScreen() {
               tintColor={COLORS.primary.main}
             />
           }
+          // Performance optimizations for FlatList
+          removeClippedSubviews={true}
+          maxToRenderPerBatch={10}
+          windowSize={10}
+          initialNumToRender={10}
+          updateCellsBatchingPeriod={50}
+          getItemLayout={getItemLayout}
         />
       )}
 
       {/* Action Menu Modal */}
       {showActionMenu && selectedItemId && (
         <ActionMenu
-          itemId={selectedItemId}
+          item={items.find((item) => item.id === selectedItemId)!}
           onClose={closeActionMenu}
-          items={items}
-          onFavoriteToggle={handleFavoriteToggle}
-          onArchiveToggle={handleArchiveToggle}
-          onDeleteItem={handleDeleteItem}
         />
       )}
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1,
+    flex: 1,
   },
   header: {
     paddingHorizontal: scaler(16),
@@ -243,17 +215,6 @@ const styles = StyleSheet.create({
     height: scaler(30),
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  logoHeart: {
-    width: scaler(14),
-    height: scaler(14),
-    backgroundColor: 'white',
-    borderRadius: scaler(7),
-  },
-  logoText: {
-    fontSize: scaler(24),
-    fontWeight: 'bold',
-    marginLeft: scaler(8),
   },
   headerActions: {
     flexDirection: 'row',
@@ -276,8 +237,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  footerContainer: {
-    padding: scaler(16),
-    alignItems: 'center',
-  },
 });
+
+// Create a wrapper component that combines the filter state with the database items
+const HomeScreenWithFilter = () => {
+  const [filter, setFilter] = useState<ItemFilter>('all');
+
+  // This component will receive the items from withItems
+  const EnhancedComponent = withItems({ filter })(({ items }) => (
+    <HomeScreenComponent items={items} filter={filter} onFilterChange={setFilter} />
+  ));
+
+  return <EnhancedComponent />;
+};
+
+// Export the wrapper component
+export default HomeScreenWithFilter;

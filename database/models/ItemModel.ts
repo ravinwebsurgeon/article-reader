@@ -1,54 +1,103 @@
-// src/database/models/Item.ts
-import { Model } from '@nozbe/watermelondb';
-import { field, date, readonly, text, relation, children } from '@nozbe/watermelondb/decorators';
+import { Model, Query } from '@nozbe/watermelondb';
+import {
+  field,
+  date,
+  readonly,
+  text,
+  children,
+  writer,
+  lazy,
+} from '@nozbe/watermelondb/decorators';
+import ItemTag from './ItemTagModel';
+import Tag from './TagModel';
+import { Q } from '@nozbe/watermelondb';
 
 export default class Item extends Model {
   static table = 'items';
-  
+
+  static associations = {
+    item_tags: { type: 'has_many' as const, foreignKey: 'item_id' },
+  };
+
   // Fields
-  @text('url') url;
-  @text('canonical_url') canonicalUrl;
-  @text('domain') domain;
-  @text('title') title;
-  @text('description') description;
-  @text('site_name') siteName;
-  @text('image_url') imageUrl;
-  @date('published_at') publishedAt;
-  @field('word_count') wordCount;
-  @field('archived') archived;
-  @field('favorite') favorite;
-  @field('progress') progress;
-  @text('notes') notes;
-  
+  @text('url') url!: string;
+  @readonly @text('canonical_url') canonicalUrl?: string | null;
+  @readonly @text('domain') domain?: string | null;
+  @readonly @text('title') title?: string | null;
+  @readonly @text('description') description?: string | null;
+  @readonly @text('site_name') siteName?: string | null;
+  @readonly @text('image_url') imageUrl?: string | null;
+  @readonly @date('published_at') publishedAt?: Date | null;
+  @readonly @field('word_count') wordCount?: number | null;
+  @readonly @text('content') content?: string | null;
+  @field('archived') archived!: boolean;
+  @field('favorite') favorite!: boolean;
+  @field('progress') progress!: number;
+  @text('notes') notes?: string | null;
+
   // Timestamps
-  @readonly @date('created_at') createdAt;
-  @readonly @date('updated_at') updatedAt;
-  
+  @readonly @date('created_at') createdAt!: Date;
+  @readonly @date('updated_at') updatedAt!: Date;
+
   // Relationships
-  @children('item_tags') itemTags;
-  
+  @children('item_tags') itemTags!: Query<ItemTag>;
+
+  // Lazy loaded tags
+  @lazy
+  tags = this.collections.get<Tag>('tags').query(Q.on('item_tags', 'item_id', this.id));
+
   // Computed properties
-  get readTime() {
+  get readTime(): number {
     if (!this.wordCount) return 0;
-    return Math.ceil(this.wordCount / 200); // Assuming 200 words per minute
+    return Math.ceil(this.wordCount / 260); // Assuming 200 words per minute
   }
-  
-  // Helper methods to sync with Item type expected by components
-  toJSON() {
-    return {
-      id: this.id,
-      url: this.url,
-      title: this.title || '',
-      description: this.description || '',
-      site_name: this.siteName || '',
-      source: this.siteName || this.domain || '',
-      image_url: this.imageUrl,
-      readTime: this.readTime,
-      favorite: this.favorite,
-      archived: this.archived,
-      progress: this.progress || 0,
-      // Convert relationships as needed
-      tags: [], // This would need to be populated from itemTags
-    };
+
+  // Writer methods
+  @writer async toggleArchived() {
+    await this.update((item) => {
+      item.archived = !item.archived;
+    });
+  }
+
+  @writer async toggleFavorite() {
+    await this.update((item) => {
+      item.favorite = !item.favorite;
+    });
+  }
+
+  @writer async setProgress(value: number) {
+    await this.update((item) => {
+      item.progress = value;
+    });
+  }
+
+  @writer async setNotes(value: string) {
+    await this.update((item) => {
+      item.notes = value;
+    });
+  }
+
+  // Tag methods
+  @writer async addTag(tag: Tag) {
+    await this.collections.get<ItemTag>('item_tags').create((itemTag) => {
+      itemTag.item = this;
+      itemTag.tag = tag;
+    });
+  }
+
+  @writer async removeTag(tag: Tag) {
+    const itemTag = await this.collections
+      .get<ItemTag>('item_tags')
+      .query(Q.and(Q.where('item_id', this.id), Q.where('tag_id', tag.id)))
+      .fetch();
+
+    if (itemTag.length > 0) {
+      await itemTag[0].destroyPermanently();
+    }
+  }
+
+  @writer async removeAllTags() {
+    const itemTags = await this.itemTags.fetch();
+    await Promise.all(itemTags.map((tag) => tag.destroyPermanently()));
   }
 }

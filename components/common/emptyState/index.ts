@@ -1,1 +1,1 @@
-export * from './NoUIFound';
+export { default as NoUIFound } from './NoUIFound';

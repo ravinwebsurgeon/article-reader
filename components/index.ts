@@ -1,16 +1,14 @@
-// src/components/index.ts
-
 /**
  * Pocket App Component System
- * 
+ *
  * This file exports all UI components for the Pocket app,
  * including core themed components and higher-level UI components.
- * 
+ *
  * The component system follows a hierarchical structure:
  * 1. Core Components: Basic building blocks with theme integration
  * 2. UI Components: Composed of core components for specific UI patterns
  * 3. Screen Components: Complete screens composed of UI components
- * 
+ *
  * All components are designed to be:
  * - Reusable: Components are generic enough to be used in multiple contexts
  * - Consistent: All components follow the same design language and API patterns
@@ -20,7 +18,6 @@
 
 // Export core themed components
 export * from './core';
-
 
 /**
  * Usage Guide

@@ -1,4 +1,3 @@
-// src/redux/slices/networkSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface NetworkState {
@@ -17,10 +16,13 @@ const networkSlice = createSlice({
   name: 'network',
   initialState,
   reducers: {
-    networkStatusChanged(state, action: PayloadAction<{
-      isConnected: boolean | null;
-      isInternetReachable: boolean | null;
-    }>) {
+    networkStatusChanged(
+      state,
+      action: PayloadAction<{
+        isConnected: boolean | null;
+        isInternetReachable: boolean | null;
+      }>,
+    ) {
       state.isConnected = action.payload.isConnected;
       state.isInternetReachable = action.payload.isInternetReachable;
       state.lastChecked = Date.now();

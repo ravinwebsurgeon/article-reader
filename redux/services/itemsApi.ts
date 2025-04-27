@@ -1,6 +1,5 @@
-// src/services/itemsApi.ts
 import { api } from './api';
-import { Item, ItemsResponse, ItemCreateRequest, ItemUpdateRequest } from '../types/api';
+import { Item, ItemsResponse, ItemCreateRequest, ItemUpdateRequest } from '../../types/api';
 
 // Items API endpoints
 export const itemsApi = api.injectEndpoints({
@@ -14,31 +13,34 @@ export const itemsApi = api.injectEndpoints({
       providesTags: (result) =>
         result
           ? [
-              ...result.items.map(({ id }) => ({ type: 'Items' as const, id })),
+              ...result.items.map(({ id }: { id: number }) => ({ type: 'Items' as const, id })),
               { type: 'Items', id: 'LIST' },
             ]
           : [{ type: 'Items', id: 'LIST' }],
     }),
 
-     // Search items
-     searchItems: builder.query<ItemsResponse, { 
-      query: string;
-      cursor_id?: number; 
-      limit?: number;
-    }>({
+    // Search items
+    searchItems: builder.query<
+      ItemsResponse,
+      {
+        query: string;
+        cursor_id?: number;
+        limit?: number;
+      }
+    >({
       query: (params) => ({
         url: '/items/search',
         params,
       }),
       providesTags: [{ type: 'Items', id: 'SEARCH' }],
     }),
-    
+
     // Get a single item
     getItem: builder.query<{ item: Item }, number>({
       query: (id) => `/items/${id}`,
       providesTags: (_, __, id) => [{ type: 'Items', id }],
     }),
-    
+
     // Create an item
     createItem: builder.mutation<{ item: Item }, { item: ItemCreateRequest }>({
       query: (data) => ({
@@ -48,7 +50,7 @@ export const itemsApi = api.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Items', id: 'LIST' }],
     }),
-    
+
     // Update an item
     updateItem: builder.mutation<{ item: Item }, { id: number; item: ItemUpdateRequest }>({
       query: ({ id, item }) => ({
@@ -56,9 +58,12 @@ export const itemsApi = api.injectEndpoints({
         method: 'PATCH',
         body: { item },
       }),
-      invalidatesTags: (_, __, { id }) => [{ type: 'Items', id }, { type: 'Items', id: 'LIST' }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: 'Items', id },
+        { type: 'Items', id: 'LIST' },
+      ],
     }),
-    
+
     // Delete an item
     deleteItem: builder.mutation<void, number>({
       query: (id) => ({
@@ -75,7 +80,10 @@ export const itemsApi = api.injectEndpoints({
         method: 'PATCH',
         body: { item: { favorite } },
       }),
-      invalidatesTags: (_, __, { id }) => [{ type: 'Items', id }, { type: 'Items', id: 'LIST' }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: 'Items', id },
+        { type: 'Items', id: 'LIST' },
+      ],
     }),
 
     // Toggle archive status
@@ -85,7 +93,10 @@ export const itemsApi = api.injectEndpoints({
         method: 'PATCH',
         body: { item: { archived } },
       }),
-      invalidatesTags: (_, __, { id }) => [{ type: 'Items', id }, { type: 'Items', id: 'LIST' }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: 'Items', id },
+        { type: 'Items', id: 'LIST' },
+      ],
     }),
   }),
 });

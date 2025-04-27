@@ -1,4 +1,3 @@
-// src/database/schema/schema.ts
 import { appSchema, tableSchema } from '@nozbe/watermelondb';
 
 /**
@@ -18,10 +17,11 @@ export default appSchema({
         { name: 'site_name', type: 'string', isOptional: true },
         { name: 'image_url', type: 'string', isOptional: true },
         { name: 'published_at', type: 'number', isOptional: true },
+        { name: 'content', type: 'string', isOptional: true },
         { name: 'word_count', type: 'number', isOptional: true },
         { name: 'archived', type: 'boolean' },
         { name: 'favorite', type: 'boolean' },
-        { name: 'progress', type: 'number', isOptional: true },
+        { name: 'progress', type: 'number' },
         { name: 'notes', type: 'string', isOptional: true },
         { name: 'created_at', type: 'number' },
         { name: 'updated_at', type: 'number' },
@@ -30,7 +30,7 @@ export default appSchema({
     tableSchema({
       name: 'tags',
       columns: [
-        { name: 'name', type: 'string' },
+        { name: 'name', type: 'string', isIndexed: true },
         { name: 'created_at', type: 'number' },
         { name: 'updated_at', type: 'number' },
       ],

@@ -1,24 +1,40 @@
 import React from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
-import { Controller } from 'react-hook-form';
-import { Ionicons } from '@expo/vector-icons';
+import { View, TextInput, StyleSheet, KeyboardTypeOptions } from 'react-native';
+import { Control, Controller, FieldValues, Path, RegisterOptions } from 'react-hook-form';
 import { COLORS, lightColors } from '@/theme';
 import { ThemeText } from '@/components/core';
 import { ThemedView } from '@/components/ThemedView';
 import { scaler } from '@/utils';
-import { useDarkMode } from '@/theme';
 
-// Custom Input Component for reusability
-export const FormInput = ({ 
-  control, 
-  name, 
-  rules = {}, 
-  placeholder, 
-  secureTextEntry = false, 
+interface FormInputProps<T extends FieldValues> {
+  control: Control<T>;
+  name: Path<T>;
+  rules?: RegisterOptions<T>;
+  placeholder?: string;
+  secureTextEntry?: boolean;
+  icon?: React.ReactNode;
+  keyboardType?: KeyboardTypeOptions;
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  autoCorrect?: boolean;
+  spellCheck?: boolean;
+}
+
+/**
+ * A reusable form input component that integrates with react-hook-form
+ * and supports icons, validation, and theming.
+ */
+export const FormInput = <T extends FieldValues>({
+  control,
+  name,
+  rules = {},
+  placeholder,
+  secureTextEntry = false,
   icon,
-  keyboardType = 'default'
-}) => {
-  const dark = useDarkMode();
+  keyboardType = 'default',
+  autoCapitalize = 'none',
+  autoCorrect = false,
+  spellCheck = false,
+}: FormInputProps<T>) => {
   return (
     <Controller
       control={control}
@@ -36,10 +52,11 @@ export const FormInput = ({
             style={[styles.input, error && styles.inputError]}
             keyboardType={keyboardType}
             placeholderTextColor="#9E9E9E"
+            autoCapitalize={autoCapitalize}
+            autoCorrect={autoCorrect}
+            spellCheck={spellCheck}
           />
-          {error && (
-            <ThemeText style={styles.errorText}>{error.message}</ThemeText>
-          )}
+          {error && <ThemeText style={styles.errorText}>{error.message}</ThemeText>}
         </ThemedView>
       )}
     />
@@ -145,7 +162,7 @@ const styles = StyleSheet.create({
     elevation: scaler(5),
   },
   signInButtonText: {
-    color: COLORS.buttonText,
+    color: COLORS.primary.contrast,
     fontSize: scaler(18),
     fontWeight: '600',
   },

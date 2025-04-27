@@ -1,4 +1,3 @@
-// src/database/provider/DatabaseProvider.tsx
 import React, { useEffect, useState } from 'react';
 import { useAppSelector } from '@/redux/hook';
 import { selectAuthToken } from '@/redux/utils';
@@ -10,6 +9,9 @@ import database from '../database';
 
 // Set the database instance in the sync engine
 syncEngine.database = database;
+
+// Automatically sync changes from the database
+syncEngine.watchForChanges();
 
 // Create a context for database access
 export const DatabaseContext = React.createContext(database);
@@ -29,6 +31,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           syncEngine.setToken(token);
 
           // Perform initial sync
+          console.log('Performing initial sync');
           await syncEngine.sync();
         }
 

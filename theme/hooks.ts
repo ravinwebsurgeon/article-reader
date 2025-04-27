@@ -1,4 +1,3 @@
-// src/theme/hooks.ts
 import { useContext } from 'react';
 import { ThemeContext } from './ThemeProvider';
 import { useAppSelector } from '@/redux/hook';
@@ -28,9 +27,7 @@ export const useTextColor = (
 };
 
 // Hook to get background color based on theme
-export const useBackgroundColor = (
-  variant: 'default' | 'paper' | 'elevated' = 'default',
-) => {
+export const useBackgroundColor = (variant: 'default' | 'paper' | 'elevated' = 'default') => {
   const theme = useTheme();
   return theme.colors.background[variant];
 };

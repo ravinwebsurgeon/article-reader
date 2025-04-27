@@ -1,13 +1,8 @@
-// // src/components/core/ThemeTouchable.tsx
+//
 import { COLORS } from '@/theme';
 import { useTheme } from '@/theme/hooks';
 import React from 'react';
-import { 
-  TouchableOpacity, 
-  TouchableOpacityProps, 
-  StyleSheet, 
-  View
-} from 'react-native';
+import { TouchableOpacity, TouchableOpacityProps, StyleSheet } from 'react-native';
 
 export type ThemeTouchableProps = TouchableOpacityProps & {
   backgroundColor?: string;
@@ -33,51 +28,68 @@ export const ThemeTouchable: React.FC<ThemeTouchableProps> = ({
   ...otherProps
 }) => {
   const theme = useTheme();
-  
+
   // Get padding value
   const getPadding = () => {
     if (padded === false) return undefined;
     if (padded === true) return theme.spacing.md;
-    
+
     switch (padded) {
-      case 'xs': return theme.spacing.xs;
-      case 'sm': return theme.spacing.sm;
-      case 'md': return theme.spacing.md;
-      case 'lg': return theme.spacing.lg;
-      case 'xl': return theme.spacing.xl;
-      default: return theme.spacing.md;
+      case 'xs':
+        return theme.spacing.xs;
+      case 'sm':
+        return theme.spacing.sm;
+      case 'md':
+        return theme.spacing.md;
+      case 'lg':
+        return theme.spacing.lg;
+      case 'xl':
+        return theme.spacing.xl;
+      default:
+        return theme.spacing.md;
     }
   };
-  
+
   // Get margin value
   const getMargin = () => {
     if (margin === false) return undefined;
     if (margin === true) return theme.spacing.md;
-    
+
     switch (margin) {
-      case 'xs': return theme.spacing.xs;
-      case 'sm': return theme.spacing.sm;
-      case 'md': return theme.spacing.md;
-      case 'lg': return theme.spacing.lg;
-      case 'xl': return theme.spacing.xl;
-      default: return theme.spacing.md;
+      case 'xs':
+        return theme.spacing.xs;
+      case 'sm':
+        return theme.spacing.sm;
+      case 'md':
+        return theme.spacing.md;
+      case 'lg':
+        return theme.spacing.lg;
+      case 'xl':
+        return theme.spacing.xl;
+      default:
+        return theme.spacing.md;
     }
   };
-  
+
   // Get border radius value
   const getBorderRadius = () => {
     if (rounded === false) return undefined;
     if (rounded === true) return theme.spacing.sm;
-    
+
     switch (rounded) {
-      case 'sm': return theme.spacing.xs;
-      case 'md': return theme.spacing.sm;
-      case 'lg': return theme.spacing.md;
-      case 'full': return 9999;
-      default: return theme.spacing.sm;
+      case 'sm':
+        return theme.spacing.xs;
+      case 'md':
+        return theme.spacing.sm;
+      case 'lg':
+        return theme.spacing.md;
+      case 'full':
+        return 9999;
+      default:
+        return theme.spacing.sm;
     }
   };
-  
+
   // Combine styles
   const combinedStyle = [
     { backgroundColor: backgroundColor || COLORS.darkBackground },
@@ -89,7 +101,7 @@ export const ThemeTouchable: React.FC<ThemeTouchableProps> = ({
     row && styles.row,
     style,
   ];
-  
+
   return (
     <TouchableOpacity style={combinedStyle} {...otherProps}>
       {children}

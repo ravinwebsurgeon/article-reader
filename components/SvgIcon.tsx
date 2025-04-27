@@ -38,12 +38,7 @@ export function SvgIcon({
   return (
     <View style={[{ width: size, height: size }, style]}>
       <Svg width="100%" height="100%" viewBox={iconData.viewBox} fill="none">
-        <Path
-          fillRule="evenodd"
-          clipRule="evenodd"
-          d={iconData.path}
-          fill={color}
-        />
+        <Path fillRule="evenodd" clipRule="evenodd" d={iconData.path} fill={color} />
       </Svg>
     </View>
   );
