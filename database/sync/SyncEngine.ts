@@ -155,6 +155,7 @@ class SyncEngine {
 
     // Mark sync as active *before* the async `synchronize` call.
     this.isSyncing = true;
+    const syncStartTime = Date.now();
     console.log(`${LOG_PREFIX} Starting sync operation (isFirstSync: ${isFirstSync})`);
     const useTurbo = isFirstSync;
     let syncError: Error | null = null; // Track error state for the finally block.
@@ -171,6 +172,7 @@ class SyncEngine {
           params.set('migration', JSON.stringify(migration));
 
           console.log(`${LOG_PREFIX} Pulling changes...`);
+          const pullStartTime = Date.now();
           const response = await fetch(`${API_URL}/sync?${params.toString()}`, {
             method: 'GET',
             headers: {
@@ -185,14 +187,17 @@ class SyncEngine {
             throw new Error(`Pull failed: ${await response.text()}`);
           }
 
+          const pullEndTime = Date.now();
+          const pullDuration = pullEndTime - pullStartTime;
+
           // Handle turbo mode (raw JSON string) vs standard mode (parsed JSON).
           if (useTurbo) {
             const json = await response.text();
-            console.log(`${LOG_PREFIX} Pull successful (turbo).`);
+            console.log(`${LOG_PREFIX} Pull successful (turbo). Duration: ${pullDuration}ms`);
             return { syncJson: json };
           } else {
             const { changes, timestamp } = await response.json();
-            console.log(`${LOG_PREFIX} Pull successful.`);
+            console.log(`${LOG_PREFIX} Pull successful. Duration: ${pullDuration}ms`);
             return { changes, timestamp };
           }
         },
@@ -202,6 +207,7 @@ class SyncEngine {
           params.set('last_pulled_at', String(lastPulledAt));
 
           console.log(`${LOG_PREFIX} Pushing changes...`);
+          const pushStartTime = Date.now();
           const response = await fetch(`${API_URL}/sync?${params.toString()}`, {
             method: 'POST',
             headers: {
@@ -211,12 +217,15 @@ class SyncEngine {
             body: JSON.stringify(changes),
           });
 
+          const pushEndTime = Date.now();
+          const pushDuration = pushEndTime - pushStartTime;
+
           console.log(`${LOG_PREFIX} Push response status: ${response.status}`);
           if (!response.ok) {
             // Throw an error to be caught by the outer try/catch.
             throw new Error(`Push failed: ${await response.text()}`);
           }
-          console.log(`${LOG_PREFIX} Push successful.`);
+          console.log(`${LOG_PREFIX} Push successful. Duration: ${pushDuration}ms`);
         },
         // Pass turbo mode flag to WatermelonDB.
         unsafeTurbo: useTurbo,
@@ -231,6 +240,9 @@ class SyncEngine {
       // Store the error to be handled in the finally block.
       syncError = error instanceof Error ? error : new Error(String(error));
     } finally {
+      const syncEndTime = Date.now();
+      const syncDuration = syncEndTime - syncStartTime;
+      console.log(`${LOG_PREFIX} Total sync duration: ${syncDuration}ms`);
       // Centralized cleanup and promise resolution/rejection.
       this._finalizeSync(syncError);
       console.log(`${LOG_PREFIX} Finished sync operation execution cycle.`);
