@@ -16,6 +16,9 @@ interface FormInputProps<T extends FieldValues> {
   secureTextEntry?: boolean;
   icon?: React.ReactNode;
   keyboardType?: KeyboardTypeOptions;
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  autoCorrect?: boolean;
+  spellCheck?: boolean;
 }
 
 /**
@@ -30,6 +33,9 @@ export const FormInput = <T extends FieldValues>({
   secureTextEntry = false,
   icon,
   keyboardType = 'default',
+  autoCapitalize = 'none',
+  autoCorrect = false,
+  spellCheck = false,
 }: FormInputProps<T>) => {
   const dark = useDarkMode();
   return (
@@ -49,6 +55,9 @@ export const FormInput = <T extends FieldValues>({
             style={[styles.input, error && styles.inputError]}
             keyboardType={keyboardType}
             placeholderTextColor="#9E9E9E"
+            autoCapitalize={autoCapitalize}
+            autoCorrect={autoCorrect}
+            spellCheck={spellCheck}
           />
           {error && <ThemeText style={styles.errorText}>{error.message}</ThemeText>}
         </ThemedView>
