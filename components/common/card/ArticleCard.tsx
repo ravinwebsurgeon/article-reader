@@ -201,4 +201,5 @@ const enhance = withObservables(['item'], ({ item }: { item: Item }) => ({
 }));
 
 // Apply memo to prevent unnecessary re-renders
-export default enhance(memo(ArticleCardComponent));
+// export default enhance(memo(ArticleCardComponent));
+export default enhance(ArticleCardComponent); // Temporarily remove memo for debugging
