@@ -2,6 +2,7 @@ import { synchronize } from '@nozbe/watermelondb/sync';
 import { Database } from '@nozbe/watermelondb';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { debounce, DebouncedFunc } from 'lodash-es';
 
 // API URL from environment
 const API_URL = Constants.expoConfig?.extra?.apiUrl || 'https://api.pckt.dev/v4';
@@ -14,9 +15,17 @@ class SyncEngine {
   public database: Database;
   // Authentication token required for API requests
   public token: string | null = null;
+  // Track if a sync is in progress
+  private isSyncing: boolean = false;
+  // Track if another sync is queued
+  private queuedSync: boolean = false;
+  // Debounced sync function
+  private debouncedSync: DebouncedFunc<(isFirstSync?: boolean) => Promise<boolean>>;
 
   constructor(database: Database) {
     this.database = database;
+    // Create debounced sync function with 250ms delay and leading edge execution
+    this.debouncedSync = debounce(this._sync.bind(this), 250, { leading: true, trailing: true });
   }
 
   /**
@@ -60,6 +69,23 @@ class SyncEngine {
    * @throws Error if token is not set or sync fails
    */
   async sync(isFirstSync = false) {
+    // If a sync is already in progress, queue another sync
+    if (this.isSyncing) {
+      console.log('Sync in progress, queueing another sync');
+      this.queuedSync = true;
+      return false;
+    }
+
+    return this.debouncedSync(isFirstSync);
+  }
+
+  /**
+   * Internal sync implementation
+   * @param isFirstSync If true, enables Turbo Login for faster initial sync
+   * @returns Promise resolving to true when sync completes successfully
+   * @throws Error if token is not set or sync fails
+   */
+  private async _sync(isFirstSync = false) {
     if (!this.token) {
       try {
         this.token = await this.loadToken();
@@ -67,6 +93,9 @@ class SyncEngine {
         throw new Error('Authentication token not set');
       }
     }
+
+    // Set syncing flag
+    this.isSyncing = true;
 
     // Use turbo mode for the first sync
     const useTurbo = isFirstSync;
@@ -139,6 +168,16 @@ class SyncEngine {
       // Log and rethrow the error for higher-level handling
       console.error('Sync failed:', error);
       throw error;
+    } finally {
+      // Always reset syncing flag
+      this.isSyncing = false;
+
+      // If another sync was queued, run it now
+      if (this.queuedSync) {
+        console.log('Running queued sync');
+        this.queuedSync = false;
+        this.debouncedSync(isFirstSync);
+      }
     }
   }
 }
