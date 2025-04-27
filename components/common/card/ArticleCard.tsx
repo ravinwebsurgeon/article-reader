@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, memo } from 'react';
 import { StyleSheet, Image, TouchableOpacity, ViewStyle, StyleProp, View } from 'react-native';
 import { COLORS, lightColors } from '@/theme';
 import Item from '@/database/models/ItemModel';
@@ -9,6 +9,9 @@ import { ThemeText } from '@/components/core';
 import { scaler } from '@/utils';
 import { withObservables } from '@nozbe/watermelondb/react';
 import { format } from 'date-fns';
+
+// Export a fixed height constant for use in FlatList
+export const ARTICLE_CARD_HEIGHT = scaler(140);
 
 interface ArticleCardProps {
   item: Item;
@@ -64,7 +67,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ item, onPress, onMenuPress, s
           </ThemeText>
         </View>
         <View style={styles.metaContainer}>
-          <ThemeText color={theme.colors.text.secondary} style={styles.source}>
+          <ThemeText numberOfLines={1} color={theme.colors.text.secondary} style={styles.source}>
             {item.siteName || item.domain}
           </ThemeText>
           <ThemeText variant="caption" color={theme.colors.text.secondary} style={styles.dot}>
@@ -76,7 +79,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ item, onPress, onMenuPress, s
           <ThemeText variant="caption" color={theme.colors.text.secondary} style={styles.dot}>
             •
           </ThemeText>
-          <ThemeText color={theme.colors.text.secondary} style={styles.date}>
+          <ThemeText numberOfLines={1} color={theme.colors.text.secondary} style={styles.date}>
             {formatDate(item.publishedAt)}
           </ThemeText>
         </View>
@@ -90,7 +93,9 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ item, onPress, onMenuPress, s
           {tags.map((itemTag: ItemTag, index: number) => (
             <View key={index} style={styles.tagContainer}>
               <Ionicons name="pricetag-outline" size={14} color={COLORS.darkGray} />
-              <ThemeText style={styles.tagText}>{itemTag.tag.name}</ThemeText>
+              <ThemeText numberOfLines={1} style={styles.tagText}>
+                {itemTag.tag.name}
+              </ThemeText>
             </View>
           ))}
 
@@ -114,6 +119,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: scaler(16),
     borderBottomWidth: scaler(0.5),
+    height: ARTICLE_CARD_HEIGHT,
   },
   contentContainer: {
     flex: 1,
@@ -194,4 +200,5 @@ const enhance = withObservables(['item'], ({ item }: { item: Item }) => ({
   item: item.observe(), // Observe the specific item passed in
 }));
 
-export default enhance(ArticleCard);
+// Apply memo to prevent unnecessary re-renders
+export default enhance(memo(ArticleCard));
