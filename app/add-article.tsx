@@ -16,9 +16,9 @@ import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector } from '@/redux/hook';
 import { selectActiveTheme } from '@/redux/utils';
-import { useCreateItemMutation } from '@/redux/services/itemsApi';
 import { isValidUrl } from '@/utils/validation';
 import { COLORS, lightColors } from '@/theme';
+import { createItem } from '@/database/hooks/withItems';
 
 export default function AddArticleScreen() {
   const router = useRouter();
@@ -27,9 +27,7 @@ export default function AddArticleScreen() {
 
   // State
   const [url, setUrl] = useState('');
-
-  // Create item mutation
-  const [createItem, { isLoading }] = useCreateItemMutation();
+  const [isLoading, setIsLoading] = useState(false);
 
   // Handle navigation back
   const handleBack = () => {
@@ -61,10 +59,9 @@ export default function AddArticleScreen() {
     }
 
     try {
-      // Create item
-      await createItem({
-        item: { url: formattedUrl },
-      }).unwrap();
+      setIsLoading(true);
+      // Create item in WatermelonDB
+      await createItem(formattedUrl);
 
       // Show success alert with options
       Alert.alert('Article Saved', 'The article has been saved to your Pocket.', [
@@ -81,6 +78,8 @@ export default function AddArticleScreen() {
       ]);
     } catch (error) {
       Alert.alert('Error', 'There was a problem saving this article. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
