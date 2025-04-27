@@ -181,7 +181,7 @@ class SyncEngine {
     // This shouldn't happen with the current debounce settings but provides robustness.
     if (this.isSyncing) {
       console.warn(
-        `${LOG_PREFIX} _syncInternal called while another sync was already in progress.`
+        `${LOG_PREFIX} _syncInternal called while another sync was already in progress.`,
       );
       return; // Let the existing operation complete; do not interfere.
     }

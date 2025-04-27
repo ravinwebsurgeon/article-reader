@@ -21,7 +21,7 @@ const networkSlice = createSlice({
       action: PayloadAction<{
         isConnected: boolean | null;
         isInternetReachable: boolean | null;
-      }>
+      }>,
     ) {
       state.isConnected = action.payload.isConnected;
       state.isInternetReachable = action.payload.isInternetReachable;

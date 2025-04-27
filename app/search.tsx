@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -182,7 +182,7 @@ interface SearchScreenComponentProps {
 const EnhancedSearchScreen = withSearch()(
   ({ items, ...props }: { items: ItemModel[] } & SearchScreenComponentProps) => (
     <SearchScreenComponent items={items} {...props} />
-  )
+  ),
 );
 
 // Wrapper component that provides the search query state

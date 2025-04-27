@@ -50,8 +50,8 @@ export const searchItems = (query: string) => {
         Q.where('title', Q.like(`%${searchTerm}%`)),
         Q.where('description', Q.like(`%${searchTerm}%`)),
         Q.where('url', Q.like(`%${searchTerm}%`)),
-        Q.where('site_name', Q.like(`%${searchTerm}%`))
-      )
+        Q.where('site_name', Q.like(`%${searchTerm}%`)),
+      ),
     )
     .fetch();
 };
@@ -84,7 +84,7 @@ export const withItems = ({ filter = 'all' }: WithItemsProps = {}) => {
       query = itemsCollection.query(
         Q.where('favorite', true),
         Q.where('archived', false),
-        Q.sortBy('id', Q.desc)
+        Q.sortBy('id', Q.desc),
       );
     } else if (filter === 'archived') {
       query = itemsCollection.query(Q.where('archived', true), Q.sortBy('id', Q.desc));
@@ -93,21 +93,21 @@ export const withItems = ({ filter = 'all' }: WithItemsProps = {}) => {
         Q.where('archived', false),
         Q.experimentalJoinTables(['item_tags']),
         Q.on('item_tags', Q.where('tag_id', Q.notEq(null))),
-        Q.sortBy('id', Q.desc)
+        Q.sortBy('id', Q.desc),
       );
     } else if (filter === 'short') {
       query = itemsCollection.query(
         // 260wpm * 4min = 1040 words
         Q.where('word_count', Q.lte(1040)),
         Q.where('archived', false),
-        Q.sortBy('id', Q.desc)
+        Q.sortBy('id', Q.desc),
       );
     } else if (filter === 'long') {
       query = itemsCollection.query(
         // 260wpm * 10min = 2600 words
         Q.where('word_count', Q.gte(2600)),
         Q.where('archived', false),
-        Q.sortBy('id', Q.desc)
+        Q.sortBy('id', Q.desc),
       );
     } else {
       // Default to unarchived items
@@ -140,8 +140,8 @@ export const withSearch = ({ query }: WithSearchProps = {}) => {
             Q.where('title', Q.like(`%${searchTerm}%`)),
             Q.where('description', Q.like(`%${searchTerm}%`)),
             Q.where('url', Q.like(`%${searchTerm}%`)),
-            Q.where('site_name', Q.like(`%${searchTerm}%`))
-          )
+            Q.where('site_name', Q.like(`%${searchTerm}%`)),
+          ),
         )
         .observe(),
     };

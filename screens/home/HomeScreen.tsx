@@ -28,11 +28,6 @@ import Item from '@/database/models/ItemModel';
 // Use the exported fixed height from ArticleCard component
 const ITEM_HEIGHT = ARTICLE_CARD_HEIGHT;
 
-interface ActionMenuProps {
-  item: Item;
-  onClose: () => void;
-}
-
 // The base HomeScreen component without database connection
 // This is the "dumb" presentational component that just renders UI based on props
 const HomeScreenComponent = ({
@@ -74,7 +69,7 @@ const HomeScreenComponent = ({
         params: { id: item.id },
       });
     },
-    [router]
+    [router],
   );
 
   // Open action menu for an item
@@ -108,7 +103,7 @@ const HomeScreenComponent = ({
         onMenuPress={() => openActionMenu(item.id)}
       />
     ),
-    [navigateToArticle, openActionMenu]
+    [navigateToArticle, openActionMenu],
   );
 
   // Memoize keyExtractor to prevent recreation on each render
@@ -122,7 +117,7 @@ const HomeScreenComponent = ({
       offset: ITEM_HEIGHT * index,
       index,
     }),
-    []
+    [],
   );
 
   const isLoading = false; // We never show loading state - WatermelonDB handles this

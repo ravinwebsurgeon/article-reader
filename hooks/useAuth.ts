@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
-import { Alert } from 'react-native';
 
 interface User {
   id: string;

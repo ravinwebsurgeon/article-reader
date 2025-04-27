@@ -26,17 +26,11 @@ type SignUpScreenProps = {
 
 const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
   const [loader, setLoader] = useState(false);
-  const [register, { isLoading: registerLoading, error: registerError }] = useRegisterMutation();
+  const [register] = useRegisterMutation();
 
   const theme = useTheme();
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-    watch,
-    reset,
-  } = useForm({
+  const { control, handleSubmit, watch } = useForm({
     defaultValues: {
       userName: '',
       email: '',

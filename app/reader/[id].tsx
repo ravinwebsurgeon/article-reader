@@ -62,7 +62,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
   // State
   const [fontSize, setFontSize] = useState<keyof typeof FONT_SIZES>('medium');
   const [readerTheme, setReaderTheme] = useState<keyof typeof READER_THEMES>(
-    systemIsDark ? 'dark' : 'light'
+    systemIsDark ? 'dark' : 'light',
   );
   const [showControls, setShowControls] = useState(true);
   const [progress, setProgress] = useState(item.progress || 0);
@@ -89,7 +89,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
     if (contentSize.height > 0) {
       const newProgress = Math.min(
         Math.max(0, contentOffset.y / (contentSize.height - layoutMeasurement.height)),
-        1
+        1,
       );
 
       // Only update if significant change (avoid too many API calls)

@@ -6,7 +6,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   ViewStyle,
-  TextStyle,
   KeyboardTypeOptions,
 } from 'react-native';
 import { Controller, Control, FieldValues, Path } from 'react-hook-form';

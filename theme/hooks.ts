@@ -20,7 +20,7 @@ export const useDarkMode = () => {
 
 // Hook to get text color based on theme
 export const useTextColor = (
-  variant: 'primary' | 'secondary' | 'disabled' | 'hint' = 'primary'
+  variant: 'primary' | 'secondary' | 'disabled' | 'hint' = 'primary',
 ) => {
   const theme = useTheme();
   return theme.colors.text[variant];

@@ -62,7 +62,7 @@ export const createTextStyle = (
   lineHeight: number,
   fontWeight: TextStyle['fontWeight'] = '400',
   letterSpacing: number = 0,
-  fontStyle: TextStyle['fontStyle'] = 'normal'
+  fontStyle: TextStyle['fontStyle'] = 'normal',
 ): TextStyle => {
   const style: TextStyle = {
     fontSize: size,

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, memo } from 'react';
+import React from 'react';
 import { StyleSheet, Image, TouchableOpacity, ViewStyle, StyleProp, View } from 'react-native';
 import { COLORS, lightColors } from '@/theme';
 import Item from '@/database/models/ItemModel';

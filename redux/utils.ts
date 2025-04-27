@@ -29,7 +29,7 @@ export const selectActiveTheme = createSelector(
       return systemPrefersDark ? 'dark' : 'light';
     }
     return mode;
-  }
+  },
 );
 
 // Helper function to handle API loading states
