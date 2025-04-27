@@ -15,7 +15,7 @@ import { Images } from '@/assets';
 import { useAppSelector } from '@/redux/hook';
 import { selectActiveTheme } from '@/redux/utils';
 import { Ionicons } from '@expo/vector-icons';
-import ArticleCard from '@/components/common/card/ArticleCard';
+import ArticleCard, { ARTICLE_CARD_HEIGHT } from '@/components/common/card/ArticleCard';
 import FilterTabs from '@/components/common/tabBar/FilterTabs';
 import ActionMenu from '@/components/common/menu/ActionMenu';
 import NoItemsFound from '@/components/common/emptyState/NoUIFound';
@@ -25,9 +25,8 @@ import { syncEngine } from '@/database/sync/SyncEngine';
 import { withItems } from '@/database/hooks/useItems';
 import Item from '@/database/models/ItemModel';
 
-// Fixed height for each item - calculated based on ArticleCard design
-// This includes the content height plus padding and borders
-const ITEM_HEIGHT = scaler(140);
+// Use the exported fixed height from ArticleCard component
+const ITEM_HEIGHT = ARTICLE_CARD_HEIGHT;
 
 interface ActionMenuProps {
   item: Item;
