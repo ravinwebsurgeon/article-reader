@@ -6,7 +6,6 @@ import { ActivityIndicator } from 'react-native';
 import { ThemeView, ThemeText } from '@/components/core';
 import { useTheme } from '@/theme/hooks';
 import database from '../database';
-import { debounce } from 'lodash-es';
 
 // Set the database instance in the sync engine
 syncEngine.database = database;
@@ -14,8 +13,14 @@ syncEngine.database = database;
 // Automatically sync changes from the database
 database.withChangesForTables(['items', 'tags', 'item_tags']).subscribe((changes) => {
   if (changes) {
-    console.log('Auto sync triggered', changes);
-    syncEngine.sync();
+    // Only trigger sync if at least one record has a status other than 'synced'
+    // This prevents infinite loops where sync operations trigger more syncs
+    const hasLocalChanges = changes.some((change) => change.record.syncStatus !== 'synced');
+
+    if (hasLocalChanges) {
+      console.log('Auto sync triggered');
+      syncEngine.sync();
+    }
   }
 });
 
@@ -37,6 +42,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           syncEngine.setToken(token);
 
           // Perform initial sync
+          console.log('Performing initial sync');
           await syncEngine.sync();
         }
 
