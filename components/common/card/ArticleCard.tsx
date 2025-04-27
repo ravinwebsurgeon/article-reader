@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, Image, TouchableOpacity, ViewStyle, StyleProp, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, ViewStyle, StyleProp, View } from 'react-native';
+import { Image } from 'expo-image';
 import { COLORS, lightColors } from '@/theme';
 import Item from '@/database/models/ItemModel';
 import Tag from '@/database/models/TagModel';
@@ -106,7 +107,7 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
 
       {item.imageUrl && (
         <View style={styles.thumbnailContainer}>
-          <Image source={{ uri: item.imageUrl }} style={styles.thumbnail} resizeMode="cover" />
+          <Image source={{ uri: item.imageUrl }} style={styles.thumbnail} contentFit="cover" />
         </View>
       )}
     </TouchableOpacity>
