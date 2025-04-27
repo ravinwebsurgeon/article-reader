@@ -6,9 +6,18 @@ import { ActivityIndicator } from 'react-native';
 import { ThemeView, ThemeText } from '@/components/core';
 import { useTheme } from '@/theme/hooks';
 import database from '../database';
+import { debounce } from 'lodash-es';
 
 // Set the database instance in the sync engine
 syncEngine.database = database;
+
+// Automatically sync changes from the database
+database.withChangesForTables(['items', 'tags', 'item_tags']).subscribe((changes) => {
+  if (changes) {
+    console.log('Auto sync triggered', changes);
+    syncEngine.sync();
+  }
+});
 
 // Create a context for database access
 export const DatabaseContext = React.createContext(database);
