@@ -54,10 +54,11 @@ const HomeScreenComponent = ({
   const [isSyncing, setIsSyncing] = useState(false);
 
   // Handle pull-to-refresh - sync with server
-  const handleRefresh = useCallback(() => {
+  const handleRefresh = useCallback(async () => {
     try {
       setIsSyncing(true);
-      syncEngine.sync();
+      console.log('Performing refresh sync');
+      await syncEngine.sync();
     } catch (error) {
       console.error('Sync failed:', error);
     } finally {
