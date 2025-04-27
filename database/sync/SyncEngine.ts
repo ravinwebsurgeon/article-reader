@@ -10,6 +10,15 @@ const API_URL = Constants.expoConfig?.extra?.apiUrl || 'https://api.pckt.dev/v4'
 const LOG_PREFIX = '[SyncEngine]';
 
 /**
+ * Represents the state of a sync promise operation
+ */
+type SyncPromiseState = {
+  promise: Promise<boolean>;
+  resolve: (value: boolean) => void;
+  reject: (reason?: any) => void;
+};
+
+/**
  * SyncEngine orchestrates database synchronization between the local device
  * and the remote server using WatermelonDB's sync mechanism. It ensures
  * that only one sync operation runs at a time and provides a consistent
@@ -18,17 +27,12 @@ const LOG_PREFIX = '[SyncEngine]';
 class SyncEngine {
   // The WatermelonDB database instance. Needs to be set after initialization.
   public database: Database | null;
-  // JWT Authentication token for API requests.
+  // Authentication token for API requests.
   public token: string | null = null;
   // Flag indicating if a synchronization operation (`_syncInternal`) is currently active.
   private isSyncing: boolean = false;
-  // Promise representing the currently ongoing or most recently triggered sync cycle.
-  // Used to coalesce multiple `sync()` calls during an active/debounced sync.
-  private syncPromise: Promise<boolean> | null = null;
-  // Stored `resolve` function for the `syncPromise`.
-  private resolveSync: ((value: boolean) => void) | null = null;
-  // Stored `reject` function for the `syncPromise`.
-  private rejectSync: ((reason?: any) => void) | null = null;
+  // Object containing the current sync promise state (promise, resolve, reject)
+  private syncState: SyncPromiseState | null = null;
   // Debounced version of the internal sync logic (`_syncInternal`).
   // Ensures that actual sync operations are not triggered too frequently.
   private debouncedSync: DebouncedFunc<(isFirstSync?: boolean) => Promise<void>>;
@@ -89,28 +93,34 @@ class SyncEngine {
    * @returns A Promise resolving to true upon successful sync completion, or rejecting on failure.
    */
   sync(isFirstSync = false): Promise<boolean> {
-    // Return the existing promise if a sync cycle is already active or pending.
-    if (this.syncPromise) {
-      console.log(
-        `${LOG_PREFIX} Sync requested, but already in progress. Returning existing promise.`
-      );
-      return this.syncPromise;
+    // If we're actually syncing, just return the existing promise without extending the debounce
+    if (this.isSyncing && this.syncState) {
+      console.log(`${LOG_PREFIX} Already actively syncing, returning existing promise.`);
+      return this.syncState.promise;
     }
 
-    // No active sync promise, create a new one for this cycle.
-    console.log(`${LOG_PREFIX} Creating new sync promise and triggering debounced sync.`);
-    this.syncPromise = new Promise((resolve, reject) => {
-      // Store the resolve/reject functions so `_syncInternal` can call them later.
-      this.resolveSync = resolve;
-      this.rejectSync = reject;
-    });
+    // Create a new promise if we don't have one yet
+    if (!this.syncState) {
+      console.log(`${LOG_PREFIX} Creating new sync promise.`);
 
-    // Trigger the debounced function. It won't run immediately if called again
-    // within the debounce timeout (unless `leading:true` handles the first call).
+      let resolve!: (value: boolean) => void;
+      let reject!: (reason?: any) => void;
+
+      const promise = new Promise<boolean>((res, rej) => {
+        resolve = res;
+        reject = rej;
+      });
+
+      this.syncState = { promise, resolve, reject };
+    }
+
+    // Always trigger the debounced function to extend the debounce period
+    // unless we're actively syncing
+    console.log(`${LOG_PREFIX} Triggering debounced sync.`);
     this.debouncedSync(isFirstSync);
 
-    // Return the newly created promise. Callers will await this promise.
-    return this.syncPromise;
+    // Return the promise
+    return this.syncState.promise;
   }
 
   /**
@@ -251,9 +261,8 @@ class SyncEngine {
 
   /**
    * Finalizes the synchronization cycle.
-   * Resolves or rejects the shared `syncPromise` based on the outcome,
-   * clears the promise state (`syncPromise`, `resolveSync`, `rejectSync`),
-   * and resets the `isSyncing` flag.
+   * Resolves or rejects the promise in syncState based on the outcome,
+   * clears the syncState, and resets the `isSyncing` flag.
    *
    * @param error Optional error object. If provided, the promise is rejected.
    *              Otherwise (if null/undefined), the promise is resolved successfully.
@@ -261,29 +270,27 @@ class SyncEngine {
   private _finalizeSync(error: Error | null): void {
     if (error) {
       // Reject the promise if an error occurred during the sync process.
-      if (this.rejectSync) {
+      if (this.syncState) {
         console.log(`${LOG_PREFIX} Rejecting sync promise.`); // Error details logged previously
-        this.rejectSync(error);
+        this.syncState.reject(error);
       } else {
         // This case should be rare (promise created but rejector not stored), log a warning.
-        console.warn(`${LOG_PREFIX} Sync failed, but no rejectSync function was available.`);
+        console.warn(`${LOG_PREFIX} Sync failed, but no syncState was available.`);
       }
     } else {
       // Resolve the promise successfully if no error occurred.
-      if (this.resolveSync) {
+      if (this.syncState) {
         console.log(`${LOG_PREFIX} Resolving sync promise successfully.`);
-        this.resolveSync(true); // Resolve with `true` to indicate success.
+        this.syncState.resolve(true); // Resolve with `true` to indicate success.
       } else {
         // This case should be rare, log a warning.
-        console.warn(`${LOG_PREFIX} Sync succeeded, but no resolveSync function was available.`);
+        console.warn(`${LOG_PREFIX} Sync succeeded, but no syncState was available.`);
       }
     }
 
-    // Clean up the stored promise and its resolvers, regardless of outcome.
+    // Clean up the stored promise state, regardless of outcome.
     console.log(`${LOG_PREFIX} Cleaning up promise state.`);
-    this.syncPromise = null;
-    this.resolveSync = null;
-    this.rejectSync = null;
+    this.syncState = null;
 
     // Reset the flag indicating an active sync operation.
     this.isSyncing = false;
