@@ -27,6 +27,7 @@ interface InputProps<T extends FieldValues> {
   icon?: React.ReactNode;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   autoCorrect?: boolean;
+  spellCheck?: boolean;
   multiline?: boolean;
   numberOfLines?: number;
   style?: ViewStyle;
@@ -44,6 +45,7 @@ export const Input = <T extends FieldValues>({
   icon,
   autoCapitalize = 'none',
   autoCorrect = false,
+  spellCheck = false,
   multiline = false,
   numberOfLines = 1,
   style,
@@ -78,6 +80,7 @@ export const Input = <T extends FieldValues>({
               keyboardType={keyboardType}
               autoCapitalize={autoCapitalize}
               autoCorrect={autoCorrect}
+              spellCheck={spellCheck}
               placeholderTextColor={lightColors.text.disabled}
               multiline={multiline}
               numberOfLines={multiline ? numberOfLines : 1}

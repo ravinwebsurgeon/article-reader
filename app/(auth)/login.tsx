@@ -102,6 +102,9 @@ function LoginScreen() {
               }}
               placeholder="Enter your email"
               keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              spellCheck={false}
               icon={<Ionicons name="mail-outline" size={20} color={COLORS.primary.main} />}
             />
 
@@ -120,7 +123,10 @@ function LoginScreen() {
               icon={<Ionicons name="lock-closed-outline" size={20} color={COLORS.primary.main} />}
             />
 
-            <TouchableOpacity style={styles.forgotPasswordContainer} onPress={navigateToForgotPassword}>
+            <TouchableOpacity
+              style={styles.forgotPasswordContainer}
+              onPress={navigateToForgotPassword}
+            >
               <ThemeText style={styles.forgotPasswordText}>Forgot password?</ThemeText>
             </TouchableOpacity>
 

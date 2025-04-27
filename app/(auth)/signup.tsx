@@ -89,10 +89,26 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
               control={control}
               name="userName"
               label="Username"
-              rules={{ required: 'Username is required' }}
+              rules={{
+                required: 'Username is required',
+                minLength: {
+                  value: 3,
+                  message: 'Username must be at least 3 characters',
+                },
+                maxLength: {
+                  value: 20,
+                  message: 'Username must be less than 20 characters',
+                },
+                pattern: {
+                  value: /^[a-zA-Z0-9_-]+$/,
+                  message: 'Username can only contain letters, numbers, underscores, and hyphens',
+                },
+              }}
               placeholder="Enter your Username"
               icon={<Ionicons name="person-outline" size={20} color={COLORS.primary.main} />}
-              autoCapitalize="words"
+              autoCapitalize="none"
+              autoCorrect={false}
+              spellCheck={false}
               style={styles.input}
             />
 
@@ -109,6 +125,9 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
               }}
               placeholder="Enter your Email"
               keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              spellCheck={false}
               icon={<Ionicons name="mail-outline" size={20} color={COLORS.primary.main} />}
               style={styles.input}
             />
@@ -125,7 +144,8 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
                 },
                 pattern: {
                   value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                  message: 'Password must contain uppercase, lowercase, number and special character',
+                  message:
+                    'Password must contain uppercase, lowercase, number and special character',
                 },
               }}
               placeholder="Enter your Password"
