@@ -49,7 +49,7 @@ export default class Item extends Model {
   // Computed properties
   get readTime(): number {
     if (!this.wordCount) return 0;
-    return Math.ceil(this.wordCount / 200); // Assuming 200 words per minute
+    return Math.ceil(this.wordCount / 260); // Assuming 200 words per minute
   }
 
   // Writer methods
