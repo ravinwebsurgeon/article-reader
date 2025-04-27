@@ -3,6 +3,7 @@ import { Database } from '@nozbe/watermelondb';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { debounce, DebouncedFunc } from 'lodash-es';
+import { Subscription } from 'rxjs';
 
 // API URL from environment configuration.
 const API_URL = Constants.expoConfig?.extra?.apiUrl || 'https://api.pckt.dev/v4';
@@ -36,6 +37,8 @@ class SyncEngine {
   // Debounced version of the internal sync logic (`_syncInternal`).
   // Ensures that actual sync operations are not triggered too frequently.
   private debouncedSync: DebouncedFunc<(isFirstSync?: boolean) => Promise<void>>;
+  // Subscription to database changes
+  private subscription: Subscription | null = null;
 
   constructor(database: Database | null = null) {
     this.database = database;
@@ -46,6 +49,48 @@ class SyncEngine {
       leading: true,
       trailing: false,
     });
+  }
+
+  /**
+   * Sets up a subscription to monitor changes in database tables
+   * and automatically trigger sync when local changes are detected.
+   */
+  watchForChanges(): void {
+    if (!this.database) {
+      console.error(`${LOG_PREFIX} Cannot watch for changes: Database not initialized`);
+      return;
+    }
+
+    if (this.subscription) {
+      console.log(`${LOG_PREFIX} Stopping existing subscription before creating a new one`);
+      this.stopWatchForChanges();
+    }
+
+    const tables = ['items', 'tags', 'item_tags'];
+    console.log(`${LOG_PREFIX} Setting up watch for changes on tables: ${tables.join(', ')}`);
+    this.subscription = this.database.withChangesForTables(tables).subscribe((changes) => {
+      if (changes) {
+        // Only trigger sync if at least one record has a status other than 'synced'
+        // This prevents infinite loops where sync operations trigger more syncs
+        const hasLocalChanges = changes.some((change) => change.record.syncStatus !== 'synced');
+
+        if (hasLocalChanges) {
+          console.log(`${LOG_PREFIX} Auto sync triggered due to local changes`);
+          this.sync();
+        }
+      }
+    });
+  }
+
+  /**
+   * Stops watching for database changes by unsubscribing from the subscription
+   */
+  stopWatchForChanges(): void {
+    if (this.subscription) {
+      console.log(`${LOG_PREFIX} Stopping watch for changes`);
+      this.subscription.unsubscribe();
+      this.subscription = null;
+    }
   }
 
   /**

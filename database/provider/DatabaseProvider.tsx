@@ -11,18 +11,7 @@ import database from '../database';
 syncEngine.database = database;
 
 // Automatically sync changes from the database
-database.withChangesForTables(['items', 'tags', 'item_tags']).subscribe((changes) => {
-  if (changes) {
-    // Only trigger sync if at least one record has a status other than 'synced'
-    // This prevents infinite loops where sync operations trigger more syncs
-    const hasLocalChanges = changes.some((change) => change.record.syncStatus !== 'synced');
-
-    if (hasLocalChanges) {
-      console.log('Auto sync triggered');
-      syncEngine.sync();
-    }
-  }
-});
+syncEngine.watchForChanges();
 
 // Create a context for database access
 export const DatabaseContext = React.createContext(database);
