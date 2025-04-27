@@ -1,4 +1,3 @@
-// src/components/common/Input/SearchInput.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -8,7 +7,7 @@ import {
   TextInputProps,
   ViewStyle,
 } from 'react-native';
-import { colors, typography, spacing } from '../../../styles';
+import { useColors, useTypography } from '../../../theme';
 import { SearchIcon, CloseIcon } from '../Icons';
 
 interface SearchInputProps extends TextInputProps {
@@ -27,36 +26,30 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   ...rest
 }) => {
   const [text, setText] = useState(value || '');
-  
+  const colors = useColors();
+  const typography = useTypography();
+
   const handleChangeText = (newText: string) => {
     setText(newText);
-    if (onChangeText) {
-      onChangeText(newText);
-    }
+    onChangeText?.(newText);
   };
-  
+
   const handleClear = () => {
     setText('');
-    if (onClear) {
-      onClear();
-    }
-    if (onChangeText) {
-      onChangeText('');
-    }
+    onClear?.();
+    onChangeText?.('');
   };
-  
+
   const handleSubmit = () => {
-    if (onSearch) {
-      onSearch(text);
-    }
+    onSearch?.(text);
   };
-  
+
   return (
-    <View style={[styles.container, containerStyle]}>
+    <View style={[styles.container, { backgroundColor: colors.gray[200] }, containerStyle]}>
       <SearchIcon size={20} color={colors.gray[500]} style={styles.searchIcon} />
-      
+
       <TextInput
-        style={styles.input}
+        style={[styles.input, typography.body2, { color: colors.text.primary }]}
         placeholder={placeholder}
         placeholderTextColor={colors.gray[500]}
         value={text}
@@ -66,7 +59,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         clearButtonMode="never"
         {...rest}
       />
-      
+
       {text.length > 0 && (
         <TouchableOpacity
           style={styles.clearButton}
@@ -86,21 +79,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: 44,
     borderRadius: 22,
-    backgroundColor: colors.gray[200],
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: 16,
   },
   searchIcon: {
-    marginRight: spacing.sm,
+    marginRight: 8,
   },
   input: {
     flex: 1,
     height: '100%',
     padding: 0,
-    ...typography.body2,
-    color: colors.text.primary,
   },
   clearButton: {
-    padding: spacing.xs,
-    marginLeft: spacing.xs,
+    padding: 4,
+    marginLeft: 4,
   },
 });

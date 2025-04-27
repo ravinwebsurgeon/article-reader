@@ -1,4 +1,3 @@
-// src/app/add-article.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -17,31 +16,29 @@ import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector } from '@/redux/hook';
 import { selectActiveTheme } from '@/redux/utils';
-import { useCreateItemMutation } from '@/redux/services/itemsApi';
 import { isValidUrl } from '@/utils/validation';
 import { COLORS, lightColors } from '@/theme';
+import { createItem } from '@/database/hooks/withItems';
 
 export default function AddArticleScreen() {
   const router = useRouter();
   const activeTheme = useAppSelector(selectActiveTheme);
   const isDarkMode = activeTheme === 'dark';
-  
+
   // State
   const [url, setUrl] = useState('');
-  
-  // Create item mutation
-  const [createItem, { isLoading }] = useCreateItemMutation();
-  
+  const [isLoading, setIsLoading] = useState(false);
+
   // Handle navigation back
   const handleBack = () => {
     router.back();
   };
-  
+
   // Handle URL input clear
   const handleClear = () => {
     setUrl('');
   };
-  
+
   // Handle save article
   const handleSaveArticle = async () => {
     // Validate URL
@@ -49,92 +46,80 @@ export default function AddArticleScreen() {
       Alert.alert('Error', 'Please enter a URL');
       return;
     }
-    
+
     // Add https if not present
     let formattedUrl = url.trim();
     if (!formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
       formattedUrl = `https://${formattedUrl}`;
     }
-    
+
     if (!isValidUrl(formattedUrl)) {
       Alert.alert('Error', 'Please enter a valid URL');
       return;
     }
-    
+
     try {
-      // Create item
-      await createItem({ 
-        item: { url: formattedUrl } 
-      }).unwrap();
-      
+      setIsLoading(true);
+      // Create item in WatermelonDB
+      await createItem(formattedUrl);
+
       // Show success alert with options
-      Alert.alert(
-        'Article Saved',
-        'The article has been saved to your Pocket.',
-        [
-          {
-            text: 'Add Another',
-            onPress: () => setUrl(''),
-            style: 'default',
-          },
-          {
-            text: 'View List',
-            onPress: handleBack,
-            style: 'default',
-          },
-        ]
-      );
-    } catch (error) {
-      Alert.alert(
-        'Error',
-        'There was a problem saving this article. Please try again.'
-      );
+      Alert.alert('Article Saved', 'The article has been saved to your Pocket.', [
+        {
+          text: 'Add Another',
+          onPress: () => setUrl(''),
+          style: 'default',
+        },
+        {
+          text: 'View List',
+          onPress: handleBack,
+          style: 'default',
+        },
+      ]);
+    } catch {
+      Alert.alert('Error', 'There was a problem saving this article. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
-  
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={[
         styles.container,
-        { backgroundColor: isDarkMode ? COLORS.darkBackground : lightColors.background.default }
+        { backgroundColor: isDarkMode ? COLORS.darkBackground : lightColors.background.default },
       ]}
     >
       <StatusBar style={isDarkMode ? 'light' : 'dark'} />
-      
+
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={handleBack}>
           <Text style={styles.cancelButton}>Cancel</Text>
         </TouchableOpacity>
-        
-        <Text style={[
-          styles.headerTitle,
-          { color: isDarkMode ? COLORS.white : COLORS.text }
-        ]}>
+
+        <Text style={[styles.headerTitle, { color: isDarkMode ? COLORS.white : COLORS.text }]}>
           Add to Pocket
         </Text>
-        
+
         <View style={{ width: 50 }} />
       </View>
-      
+
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={[
-          styles.sectionTitle,
-          { color: isDarkMode ? COLORS.white : COLORS.text }
-        ]}>
+        <Text style={[styles.sectionTitle, { color: isDarkMode ? COLORS.white : COLORS.text }]}>
           Add a URL
         </Text>
-        
+
         <View style={styles.inputContainer}>
           <TextInput
             style={[
               styles.input,
-              { 
+              {
                 color: isDarkMode ? COLORS.white : COLORS.text,
                 backgroundColor: isDarkMode ? COLORS.darkGray : COLORS.white,
                 borderColor: isDarkMode ? COLORS.darkBorder : COLORS.lightBorder,
-              }
+              },
             ]}
             placeholder="https://example.com/article"
             placeholderTextColor={lightColors.text.disabled}
@@ -146,36 +131,28 @@ export default function AddArticleScreen() {
             returnKeyType="go"
             onSubmitEditing={handleSaveArticle}
           />
-          
+
           {url.length > 0 && (
-            <TouchableOpacity 
-              style={styles.clearButton}
-              onPress={handleClear}
-            >
+            <TouchableOpacity style={styles.clearButton} onPress={handleClear}>
               <Ionicons name="close-circle" size={20} color={COLORS.darkGray} />
             </TouchableOpacity>
           )}
         </View>
-        
+
         <TouchableOpacity
-          style={[
-            styles.saveButton,
-            { opacity: url.trim().length === 0 || isLoading ? 0.6 : 1 }
-          ]}
+          style={[styles.saveButton, { opacity: url.trim().length === 0 || isLoading ? 0.6 : 1 }]}
           onPress={handleSaveArticle}
           disabled={url.trim().length === 0 || isLoading}
         >
           {isLoading ? (
             <ActivityIndicator color={COLORS.white} size="small" />
           ) : (
-            <Text style={styles.saveButtonText}>
-              Save to Pocket
-            </Text>
+            <Text style={styles.saveButtonText}>Save to Pocket</Text>
           )}
         </TouchableOpacity>
-        
+
         <View style={styles.divider} />
-        
+
         <Text style={styles.infoText}>
           You can also save content to Pocket using the Share menu from your browser or other apps.
         </Text>

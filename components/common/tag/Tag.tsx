@@ -1,12 +1,8 @@
-// src/components/common/Tag/Tag.tsx
 import React from 'react';
-import { 
-  TouchableOpacity, 
-  Text, 
-  StyleSheet,
-  TouchableOpacityProps
-} from 'react-native';
-import { colors, typography, spacing } from '../../../styles';
+import { TouchableOpacity, Text, StyleSheet, TouchableOpacityProps } from 'react-native';
+import { COLORS } from '@/theme/tokens';
+import { typography } from '@/theme/tokens/typography';
+import { spacing } from '@/theme/tokens/spacing';
 
 interface TagProps extends TouchableOpacityProps {
   label: string;
@@ -14,32 +10,17 @@ interface TagProps extends TouchableOpacityProps {
   onClose?: () => void;
 }
 
-export const Tag: React.FC<TagProps> = ({
-  label,
-  active = false,
-  onClose,
-  style,
-  ...rest
-}) => {
+export const Tag: React.FC<TagProps> = ({ label, active = false, onClose, style, ...rest }) => {
   return (
     <TouchableOpacity
-      style={[
-        styles.container,
-        active && styles.containerActive,
-        style
-      ]}
+      style={[styles.container, active && styles.containerActive, style]}
       activeOpacity={0.7}
       {...rest}
     >
-      <Text style={[
-        styles.label,
-        active && styles.labelActive
-      ]}>
-        {label}
-      </Text>
-      
+      <Text style={[styles.label, active && styles.labelActive]}>{label}</Text>
+
       {onClose && (
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.closeButton}
           onPress={onClose}
           hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
@@ -58,19 +39,19 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.sm,
     borderRadius: 16,
-    backgroundColor: colors.gray[200],
+    backgroundColor: COLORS.lightGray,
     marginRight: spacing.xs,
     marginBottom: spacing.xs,
   },
   containerActive: {
-    backgroundColor: colors.primary,
+    backgroundColor: COLORS.primary.main,
   },
   label: {
     ...typography.caption,
-    color: colors.text.secondary,
+    color: COLORS.darkGray,
   },
   labelActive: {
-    color: colors.white,
+    color: COLORS.white,
   },
   closeButton: {
     marginLeft: spacing.xs,
@@ -78,6 +59,6 @@ const styles = StyleSheet.create({
   closeIcon: {
     ...typography.caption,
     fontWeight: 'bold',
-    color: colors.text.secondary,
+    color: COLORS.darkGray,
   },
 });

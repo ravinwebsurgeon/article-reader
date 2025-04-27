@@ -1,4 +1,3 @@
-// src/theme/tokens/shadows.ts
 import { Platform, ViewStyle } from 'react-native';
 
 export type ElevationLevel = 0 | 1 | 2 | 3 | 4 | 5;
@@ -10,9 +9,7 @@ export type ShadowsDefinition = {
 };
 
 // Helper function to create shadows based on elevation level
-const createShadow = (
-  level: ElevationLevel,
-): ViewStyle => {
+const createShadow = (level: ElevationLevel): ViewStyle => {
   if (level === 0) {
     return {
       shadowColor: 'transparent',
@@ -22,7 +19,7 @@ const createShadow = (
       elevation: 0,
     };
   }
-  
+
   // iOS uses shadow properties
   if (Platform.OS === 'ios') {
     return {
@@ -35,7 +32,7 @@ const createShadow = (
       shadowRadius: level * 2,
     };
   }
-  
+
   // Android uses elevation
   return {
     elevation: level * 2,

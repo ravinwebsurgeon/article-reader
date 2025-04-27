@@ -1,4 +1,3 @@
-// src/theme/theme.ts
 import { ColorPalette, lightColors, darkColors } from './tokens/colors';
 import { typography } from './tokens/typography';
 import { spacing } from './tokens/spacing';
@@ -25,6 +24,3 @@ export const createTheme = (mode: 'light' | 'dark'): Theme => ({
 // Light and dark theme instances
 export const lightTheme = createTheme('light');
 export const darkTheme = createTheme('dark');
-
-
-

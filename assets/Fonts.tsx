@@ -1,4 +1,4 @@
-import {Platform, TextStyle} from 'react-native';
+import { Platform, TextStyle } from 'react-native';
 
 export const Fonts = {
   black: 'Poppins-Black',
@@ -21,15 +21,13 @@ export const Fonts = {
   thinItalic: 'Poppins-ThinItalic',
 };
 
-export const getFontStyleFromWeight = (
-  fontWeight: TextStyle['fontWeight'] = 400,
-) => {
+export const getFontStyleFromWeight = (fontWeight: TextStyle['fontWeight'] = 400) => {
   const styles: TextStyle = {
     fontFamily: Fonts.regular,
     fontWeight: fontWeight?.toString() as TextStyle['fontWeight'],
     includeFontPadding: false,
   };
-  if (Platform.OS == 'android') {
+  if (Platform.OS === 'android') {
     styles.fontWeight = undefined;
     switch (fontWeight) {
       case '100':

@@ -1,26 +1,37 @@
-import { COLORS, lightColors } from "@/theme";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { COLORS, lightColors } from '@/theme';
+import { StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
 
+interface ButtonProps {
+  title: string;
+  onPress: () => void;
+  variant?: 'primary' | 'secondary' | 'outline' | 'text';
+  size?: 'small' | 'medium' | 'large';
+  fullWidth?: boolean;
+  disabled?: boolean;
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
+  style?: ViewStyle;
+}
 
 // Reusable Button Component
 export const Button = ({
   title,
   onPress,
-  variant = "primary",
-  size = "medium",
+  variant = 'primary',
+  size = 'medium',
   fullWidth = true,
   disabled = false,
   leftIcon,
   rightIcon,
   style,
-}) => {
+}: ButtonProps) => {
   const getButtonStyle = () => {
     switch (variant) {
-      case "secondary":
+      case 'secondary':
         return styles.secondaryButton;
-      case "outline":
+      case 'outline':
         return styles.outlineButton;
-      case "text":
+      case 'text':
         return styles.textButton;
       default:
         return styles.primaryButton;
@@ -29,11 +40,11 @@ export const Button = ({
 
   const getButtonTextStyle = () => {
     switch (variant) {
-      case "secondary":
+      case 'secondary':
         return styles.secondaryButtonText;
-      case "outline":
+      case 'outline':
         return styles.outlineButtonText;
-      case "text":
+      case 'text':
         return styles.textButtonText;
       default:
         return styles.primaryButtonText;
@@ -42,9 +53,9 @@ export const Button = ({
 
   const getButtonSize = () => {
     switch (size) {
-      case "small":
+      case 'small':
         return styles.smallButton;
-      case "large":
+      case 'large':
         return styles.largeButton;
       default:
         return styles.mediumButton;
@@ -65,11 +76,7 @@ export const Button = ({
       disabled={disabled}
     >
       {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}
-      <Text
-        style={[getButtonTextStyle(), disabled && styles.disabledButtonText]}
-      >
-        {title}
-      </Text>
+      <Text style={[getButtonTextStyle(), disabled && styles.disabledButtonText]}>{title}</Text>
       {rightIcon && <View style={styles.rightIcon}>{rightIcon}</View>}
     </TouchableOpacity>
   );
@@ -80,17 +87,17 @@ const styles = StyleSheet.create({
   // Input styles
   inputWrapper: {
     marginBottom: 16,
-    width: "100%",
+    width: '100%',
   },
   inputLabel: {
     fontSize: 14,
     marginBottom: 8,
     color: COLORS.text,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   inputContainer: {
-    position: "relative",
-    width: "100%",
+    position: 'relative',
+    width: '100%',
   },
   input: {
     height: 56,
@@ -106,7 +113,7 @@ const styles = StyleSheet.create({
     height: 120,
     paddingTop: 12,
     paddingBottom: 12,
-    textAlignVertical: "top",
+    textAlignVertical: 'top',
   },
   inputWithIcon: {
     paddingLeft: 44,
@@ -118,16 +125,16 @@ const styles = StyleSheet.create({
     borderColor: COLORS.error.main,
   },
   iconContainer: {
-    position: "absolute",
+    position: 'absolute',
     left: 16,
-    top: "50%",
+    top: '50%',
     transform: [{ translateY: -10 }],
     zIndex: 1,
   },
   secureTextToggle: {
-    position: "absolute",
+    position: 'absolute',
     right: 16,
-    top: "50%",
+    top: '50%',
     transform: [{ translateY: -10 }],
     zIndex: 1,
   },
@@ -140,13 +147,13 @@ const styles = StyleSheet.create({
 
   // Button styles
   button: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: 28,
   },
   fullWidth: {
-    width: "100%",
+    width: '100%',
   },
   primaryButton: {
     backgroundColor: COLORS.primary.main,
@@ -165,12 +172,12 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   outlineButton: {
-    backgroundColor: "transparent",
+    backgroundColor: 'transparent',
     borderWidth: 1,
     borderColor: COLORS.primary.main,
   },
   textButton: {
-    backgroundColor: "transparent",
+    backgroundColor: 'transparent',
   },
   smallButton: {
     height: 40,
@@ -185,32 +192,32 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
   },
   disabledButton: {
-    backgroundColor: "#E0E0E0",
+    backgroundColor: '#E0E0E0',
     shadowOpacity: 0,
     elevation: 0,
   },
   primaryButtonText: {
     color: COLORS.white,
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   secondaryButtonText: {
     color: COLORS.white,
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   outlineButtonText: {
     color: COLORS.primary.main,
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   textButtonText: {
     color: COLORS.primary.main,
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   disabledButtonText: {
-    color: "#9E9E9E",
+    color: '#9E9E9E',
   },
   leftIcon: {
     marginRight: 8,

@@ -1,11 +1,10 @@
-// src/components/core/ThemeInput.tsx
 import { useTheme } from '@/theme/hooks';
 import React, { useState } from 'react';
-import { 
-  TextInput, 
-  TextInputProps, 
-  StyleSheet, 
-  View, 
+import {
+  TextInput,
+  TextInputProps,
+  StyleSheet,
+  View,
   TouchableOpacity,
   ViewStyle,
   StyleProp,
@@ -37,7 +36,7 @@ export const ThemeInput: React.FC<ThemeInputProps> = ({
 }) => {
   const theme = useTheme();
   const [isFocused, setIsFocused] = useState(false);
-  
+
   // Handle focus state
   const handleFocus = (e: any) => {
     setIsFocused(true);
@@ -45,7 +44,7 @@ export const ThemeInput: React.FC<ThemeInputProps> = ({
       inputProps.onFocus(e);
     }
   };
-  
+
   // Handle blur state
   const handleBlur = (e: any) => {
     setIsFocused(false);
@@ -53,44 +52,41 @@ export const ThemeInput: React.FC<ThemeInputProps> = ({
       inputProps.onBlur(e);
     }
   };
-  
+
   // Get border color based on state
   const getBorderColor = () => {
     if (error) return theme.colors.error.main;
     if (isFocused) return theme.colors.primary.main;
     return theme.colors.gray[300];
   };
-  
+
   return (
     <View style={[styles.container, containerStyle]}>
       {label && (
         <ThemeText
-          variant="subtitle2" 
+          variant="subtitle2"
           color={error ? theme.colors.error.main : theme.colors.text.primary}
           style={styles.label}
         >
           {label}
         </ThemeText>
       )}
-      
-      <View 
+
+      <View
         style={[
           styles.inputContainer,
           {
             borderColor: getBorderColor(),
-            backgroundColor: theme.mode === 'dark' ? theme.colors.gray[800] : theme.colors.gray[100],
+            backgroundColor:
+              theme.mode === 'dark' ? theme.colors.gray[800] : theme.colors.gray[100],
           },
           isFocused && styles.inputContainerFocused,
           error && styles.inputContainerError,
           inputContainerStyle,
         ]}
       >
-        {leftIcon && (
-          <View style={styles.leftIcon}>
-            {leftIcon}
-          </View>
-        )}
-        
+        {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}
+
         <TextInput
           style={[
             styles.input,
@@ -104,9 +100,9 @@ export const ThemeInput: React.FC<ThemeInputProps> = ({
           onBlur={handleBlur}
           {...inputProps}
         />
-        
+
         {rightIcon && (
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.rightIcon}
             onPress={onRightIconPress}
             disabled={!onRightIconPress}
@@ -115,9 +111,9 @@ export const ThemeInput: React.FC<ThemeInputProps> = ({
           </TouchableOpacity>
         )}
       </View>
-      
+
       {(error || hint) && (
-        <ThemeText 
+        <ThemeText
           variant="caption"
           color={error ? theme.colors.error.main : theme.colors.text.hint}
           style={styles.helperText}
