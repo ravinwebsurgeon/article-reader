@@ -2,7 +2,7 @@
 import { COLORS } from '@/theme';
 import { useTheme } from '@/theme/hooks';
 import React from 'react';
-import { TouchableOpacity, TouchableOpacityProps, StyleSheet, View } from 'react-native';
+import { TouchableOpacity, TouchableOpacityProps, StyleSheet } from 'react-native';
 
 export type ThemeTouchableProps = TouchableOpacityProps & {
   backgroundColor?: string;

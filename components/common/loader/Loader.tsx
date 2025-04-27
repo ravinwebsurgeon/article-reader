@@ -45,7 +45,7 @@ export const Loader: React.FC<LoaderProps> = ({
   };
 
   const rootStyle: ViewStyle[] = [containerStyle, fullScreen && fullScreenStyle, style].filter(
-    Boolean
+    Boolean,
   ) as ViewStyle[];
 
   return (

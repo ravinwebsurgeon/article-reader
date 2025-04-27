@@ -76,7 +76,7 @@ export default function AddArticleScreen() {
           style: 'default',
         },
       ]);
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'There was a problem saving this article. Please try again.');
     } finally {
       setIsLoading(false);

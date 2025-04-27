@@ -7,7 +7,7 @@ import {
   TextInputProps,
   ViewStyle,
 } from 'react-native';
-import { useColors, useTypography, useSpacing } from '../../../theme';
+import { useColors, useTypography } from '../../../theme';
 import { SearchIcon, CloseIcon } from '../Icons';
 
 interface SearchInputProps extends TextInputProps {

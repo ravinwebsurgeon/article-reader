@@ -1,6 +1,6 @@
-import { useBackgroundColor, useTheme } from '@/theme/hooks';
+import { useTheme } from '@/theme/hooks';
 import React from 'react';
-import { View, ViewProps, StyleSheet, TouchableOpacity } from 'react-native';
+import { ViewProps, StyleSheet, TouchableOpacity } from 'react-native';
 
 export type ThemeViewProps = ViewProps & {
   backgroundColor?: string;
@@ -25,7 +25,6 @@ export const ThemeView: React.FC<ThemeViewProps> = ({
   ...otherProps
 }) => {
   const theme = useTheme();
-  const defaultBackgroundColor = useBackgroundColor();
 
   // Get padding value
   const getPadding = () => {

@@ -1,4 +1,3 @@
-
 export type ColorScheme = 'light' | 'dark';
 
 export type ColorPalette = {
@@ -185,22 +184,21 @@ const tintColorDark = '#fff';
 export const COLORS = {
   ...baseColors,
   // Core brand colors from new palette
-  accent: "#f5a524", // Buttercup - accent color
-  
+  accent: '#f5a524', // Buttercup - accent color
+
   // Background colors
   darkBackground: '#1E1E1E',
 
   // Legacy colors kept for compatibility
-  tasksConBorder: "#EAE9E9",
-  text: "#333333",
+  tasksConBorder: '#EAE9E9',
+  text: '#333333',
 
   // New requested colors
-  lightGray: "#E8E8E8", // Light gray for subtle backgrounds
-  lightBorder: "#DDDDDD", // Light border color
-  darkGray: "#555555", // Dark gray for text and icons
-  darkBorder: "#999999", // Dark border color
+  lightGray: '#E8E8E8', // Light gray for subtle backgrounds
+  lightBorder: '#DDDDDD', // Light border color
+  darkGray: '#555555', // Dark gray for text and icons
+  darkBorder: '#999999', // Dark border color
 
-  
   light: {
     text: '#11181C',
     background: '#fff',

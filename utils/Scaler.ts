@@ -1,4 +1,4 @@
-import { scale, verticalScale } from "react-native-size-matters";
+import { scale, verticalScale } from 'react-native-size-matters';
 
-export const scaler = scale
-export const verticalScaler = verticalScale
+export const scaler = scale;
+export const verticalScaler = verticalScale;

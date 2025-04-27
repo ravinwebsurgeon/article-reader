@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { createContext, useEffect, useCallback, useMemo } from 'react';
 import { useColorScheme } from 'react-native';
 import { useAppSelector, useAppDispatch } from '@/redux/hook';
 import { setSystemPrefersDark } from '@/redux/slices/themeSlice';
@@ -55,7 +55,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     (mode: 'light' | 'dark' | 'system') => {
       dispatch({ type: 'theme/setThemeMode', payload: mode });
     },
-    [dispatch]
+    [dispatch],
   );
 
   // Context value
@@ -65,7 +65,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       toggleTheme,
       setThemeMode: setMode,
     }),
-    [theme, toggleTheme, setMode]
+    [theme, toggleTheme, setMode],
   );
 
   return <ThemeContext.Provider value={contextValue}>{children}</ThemeContext.Provider>;

@@ -41,7 +41,7 @@ export const tokenRefreshMiddleware: Middleware =
             if (rejectedAction.meta?.arg) {
               return dispatch(rejectedAction.meta.arg);
             }
-          } catch (error) {
+          } catch {
             // If refresh fails, let the original error through
             return next(action);
           }

@@ -5,7 +5,7 @@ import { useLogoutMutation } from '@/redux/services/authApi';
 import { ThemeText } from '@/components';
 
 export default function TabTwoScreen() {
-  const [logout, { isLoading: logoutLoading }] = useLogoutMutation();
+  const [logout] = useLogoutMutation();
 
   const handleSubmit = async () => {
     try {

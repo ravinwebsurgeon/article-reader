@@ -1,12 +1,10 @@
 import React from 'react';
 import { View, TextInput, StyleSheet, KeyboardTypeOptions } from 'react-native';
 import { Control, Controller, FieldValues, Path, RegisterOptions } from 'react-hook-form';
-import { Ionicons } from '@expo/vector-icons';
 import { COLORS, lightColors } from '@/theme';
 import { ThemeText } from '@/components/core';
 import { ThemedView } from '@/components/ThemedView';
 import { scaler } from '@/utils';
-import { useDarkMode } from '@/theme';
 
 interface FormInputProps<T extends FieldValues> {
   control: Control<T>;
@@ -37,7 +35,6 @@ export const FormInput = <T extends FieldValues>({
   autoCorrect = false,
   spellCheck = false,
 }: FormInputProps<T>) => {
-  const dark = useDarkMode();
   return (
     <Controller
       control={control}

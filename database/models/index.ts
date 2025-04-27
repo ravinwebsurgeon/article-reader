@@ -1,3 +1,3 @@
-export * from './ItemModel';
-export * from './TagModel';
-export * from './ItemTagModel';
+export { default as Item } from './ItemModel';
+export { default as Tag } from './TagModel';
+export { default as ItemTag } from './ItemTagModel';

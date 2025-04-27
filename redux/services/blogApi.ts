@@ -1,4 +1,4 @@
-import { api } from "./api";
+import { api } from './api';
 
 // Types
 export interface Blog {
@@ -50,40 +50,40 @@ export const blogApi = api.injectEndpoints({
     // Get all blogs with optional filters
     getBlogs: builder.query<BlogListResponse, BlogQueryParams>({
       query: (params) => ({
-        url: "/blogs",
+        url: '/blogs',
         params,
       }),
       providesTags: (result) =>
         result
           ? [
-              ...result.blogs.map(({ id }) => ({ type: "Blogs" as const, id })),
-              { type: "Blogs", id: "LIST" },
+              ...result.blogs.map(({ id }) => ({ type: 'Blogs' as const, id })),
+              { type: 'Blogs', id: 'LIST' },
             ]
-          : [{ type: "Blogs", id: "LIST" }],
+          : [{ type: 'Blogs', id: 'LIST' }],
     }),
 
     // Get a single blog by ID
     getBlogById: builder.query<Blog, string>({
       query: (id) => `/blogs/${id}`,
-      providesTags: (_, __, id) => [{ type: "Blogs", id }],
+      providesTags: (_, __, id) => [{ type: 'Blogs', id }],
     }),
 
     // Search blogs
     searchBlogs: builder.query<BlogListResponse, string>({
       query: (query) => ({
-        url: "/blogs/search",
+        url: '/blogs/search',
         params: { query },
       }),
-      providesTags: [{ type: "Blogs", id: "SEARCH" }],
+      providesTags: [{ type: 'Blogs', id: 'SEARCH' }],
     }),
 
     // Get blogs by tag
     getBlogsByTag: builder.query<BlogListResponse, string>({
       query: (tag) => ({
-        url: "/blogs/tag",
+        url: '/blogs/tag',
         params: { tag },
       }),
-      providesTags: (_, __, tag) => [{ type: "Tags", id: tag }],
+      providesTags: (_, __, tag) => [{ type: 'Tags', id: tag }],
     }),
 
     // Get blog comments
@@ -92,37 +92,35 @@ export const blogApi = api.injectEndpoints({
       providesTags: (result, _, blogId) =>
         result
           ? [
-              ...result.map(({ id }) => ({ type: "Comments" as const, id })),
-              { type: "Comments", id: blogId },
+              ...result.map(({ id }) => ({ type: 'Comments' as const, id })),
+              { type: 'Comments', id: blogId },
             ]
-          : [{ type: "Comments", id: blogId }],
+          : [{ type: 'Comments', id: blogId }],
     }),
 
     // Add a comment to a blog
     addComment: builder.mutation<Comment, { blogId: string; content: string }>({
       query: ({ blogId, content }) => ({
         url: `/blogs/${blogId}/comments`,
-        method: "POST",
+        method: 'POST',
         body: { content },
       }),
-      invalidatesTags: (_, __, { blogId }) => [
-        { type: "Comments", id: blogId },
-      ],
+      invalidatesTags: (_, __, { blogId }) => [{ type: 'Comments', id: blogId }],
     }),
 
     // Get bookmarked blogs
     getBookmarkedBlogs: builder.query<BlogListResponse, void>({
-      query: () => "/bookmarks",
-      providesTags: [{ type: "Bookmarks", id: "LIST" }],
+      query: () => '/bookmarks',
+      providesTags: [{ type: 'Bookmarks', id: 'LIST' }],
     }),
 
     // Toggle bookmark status for a blog
     toggleBookmark: builder.mutation<{ bookmarked: boolean }, string>({
       query: (blogId) => ({
         url: `/bookmarks/${blogId}`,
-        method: "POST",
+        method: 'POST',
       }),
-      invalidatesTags: [{ type: "Bookmarks", id: "LIST" }],
+      invalidatesTags: [{ type: 'Bookmarks', id: 'LIST' }],
     }),
   }),
 });

@@ -4,32 +4,10 @@ import { syncEngine } from '@/database/sync/SyncEngine';
 import { selectAuthToken } from '../utils';
 import NetInfo from '@react-native-community/netinfo';
 
-// Define action types for type checking
-interface NetworkStatusAction {
-  type: 'network/statusChanged';
-  payload: {
-    isConnected: boolean;
-    isInternetReachable: boolean | null;
-  };
-}
-
-interface AuthAction {
-  type: 'auth/login/fulfilled' | 'auth/refreshToken/fulfilled' | 'auth/logout/fulfilled';
-}
-
-interface RejectedAction {
-  type: string;
-  error?: {
-    name: string;
-  };
-}
-
-type AppAction = NetworkStatusAction | AuthAction | RejectedAction;
-
 /**
  * Middleware to handle database integration with Redux
  */
-export const databaseMiddleware: Middleware<{}, RootState, AppDispatch> =
+export const databaseMiddleware: Middleware<unknown, RootState, AppDispatch> =
   (store) => (next) => (action: unknown) => {
     // Type guard to check if action is AppAction
     if (!action || typeof action !== 'object' || !('type' in action)) {

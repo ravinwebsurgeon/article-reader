@@ -21,7 +21,7 @@ export const NetworkProvider: React.FC<NetworkProviderProps> = ({ children }) =>
         networkStatusChanged({
           isConnected: networkState.isConnected,
           isInternetReachable: networkState.isInternetReachable,
-        })
+        }),
       );
     };
 
@@ -33,7 +33,7 @@ export const NetworkProvider: React.FC<NetworkProviderProps> = ({ children }) =>
         networkStatusChanged({
           isConnected: state.isConnected,
           isInternetReachable: state.isInternetReachable,
-        })
+        }),
       );
     });
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import {
   StyleSheet,
   TouchableOpacity,
@@ -11,7 +11,7 @@ import {
 import { router } from 'expo-router';
 import { resetAuthError } from '@/redux/slices/authSlice';
 import { useAppDispatch, useAppSelector } from '@/redux/hook';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { Ionicons } from '@expo/vector-icons';
 import { FormInput } from '@/components/ui/form/form-input';
 import { Button } from '@/components/ui/button';
@@ -31,13 +31,9 @@ function LoginScreen() {
   const theme = useTheme();
   console.log('theme in login', theme);
 
-  const { isLoading, error } = useAppSelector((state) => state.auth);
-  const [login, { isLoading: loginLoading, error: loginError }] = useLoginMutation();
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormData>({
+  const { error } = useAppSelector((state) => state.auth);
+  const [login] = useLoginMutation();
+  const { control, handleSubmit } = useForm<LoginFormData>({
     defaultValues: {
       email: '',
       password: '',

@@ -80,12 +80,15 @@ export const storage = {
   async multiGet<T>(keys: string[]): Promise<Record<string, T>> {
     try {
       const result = await AsyncStorage.multiGet(keys);
-      return result.reduce((acc, [key, value]) => {
-        if (value) {
-          acc[key] = JSON.parse(value);
-        }
-        return acc;
-      }, {} as Record<string, T>);
+      return result.reduce(
+        (acc, [key, value]) => {
+          if (value) {
+            acc[key] = JSON.parse(value);
+          }
+          return acc;
+        },
+        {} as Record<string, T>,
+      );
     } catch (error) {
       console.error('AsyncStorage multiGet error:', error);
       return {};

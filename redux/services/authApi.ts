@@ -1,7 +1,6 @@
 import { api } from './api';
 import {
   User,
-  AuthToken,
   UserCredentials,
   UserRegistration,
   RefreshTokenResponse,
@@ -23,7 +22,7 @@ export const authApi = api.injectEndpoints({
         try {
           const { data } = await queryFulfilled;
           await AsyncStorage.setItem('auth_token', data.token);
-        } catch (error) {
+        } catch {
           // Handle error if needed
         }
       },
@@ -41,7 +40,7 @@ export const authApi = api.injectEndpoints({
           const { data } = await queryFulfilled;
           console.log('is it coming here successful', data);
           await AsyncStorage.setItem('auth_token', data.token);
-        } catch (error) {
+        } catch {
           // Handle error if needed
         }
       },
@@ -58,7 +57,7 @@ export const authApi = api.injectEndpoints({
         try {
           await queryFulfilled;
           await AsyncStorage.removeItem('auth_token');
-        } catch (error) {
+        } catch {
           // Force remove token even if API call fails
           await AsyncStorage.removeItem('auth_token');
         }
@@ -101,7 +100,7 @@ export const authApi = api.injectEndpoints({
         try {
           const { data } = await queryFulfilled;
           await AsyncStorage.setItem('auth_token', data.token);
-        } catch (error) {
+        } catch {
           // Handle error if needed
         }
       },
@@ -133,7 +132,7 @@ export const authApi = api.injectEndpoints({
 
           const data = await response.json();
           return { data: { user: data.user, token } };
-        } catch (error) {
+        } catch {
           return {
             error: {
               status: 'CUSTOM_ERROR',
