@@ -90,9 +90,10 @@ export const withItems = ({ filter = 'all' }: WithItemsProps = {}) => {
       query = itemsCollection.query(Q.where('archived', true), Q.sortBy('id', Q.desc));
     } else if (filter === 'tagged') {
       query = itemsCollection.query(
-        Q.unsafeSqlQuery(
-          'SELECT items.* FROM items JOIN item_tags ON items.id = item_tags.item_id ORDER BY items.id DESC'
-        )
+        Q.where('archived', false),
+        Q.experimentalJoinTables(['item_tags']),
+        Q.on('item_tags', Q.where('tag_id', Q.notEq(null))),
+        Q.sortBy('id', Q.desc)
       );
     } else if (filter === 'short') {
       query = itemsCollection.query(
