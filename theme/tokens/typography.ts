@@ -1,3 +1,4 @@
+import { scaler } from '@/utils';
 import { Platform, TextStyle } from 'react-native';
 
 // Font family definitions
@@ -65,9 +66,9 @@ export const createTextStyle = (
   fontStyle: TextStyle['fontStyle'] = 'normal',
 ): TextStyle => {
   const style: TextStyle = {
-    fontSize: size,
-    lineHeight,
-    letterSpacing,
+    fontSize: scaler(size),
+    lineHeight: scaler(lineHeight),
+    letterSpacing: scaler(letterSpacing),
     fontStyle,
     includeFontPadding: false, // For consistency between iOS and Android
   };
@@ -92,6 +93,7 @@ export const typography = {
   h4: createTextStyle(22, 28, '600'),
   h5: createTextStyle(20, 26, '600'),
   h6: createTextStyle(18, 24, '600'),
+  h7: createTextStyle(16, 22, '600'),
 
   // Body text
   body1: createTextStyle(16, 24, '400'),

@@ -9,6 +9,7 @@ export type TextVariant =
   | 'h4'
   | 'h5'
   | 'h6'
+  | 'h7'
   | 'body1'
   | 'body2'
   | 'body1Bold'

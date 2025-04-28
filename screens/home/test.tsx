@@ -28,6 +28,7 @@ import Item from '@/database/models/ItemModel';
 // Use the exported fixed height from ArticleCard component
 const ITEM_HEIGHT = ARTICLE_CARD_HEIGHT;
 
+
 const Header = memo(() => {
   const router = useRouter();
   const activeTheme = useAppSelector(selectActiveTheme);
@@ -63,30 +64,34 @@ const Header = memo(() => {
 Header.displayName = 'Header';
 
 // Memoized FilterTabs component
-const MemoizedFilterTabs = memo(
-  ({
-    currentFilter,
-    onFilterChange,
-  }: {
-    currentFilter: ItemFilter;
-    onFilterChange: (filter: ItemFilter) => void;
-  }) => {
-    const activeTheme = useAppSelector(selectActiveTheme);
-    const isDarkMode = activeTheme === 'dark';
-
-    return (
-      <FilterTabs
-        currentFilter={currentFilter}
-        onFilterChange={onFilterChange}
-        isDarkMode={isDarkMode}
-      />
-    );
-  },
-);
+const MemoizedFilterTabs = memo(({ 
+  currentFilter, 
+  onFilterChange 
+}: { 
+  currentFilter: ItemFilter; 
+  onFilterChange: (filter: ItemFilter) => void 
+}) => {
+  const activeTheme = useAppSelector(selectActiveTheme);
+  const isDarkMode = activeTheme === 'dark';
+  
+  return (
+    <FilterTabs 
+      currentFilter={currentFilter} 
+      onFilterChange={onFilterChange} 
+      isDarkMode={isDarkMode} 
+    />
+  );
+});
 
 MemoizedFilterTabs.displayName = 'MemoizedFilterTabs';
 // The base ItemsList component that only re-renders when items change
-const ItemsList = memo(({ items, filter }: { items: Item[]; filter: ItemFilter }) => {
+const ItemsList = memo(({ 
+  items, 
+  filter 
+}: { 
+  items: Item[]; 
+  filter: ItemFilter;
+}) => {
   const router = useRouter();
   const activeTheme = useAppSelector(selectActiveTheme);
   const isDarkMode = activeTheme === 'dark';
@@ -207,7 +212,9 @@ ItemsList.displayName = 'ItemsList';
 const EnhancedItemsList = ({ filter }: { filter: ItemFilter }) => {
   // Use the HOC to get items based on the filter
   const WithItemsComponent = useMemo(() => {
-    return withItems({ filter })(({ items }) => <ItemsList items={items} filter={filter} />);
+    return withItems({ filter })(({ items }) => (
+      <ItemsList items={items} filter={filter} />
+    ));
   }, [filter]);
 
   return <WithItemsComponent />;
@@ -227,15 +234,13 @@ const HomeScreenWithFilter = () => {
       ]}
     >
       <StatusBar style={isDarkMode ? 'light' : 'dark'} />
-
+      
       {/* These components will not re-render when the filter changes */}
       <Header />
-
+      
       {/* This component will re-render when filter changes */}
-      <View>
-        <MemoizedFilterTabs currentFilter={filter} onFilterChange={setFilter} />
-      </View>
-
+      <MemoizedFilterTabs currentFilter={filter} onFilterChange={setFilter} />
+      
       {/* This component will only re-render when necessary */}
       <EnhancedItemsList filter={filter} />
     </View>

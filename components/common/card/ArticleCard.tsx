@@ -12,7 +12,7 @@ import { withObservables } from '@nozbe/watermelondb/react';
 import { format } from 'date-fns';
 
 // Export a fixed height constant for use in FlatList
-export const ARTICLE_CARD_HEIGHT = scaler(140);
+export const ARTICLE_CARD_HEIGHT = scaler(130);
 
 interface ArticleCardProps {
   item: Item;
@@ -61,28 +61,47 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
       activeOpacity={0.7}
     >
       <View style={styles.contentContainer}>
-        <View style={styles.header}>
-          <ThemeText numberOfLines={2} style={styles.title}>
-            {item.title}
-          </ThemeText>
+        <View style={styles.cardTop}>
+          <View style={styles.cardTopLeft}>
+            <View style={styles.header}>
+              <ThemeText numberOfLines={2} variant="h7" style={styles.title}>
+                {item.title}
+              </ThemeText>
+            </View>
+            <View style={styles.metaContainer}>
+              <ThemeText
+                numberOfLines={1}
+                color={theme.colors.text.secondary}
+                style={styles.source}
+                variant="caption"
+              >
+                {item.siteName || item.domain}
+              </ThemeText>
+              <ThemeText variant="caption" color={theme.colors.text.secondary} style={styles.dot}>
+                •
+              </ThemeText>
+              <ThemeText
+                variant="caption"
+                color={theme.colors.text.secondary}
+                style={styles.readTime}
+              >
+                {formatReadTime(readTime)}
+              </ThemeText>
+              {/* <ThemeText variant="caption" color={theme.colors.text.secondary} style={styles.dot}>
+                •
+              </ThemeText>
+              <ThemeText numberOfLines={1} color={theme.colors.text.secondary} style={styles.date}>
+                {formatDate(item.publishedAt)}
+              </ThemeText> */}
+            </View>
+          </View>
+          {item.imageUrl && (
+            <View style={styles.thumbnailContainer}>
+              <Image source={{ uri: item.imageUrl }} style={styles.thumbnail} contentFit="cover" />
+            </View>
+          )}
         </View>
-        <View style={styles.metaContainer}>
-          <ThemeText numberOfLines={1} color={theme.colors.text.secondary} style={styles.source}>
-            {item.siteName || item.domain}
-          </ThemeText>
-          <ThemeText variant="caption" color={theme.colors.text.secondary} style={styles.dot}>
-            •
-          </ThemeText>
-          <ThemeText variant="caption" color={theme.colors.text.secondary} style={styles.readTime}>
-            {formatReadTime(readTime)}
-          </ThemeText>
-          <ThemeText variant="caption" color={theme.colors.text.secondary} style={styles.dot}>
-            •
-          </ThemeText>
-          <ThemeText numberOfLines={1} color={theme.colors.text.secondary} style={styles.date}>
-            {formatDate(item.publishedAt)}
-          </ThemeText>
-        </View>
+
         <View style={styles.tagsContainer}>
           {item.favorite && (
             <View style={styles.favoriteContainer}>
@@ -104,33 +123,33 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
           </TouchableOpacity>
         </View>
       </View>
-
-      {item.imageUrl && (
-        <View style={styles.thumbnailContainer}>
-          <Image source={{ uri: item.imageUrl }} style={styles.thumbnail} contentFit="cover" />
-        </View>
-      )}
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
     padding: scaler(16),
     borderBottomWidth: scaler(0.5),
     height: ARTICLE_CARD_HEIGHT,
   },
   contentContainer: {
     flex: 1,
-    marginRight: scaler(12),
+  },
+  cardTop: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: scaler(8),
+  },
+  cardTopLeft: {
+    flex: 1,
   },
   header: {
     marginBottom: scaler(8),
   },
   title: {
-    fontSize: scaler(16),
-    fontWeight: '600',
     lineHeight: scaler(22),
   },
   metaContainer: {
@@ -139,16 +158,13 @@ const styles = StyleSheet.create({
     marginBottom: scaler(8),
   },
   source: {
-    fontSize: scaler(14),
     color: COLORS.darkGray,
   },
   dot: {
-    fontSize: scaler(14),
     color: COLORS.darkGray,
     marginHorizontal: scaler(4),
   },
   readTime: {
-    fontSize: scaler(14),
     color: COLORS.darkGray,
   },
   tagsContainer: {
@@ -171,7 +187,6 @@ const styles = StyleSheet.create({
     marginBottom: scaler(4),
   },
   tagText: {
-    fontSize: scaler(12),
     color: COLORS.darkGray,
     marginLeft: scaler(4),
   },
@@ -181,7 +196,7 @@ const styles = StyleSheet.create({
   },
   thumbnailContainer: {
     width: scaler(80),
-    height: scaler(80),
+    height: scaler(55),
     borderRadius: scaler(4),
     overflow: 'hidden',
   },
@@ -190,7 +205,6 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   date: {
-    fontSize: scaler(14),
     color: COLORS.darkGray,
   },
 });
