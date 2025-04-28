@@ -13,6 +13,7 @@ export default function TabLayout() {
 
   return (
     <Tabs
+      initialRouteName="saves"
       screenOptions={{
         tabBarActiveTintColor: COLORS[theme.mode ?? 'light'].tint,
         headerShown: false,
@@ -43,7 +44,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="saves"
         options={{
           title: 'Saves',
           tabBarIcon: ({ color }) => <SvgIcon name="saves" color={color} size={24} />,
