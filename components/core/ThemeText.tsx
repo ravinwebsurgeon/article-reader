@@ -21,7 +21,10 @@ export type TextVariant =
   | 'caption2'
   | 'overline'
   | 'tagStyle'
-  | 'button';
+  | 'button'
+  | 'guide'
+  | 'meta'
+  | 'meta2';
 
 export type ThemeTextProps = TextProps & {
   variant?: TextVariant;

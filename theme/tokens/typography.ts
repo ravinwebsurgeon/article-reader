@@ -88,7 +88,7 @@ export const createTextStyle = (
 export const typography = {
   // Headings
   h1: createTextStyle(32, 40, '700'),
-  h2: createTextStyle(28, 36, '700'),
+  h2: createTextStyle(30, 36, '700'),
   h3: createTextStyle(24, 32, '700'),
   h4: createTextStyle(22, 28, '600'),
   h5: createTextStyle(20, 26, '600'),
@@ -109,6 +109,13 @@ export const typography = {
   caption2: createTextStyle(13, 16, '500'),
   overline: createTextStyle(10, 14, '500', 1.5),
   tagStyle: createTextStyle(13, 24, '600'),
+
+  // meta
+  meta: createTextStyle(16, 18, '400'),
+  meta2: createTextStyle(10, 14, '400'),
+
+  //guide
+  guide: createTextStyle(11, 14, '500'),
 
   // Button text
   button: createTextStyle(14, 20, '600'),
