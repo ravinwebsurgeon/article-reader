@@ -56,8 +56,10 @@ export type ColorPalette = {
   text: {
     primary: string;
     secondary: string;
+    secondary2: string;
     disabled: string;
     hint: string;
+    dark: string;    
   };
   // Background colors
   background: {
@@ -138,6 +140,7 @@ export const lightColors: ColorPalette = {
     secondary: '#5C768D',
     disabled: '#9E9E9E',
     hint: '#7F7F9C',
+     dark:'#1C1F21'
   },
   background: {
     default: '#f8f9fa',
@@ -166,8 +169,10 @@ export const darkColors: ColorPalette = {
   text: {
     primary: '#ECEDEE',
     secondary: '#B0B3B8',
+    secondary2: '#1C1F21B8',
     disabled: '#6C7178',
     hint: '#8A8D91',
+    dark:'#1C1F21'
   },
   background: {
     default: '#151718',
@@ -191,7 +196,7 @@ export const COLORS = {
 
   // Legacy colors kept for compatibility
   tasksConBorder: '#EAE9E9',
-  text: '#333333',
+  text: '#1C1F21',
 
   // New requested colors
   lightGray: '#E8E8E8', // Light gray for subtle backgrounds
@@ -200,7 +205,7 @@ export const COLORS = {
   darkBorder: '#999999', // Dark border color
 
   light: {
-    text: '#11181C',
+    text: '#1C1F21',
     background: '#fff',
     tint: tintColorLight,
     icon: '#687076',

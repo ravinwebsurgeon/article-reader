@@ -1,10 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { Text, StyleSheet, ScrollView, TouchableOpacity, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Text, StyleSheet, ScrollView, TouchableOpacity, View, ColorValue } from 'react-native';
 import { COLORS } from '@/theme';
 import { ItemFilter } from '@/types/item';
 import { scaler } from '@/utils';
 import Svg, { Path } from 'react-native-svg';
+import { MenuView } from '@react-native-menu/menu';
+import { Platform } from 'react-native';
 
 interface FilterTabsProps {
   currentFilter: ItemFilter;
@@ -21,7 +22,7 @@ const filterOptions = [
   {
     id: 'sorting',
     label: '',
-    icon: (color) => (
+    icon: (color: ColorValue | undefined) => (
       <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
         <Path
           d="M18 3.75C18 3.33579 17.6642 3 17.25 3C16.8358 3 16.5 3.33579 16.5 3.75L16.5 18.4393L13.7803 15.7197C13.4874 15.4268 13.0126 15.4268 12.7197 15.7197C12.4268 16.0126 12.4268 16.4874 12.7197 16.7803L16.7197 20.7803C16.8603 20.921 17.0511 21 17.25 21C17.4489 21 17.6397 20.921 17.7803 20.7803L21.7803 16.7803C22.0732 16.4874 22.0732 16.0126 21.7803 15.7197C21.4874 15.4268 21.0126 15.4268 20.7197 15.7197L18 18.4393V3.75Z"
@@ -53,7 +54,7 @@ const filterOptions = [
   {
     id: 'favorites',
     label: 'Favorites',
-    icon: (color) => (
+    icon: (color: ColorValue | undefined) => (
       <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
         <Path
           fillRule="evenodd"
@@ -68,7 +69,7 @@ const filterOptions = [
   {
     id: 'tagged',
     label: 'Tagged',
-    icon: (color) => (
+    icon: (color: ColorValue | undefined) => (
       <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
         <Path
           d="M15.9889 7.11095C15.7448 6.86688 15.3491 6.86688 15.105 7.11095C14.8609 7.35503 14.8609 7.75076 15.105 7.99484L15.9889 8.87872C16.233 9.1228 16.6287 9.1228 16.8728 8.87872C17.1169 8.63464 17.1169 8.23891 16.8728 7.99484L15.9889 7.11095Z"
@@ -88,7 +89,7 @@ const filterOptions = [
   {
     id: 'short',
     label: 'Short Reads',
-    icon: (color) => (
+    icon: (color: ColorValue | undefined) => (
       <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
         <Path
           d="M12 3.5C10.0335 3.5 8.1278 4.18187 6.60767 5.42942C5.08753 6.67697 4.04699 8.41301 3.66334 10.3417C3.27969 12.2705 3.57668 14.2726 4.50369 16.0069C5.4307 17.7412 6.93038 19.1004 8.74721 19.853C10.564 20.6055 12.5856 20.7048 14.4674 20.134C16.3493 19.5631 17.975 18.3574 19.0675 16.7223C20.16 15.0872 20.6518 13.1239 20.4591 11.1669C20.2663 9.2098 19.401 7.38013 18.0104 5.98959C17.7175 5.6967 17.7175 5.22182 18.0104 4.92893C18.3033 4.63604 18.7782 4.63604 19.0711 4.92893C20.707 6.56486 21.7251 8.71741 21.9519 11.0198C22.1786 13.3222 21.6001 15.632 20.3147 17.5557C19.0294 19.4793 17.1168 20.8978 14.9029 21.5694C12.6889 22.241 10.3106 22.1242 8.17319 21.2388C6.03574 20.3534 4.27141 18.7543 3.18081 16.714C2.0902 14.6736 1.74081 12.3182 2.19216 10.0491C2.64351 7.78001 3.86768 5.73761 5.65607 4.2699C7.44447 2.8022 9.68645 2 12 2C12.4142 2 12.75 2.33579 12.75 2.75C12.75 3.16421 12.4142 3.5 12 3.5Z"
@@ -116,7 +117,7 @@ const filterOptions = [
   {
     id: 'long',
     label: 'Long Reads',
-    icon: (color) => (
+    icon: (color: ColorValue | undefined) => (
       <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
         <Path
           d="M12 3.5C10.6022 3.5 9.22591 3.84474 7.99313 4.50367C6.76035 5.1626 5.70911 6.1154 4.93251 7.27765C4.15592 8.43991 3.67794 9.77575 3.54093 11.1669C3.40392 12.558 3.6121 13.9614 4.14703 15.2528C4.68195 16.5442 5.52712 17.6838 6.60766 18.5706C7.6882 19.4574 8.97076 20.064 10.3417 20.3367C11.7127 20.6094 13.1298 20.5398 14.4674 20.134C15.8051 19.7282 17.022 18.9988 18.0104 18.0104C18.3033 17.7175 18.7782 17.7175 19.0711 18.0104C19.364 18.3033 19.364 18.7782 19.0711 19.0711C17.9082 20.2339 16.4765 21.092 14.9028 21.5694C13.3292 22.0468 11.662 22.1287 10.0491 21.8079C8.43619 21.487 6.92729 20.7734 5.65607 19.7301C4.38485 18.6868 3.39053 17.3462 2.76121 15.8268C2.13188 14.3075 1.88697 12.6564 2.04816 11.0198C2.20935 9.38324 2.77167 7.81166 3.68531 6.4443C4.59895 5.07694 5.83571 3.956 7.28604 3.18079C8.73636 2.40557 10.3555 2 12 2C12.4142 2 12.75 2.33579 12.75 2.75C12.75 3.16421 12.4142 3.5 12 3.5Z"
@@ -174,7 +175,7 @@ const filterOptions = [
   {
     id: 'archived',
     label: 'Archived',
-    icon: (color) => (
+    icon: (color: ColorValue | undefined) => (
       <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
         <Path
           d="M9.99994 10.5C9.58573 10.5 9.24994 10.8358 9.24994 11.25C9.24994 11.6642 9.58573 12 9.99994 12H13.9999C14.4141 12 14.7499 11.6642 14.7499 11.25C14.7499 10.8358 14.4141 10.5 13.9999 10.5H9.99994Z"
@@ -197,29 +198,31 @@ const filterOptions = [
 const tabPositions = {};
 
 const FilterTabs: React.FC<FilterTabsProps> = ({ currentFilter, onFilterChange, isDarkMode }) => {
-   // Create ref for the ScrollView
-   const scrollViewRef = useRef(null);
-   // Ref to track tab measurements
-   const tabRefs = useRef({});
-   
-   // Get the current selected tab ref
-   useEffect(() => {
-     // If we have the current filter's position, scroll to it
-     if (scrollViewRef.current && tabPositions[currentFilter]) {
-       // Small delay to ensure the transition is smooth
-       const timeout = setTimeout(() => {
-         scrollViewRef.current.scrollTo({
-           x: tabPositions[currentFilter],
-           animated: true,
-         });
-       }, 100);
-       return () => clearTimeout(timeout);
-     }
-   }, [currentFilter]);
+  // Create ref for the ScrollView
+  const scrollViewRef = useRef<ScrollView | null>(null);
+  // Ref to track tab measurements
+  const tabRefs = useRef<{ [key: string]: View | null }>({});
 
-   const handleTabPress = (filterId) => {
-    // Apply the filter change using callback from props
-    onFilterChange(filterId);
+  // Get the current selected tab ref
+  useEffect(() => {
+    // If we have the current filter's position, scroll to it
+    if (scrollViewRef.current && tabPositions[currentFilter]) {
+      // Small delay to ensure the transition is smooth
+      const timeout = setTimeout(() => {
+        if (scrollViewRef.current) {
+          scrollViewRef.current?.scrollTo({
+            x: tabPositions[currentFilter],
+            animated: true,
+          });
+        }
+      }, 100);
+      return () => clearTimeout(timeout);
+    }
+  }, [currentFilter]);
+
+  const handleTabPress = (filterId: string | ItemFilter) => {
+    // Ensure filterId is of type ItemFilter before passing it to onFilterChange
+    onFilterChange(filterId as ItemFilter);
   };
 
   const measureTab = (event, filterId) => {
@@ -261,19 +264,56 @@ const FilterTabs: React.FC<FilterTabsProps> = ({ currentFilter, onFilterChange, 
         styles.container,
         { borderBottomColor: isDarkMode ? COLORS.darkBorder : COLORS.tasksConBorder },
       ]}
-       // Use this to prevent gesture handling issues
-       keyboardShouldPersistTaps="handled"
-       // Disable scroll indicator
-       scrollIndicatorInsets={{ right: 1 }}
-       // Maintain smooth scroll animation
-       scrollEventThrottle={16}
-       // Improve performance by disabling dynamic content height changes
-       removeClippedSubviews={true}
+      // Use this to prevent gesture handling issues
+      keyboardShouldPersistTaps="handled"
+      // Disable scroll indicator
+      scrollIndicatorInsets={{ right: 1 }}
+      // Maintain smooth scroll animation
+      scrollEventThrottle={16}
+      // Improve performance by disabling dynamic content height changes
+      removeClippedSubviews={true}
     >
+      <MenuView
+        title="Menu Title"
+        onPressAction={({ nativeEvent }) => {
+          console.warn(JSON.stringify(nativeEvent));
+        }}
+        actions={[
+          {
+            id: 'newestFirst',
+            title: 'Newest First',
+            attributes: {
+              destructive: true,
+            },
+
+            image: Platform.select({
+              ios: 'trash',
+              android: 'ic_menu_delete',
+            }),
+          },
+          {
+            id: 'oldestFirst',
+            title: 'Oldest First',
+            attributes: {
+              destructive: true,
+            },
+
+            image: Platform.select({
+              ios: 'trash',
+              android: 'ic_menu_delete',
+            }),
+          },
+        ]}
+        shouldOpenOnLongPress={false}
+      >
+        <View>
+          <Text>Test</Text>
+        </View>
+      </MenuView>
       {filterOptions.map((option) => (
         <TouchableOpacity
           key={option.id}
-          ref={ref => tabRefs.current[option.id] = ref}
+          ref={(ref) => (tabRefs.current[option.id] = ref)}
           style={[
             styles.tab,
             !option.label && styles.iconOnlyTab,
@@ -289,7 +329,15 @@ const FilterTabs: React.FC<FilterTabsProps> = ({ currentFilter, onFilterChange, 
             <View style={styles.iconContainer}>{option.icon(getIconColor(option.id))}</View>
           )}
           {option.label && (
-            <Text style={[styles.tabText, { color: getTextColor(option.id) }]}>{option.label}</Text>
+            <Text
+              style={[
+                styles.tabText,
+                { color: getTextColor(option.id) },
+                { marginLeft: option.icon ? 4 : 0 },
+              ]}
+            >
+              {option.label}
+            </Text>
           )}
         </TouchableOpacity>
       ))}
@@ -330,22 +378,27 @@ const styles = StyleSheet.create({
     marginRight: scaler(4),
   },
   tabText: {
-    fontSize: scaler(14),
-    fontWeight: '500',
+    fontSize: scaler(15),
+    fontWeight: '600',
     color: COLORS.text,
+    lineHeight: 24,
   },
   activeTabText: {
     color: COLORS.white,
   },
   iconContainer: {
-    marginRight: scaler(6),
+    marginRight: scaler(0),
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
+    width: 24,
+    height: 24,
   },
   iconOnlyTab: {
-    paddingHorizontal: scaler(10), // Less padding for icon-only tabs
-    minWidth: scaler(40), // Fixed width for icon-only tabs
+    paddingHorizontal: scaler(16),
+    minWidth: scaler(40),
+    paddingVertical: scaler(8),
+    alignSelf: 'center',
     justifyContent: 'center',
   },
 });
