@@ -20,7 +20,6 @@ import networkReducer from './slices/networkSlice';
 // Import API services
 import { api } from './services/api';
 import { tokenRefreshMiddleware } from './middleware/tokenRefresh';
-// import { databaseMiddleware } from "./middleware/databaseMiddleware";
 
 // Persistence configuration
 const persistConfig = {
@@ -30,7 +29,6 @@ const persistConfig = {
   blacklist: [api.reducerPath, 'network'], // Don't persist API cache
 };
 
-// const middlewares = [api.middleware, tokenRefreshMiddleware, databaseMiddleware];
 const middlewares = [api.middleware, tokenRefreshMiddleware];
 
 // Combine all reducers
