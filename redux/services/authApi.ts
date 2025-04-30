@@ -64,30 +64,6 @@ export const authApi = api.injectEndpoints({
       },
     }),
 
-    // Get current user
-    getCurrentUser: builder.query<{ user: User }, void>({
-      query: () => '/users/current',
-      providesTags: ['User'],
-    }),
-
-    // Update current user
-    updateCurrentUser: builder.mutation<{ user: User }, { user: Partial<UserRegistration> }>({
-      query: (data) => ({
-        url: '/users/current',
-        method: 'PATCH',
-        body: data,
-      }),
-      invalidatesTags: ['User'],
-    }),
-
-    // Delete current user
-    deleteCurrentUser: builder.mutation<void, void>({
-      query: () => ({
-        url: '/users/current',
-        method: 'DELETE',
-      }),
-    }),
-
     // Refresh token
     refreshToken: builder.mutation<RefreshTokenResponse, RefreshTokenRequest>({
       query: (data) => ({
@@ -152,9 +128,6 @@ export const {
   useRegisterMutation,
   useLoginMutation,
   useLogoutMutation,
-  useGetCurrentUserQuery,
-  useUpdateCurrentUserMutation,
-  useDeleteCurrentUserMutation,
   useRefreshTokenMutation,
   useInitializeAuthQuery,
 } = authApi;

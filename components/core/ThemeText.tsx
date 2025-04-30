@@ -9,6 +9,8 @@ export type TextVariant =
   | 'h4'
   | 'h5'
   | 'h6'
+  | 'h7'
+  | 'h8'
   | 'body1'
   | 'body2'
   | 'body1Bold'
@@ -16,8 +18,13 @@ export type TextVariant =
   | 'subtitle1'
   | 'subtitle2'
   | 'caption'
+  | 'caption2'
   | 'overline'
-  | 'button';
+  | 'tagStyle'
+  | 'button'
+  | 'guide'
+  | 'meta'
+  | 'meta2';
 
 export type ThemeTextProps = TextProps & {
   variant?: TextVariant;

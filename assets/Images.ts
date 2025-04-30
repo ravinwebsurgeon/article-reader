@@ -25,4 +25,5 @@ export const Images = {
   // ),
 
   pa_logo: require('./images/Logo.png'),
+  pa_dark_logo: require('./images/dark-Logo.png'),
 };

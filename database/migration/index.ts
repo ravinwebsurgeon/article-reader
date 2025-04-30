@@ -6,7 +6,7 @@ export default schemaMigrations({
     // Example migration for future reference
     /*
     {
-      toVersion: 2,
+      toVersion: 1,
       steps: [
         // Add new columns
         createTable({

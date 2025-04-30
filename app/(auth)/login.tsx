@@ -20,6 +20,7 @@ import { useLoginMutation } from '@/redux/services/authApi';
 import { useTheme } from '@/theme';
 import { ThemeText, ThemeView } from '@/components';
 import { scaler } from '@/utils';
+import { Input } from '@/components/ui/TextInput/input';
 
 interface LoginFormData {
   email: string;
@@ -86,27 +87,29 @@ function LoginScreen() {
           </ThemeView>
 
           <ThemeView style={styles.formContainer}>
-            <FormInput
+            <Input
               control={control}
               name="email"
+              label="Email"
               rules={{
-                required: 'email is required',
+                required: 'Email is required',
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                   message: 'Invalid email address',
                 },
               }}
-              placeholder="Enter your email"
+              placeholder="Enter your Email"
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
               spellCheck={false}
               icon={<Ionicons name="mail-outline" size={20} color={COLORS.primary.main} />}
+              style={styles.input}
             />
-
-            <FormInput
+            <Input
               control={control}
               name="password"
+              label="Password"
               rules={{
                 required: 'Password is required',
                 minLength: {
@@ -114,10 +117,12 @@ function LoginScreen() {
                   message: 'Password must be at least 8 characters',
                 },
               }}
-              placeholder="Enter your password"
+              placeholder="Enter your Password"
               secureTextEntry
               icon={<Ionicons name="lock-closed-outline" size={20} color={COLORS.primary.main} />}
+              style={styles.input}
             />
+ 
 
             <TouchableOpacity
               style={styles.forgotPasswordContainer}
@@ -209,14 +214,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   input: {
-    height: scaler(56),
-    borderWidth: scaler(1),
-    borderColor: lightColors.divider,
-    borderRadius: scaler(12),
-    paddingHorizontal: scaler(45),
-    fontSize: scaler(16),
-    backgroundColor: '#FFFFFF',
-    color: COLORS.text,
+    marginBottom: scaler(16),
   },
   inputError: {
     borderColor: COLORS.error.main,
