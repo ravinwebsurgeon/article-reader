@@ -3,11 +3,11 @@ import { Text, StyleSheet, ScrollView, TouchableOpacity, View, ColorValue, Touch
 import { COLORS } from '@/theme';
 import { ItemFilter } from '@/types/item';
 import { scaler } from '@/utils';
-import Svg, { Path } from 'react-native-svg';
- 
+import Svg, { Path } from 'react-native-svg'; 
 import { Platform } from 'react-native';
-import { ActionMenuPosition } from '../menu/ReusableActionMenu';
 import { SortOption } from '../menu/SortMenu';
+import { ActionMenuPosition } from '../menu/ReusableActionMenu';
+
  
 interface FilterTabsProps {
   currentFilter: ItemFilter;
