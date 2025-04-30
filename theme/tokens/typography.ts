@@ -1,6 +1,6 @@
 import { scaler } from '@/utils';
 import { Platform, TextStyle } from 'react-native';
-
+ 
 // Font family definitions
 export const fontFamily = {
   poppins: {
@@ -24,13 +24,13 @@ export const fontFamily = {
     blackItalic: 'Poppins-BlackItalic',
   },
 };
-
+ 
 // Helper function to get font family based on weight
 export const getFontFamily = (weight: TextStyle['fontWeight'] = '400'): string => {
   if (Platform.OS === 'ios') {
     return 'Poppins';
   }
-
+ 
   switch (weight) {
     case '100':
       return fontFamily.poppins.thin;
@@ -56,7 +56,7 @@ export const getFontFamily = (weight: TextStyle['fontWeight'] = '400'): string =
       return fontFamily.poppins.regular;
   }
 };
-
+ 
 // Create consistent text style
 export const createTextStyle = (
   size: number,
@@ -72,7 +72,7 @@ export const createTextStyle = (
     fontStyle,
     includeFontPadding: false, // For consistency between iOS and Android
   };
-
+ 
   if (Platform.OS === 'ios') {
     style.fontFamily = 'Poppins';
     style.fontWeight = fontWeight;
@@ -80,10 +80,10 @@ export const createTextStyle = (
     style.fontFamily = getFontFamily(fontWeight);
     // Android handles weight through font file selection
   }
-
+ 
   return style;
 };
-
+ 
 // Typography scale
 export const typography = {
   // Headings
@@ -93,30 +93,30 @@ export const typography = {
   h4: createTextStyle(22, 28, '600'),
   h5: createTextStyle(20, 26, '600'),
   h6: createTextStyle(18, 24, '600'),
-  h7: createTextStyle(16, 22, '600'),
+  h7: createTextStyle(16, 24, '600'),
   h8: createTextStyle(18, 26, '600'),
-
+ 
   // Body text
   body1: createTextStyle(16, 24, '400'),
   body2: createTextStyle(14, 20, '400'),
   body1Bold: createTextStyle(16, 24, '700'),
   body2Bold: createTextStyle(14, 20, '700'),
-
+ 
   // Other text styles
   subtitle1: createTextStyle(16, 24, '500'),
   subtitle2: createTextStyle(14, 20, '500'),
   caption: createTextStyle(12, 16, '400'),
-  caption2: createTextStyle(13, 16, '500'),
+  caption2: createTextStyle(12, 14, '500'),
   overline: createTextStyle(10, 14, '500', 1.5),
   tagStyle: createTextStyle(13, 24, '600'),
-
+ 
   // meta
   meta: createTextStyle(16, 18, '400'),
   meta2: createTextStyle(10, 14, '400'),
-
+ 
   //guide
   guide: createTextStyle(11, 14, '500'),
-
+ 
   // Button text
   button: createTextStyle(14, 20, '600'),
   button_small: createTextStyle(12, 18, '600'),
