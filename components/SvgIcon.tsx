@@ -19,12 +19,13 @@ export type SvgIconName =
   | 'time-long'
   | 'trash'
   | 'up-next'
+  | 'tag'
   | 'favorite'
   | 'pocket-pink';
 
 /**
- * Custom SVG icon component that uses the provided SVG paths for each icon.
- */
+* Custom SVG icon component that uses the provided SVG paths for each icon.
+*/
 export function SvgIcon({
   name,
   size = 24,
@@ -46,3 +47,4 @@ export function SvgIcon({
     </View>
   );
 }
+ 
