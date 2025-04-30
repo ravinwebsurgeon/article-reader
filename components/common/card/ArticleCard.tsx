@@ -9,14 +9,15 @@ import { useDarkMode, useTheme } from '@/theme';
 import { ThemeText } from '@/components/core';
 import { scaler } from '@/utils';
 import { withObservables } from '@nozbe/watermelondb/react';
-
+ 
 import Svg, { G, Path, Rect } from 'react-native-svg';
 import { useAppSelector } from '@/redux/hook';
 import { selectActiveTheme } from '@/redux/utils';
-
+import { SvgIcon } from '@/components/SvgIcon';
+ 
 // Export a fixed height constant for use in FlatList
 export const ARTICLE_CARD_HEIGHT = scaler(143);
-
+ 
 interface ArticleCardProps {
   item: Item;
   tags: Tag[];
@@ -24,7 +25,7 @@ interface ArticleCardProps {
   onMenuPress: () => void;
   style?: StyleProp<ViewStyle>;
 }
-
+ 
 const ArticleCardComponent: React.FC<ArticleCardProps> = ({
   item,
   tags,
@@ -35,7 +36,7 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
   const activeTheme = useAppSelector(selectActiveTheme);
   const isDarkMode = activeTheme === 'dark';
   const [itemTags, setItemTags] = useState<Tag[]>([]);
-
+ 
   const getTags = async () => {
     const result = await item?.tags.fetch();
     setItemTags(result);
@@ -45,23 +46,22 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
   }, []);
   const theme = useTheme();
   const dark = useDarkMode();
-
+ 
   // console.log('ArticleCard', item);
   const formatReadTime = (minutes: number) => {
     return `${minutes} min`;
   };
-
+ 
   // console.log('item in article card', item);
-
+ 
   // const formatDate = (date: string | number | Date | null | undefined): string => {
   //   if (!date) return '';
   //   return format(new Date(date), 'MMM d, yyyy');
   // };
-
+ 
   const readTime = item.readTime;
-  const blurhash =
-    '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
-
+  const thumbhash = item.imageThumbHash;
+ 
   return (
     item?.title && (
       <TouchableOpacity
@@ -73,7 +73,7 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
           },
         ]}
         onPress={onPress}
-        onLongPress={() => console.log('onLongPress')}
+        // onLongPress={() => console.log('onLongPress')}
         activeOpacity={0.7}
       >
         <View style={styles.contentContainer}>
@@ -82,7 +82,7 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
               <View style={styles.header}>
                 <ThemeText
                   numberOfLines={2}
-                  variant="h8"
+                  variant="h7"
                   style={styles.title}
                   color={isDarkMode ? theme.colors.text.primary : theme.colors.text.dark}
                 >
@@ -125,20 +125,20 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
                 <Image
                   source={{ uri: item.imageUrl }}
                   style={styles.thumbnail}
-                  placeholder={{ blurhash }}
+                  placeholder={{ thumbhash }}
                   contentFit="cover"
-                  transition={1000}
+                  transition={100}
                 />
               </View>
             )}
           </View>
-
+ 
           <View style={styles.tagsContainer}>
             {item.favorite && (
               <View style={styles.favoriteContainer}>
                 <Svg width="36" height="24" viewBox="0 0 36 24" fill="none">
                   <Rect width="36" height="24" rx="6" fill="#FCE37D" />
-
+ 
                   <Path
                     fillRule="evenodd"
                     clipRule="evenodd"
@@ -148,7 +148,7 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
                 </Svg>
               </View>
             )}
-
+ 
             {itemTags.length > 0 &&
               itemTags.map((tag: Tag, index: number) => (
                 <View key={index} style={styles.tagContainer}>
@@ -176,25 +176,10 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
                   </ThemeText>
                 </View>
               ))}
-
+ 
             <TouchableOpacity style={styles.menuButton} onPress={onMenuPress}>
-              <Svg width="18" height="4" viewBox="0 0 18 4" fill="none">
-                <Path
-                  d="M3.5 2C3.5 1.17157 2.82843 0.5 2 0.5C1.17157 0.5 0.5 1.17157 0.5 2C0.5 2.82843 1.17157 3.5 2 3.5C2.82843 3.5 3.5 2.82843 3.5 2Z"
-                  fill="#1C1F21"
-                  fillOpacity="0.84"
-                />
-                <Path
-                  d="M10.5 2C10.5 1.17157 9.82843 0.5 9 0.5C8.17157 0.5 7.5 1.17157 7.5 2C7.5 2.82843 8.17157 3.5 9 3.5C9.82843 3.5 10.5 2.82843 10.5 2Z"
-                  fill="#1C1F21"
-                  fillOpacity="0.84"
-                />
-                <Path
-                  d="M17.5 2C17.5 1.17157 16.8284 0.5 16 0.5C15.1716 0.5 14.5 1.17157 14.5 2C14.5 2.82843 15.1716 3.5 16 3.5C16.8284 3.5 17.5 2.82843 17.5 2Z"
-                  fill="#1C1F21"
-                  fillOpacity="0.84"
-                />
-              </Svg>
+             
+              <SvgIcon name="menu-dots" size={26} color={COLORS.darkGray} />
             </TouchableOpacity>
           </View>
         </View>
@@ -202,7 +187,7 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
     )
   );
 };
-
+ 
 const styles = StyleSheet.create({
   container: {
     paddingVertical: scaler(16),
@@ -285,11 +270,12 @@ const styles = StyleSheet.create({
     color: COLORS.darkGray,
   },
 });
-
+ 
 // Enhance the component to observe the 'item' and its 'tags'
 const enhance = withObservables(['item'], ({ item }: { item: Item }) => ({
   item: item.observe(),
   tags: item.tags.observe(),
 }));
-
+ 
 export default enhance(ArticleCardComponent);
+ 
