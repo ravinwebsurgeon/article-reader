@@ -133,11 +133,6 @@ const ReaderComponent = ({ item }: { item: Item }) => {
     }
   };
 
-  // Handle menu open
-  const handleOpenMenu = () => {
-    setShowMenu(true);
-  };
-
   // Custom header rendering for the specific design
   const renderCustomHeader = () => {
     return (
