@@ -1,4 +1,4 @@
-mport React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Text, StyleSheet, ScrollView, TouchableOpacity, View, ColorValue, TouchableOpacityProps } from 'react-native';
 import { COLORS } from '@/theme';
 import { ItemFilter } from '@/types/item';
