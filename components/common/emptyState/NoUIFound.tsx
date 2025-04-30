@@ -1,14 +1,18 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { COLORS } from '@/theme';
+import { COLORS, useTheme } from '@/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { ItemFilter } from '@/types/item';
-
+import { SvgIcon } from '@/components/SvgIcon';
+import { ThemeText } from '@/components/core';
+import { scaler } from '@/utils';
+ 
 interface NoItemsFoundProps {
   filter: ItemFilter;
 }
-
+ 
 const NoItemsFound: React.FC<NoItemsFoundProps> = ({ filter }) => {
+  const theme = useTheme();
   const getMessage = () => {
     switch (filter) {
       case 'favorites':
@@ -25,54 +29,54 @@ const NoItemsFound: React.FC<NoItemsFoundProps> = ({ filter }) => {
         return "You don't have any saved articles yet";
     }
   };
-
+ 
   const getIcon = () => {
     switch (filter) {
       case 'favorites':
-        return 'star-outline';
+        return 'favorite';
       case 'tagged':
-        return 'pricetag-outline';
+        return 'tag';
       case 'archived':
-        return 'archive-outline';
+        return 'archive';
       case 'short':
       case 'long':
-        return 'book-outline';
+        return 'time-long';
       default:
-        return 'bookmark-outline';
+        return 'saves';
     }
   };
-
+ 
   return (
     <View style={styles.container}>
-      <Ionicons name={getIcon() as any} size={64} color={COLORS.lightGray} />
-      <Text style={styles.message}>{getMessage()}</Text>
-      <Text style={styles.subMessage}>
+      <SvgIcon name={getIcon() as any} size={64} color={theme.colors.text.primary} />
+      <ThemeText style={styles.message}>{getMessage()}</ThemeText>
+      {/* <ThemeText style={styles.subMessage}>
         Add content using the + button or share to Pocket from other apps
-      </Text>
+      </ThemeText> */}
     </View>
   );
 };
-
+ 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 40,
+    padding: scaler(40),
   },
   message: {
-    fontSize: 18,
+    fontSize: scaler(14),
     fontWeight: '600',
-    color: COLORS.text,
+    // color: COLORS.text,
+    marginTop: scaler(16),
     textAlign: 'center',
-    marginTop: 16,
-    marginBottom: 8,
+    marginBottom: scaler(8),
   },
   subMessage: {
-    fontSize: 14,
+    fontSize: scaler(14),
     color: COLORS.darkGray,
     textAlign: 'center',
   },
 });
-
+ 
 export default NoItemsFound;
