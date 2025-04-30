@@ -1,5 +1,5 @@
 // src/screens/ReaderScreen.tsx
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import {
   ScrollView,
   TouchableOpacity,
@@ -9,18 +9,15 @@ import {
   NativeScrollEvent,
   StyleSheet,
   Platform,
-  Button,
-  View,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { marked } from 'marked';
 import { RenderHTML } from 'react-native-render-html';
-import { MenuView } from '@react-native-menu/menu';
 
 // Import themed components
-import { ThemeView, ThemeText, ThemeTouchable } from '@/components/core';
+import { ThemeView, ThemeText } from '@/components/core';
 import { useTheme, useDarkMode } from '@/theme/hooks';
 
 // Import WatermelonDB components
@@ -30,7 +27,6 @@ import Item from '@/database/models/ItemModel';
 import { scaler } from '@/utils';
 import RecommendedArticles from './RecommendedArticles';
 import { SvgIcon } from '@/components/SvgIcon';
-import Svg from 'react-native-svg';
 
 // Get window width for content sizing
 const { width } = Dimensions.get('window');
@@ -42,12 +38,37 @@ const ReaderComponent = ({ item }: { item: Item }) => {
   const isDarkMode = useDarkMode();
   const menuAnchorRef = useRef<typeof TouchableOpacity>(null);
 
+  console.log('ReaderComponent', item);
+
   // Refs
   const scrollViewRef = useRef<ScrollView>(null);
 
   // State
-  const [progress, setProgress] = useState(item.progress || 0);
+  const [progress, setProgress] = useState(item.progress);
   const [showMenu, setShowMenu] = useState(false);
+  const [contentHeight, setContentHeight] = useState(0);
+  const [scrollViewHeight, setScrollViewHeight] = useState(0);
+  const [hasRestoredPosition, setHasRestoredPosition] = useState(false);
+
+  // Restore scroll position when component mounts
+  useEffect(() => {
+    if (!hasRestoredPosition && contentHeight > 0 && scrollViewHeight > 0 && scrollViewRef.current && item.progress) {
+      // Calculate scroll position based on progress
+      const maxScrollPosition = contentHeight - scrollViewHeight;
+      const scrollToPosition = Math.max(0, Math.min(item.progress * maxScrollPosition, maxScrollPosition));
+      
+      // Add a small delay to ensure the content is properly rendered
+      const timer = setTimeout(() => {
+        scrollViewRef.current?.scrollTo({
+          y: scrollToPosition,
+          animated: true,
+        });
+        setHasRestoredPosition(true);
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [contentHeight, scrollViewHeight, item.progress, hasRestoredPosition]);
 
   // Process markdown content
   const processedContent = useMemo(() => {
@@ -57,7 +78,8 @@ const ReaderComponent = ({ item }: { item: Item }) => {
   // Handle navigation back
   const handleBack = async () => {
     // Save reading progress before navigating back
-    await item.setProgress(progress);
+    console.log('Saving progress:', progress);
+    await item.setProgress(progress).catch(error=> console.error('Error saving progress:', error));
     router.back();
   };
 
@@ -65,14 +87,25 @@ const ReaderComponent = ({ item }: { item: Item }) => {
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
 
+    // Save sizes for scroll position calculation
+    if (scrollViewHeight === 0) {
+      setScrollViewHeight(layoutMeasurement.height);
+    }
+    
+    if (contentHeight === 0) {
+      setContentHeight(contentSize.height);
+    }
+
     if (contentSize.height > 0) {
       const newProgress = Math.min(
         Math.max(0, contentOffset.y / (contentSize.height - layoutMeasurement.height)),
         1,
       );
 
+      
       // Only update if significant change (avoid too many database operations)
       if (Math.abs(newProgress - progress) > 0.01) {
+        console.log("does it working ?", newProgress);
         setProgress(newProgress);
       }
     }
@@ -139,48 +172,6 @@ const ReaderComponent = ({ item }: { item: Item }) => {
 
           {['ios', 'android'].includes(Platform.OS) && showMenu && (
             <></>
-            // <MenuView
-            //   onOpenMenu={showMenu}
-            //   onRequestClose={() => setShowMenu(false)}
-            //   anchor={menuAnchorRef.current || undefined}
-            //   actions={[
-            //     {
-            //       id: 'share',
-            //       title: 'Share',
-            //       titleColor: theme.colors.text.primary,
-            //       image: 'square.and.arrow.up',
-            //       imageColor: theme.colors.text.primary,
-            //     },
-            //     {
-            //       id: 'favorite',
-            //       title: item.favorite ? 'Unfavorite' : 'Favorite',
-            //       titleColor: theme.colors.text.primary,
-            //       image: item.favorite ? 'star.fill' : 'star',
-            //       imageColor: item.favorite ? theme.colors.favorite : theme.colors.text.primary,
-            //     },
-            //     {
-            //       id: 'archive',
-            //       title: item.archived ? 'Unarchive' : 'Archive',
-            //       titleColor: theme.colors.text.primary,
-            //       image: 'archivebox',
-            //       imageColor: theme.colors.text.primary,
-            //     },
-            //   ]}
-            //   onPressAction={({ nativeEvent }) => {
-            //     setShowMenu(false);
-            //     switch (nativeEvent.event) {
-            //       case 'share':
-            //         handleShare();
-            //         break;
-            //       case 'favorite':
-            //         handleFavoriteToggle();
-            //         break;
-            //       case 'archive':
-            //         handleArchiveToggle();
-            //         break;
-            //     }
-            //   }}
-            // />
           )}
         </ThemeView>
       </ThemeView>
@@ -199,6 +190,13 @@ const ReaderComponent = ({ item }: { item: Item }) => {
         contentContainerStyle={styles.contentContainer}
         onScroll={handleScroll}
         scrollEventThrottle={400}
+        onContentSizeChange={(width, height) => {
+          setContentHeight(height);
+        }}
+        onLayout={(event) => {
+          const { height } = event.nativeEvent.layout;
+          setScrollViewHeight(height);
+        }}
       >
         <ThemeText variant="h2" style={styles.title}>
           {item.title}
