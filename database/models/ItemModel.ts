@@ -27,22 +27,25 @@ export default class Item extends Model {
   @readonly @text('description') description?: string | null;
   @readonly @text('site_name') siteName?: string | null;
   @readonly @text('image_url') imageUrl?: string | null;
+  @readonly @text('image_thumb_hash') imageThumbHash?: string | null;
   @readonly @date('published_at') publishedAt?: Date | null;
   @readonly @field('word_count') wordCount?: number | null;
   @readonly @text('content') content?: string | null;
   @field('archived') archived!: boolean;
   @field('favorite') favorite!: boolean;
   @field('progress') progress!: number;
+  @field('viewed') viewed!: boolean;
   @text('notes') notes?: string | null;
 
   // Timestamps
   @readonly @date('created_at') createdAt!: Date;
   @readonly @date('updated_at') updatedAt!: Date;
+  @date('saved_at') savedAt!: Date;
 
   // Relationships
   @children('item_tags') itemTags!: Query<ItemTag>;
 
-  // Lazy loaded tags 
+  // Lazy loaded tags
   @lazy
   tags = this.collections.get<Tag>('item_tags').query();
 

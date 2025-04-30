@@ -4,20 +4,19 @@ import { Image } from 'expo-image';
 import { COLORS, lightColors } from '@/theme';
 import Item from '@/database/models/ItemModel';
 import Tag from '@/database/models/TagModel';
-import { Ionicons } from '@expo/vector-icons';
 import { useDarkMode, useTheme } from '@/theme';
 import { ThemeText } from '@/components/core';
 import { scaler } from '@/utils';
 import { withObservables } from '@nozbe/watermelondb/react';
- 
-import Svg, { G, Path, Rect } from 'react-native-svg';
+
+import Svg, { Path, Rect } from 'react-native-svg';
 import { useAppSelector } from '@/redux/hook';
 import { selectActiveTheme } from '@/redux/utils';
 import { SvgIcon } from '@/components/SvgIcon';
- 
+
 // Export a fixed height constant for use in FlatList
 export const ARTICLE_CARD_HEIGHT = scaler(143);
- 
+
 interface ArticleCardProps {
   item: Item;
   tags: Tag[];
@@ -25,7 +24,7 @@ interface ArticleCardProps {
   onMenuPress: () => void;
   style?: StyleProp<ViewStyle>;
 }
- 
+
 const ArticleCardComponent: React.FC<ArticleCardProps> = ({
   item,
   tags,
@@ -36,7 +35,7 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
   const activeTheme = useAppSelector(selectActiveTheme);
   const isDarkMode = activeTheme === 'dark';
   const [itemTags, setItemTags] = useState<Tag[]>([]);
- 
+
   const getTags = async () => {
     const result = await item?.tags.fetch();
     setItemTags(result);
@@ -46,22 +45,21 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
   }, []);
   const theme = useTheme();
   const dark = useDarkMode();
- 
+
   // console.log('ArticleCard', item);
   const formatReadTime = (minutes: number) => {
     return `${minutes} min`;
   };
- 
+
   // console.log('item in article card', item);
- 
+
   // const formatDate = (date: string | number | Date | null | undefined): string => {
   //   if (!date) return '';
   //   return format(new Date(date), 'MMM d, yyyy');
   // };
- 
+
   const readTime = item.readTime;
   const thumbhash = item.imageThumbHash;
- 
   return (
     item?.title && (
       <TouchableOpacity
@@ -132,13 +130,13 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
               </View>
             )}
           </View>
- 
+
           <View style={styles.tagsContainer}>
             {item.favorite && (
               <View style={styles.favoriteContainer}>
                 <Svg width="36" height="24" viewBox="0 0 36 24" fill="none">
                   <Rect width="36" height="24" rx="6" fill="#FCE37D" />
- 
+
                   <Path
                     fillRule="evenodd"
                     clipRule="evenodd"
@@ -148,7 +146,7 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
                 </Svg>
               </View>
             )}
- 
+
             {itemTags.length > 0 &&
               itemTags.map((tag: Tag, index: number) => (
                 <View key={index} style={styles.tagContainer}>
@@ -176,9 +174,8 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
                   </ThemeText>
                 </View>
               ))}
- 
+
             <TouchableOpacity style={styles.menuButton} onPress={onMenuPress}>
-             
               <SvgIcon name="menu-dots" size={26} color={COLORS.darkGray} />
             </TouchableOpacity>
           </View>
@@ -187,7 +184,7 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
     )
   );
 };
- 
+
 const styles = StyleSheet.create({
   container: {
     paddingVertical: scaler(16),
@@ -270,12 +267,11 @@ const styles = StyleSheet.create({
     color: COLORS.darkGray,
   },
 });
- 
+
 // Enhance the component to observe the 'item' and its 'tags'
 const enhance = withObservables(['item'], ({ item }: { item: Item }) => ({
   item: item.observe(),
   tags: item.tags.observe(),
 }));
- 
+
 export default enhance(ArticleCardComponent);
- 

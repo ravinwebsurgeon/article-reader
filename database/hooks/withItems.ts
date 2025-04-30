@@ -18,6 +18,7 @@ export const createItem = async (url: string) => {
   return database.write(async () => {
     const newItem = await itemsCollection.create((item) => {
       item.url = url;
+      item.savedAt = new Date();
       item.archived = false;
       item.favorite = false;
       item.progress = 0;
