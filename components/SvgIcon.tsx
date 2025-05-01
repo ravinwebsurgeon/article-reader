@@ -14,6 +14,7 @@ export type SvgIconName =
   | 'menu-dots'
   | 'pocket-solid'
   | 'share'
+  | 'sort-ascending'
   | 'sort-descending'
   | 'time-short'
   | 'time-long'
@@ -21,11 +22,12 @@ export type SvgIconName =
   | 'up-next'
   | 'tag'
   | 'favorite'
+  | 'check'
   | 'pocket-pink';
 
 /**
-* Custom SVG icon component that uses the provided SVG paths for each icon.
-*/
+ * Custom SVG icon component that uses the provided SVG paths for each icon.
+ */
 export function SvgIcon({
   name,
   size = 24,
@@ -41,10 +43,9 @@ export function SvgIcon({
 
   return (
     <View style={[{ width: size, height: size }, style]}>
-      <Svg width="100%" height="100%" viewBox={iconData.viewBox} fill="none">
-        <Path fillRule="evenodd" clipRule="evenodd" d={iconData.path} fill={color} />
+      <Svg width="100%" height="100%" viewBox={iconData?.viewBox} fill="none">
+        <Path fillRule="evenodd" clipRule="evenodd" d={iconData?.path} fill={color} />
       </Svg>
     </View>
   );
 }
- 

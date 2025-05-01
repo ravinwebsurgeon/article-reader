@@ -14,7 +14,6 @@ import { ItemFilter } from '@/types/item';
 import { Images } from '@/assets';
 import { useAppSelector } from '@/redux/hook';
 import { selectActiveTheme } from '@/redux/utils';
-import { Ionicons } from '@expo/vector-icons';
 import ArticleCard, { ARTICLE_CARD_HEIGHT } from '@/components/common/card/ArticleCard';
 import FilterTabs from '@/components/common/tabBar/FilterTabs';
 import ActionMenu from '@/components/common/menu/ActionMenu';
@@ -254,7 +253,7 @@ const HomeScreenWithFilter = () => {
       </View>
 
       {/* This component will only re-render when necessary */}
-      <View style={{ paddingHorizontal: scaler(8) }}>
+      <View style={{ flex: 1 }}>
         <EnhancedItemsList filter={filter} />
       </View>
     </View>

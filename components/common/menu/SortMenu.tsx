@@ -28,40 +28,18 @@ const SortMenu: React.FC<SortMenuProps> = ({
       {
         id: 'newest',
         label: 'Newest First',
-        icon: 'sort-newest',
+        icon: 'sort-ascending',
         selected: currentSort === 'newest',
         onPress: () => onSortChange('newest'),
+        dividerAfter: true,
       },
       {
         id: 'oldest',
         label: 'Oldest First',
-        icon: 'sort-oldest',
+        icon: 'sort-descending',
         selected: currentSort === 'oldest',
         onPress: () => onSortChange('oldest'),
-        dividerAfter: true,
-      },
-      {
-        id: 'shortest',
-        label: 'Shortest Reads',
-        icon: 'sort-short',
-        selected: currentSort === 'shortest',
-        onPress: () => onSortChange('shortest'),
-      },
-      {
-        id: 'longest',
-        label: 'Longest Reads',
-        icon: 'sort-long',
-        selected: currentSort === 'longest',
-        onPress: () => onSortChange('longest'),
-        dividerAfter: true,
-      },
-      {
-        id: 'alphabetical',
-        label: 'Alphabetical',
-        icon: 'sort-alpha',
-        selected: currentSort === 'alphabetical',
-        onPress: () => onSortChange('alphabetical'),
-      },
+      }
     ];
   };
  
