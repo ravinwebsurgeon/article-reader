@@ -52,11 +52,20 @@ const ReaderComponent = ({ item }: { item: Item }) => {
 
   // Restore scroll position when component mounts
   useEffect(() => {
-    if (!hasRestoredPosition && contentHeight > 0 && scrollViewHeight > 0 && scrollViewRef.current && item.progress) {
+    if (
+      !hasRestoredPosition &&
+      contentHeight > 0 &&
+      scrollViewHeight > 0 &&
+      scrollViewRef.current &&
+      item.progress
+    ) {
       // Calculate scroll position based on progress
       const maxScrollPosition = contentHeight - scrollViewHeight;
-      const scrollToPosition = Math.max(0, Math.min(item.progress * maxScrollPosition, maxScrollPosition));
-      
+      const scrollToPosition = Math.max(
+        0,
+        Math.min(item.progress * maxScrollPosition, maxScrollPosition),
+      );
+
       // Add a small delay to ensure the content is properly rendered
       const timer = setTimeout(() => {
         scrollViewRef.current?.scrollTo({
@@ -65,7 +74,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
         });
         setHasRestoredPosition(true);
       }, 100);
-      
+
       return () => clearTimeout(timer);
     }
   }, [contentHeight, scrollViewHeight, item.progress, hasRestoredPosition]);
@@ -79,7 +88,9 @@ const ReaderComponent = ({ item }: { item: Item }) => {
   const handleBack = async () => {
     // Save reading progress before navigating back
     console.log('Saving progress:', progress);
-    await item.setProgress(progress).catch(error=> console.error('Error saving progress:', error));
+    await item
+      .setProgress(progress)
+      .catch((error) => console.error('Error saving progress:', error));
     router.back();
   };
 
@@ -91,7 +102,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
     if (scrollViewHeight === 0) {
       setScrollViewHeight(layoutMeasurement.height);
     }
-    
+
     if (contentHeight === 0) {
       setContentHeight(contentSize.height);
     }
@@ -102,10 +113,9 @@ const ReaderComponent = ({ item }: { item: Item }) => {
         1,
       );
 
-      
       // Only update if significant change (avoid too many database operations)
       if (Math.abs(newProgress - progress) > 0.01) {
-        console.log("does it working ?", newProgress);
+        console.log('does it working ?', newProgress);
         setProgress(newProgress);
       }
     }
@@ -165,9 +175,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
             <Ionicons name="ellipsis-horizontal" size={24} color={theme.colors.text.primary} />
           </TouchableOpacity>
 
-          {['ios', 'android'].includes(Platform.OS) && showMenu && (
-            <></>
-          )}
+          {['ios', 'android'].includes(Platform.OS) && showMenu && <></>}
         </ThemeView>
       </ThemeView>
     );
@@ -198,9 +206,9 @@ const ReaderComponent = ({ item }: { item: Item }) => {
         </ThemeText>
 
         <ThemeView style={styles.metaContainer}>
-          {item.siteName && (
+          {item.source && (
             <ThemeText variant="meta" color={theme.colors.text.secondary} style={styles.metaText}>
-              {item.siteName}
+              {item.source}
             </ThemeText>
           )}
 
@@ -456,7 +464,6 @@ const styles = StyleSheet.create({
   afterReadingText: {
     // marginBottom: scaler(16),
     marginLeft: scaler(8),
-
   },
   footerActions: {
     flexDirection: 'row',
@@ -501,10 +508,10 @@ const styles = StyleSheet.create({
     borderTopWidth: scaler(1),
     borderTopColor: 'rgba(0, 0, 0, 0.1)',
   },
-  afterReading:{
+  afterReading: {
     alignItems: 'center',
     marginBottom: scaler(12),
     position: 'absolute',
     top: scaler(-12),
-  }
+  },
 });

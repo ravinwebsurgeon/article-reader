@@ -94,7 +94,7 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
                   style={styles.source}
                   variant="caption2"
                 >
-                  {item.siteName || item.domain}
+                  {item.source}
                 </ThemeText>
                 <ThemeText
                   variant="caption2"

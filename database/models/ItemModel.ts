@@ -55,6 +55,10 @@ export default class Item extends Model {
     return Math.ceil(this.wordCount / 260); // Assuming 200 words per minute
   }
 
+  get source(): string | null {
+    return this.siteName || this.domain || null;
+  }
+
   // Writer methods
   @writer async toggleArchived() {
     await this.update((item) => {
