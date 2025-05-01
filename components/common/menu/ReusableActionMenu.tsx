@@ -15,13 +15,13 @@ import { ThemeText, ThemeView } from '@/components/core';
 import { scaler } from '@/utils';
 import { useAppSelector } from '@/redux/hook';
 import { selectActiveTheme } from '@/redux/utils';
-import { SvgIcon } from '@/components/SvgIcon';
- 
+import { SvgIcon, SvgIconName } from '@/components/SvgIcon';
+
 export interface ActionMenuItem {
   id: string;
   label: string;
   // Optional icon from SvgIcon component or custom component
-  icon?: string | React.ReactNode;
+  icon?: SvgIconName | React.ReactNode;
   // Optional custom icon color
   iconColor?: string;
   // Optional text color (for things like "Delete" in red)
@@ -37,7 +37,7 @@ export interface ActionMenuItem {
   // Optional to disable item
   disabled?: boolean;
 }
- 
+
 export interface ActionMenuPosition {
   // Targeted anchor position (from TouchableOpacity that triggers the menu)
   x?: number;
@@ -51,7 +51,7 @@ export interface ActionMenuPosition {
   // Optional alignment for the menu
   align?: 'start' | 'center' | 'end';
 }
- 
+
 export interface ActionMenuProps {
   // Visible state
   visible: boolean;
@@ -74,14 +74,14 @@ export interface ActionMenuProps {
   // Optional footer component
   footerComponent?: React.ReactNode;
 }
- 
+
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const DEFAULT_MENU_WIDTH = scaler(240);
 const DEFAULT_MAX_HEIGHT = scaler(400);
 const MENU_PADDING = scaler(8);
 const SAFE_AREA_PADDING = scaler(16);
- 
+
 const ReusableActionMenu: React.FC<ActionMenuProps> = ({
   visible,
   items,
@@ -97,10 +97,10 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
   const activeTheme = useAppSelector(selectActiveTheme);
   const isDarkMode = activeTheme === 'dark';
   const theme = useTheme();
- 
+
   // Refs for measuring
   const menuRef = useRef<View>(null);
- 
+
   // State for menu dimensions and positioning
   const [menuHeight, setMenuHeight] = useState(0);
   const [menuWidth, setMenuWidth] = useState(
@@ -109,7 +109,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const [isPositioned, setIsPositioned] = useState(false);
   const [isScrollable, setIsScrollable] = useState(false);
- 
+
   // Calculate menu position based on anchor position
   const calculateMenuPosition = () => {
     if (!position.x && !position.y) {
@@ -119,23 +119,23 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
         left: (SCREEN_WIDTH - menuWidth) / 2,
       });
     }
- 
+
     const anchorX = position.x || 0;
     const anchorY = position.y || 0;
     const anchorWidth = position.width || 0;
     const anchorHeight = position.height || 0;
- 
+
     // Default to showing below the anchor if not specified
     const preferredPosition = position.position || 'bottom';
     const preferredAlign = position.align || 'center';
- 
+
     let top = 0;
     let left = 0;
- 
+
     // Vertical positioning
     if (preferredPosition === 'bottom') {
       top = anchorY + anchorHeight;
- 
+
       // Check if menu would go off screen bottom
       if (top + menuHeight + SAFE_AREA_PADDING > SCREEN_HEIGHT) {
         // Place above instead
@@ -143,7 +143,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
       }
     } else if (preferredPosition === 'top') {
       top = anchorY - menuHeight;
- 
+
       // Check if menu would go off screen top
       if (top < SAFE_AREA_PADDING) {
         // Place below instead
@@ -152,7 +152,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
     } else if (preferredPosition === 'center') {
       top = anchorY + anchorHeight / 2 - menuHeight / 2;
     }
- 
+
     // Horizontal positioning
     if (preferredAlign === 'center') {
       left = anchorX + anchorWidth / 2 - menuWidth / 2;
@@ -161,14 +161,14 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
     } else if (preferredAlign === 'end') {
       left = anchorX + anchorWidth - menuWidth;
     }
- 
+
     // Ensure menu stays within screen bounds horizontally
     if (left < SAFE_AREA_PADDING) {
       left = SAFE_AREA_PADDING;
     } else if (left + menuWidth + SAFE_AREA_PADDING > SCREEN_WIDTH) {
       left = SCREEN_WIDTH - menuWidth - SAFE_AREA_PADDING;
     }
- 
+
     // Ensure menu stays within screen bounds vertically
     if (top < SAFE_AREA_PADDING) {
       top = SAFE_AREA_PADDING;
@@ -179,19 +179,19 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
       setMenuHeight(availableHeight);
       top = SAFE_AREA_PADDING;
     }
- 
+
     setMenuPosition({ top, left });
     setIsPositioned(true);
   };
- 
+
   // Measure menu height when loaded
   const onMenuLayout = (event: LayoutChangeEvent) => {
     const { height, width } = event.nativeEvent.layout;
- 
+
     // Only update if height changed significantly
     if (Math.abs(height - menuHeight) > 1) {
       setMenuHeight(height);
- 
+
       // Check if scrolling is needed
       if (height > maxHeight) {
         setIsScrollable(true);
@@ -200,17 +200,17 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
         setIsScrollable(false);
       }
     }
- 
+
     // Update width if it's different
     if (typeof width === 'number' && Math.abs(width - menuWidth) > 1) {
       setMenuWidth(width);
     }
- 
+
     if (!isPositioned) {
       calculateMenuPosition();
     }
   };
- 
+
   // Update position when relevant props change
   useEffect(() => {
     if (visible && menuHeight > 0) {
@@ -219,24 +219,24 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
       setIsPositioned(false);
     }
   }, [visible, menuHeight, position.x, position.y, maxHeight]);
- 
+
   // Reset scroll position when menu opens
   useEffect(() => {
     if (!visible) {
       setIsScrollable(false);
     }
   }, [visible]);
- 
+
   // Render each menu item
   const renderMenuItem = (item: ActionMenuItem, index: number) => {
     const textColor = item.destructive
       ? COLORS.error.main
-      : item.textColor || (isDarkMode ? lightColors.text.primary : theme.colors.text.dark);
- 
+      : item.textColor || (isDarkMode ? lightColors.gray[200] : theme.colors.text.dark);
+
     const iconColor = item.destructive
       ? COLORS.error.main
-      : item.iconColor || (isDarkMode ? lightColors.text.primary : theme.colors.text.dark);
- 
+      : item.iconColor || (isDarkMode ? lightColors.gray[200] : theme.colors.text.dark);
+
     return (
       <React.Fragment key={item.id || index}>
         <TouchableOpacity
@@ -250,6 +250,22 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
           activeOpacity={item.disabled ? 1 : 0.7}
           disabled={item.disabled}
         >
+          {/* Selected indicator for checkable items */}
+          {item.selected && (
+            <View style={styles.selectedIndicator}>
+              <SvgIcon name="check" size={20} color={COLORS.primary.main} />
+            </View>
+          )}
+
+          {/* Text part */}
+          <ThemeText
+            style={[styles.menuText, item.disabled && styles.disabledText]}
+            color={textColor}
+            variant="body1"
+          >
+            {item.label}
+          </ThemeText>
+
           {/* Icon part */}
           {item.icon && (
             <View style={styles.iconContainer}>
@@ -260,24 +276,8 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
               )}
             </View>
           )}
- 
-          {/* Text part */}
-          <ThemeText
-            style={[styles.menuText, item.disabled && styles.disabledText]}
-            color={textColor}
-            variant="body1"
-          >
-            {item.label}
-          </ThemeText>
- 
-          {/* Selected indicator for checkable items */}
-          {item.selected && (
-            <View style={styles.selectedIndicator}>
-              <SvgIcon name="check" size={20} color={COLORS.primary.main} />
-            </View>
-          )}
         </TouchableOpacity>
- 
+
         {/* Optional divider */}
         {item.dividerAfter && (
           <View
@@ -290,7 +290,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
       </React.Fragment>
     );
   };
- 
+
   return (
     <Modal
       transparent
@@ -326,14 +326,14 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
                     <ThemeText
                       variant="subtitle2"
                       style={styles.menuTitle}
-                      color={isDarkMode ? lightColors.text.secondary : darkColors.text.secondary}
+                      color={isDarkMode ? lightColors.gray[200] : darkColors.text.secondary}
                     >
                       {title}
                     </ThemeText>
                   )}
                 </View>
               )}
- 
+
               {/* Menu items */}
               {isScrollable ? (
                 <ScrollView
@@ -346,7 +346,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
               ) : (
                 <View>{items.map(renderMenuItem)}</View>
               )}
- 
+
               {/* Optional footer */}
               {footerComponent && <View style={styles.menuFooter}>{footerComponent}</View>}
             </ThemeView>
@@ -356,7 +356,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
     </Modal>
   );
 };
- 
+
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
@@ -365,7 +365,7 @@ const styles = StyleSheet.create({
   menuContainer: {
     position: 'absolute',
     borderRadius: scaler(12),
-    padding: MENU_PADDING,
+    paddingHorizontal: MENU_PADDING,
     elevation: scaler(5),
     overflow: 'hidden',
   },
@@ -384,8 +384,8 @@ const styles = StyleSheet.create({
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: scaler(12),
-    paddingHorizontal: scaler(16),
+    paddingVertical: scaler(8),
+    paddingHorizontal: scaler(8),
     minHeight: scaler(48),
   },
   disabledItem: {
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   iconContainer: {
-    marginRight: scaler(16),
+    // marginRight: scaler(16),
     width: scaler(24),
     height: scaler(24),
     alignItems: 'center',
@@ -407,11 +407,12 @@ const styles = StyleSheet.create({
   },
   selectedIndicator: {
     marginLeft: scaler(8),
+    marginRight: scaler(8),
   },
   divider: {
     height: StyleSheet.hairlineWidth,
-    marginVertical: scaler(4),
-    marginHorizontal: scaler(16),
+    // marginVertical: scaler(4),
+    // marginHorizontal: scaler(16),
   },
   menuFooter: {
     paddingHorizontal: scaler(8),
@@ -420,5 +421,5 @@ const styles = StyleSheet.create({
     borderTopColor: COLORS.lightBorder,
   },
 });
- 
+
 export default ReusableActionMenu;

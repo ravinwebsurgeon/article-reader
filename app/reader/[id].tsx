@@ -9,6 +9,7 @@ import {
   NativeScrollEvent,
   StyleSheet,
   Platform,
+  TouchableOpacityProps,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -27,6 +28,8 @@ import Item from '@/database/models/ItemModel';
 import { scaler } from '@/utils';
 import RecommendedArticles from './RecommendedArticles';
 import { SvgIcon } from '@/components/SvgIcon';
+import { ActionMenuPosition } from '@/components/common/menu/ReusableActionMenu';
+import ReaderActionMenu from '@/components/common/menu/ReaderActionMenu';
 
 // Get window width for content sizing
 const { width } = Dimensions.get('window');
@@ -42,9 +45,12 @@ const ReaderComponent = ({ item }: { item: Item }) => {
 
   // Refs
   const scrollViewRef = useRef<ScrollView>(null);
+  const menuButtonRef = useRef<TouchableOpacityProps>(null);
 
   // State
   const [progress, setProgress] = useState(item.progress);
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [menuPosition, setMenuPosition] = useState<ActionMenuPosition>({});
   const [showMenu, setShowMenu] = useState(false);
   const [contentHeight, setContentHeight] = useState(0);
   const [scrollViewHeight, setScrollViewHeight] = useState(0);
@@ -143,6 +149,23 @@ const ReaderComponent = ({ item }: { item: Item }) => {
     }
   };
 
+  // Handle opening the action menu
+  const handleOpenMenu = () => {
+    if (menuButtonRef.current) {
+      menuButtonRef.current.measure((x, y, width, height, pageX, pageY) => {
+        setMenuPosition({
+          x: pageX,
+          y: pageY,
+          width,
+          height,
+          position: 'bottom',
+          align: 'end',
+        });
+        setMenuVisible(true);
+      });
+    }
+  };
+
   // Custom header rendering for the specific design
   const renderCustomHeader = () => {
     return (
@@ -150,11 +173,10 @@ const ReaderComponent = ({ item }: { item: Item }) => {
         <ThemeView style={styles.headerLeft} row centered>
           <TouchableOpacity onPress={handleBack} style={styles.backButton}>
             <Ionicons name="chevron-back" size={28} color={theme.colors.text.primary} />
+            <ThemeText variant="body1" style={styles.savesText}>
+              Saves
+            </ThemeText>
           </TouchableOpacity>
-
-          <ThemeText variant="body1" style={styles.savesText}>
-            Saves
-          </ThemeText>
         </ThemeView>
 
         <ThemeView style={styles.headerRight} row>
@@ -167,15 +189,12 @@ const ReaderComponent = ({ item }: { item: Item }) => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            // ref={menuAnchorRef}
+            ref={menuButtonRef}
             style={styles.headerIconButton}
-            // onPress={handleOpenMenu}
-            onPress={() => menuAnchorRef.current?.show()}
+            onPress={handleOpenMenu}
           >
             <Ionicons name="ellipsis-horizontal" size={24} color={theme.colors.text.primary} />
           </TouchableOpacity>
-
-          {['ios', 'android'].includes(Platform.OS) && showMenu && <></>}
         </ThemeView>
       </ThemeView>
     );
@@ -352,6 +371,13 @@ const ReaderComponent = ({ item }: { item: Item }) => {
           <RecommendedArticles currentItem={item} />
         </ThemeView>
       </ScrollView>
+      {/* Reader Action Menu */}
+      <ReaderActionMenu
+        item={item}
+        visible={menuVisible}
+        position={menuPosition}
+        onClose={() => setMenuVisible(false)}
+      />
     </ThemeView>
   );
 };
@@ -410,6 +436,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: scaler(4),
   },
   savesText: {
