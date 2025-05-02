@@ -30,6 +30,7 @@ import RecommendedArticles from './RecommendedArticles';
 import { SvgIcon } from '@/components/SvgIcon';
 import { ActionMenuPosition } from '@/components/common/menu/ReusableActionMenu';
 import ReaderActionMenu from '@/components/common/menu/ReaderActionMenu';
+import { createMenuPosition, menuAnimationPresets } from '@/components/common/menu/menuAnimationPresents';
 
 // Get window width for content sizing
 const { width } = Dimensions.get('window');
@@ -51,7 +52,6 @@ const ReaderComponent = ({ item }: { item: Item }) => {
   const [progress, setProgress] = useState(item.progress);
   const [menuVisible, setMenuVisible] = useState(false);
   const [menuPosition, setMenuPosition] = useState<ActionMenuPosition>({});
-  const [showMenu, setShowMenu] = useState(false);
   const [contentHeight, setContentHeight] = useState(0);
   const [scrollViewHeight, setScrollViewHeight] = useState(0);
   const [hasRestoredPosition, setHasRestoredPosition] = useState(false);
@@ -158,8 +158,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
           y: pageY,
           width,
           height,
-          position: 'bottom',
-          align: 'end',
+          ...createMenuPosition('bottomRight'),
         });
         setMenuVisible(true);
       });
@@ -377,6 +376,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
         visible={menuVisible}
         position={menuPosition}
         onClose={() => setMenuVisible(false)}
+        animationDuration={menuAnimationPresets.bouncy.duration}
       />
     </ThemeView>
   );
