@@ -3,6 +3,7 @@ import { withObservables } from '@nozbe/watermelondb/react';
 import Item from '../models/ItemModel';
 import database from '../database';
 import { ItemFilter } from '@/types/item';
+import { SortOption } from '@/components/common/menu/SortMenu';
 
 /**
  * Access to the items collection in the WatermelonDB database
@@ -70,6 +71,7 @@ export const withItem = (id: string) => {
 
 interface WithItemsProps {
   filter?: ItemFilter;
+  sorted?: SortOption;
 }
 
 /**
@@ -77,7 +79,8 @@ interface WithItemsProps {
  * @param filter - Optional filter type to apply ('all', 'favorites', 'archived', etc.)
  * @returns A function that provides the filtered items as props to components
  */
-export const withItems = ({ filter = 'all' }: WithItemsProps = {}) => {
+export const withItems = ({ filter = 'all', sorted = 'newest' }: WithItemsProps = {}) => {
+  const sort = sorted === 'newest' ? Q.desc : Q.asc;
   return withObservables(['filter'], () => {
     let query;
 
@@ -85,34 +88,34 @@ export const withItems = ({ filter = 'all' }: WithItemsProps = {}) => {
       query = itemsCollection.query(
         Q.where('favorite', true),
         Q.where('archived', false),
-        Q.sortBy('id', Q.desc),
+        Q.sortBy('created_at', sort),
       );
     } else if (filter === 'archived') {
-      query = itemsCollection.query(Q.where('archived', true), Q.sortBy('id', Q.desc));
+      query = itemsCollection.query(Q.where('archived', true), Q.sortBy('created_at', sort));
     } else if (filter === 'tagged') {
       query = itemsCollection.query(
         Q.where('archived', false),
         Q.experimentalJoinTables(['item_tags']),
         Q.on('item_tags', Q.where('tag_id', Q.notEq(null))),
-        Q.sortBy('id', Q.desc),
+        Q.sortBy('created_at', sort),
       );
     } else if (filter === 'short') {
       query = itemsCollection.query(
         // 260wpm * 4min = 1040 words
         Q.where('word_count', Q.lte(1040)),
         Q.where('archived', false),
-        Q.sortBy('id', Q.desc),
+        Q.sortBy('created_at', sort),
       );
     } else if (filter === 'long') {
       query = itemsCollection.query(
         // 260wpm * 10min = 2600 words
         Q.where('word_count', Q.gte(2600)),
         Q.where('archived', false),
-        Q.sortBy('id', Q.desc),
+        Q.sortBy('created_at', sort),
       );
     } else {
       // Default to unarchived items
-      query = itemsCollection.query(Q.where('archived', false), Q.sortBy('id', Q.desc));
+      query = itemsCollection.query(Q.where('archived', false), Q.sortBy('created_at', sort));
     }
 
     return {
