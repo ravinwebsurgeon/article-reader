@@ -7,6 +7,7 @@ import {
   RefreshTokenRequest,
 } from '../../types/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { syncEngine } from '@/database/sync/SyncEngine';
 
 // Auth API endpoints
 export const authApi = api.injectEndpoints({
@@ -40,6 +41,13 @@ export const authApi = api.injectEndpoints({
           const { data } = await queryFulfilled;
           console.log('is it coming here successful', data);
           await AsyncStorage.setItem('auth_token', data.token);
+          const isFirstSync = await AsyncStorage.getItem('already_synced');
+          if (!isFirstSync) {
+            await syncEngine.sync(true);
+            await AsyncStorage.setItem('already_synced', 'true');
+          } else {
+            await syncEngine.sync();
+          }
         } catch {
           // Handle error if needed
         }
