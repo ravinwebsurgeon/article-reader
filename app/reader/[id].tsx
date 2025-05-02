@@ -40,8 +40,10 @@ const ReaderComponent = ({ item }: { item: Item }) => {
   const theme = useTheme();
   const isDarkMode = useDarkMode();
   const menuAnchorRef = useRef<typeof TouchableOpacity>(null);
-
-  console.log('ReaderComponent', item);
+  
+  useEffect(() => {
+      console.log('ReaderComponent mounted');
+  },[])
 
   // Refs
   const scrollViewRef = useRef<ScrollView>(null);
@@ -120,8 +122,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
       );
 
       // Only update if significant change (avoid too many database operations)
-      if (Math.abs(newProgress - progress) > 0.01) {
-        console.log('does it working ?', newProgress);
+      if (Math.abs(newProgress - progress) > 0.01) {        
         setProgress(newProgress);
       }
     }
