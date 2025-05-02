@@ -19,7 +19,6 @@ import { useAppSelector } from '@/redux/hook';
 import { selectActiveTheme } from '@/redux/utils';
 import { SvgIcon, SvgIconName } from '@/components/SvgIcon';
 import Svg, { Path } from 'react-native-svg';
-import { max } from 'date-fns';
 
 export interface ActionMenuItem {
   id: string;
@@ -160,6 +159,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
   const calculateMenuPosition = useCallback(() => {
     if (!position.x && !position.y) {
       // If no position is provided, center the menu on screen
+      console.log('is code going here');
       return setMenuPosition({
         top: (SCREEN_HEIGHT - menuHeight) / 2,
         left: (SCREEN_WIDTH - menuWidth) / 2,
@@ -201,18 +201,25 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
 
     // Horizontal positioning
     if (preferredAlign === 'center') {
+      console.log('preferredAlign', preferredAlign);
       left = anchorX + anchorWidth / 2 - menuWidth / 2;
     } else if (preferredAlign === 'start') {
+      console.log('preferredAlign', preferredAlign);
+
       left = anchorX;
     } else if (preferredAlign === 'end') {
+      console.log('preferredAlign', preferredAlign, anchorX, anchorWidth, menuWidth);
+
       left = anchorX + anchorWidth - menuWidth;
     }
 
     // Ensure menu stays within screen bounds horizontally
     if (left < SAFE_AREA_PADDING) {
       left = SAFE_AREA_PADDING;
+      console.log(left, 'SAFE_AREA_PADDING', SAFE_AREA_PADDING);
     } else if (left + menuWidth + SAFE_AREA_PADDING > SCREEN_WIDTH) {
       left = SCREEN_WIDTH - menuWidth - SAFE_AREA_PADDING;
+      console.log('or the code in this else if', left);
     }
 
     // Ensure menu stays within screen bounds vertically
@@ -315,7 +322,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
             onPress={() => {
               if (!item.disabled) {
                 item.onPress();
-                onClose();
+                handleClose();
               }
             }}
             activeOpacity={item.disabled ? 1 : 0.7}
