@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo, useLayoutEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -9,6 +9,8 @@ import {
   Dimensions,
   Platform,
   ScrollView,
+  Animated,
+  Easing,
 } from 'react-native';
 import { COLORS, darkColors, lightColors, useTheme } from '@/theme';
 import { ThemeText, ThemeView } from '@/components/core';
@@ -17,6 +19,7 @@ import { useAppSelector } from '@/redux/hook';
 import { selectActiveTheme } from '@/redux/utils';
 import { SvgIcon, SvgIconName } from '@/components/SvgIcon';
 import Svg, { Path } from 'react-native-svg';
+import { max } from 'date-fns';
 
 export interface ActionMenuItem {
   id: string;
@@ -74,6 +77,7 @@ export interface ActionMenuProps {
   headerComponent?: React.ReactNode;
   // Optional footer component
   footerComponent?: React.ReactNode;
+  animationDuration?: number;
 }
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -82,6 +86,7 @@ const DEFAULT_MENU_WIDTH = scaler(240);
 const DEFAULT_MAX_HEIGHT = scaler(400);
 const MENU_PADDING = scaler(8);
 const SAFE_AREA_PADDING = scaler(16);
+const DEFAULT_ANIMATION_DURATION = 200;
 
 const ReusableActionMenu: React.FC<ActionMenuProps> = ({
   visible,
@@ -94,6 +99,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
   animationType = 'fade',
   headerComponent,
   footerComponent,
+  animationDuration = DEFAULT_ANIMATION_DURATION,
 }) => {
   const activeTheme = useAppSelector(selectActiveTheme);
   const isDarkMode = activeTheme === 'dark';
@@ -102,17 +108,56 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
   // Refs for measuring
   const menuRef = useRef<View>(null);
 
+  // Animation values
+  const scaleAnim = useRef(new Animated.Value(0)).current;
+  const [modalVisible, setModalVisible] = useState(visible);
+
   // State for menu dimensions and positioning
   const [menuHeight, setMenuHeight] = useState(0);
   const [menuWidth, setMenuWidth] = useState(
-    typeof width === 'number' ? width : DEFAULT_MENU_WIDTH,
+    typeof width === 'number' ? scaler(width) : DEFAULT_MENU_WIDTH,
   );
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const [isPositioned, setIsPositioned] = useState(false);
   const [isScrollable, setIsScrollable] = useState(false);
 
+  // Handle visibility changes
+  useEffect(() => {
+    if (visible) {
+      // Only show modal after we have a position
+      if (menuPosition.top !== 0 || menuPosition.left !== 0) {
+        setModalVisible(true);
+        // Reset animation value before starting
+        scaleAnim.setValue(0);
+
+        // Start animation
+        Animated.timing(scaleAnim, {
+          toValue: 1,
+          duration: animationDuration,
+          easing: Easing.out(Easing.back(1.5)),
+          useNativeDriver: true,
+        }).start();
+      }
+    } else {
+      // When closing, we don't immediately hide the modal
+      // We'll do that after the animation completes
+      if (modalVisible) {
+        Animated.timing(scaleAnim, {
+          toValue: 0,
+          duration: animationDuration * 0.75, // Slightly faster closing animation
+          easing: Easing.in(Easing.ease),
+          useNativeDriver: true,
+        }).start(() => {
+          setModalVisible(false);
+          // Reset position when closed
+          setMenuPosition({ top: 0, left: 0 });
+        });
+      }
+    }
+  }, [visible, menuPosition, scaleAnim, animationDuration]);
+
   // Calculate menu position based on anchor position
-  const calculateMenuPosition = () => {
+  const calculateMenuPosition = useCallback(() => {
     if (!position.x && !position.y) {
       // If no position is provided, center the menu on screen
       return setMenuPosition({
@@ -183,43 +228,55 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
 
     setMenuPosition({ top, left });
     setIsPositioned(true);
-  };
+  }, [
+    position.x,
+    position.y,
+    position.width,
+    position.height,
+    position.position,
+    position.align,
+    menuHeight,
+    menuWidth,
+  ]);
 
   // Measure menu height when loaded
-  const onMenuLayout = (event: LayoutChangeEvent) => {
-    const { height, width } = event.nativeEvent.layout;
+  const onMenuLayout = useCallback(
+    (event: LayoutChangeEvent) => {
+      const { height, width: measuredWidth } = event.nativeEvent.layout;
 
-    // Only update if height changed significantly
-    if (Math.abs(height - menuHeight) > 1) {
-      setMenuHeight(height);
-
-      // Check if scrolling is needed
-      if (height > maxHeight) {
-        setIsScrollable(true);
-        setMenuHeight(maxHeight);
-      } else {
-        setIsScrollable(false);
+      if (menuHeight === 0) {
+        setMenuHeight(height);
       }
-    }
+      if (Math.abs(height - menuHeight) > 1) {
+        setMenuHeight(height);
 
-    // Update width if it's different
-    if (typeof width === 'number' && Math.abs(width - menuWidth) > 1) {
-      setMenuWidth(width);
-    }
+        // Check if scrolling is needed
+        if (height > maxHeight) {
+          setIsScrollable(true);
+          setMenuHeight(maxHeight);
+        } else {
+          setIsScrollable(false);
+        }
+      }
 
-    if (!isPositioned) {
-      calculateMenuPosition();
-    }
-  };
+      // Update width if it's different
+      if (typeof width === 'number' && Math.abs(width - menuWidth) > 1) {
+        setMenuWidth(width);
+      }
+    },
+    [menuHeight, menuWidth, maxHeight, isPositioned, calculateMenuPosition],
+  );
 
   // Update position when relevant props change
   useEffect(() => {
-    if (visible && menuHeight > 0) {
+    // Only calculate position if menu is visible and we have dimensions
+    if (visible && menuHeight > 0 && !isPositioned) {
       calculateMenuPosition();
     } else if (!visible) {
+      // Reset positioned flag when menu is hidden
       setIsPositioned(false);
     }
-  }, [visible, menuHeight, position.x, position.y, maxHeight]);
+  }, [visible, menuHeight, calculateMenuPosition, isPositioned]);
 
   // Reset scroll position when menu opens
   useEffect(() => {
@@ -228,87 +285,162 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
     }
   }, [visible]);
 
+  // Handle close with animation
+  const handleClose = useCallback(() => {
+    Animated.timing(scaleAnim, {
+      toValue: 0,
+      duration: 150,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: true,
+    }).start(() => {
+      onClose();
+    });
+  }, [scaleAnim, onClose]);
+
   // Render each menu item
-  const renderMenuItem = (item: ActionMenuItem, index: number) => {
-    const textColor = item.destructive
-      ? COLORS.error.main
-      : item.textColor || (isDarkMode ? lightColors.gray[200] : theme.colors.text.dark);
+  const renderMenuItem = useCallback(
+    (item: ActionMenuItem, index: number) => {
+      const textColor = item.destructive
+        ? COLORS.error.main
+        : item.textColor || (isDarkMode ? lightColors.gray[200] : theme.colors.text.dark);
 
-    const iconColor = item.destructive
-      ? COLORS.error.main
-      : item.iconColor || (isDarkMode ? lightColors.gray[200] : theme.colors.text.dark);
+      const iconColor = item.destructive
+        ? COLORS.error.main
+        : item.iconColor || (isDarkMode ? lightColors.gray[200] : theme.colors.text.dark);
 
-    return (
-      <React.Fragment key={item.id || index}>
-        <TouchableOpacity
-          style={[styles.menuItem, item.disabled && styles.disabledItem]}
-          onPress={() => {
-            if (!item.disabled) {
-              item.onPress();
-              onClose();
-            }
-          }}
-          activeOpacity={item.disabled ? 1 : 0.7}
-          disabled={item.disabled}
-        >
-          {/* Selected indicator for checkable items */}
-          {item.selected && (
-            <View style={styles.selectedIndicator}>
-              <Svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                <Path
-                  d="M6.29004 15.4692C5.84733 15.4692 5.47103 15.2783 5.16113 14.8965L0.861328 9.60059C0.739583 9.45671 0.651042 9.31559 0.595703 9.17725C0.545898 9.0389 0.520996 8.89502 0.520996 8.74561C0.520996 8.41357 0.631673 8.13965 0.853027 7.92383C1.07438 7.70801 1.35384 7.6001 1.69141 7.6001C2.07324 7.6001 2.39421 7.76335 2.6543 8.08984L6.25684 12.6553L13.2876 1.51562C13.4315 1.29427 13.5809 1.13932 13.7358 1.05078C13.8908 0.956706 14.0845 0.909668 14.3169 0.909668C14.6545 0.909668 14.9312 1.01481 15.147 1.2251C15.3628 1.43538 15.4707 1.70378 15.4707 2.03027C15.4707 2.16309 15.4486 2.2959 15.4043 2.42871C15.36 2.56152 15.2909 2.69987 15.1968 2.84375L7.42725 14.8633C7.16162 15.2673 6.78255 15.4692 6.29004 15.4692Z"
-                  fill={isDarkMode ? "#ffffff" : "#1C1F21"}
-                />
-              </Svg>
-            </View>
-          )}
-
-          {/* Text part */}
-          <ThemeText
-            style={[styles.menuText, item.disabled && styles.disabledText]}
-            color={textColor}
-            variant="body1"
+      return (
+        <React.Fragment key={item.id || index}>
+          <TouchableOpacity
+            style={[styles.menuItem, item.disabled && styles.disabledItem]}
+            onPress={() => {
+              if (!item.disabled) {
+                item.onPress();
+                onClose();
+              }
+            }}
+            activeOpacity={item.disabled ? 1 : 0.7}
+            disabled={item.disabled}
           >
-            {item.label}
-          </ThemeText>
+            {/* Selected indicator for checkable items */}
+            {item.selected && (
+              <View style={styles.selectedIndicator}>
+                <Svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                  <Path
+                    d="M6.29004 15.4692C5.84733 15.4692 5.47103 15.2783 5.16113 14.8965L0.861328 9.60059C0.739583 9.45671 0.651042 9.31559 0.595703 9.17725C0.545898 9.0389 0.520996 8.89502 0.520996 8.74561C0.520996 8.41357 0.631673 8.13965 0.853027 7.92383C1.07438 7.70801 1.35384 7.6001 1.69141 7.6001C2.07324 7.6001 2.39421 7.76335 2.6543 8.08984L6.25684 12.6553L13.2876 1.51562C13.4315 1.29427 13.5809 1.13932 13.7358 1.05078C13.8908 0.956706 14.0845 0.909668 14.3169 0.909668C14.6545 0.909668 14.9312 1.01481 15.147 1.2251C15.3628 1.43538 15.4707 1.70378 15.4707 2.03027C15.4707 2.16309 15.4486 2.2959 15.4043 2.42871C15.36 2.56152 15.2909 2.69987 15.1968 2.84375L7.42725 14.8633C7.16162 15.2673 6.78255 15.4692 6.29004 15.4692Z"
+                    fill={isDarkMode ? '#ffffff' : '#1C1F21'}
+                  />
+                </Svg>
+              </View>
+            )}
 
-          {/* Icon part */}
-          {item.icon && (
-            <View style={styles.iconContainer}>
-              {typeof item.icon === 'string' ? (
-                <SvgIcon name={item.icon} size={24} color={iconColor} />
-              ) : (
-                item.icon
-              )}
-            </View>
+            {/* Text part */}
+            <ThemeText
+              style={[styles.menuText, item.disabled && styles.disabledText]}
+              color={textColor}
+              variant="body1"
+            >
+              {item.label}
+            </ThemeText>
+
+            {/* Icon part */}
+            {item.icon && (
+              <View style={styles.iconContainer}>
+                {typeof item.icon === 'string' ? (
+                  <SvgIcon name={item.icon} size={24} color={iconColor} />
+                ) : (
+                  item.icon
+                )}
+              </View>
+            )}
+          </TouchableOpacity>
+
+          {/* Optional divider */}
+          {item.dividerAfter && (
+            <View
+              style={[
+                styles.divider,
+                { backgroundColor: isDarkMode ? darkColors.divider : lightColors.divider },
+              ]}
+            />
           )}
-        </TouchableOpacity>
+        </React.Fragment>
+      );
+    },
+    [isDarkMode, theme.colors.text.dark, handleClose],
+  );
 
-        {/* Optional divider */}
-        {item.dividerAfter && (
-          <View
-            style={[
-              styles.divider,
-              { backgroundColor: isDarkMode ? darkColors.divider : lightColors.divider },
-            ]}
-          />
-        )}
-      </React.Fragment>
-    );
+  const animatedStyle = useMemo(() => {
+    // Determine transform origin based on alignment
+    const transformOriginX = (() => {
+      if (position.align === 'end') return 1; // Right aligned
+      if (position.align === 'start') return 0; // Left aligned
+      return 0.5; // Center aligned (default)
+    })();
+
+    // Determine transform origin based on position
+    const transformOriginY = (() => {
+      if (position.position === 'top') return 1; // Bottom of the menu (when positioned above)
+      if (position.position === 'bottom') return 0; // Top of the menu (when positioned below)
+      return 0.5; // Center of the menu (when centered)
+    })();
+
+    return {
+      opacity: scaleAnim,
+      transform: [
+        // Apply scaling with the correct origin point
+        {
+          translateX: scaleAnim.interpolate({
+            inputRange: [0, 1],
+            outputRange: [menuWidth * transformOriginX * 0.2, 0], // 20% scale means 20% of the width offset
+          }),
+        },
+        {
+          translateY: scaleAnim.interpolate({
+            inputRange: [0, 1],
+            outputRange: [menuHeight * transformOriginY * 0.2 + scaler(10), 0], // Include the small upward movement
+          }),
+        },
+        {
+          scale: scaleAnim.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0.8, 1],
+          }),
+        },
+      ],
+    };
+  }, [scaleAnim, position.align, position.position, menuWidth, menuHeight]);
+
+  const animatedStyle2 = {
+    opacity: scaleAnim,
+    transform: [
+      {
+        scale: scaleAnim.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0.8, 1],
+        }),
+      },
+      // Add a slight vertical movement for a more polished feel
+      {
+        translateY: scaleAnim.interpolate({
+          inputRange: [0, 1],
+          outputRange: [scaler(10), 0],
+        }),
+      },
+    ],
   };
 
   return (
     <Modal
       transparent
       visible={visible}
-      animationType={animationType}
-      onRequestClose={onClose}
+      animationType={'none'}
+      onRequestClose={handleClose}
       statusBarTranslucent
     >
-      <TouchableWithoutFeedback onPress={onClose}>
-        <View style={styles.modalOverlay}>
+      <TouchableWithoutFeedback onPress={handleClose}>
+        <Animated.View style={[styles.modalOverlay, { opacity: scaleAnim }]}>
           <TouchableWithoutFeedback>
-            <ThemeView
+            <Animated.View
               ref={menuRef}
               style={[
                 styles.menuContainer,
@@ -322,6 +454,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
                   maxHeight: isScrollable ? maxHeight : undefined,
                 },
                 theme.shadows[3],
+                animatedStyle2,
               ]}
               onLayout={onMenuLayout}
             >
@@ -355,9 +488,9 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
 
               {/* Optional footer */}
               {footerComponent && <View style={styles.menuFooter}>{footerComponent}</View>}
-            </ThemeView>
+            </Animated.View>
           </TouchableWithoutFeedback>
-        </View>
+        </Animated.View>
       </TouchableWithoutFeedback>
     </Modal>
   );
@@ -366,7 +499,9 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    // backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   menuContainer: {
     position: 'absolute',
@@ -374,6 +509,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: MENU_PADDING,
     elevation: scaler(5),
     overflow: 'hidden',
+    // Add origin for scale animations
+    backfaceVisibility: 'hidden',
+    // Add shadow styles for iOS
+    ...Platform.select({
+      ios: {
+        shadowColor: 'rgba(0, 0, 0, 0.3)',
+        shadowOffset: { width: 0, height: scaler(3) },
+        shadowOpacity: 0.6,
+        shadowRadius: scaler(8),
+      },
+    }),
   },
   menuHeader: {
     paddingHorizontal: scaler(8),
