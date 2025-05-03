@@ -24,6 +24,6 @@ export const Images = {
   //   colors.textGreenMain,
   // ),
 
-  pa_logo: require('./images/Logo.png'),
-  pa_dark_logo: require('./images/dark-Logo.png'),
+  pa_logo: require('./images/logo-light.png'),
+  pa_dark_logo: require('./images/logo-dark.png'),
 };
