@@ -1,5 +1,6 @@
 import { Q } from '@nozbe/watermelondb';
 import { withObservables } from '@nozbe/watermelondb/react';
+import { map } from 'rxjs/operators';
 import Item from '../models/ItemModel';
 import database from '../database';
 import { ItemFilter } from '@/types/item';
@@ -51,7 +52,7 @@ export const searchItems = (query: string) => {
         Q.where('title', Q.like(`%${searchTerm}%`)),
         Q.where('description', Q.like(`%${searchTerm}%`)),
         Q.where('url', Q.like(`%${searchTerm}%`)),
-        Q.where('site_name', Q.like(`%${searchTerm}%`)),
+        Q.where('siteName', Q.like(`%${searchTerm}%`)),
       ),
     )
     .fetch();
@@ -132,19 +133,128 @@ interface WithSearchProps {
  */
 export const withSearch = ({ query }: WithSearchProps = {}) => {
   return withObservables(['query'], ({ query }: { query?: string }) => {
-    const searchTerm = (query || '').toLowerCase();
+    const searchInput = query || '';
+
+    if (!searchInput.trim()) {
+      return {
+        items: itemsCollection.query(Q.sortBy('id', Q.desc)).observe(),
+      };
+    }
+
+    // Split the query into individual words
+    const searchTerms = searchInput
+      .toLowerCase()
+      .trim()
+      .split(/\s+/)
+      .filter((term) => term.length > 0);
+
+    // Create a single query condition that includes all terms
+    const queryConditions = searchTerms.map((term) =>
+      Q.or(
+        Q.where('title', Q.like(`%${term}%`)),
+        Q.where('description', Q.like(`%${term}%`)),
+        Q.where('url', Q.like(`%${term}%`)),
+        Q.where('site_name', Q.like(`%${term}%`)),
+      ),
+    );
 
     return {
       items: itemsCollection
-        .query(
-          Q.or(
-            Q.where('title', Q.like(`%${searchTerm}%`)),
-            Q.where('description', Q.like(`%${searchTerm}%`)),
-            Q.where('url', Q.like(`%${searchTerm}%`)),
-            Q.where('site_name', Q.like(`%${searchTerm}%`)),
-          ),
-        )
-        .observe(),
+        .query(Q.or(...queryConditions))
+        .observe()
+        .pipe(
+          map((results: Item[]) => {
+            if (results.length === 0) return results;
+
+            // Create a scoring function to avoid repeated string operations
+            const getFieldScore = (field: string, term: string): number => {
+              if (!field.includes(term)) return 0;
+
+              let score = 0;
+              // Core match score
+              score += field === term ? 150 : 100;
+              // Starting with term is valuable
+              score += field.startsWith(term) ? 25 : 0;
+
+              return score;
+            };
+
+            // Calculate thirtyDaysAgo once outside the loop
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+            const scoredResults = results.map((item: Item) => {
+              // Extract and lowercase text fields only once
+              const title = (item.title || '').toLowerCase();
+              const description = (item.description || '').toLowerCase();
+              const url = (item.url || '').toLowerCase();
+              const siteName = (item.siteName || '').toLowerCase();
+
+              // Track matched terms for multiplier calculation
+              const matchedTerms = new Set<string>();
+              let totalScore = 0;
+
+              // Calculate score for each search term
+              for (const term of searchTerms) {
+                // Title (highest weight)
+                const titleScore = getFieldScore(title, term);
+                if (titleScore > 0) {
+                  totalScore += titleScore;
+                  matchedTerms.add(term);
+                }
+
+                // Description (medium weight)
+                const descScore = description.includes(term) ? 50 : 0;
+                if (descScore > 0) {
+                  totalScore += descScore;
+                  matchedTerms.add(term);
+                }
+
+                // URL (lower weight)
+                if (url.includes(term)) {
+                  totalScore += 30;
+                  matchedTerms.add(term);
+                  // Domain match bonus
+                  if (url.replace(/https?:\/\/(www\.)?/, '').startsWith(term)) {
+                    totalScore += 15;
+                  }
+                }
+
+                // Site name
+                const siteScore = getFieldScore(siteName, term) * 0.4; // 40% weight of title
+                if (siteScore > 0) {
+                  totalScore += siteScore;
+                  matchedTerms.add(term);
+                }
+              }
+
+              // Apply multiplier for items matching multiple terms
+              const matchCount = matchedTerms.size;
+              if (matchCount > 1) {
+                // Significant boost for matching multiple/all terms
+                totalScore *= 1 + matchCount / searchTerms.length;
+              }
+
+              // Add recency boost for items saved in the last 30 days
+              if (item.savedAt > thirtyDaysAgo) {
+                // Calculate how recent the item is (0-1 scale, 1 being newest)
+                const ageInDays = (Date.now() - item.savedAt.getTime()) / (1000 * 60 * 60 * 24);
+                const recencyFactor = Math.max(0, (30 - ageInDays) / 30);
+
+                // Apply boost: up to 50% boost for very recent items, gradually decreasing
+                const recencyBoost = 75 * recencyFactor;
+                totalScore += recencyBoost;
+              }
+
+              return { item, score: totalScore };
+            });
+
+            // Sort by score (descending) and extract items
+            return scoredResults
+              .sort((a: { score: number }, b: { score: number }) => b.score - a.score)
+              .map((result: { item: Item }) => result.item);
+          }),
+        ),
     };
   });
 };
