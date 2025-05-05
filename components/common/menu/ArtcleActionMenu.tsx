@@ -2,13 +2,14 @@ import React, { useCallback } from 'react';
 import Item from '@/database/models/ItemModel';
 import ReusableActionMenu, { ActionMenuItem, ActionMenuPosition } from './ReusableActionMenu';
 import { useActionMenu } from '@/utils/hooks';
-
+import { scaler } from '@/utils';
 
 interface ArticleActionMenuProps {
   item: Item;
   position?: ActionMenuPosition;
   visible?: boolean;
   onClose: () => void;
+  animationDuration?: number;
 }
 
 /**
@@ -20,6 +21,7 @@ const ArticleActionMenu: React.FC<ArticleActionMenuProps> = ({
   position = {},
   visible = false,
   onClose,
+  animationDuration,
 }) => {
   // Generate menu items based on the item state
   const getMenuItems = useCallback((): ActionMenuItem[] => {
@@ -94,6 +96,7 @@ const ArticleActionMenu: React.FC<ArticleActionMenuProps> = ({
       onClose={onClose}
       position={position}
       width={240}
+      animationDuration={animationDuration}
     />
   );
 };
