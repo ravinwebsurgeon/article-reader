@@ -132,8 +132,8 @@ interface WithSearchProps {
  * @returns A function that provides the search results as props to components
  */
 export const withSearch = ({ query }: WithSearchProps = {}) => {
-  return withObservables(['query'], ({ query }: { query?: string }) => {
-    const searchInput = query || '';
+  return withObservables(['query'], ({ query: searchQuery }: { query?: string }) => {
+    const searchInput = searchQuery || '';
 
     if (!searchInput.trim()) {
       return {
@@ -148,8 +148,8 @@ export const withSearch = ({ query }: WithSearchProps = {}) => {
       .split(/\s+/)
       .filter((term) => term.length > 0);
 
-    // Create a single query condition that includes all terms
-    const queryConditions = searchTerms.map((term) =>
+    // For each term, create a condition that checks if it exists in any field
+    const termConditions = searchTerms.map((term) =>
       Q.or(
         Q.where('title', Q.like(`%${term}%`)),
         Q.where('description', Q.like(`%${term}%`)),
@@ -158,9 +158,15 @@ export const withSearch = ({ query }: WithSearchProps = {}) => {
       ),
     );
 
+    // Use Q.and to require that ALL terms are present (can be across different fields)
+    const searchCondition =
+      termConditions.length === 1
+        ? termConditions[0] // Just use the single condition if only one term
+        : Q.and(...termConditions); // Require all terms to be present
+
     return {
       items: itemsCollection
-        .query(Q.or(...queryConditions))
+        .query(searchCondition)
         .observe()
         .pipe(
           map((results: Item[]) => {
@@ -228,20 +234,13 @@ export const withSearch = ({ query }: WithSearchProps = {}) => {
                 }
               }
 
-              // Apply multiplier for items matching multiple terms
-              const matchCount = matchedTerms.size;
-              if (matchCount > 1) {
-                // Significant boost for matching multiple/all terms
-                totalScore *= 1 + matchCount / searchTerms.length;
-              }
-
               // Add recency boost for items saved in the last 30 days
               if (item.savedAt > thirtyDaysAgo) {
                 // Calculate how recent the item is (0-1 scale, 1 being newest)
                 const ageInDays = (Date.now() - item.savedAt.getTime()) / (1000 * 60 * 60 * 24);
                 const recencyFactor = Math.max(0, (30 - ageInDays) / 30);
 
-                // Apply boost: up to 50% boost for very recent items, gradually decreasing
+                // Apply boost: up to 75 points for very recent items, gradually decreasing
                 const recencyBoost = 75 * recencyFactor;
                 totalScore += recencyBoost;
               }
