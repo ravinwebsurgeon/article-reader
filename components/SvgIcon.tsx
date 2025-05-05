@@ -23,6 +23,13 @@ export type SvgIconName =
   | 'tag'
   | 'favorite'
   | 'check'
+  | 'clock-lined'
+  | 'shield-lined'
+  | 'start-lined'
+  | 'paste-lined'
+  | 'clockAlt-lined'
+  | 'tag-lined'
+  | 'underlined-start'
   | 'pocket-pink';
 
 /**

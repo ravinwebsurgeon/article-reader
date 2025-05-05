@@ -19,8 +19,8 @@ import Svg, { Path, Rect } from 'react-native-svg';
 import { useAppSelector } from '@/redux/hook';
 import { selectActiveTheme } from '@/redux/utils';
 import { SvgIcon } from '@/components/SvgIcon';
-import ArticleActionMenu from '../menu/ArtcleActionMenu';
 import { createMenuPosition, menuAnimationPresets } from '../menu/menuAnimationPresents';
+import ArticleActionMenu from '../menu/ArticleActionMenu';
 
 // Export a fixed height constant for use in FlatList
 export const ARTICLE_CARD_HEIGHT = scaler(143);
