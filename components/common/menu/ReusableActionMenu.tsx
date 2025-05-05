@@ -19,6 +19,7 @@ import { useAppSelector } from '@/redux/hook';
 import { selectActiveTheme } from '@/redux/utils';
 import { SvgIcon, SvgIconName } from '@/components/SvgIcon';
 import Svg, { Path } from 'react-native-svg';
+import { menuAnimationPresets } from './menuAnimationPresents';
 
 export interface ActionMenuItem {
   id: string;
@@ -77,6 +78,7 @@ export interface ActionMenuProps {
   // Optional footer component
   footerComponent?: React.ReactNode;
   animationDuration?: number;
+  animationPreset?: string; // Default to bouncy animation
 }
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -99,6 +101,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
   headerComponent,
   footerComponent,
   animationDuration = DEFAULT_ANIMATION_DURATION,
+  animationPreset = 'bouncy', // Default to bouncy animation
 }) => {
   const activeTheme = useAppSelector(selectActiveTheme);
   const isDarkMode = activeTheme === 'dark';
@@ -129,11 +132,16 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
         // Reset animation value before starting
         scaleAnim.setValue(0);
 
+        // Get animation preset based on the prop or use default
+        const presetName = animationPreset || 'bouncy';
+        const preset = menuAnimationPresets[presetName] || menuAnimationPresets.bouncy;
+
         // Start animation
         Animated.timing(scaleAnim, {
           toValue: 1,
           duration: animationDuration,
-          easing: Easing.out(Easing.back(1.5)),
+          // easing: Easing.out(Easing.back(1.5)),
+          easing: Easing.out(Easing.back(preset.bounceIntensity)),
           useNativeDriver: true,
         }).start();
       }
@@ -141,9 +149,13 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
       // When closing, we don't immediately hide the modal
       // We'll do that after the animation completes
       if (modalVisible) {
+        // Get animation preset based on the prop or use default
+        const presetName = animationPreset || 'bouncy';
+        const preset = menuAnimationPresets[presetName] || menuAnimationPresets.bouncy;
         Animated.timing(scaleAnim, {
           toValue: 0,
-          duration: animationDuration * 0.75, // Slightly faster closing animation
+          // duration: animationDuration * 0.75, // Slightly faster closing animation
+          duration: preset.closeDelay,
           easing: Easing.in(Easing.ease),
           useNativeDriver: true,
         }).start(() => {
@@ -157,6 +169,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
 
   // Calculate menu position based on anchor position
   const calculateMenuPosition = useCallback(() => {
+    console.log(menuHeight, 'menuHeight', menuWidth, 'menuWidth in calculateMenuPosition');
     if (!position.x && !position.y) {
       // If no position is provided, center the menu on screen
       console.log('is code going here');
@@ -224,8 +237,10 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
 
     // Ensure menu stays within screen bounds vertically
     if (top < SAFE_AREA_PADDING) {
+      console.log('is code going here for height');
       top = SAFE_AREA_PADDING;
     } else if (top + menuHeight + SAFE_AREA_PADDING > SCREEN_HEIGHT) {
+      console.log('or the code in this else if height', top);
       // If too large for screen, make it scrollable
       setIsScrollable(true);
       const availableHeight = SCREEN_HEIGHT - SAFE_AREA_PADDING * 2;
@@ -249,7 +264,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
   // Measure menu height when loaded
   const onMenuLayout = useCallback(
     (event: LayoutChangeEvent) => {
-      const { height, width: measuredWidth } = event.nativeEvent.layout;
+      const { height, width } = event.nativeEvent.layout;
 
       if (menuHeight === 0) {
         setMenuHeight(height);
@@ -269,6 +284,11 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
       // Update width if it's different
       if (typeof width === 'number' && Math.abs(width - menuWidth) > 1) {
         setMenuWidth(width);
+      }
+
+      // If not positioned yet, calculate position after layout
+      if (!isPositioned && visible) {
+        calculateMenuPosition();
       }
     },
     [menuHeight, menuWidth, maxHeight, isPositioned, calculateMenuPosition],
@@ -377,64 +397,66 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
   );
 
   const animatedStyle = useMemo(() => {
-    // Determine transform origin based on alignment
-    const transformOriginX = (() => {
-      if (position.align === 'end') return 1; // Right aligned
-      if (position.align === 'start') return 0; // Left aligned
-      return 0.5; // Center aligned (default)
-    })();
+    // Get animation parameters from presets
+    const initialScale = 0.1; // Start very small to create "growing from dot" effect
 
-    // Determine transform origin based on position
-    const transformOriginY = (() => {
-      if (position.position === 'top') return 1; // Bottom of the menu (when positioned above)
-      if (position.position === 'bottom') return 0; // Top of the menu (when positioned below)
-      return 0.5; // Center of the menu (when centered)
-    })();
+    // We need to calculate the exact position of the menu-dots relative to the menu
+    // to make it look like the menu is growing out from that exact point
+
+    // These will hold the translation offsets for making it look like it's growing from the dots
+    let translateX = 0;
+    let translateY = 0;
+
+    if (
+      position.x !== undefined &&
+      position.width !== undefined &&
+      position.y !== undefined &&
+      position.height !== undefined
+    ) {
+      // 1. Calculate the anchor point (center of the menu-dots button)
+      const anchorCenterX = position.x + position.width / 2;
+      const anchorCenterY = position.y + position.height / 2;
+
+      // 2. Calculate the menu's center
+      const menuCenterX = menuPosition.left + menuWidth / 2;
+      const menuCenterY = menuPosition.top + menuHeight / 2;
+
+      // 3. Calculate the distance between the anchor center and menu center
+      const deltaX = anchorCenterX - menuCenterX;
+      const deltaY = anchorCenterY - menuCenterY;
+
+      // 4. Scale this distance based on how much we're scaling
+      // This creates the effect of the menu growing outward from the dot
+      translateX = deltaX * (1 - initialScale);
+      translateY = deltaY * (1 - initialScale);
+    }
 
     return {
       opacity: scaleAnim,
       transform: [
-        // Apply scaling with the correct origin point
+        // Apply the translation to make it look like it's growing from the dot
         {
           translateX: scaleAnim.interpolate({
             inputRange: [0, 1],
-            outputRange: [menuWidth * transformOriginX * 0.2, 0], // 20% scale means 20% of the width offset
+            outputRange: [translateX, 0],
           }),
         },
         {
           translateY: scaleAnim.interpolate({
             inputRange: [0, 1],
-            outputRange: [menuHeight * transformOriginY * 0.2 + scaler(10), 0], // Include the small upward movement
+            outputRange: [translateY, 0],
           }),
         },
+        // Apply scaling
         {
           scale: scaleAnim.interpolate({
             inputRange: [0, 1],
-            outputRange: [0.8, 1],
+            outputRange: [initialScale, 1],
           }),
         },
       ],
     };
-  }, [scaleAnim, position.align, position.position, menuWidth, menuHeight]);
-
-  const animatedStyle2 = {
-    opacity: scaleAnim,
-    transform: [
-      {
-        scale: scaleAnim.interpolate({
-          inputRange: [0, 1],
-          outputRange: [0.8, 1],
-        }),
-      },
-      // Add a slight vertical movement for a more polished feel
-      {
-        translateY: scaleAnim.interpolate({
-          inputRange: [0, 1],
-          outputRange: [scaler(10), 0],
-        }),
-      },
-    ],
-  };
+  }, [scaleAnim, position, menuPosition, menuWidth, menuHeight]);
 
   return (
     <Modal
@@ -461,7 +483,8 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
                   maxHeight: isScrollable ? maxHeight : undefined,
                 },
                 theme.shadows[3],
-                animatedStyle2,
+                // Animation styles for the menu
+                animatedStyle,
               ]}
               onLayout={onMenuLayout}
             >
