@@ -15,12 +15,12 @@ import { useDarkMode, useTheme } from '@/theme';
 import { ThemeText } from '@/components/core';
 import { scaler } from '@/utils';
 import { withObservables } from '@nozbe/watermelondb/react';
-
 import Svg, { Path, Rect } from 'react-native-svg';
 import { useAppSelector } from '@/redux/hook';
 import { selectActiveTheme } from '@/redux/utils';
 import { SvgIcon } from '@/components/SvgIcon';
 import ArticleActionMenu from '../menu/ArtcleActionMenu';
+import { createMenuPosition, menuAnimationPresets } from '../menu/menuAnimationPresents';
 
 // Export a fixed height constant for use in FlatList
 export const ARTICLE_CARD_HEIGHT = scaler(143);
@@ -43,6 +43,8 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
   const activeTheme = useAppSelector(selectActiveTheme);
   const isDarkMode = activeTheme === 'dark';
   const [itemTags, setItemTags] = useState<Tag[]>([]);
+  const theme = useTheme();
+  const dark = useDarkMode();
 
   // Menu button reference for positioning
   const menuButtonRef = useRef<TouchableOpacityProps>(null);
@@ -58,8 +60,6 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
   useEffect(() => {
     getTags();
   }, []);
-  const theme = useTheme();
-  const dark = useDarkMode();
 
   // console.log('ArticleCard', item);
   const formatReadTime = (minutes: number) => {
@@ -77,13 +77,13 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
   const handleMenuPress = () => {
     if (menuButtonRef.current) {
       menuButtonRef.current.measure((x, y, width, height, pageX, pageY) => {
+        console.log('menuButtonRef', x, y, width, height, pageX, pageY);
         setMenuPosition({
           x: pageX,
           y: pageY,
           width,
           height,
-          position: 'bottom',
-          align: 'end',
+          ...createMenuPosition('bottomRight'),
         });
         setMenuVisible(true);
       });
@@ -223,6 +223,7 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
           visible={menuVisible}
           position={menuPosition}
           onClose={() => setMenuVisible(false)}
+          animationDuration={menuAnimationPresets.bouncy.duration}
         />
       </>
     )

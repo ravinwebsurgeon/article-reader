@@ -8,6 +8,7 @@ interface ReaderActionMenuProps {
   position?: ActionMenuPosition;
   visible?: boolean;
   onClose: () => void;
+  animationDuration?: number;
 }
 
 /**
@@ -19,6 +20,7 @@ const ReaderActionMenu: React.FC<ReaderActionMenuProps> = ({
   position = {},
   visible = false,
   onClose,
+  animationDuration,
 }) => {
   // Handle edit tags
   const handleEditTags = useCallback(() => {
@@ -121,6 +123,7 @@ const ReaderActionMenu: React.FC<ReaderActionMenuProps> = ({
       onClose={onClose}
       position={position}
       width={240}
+      animationDuration={animationDuration}
     />
   );
 };

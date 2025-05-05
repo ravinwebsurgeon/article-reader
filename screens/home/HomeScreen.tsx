@@ -24,6 +24,7 @@ import { syncEngine } from '@/database/sync/SyncEngine';
 import { withItems } from '@/database/hooks/withItems';
 import Item from '@/database/models/ItemModel';
 import Svg, { Path } from 'react-native-svg';
+import { SortOption } from '@/components/common/menu/SortMenu';
 
 // Use the exported fixed height from ArticleCard component
 const ITEM_HEIGHT = ARTICLE_CARD_HEIGHT;
@@ -82,10 +83,14 @@ Header.displayName = 'Header';
 const MemoizedFilterTabs = memo(
   ({
     currentFilter,
+    currentSort,
     onFilterChange,
+    onSortChange,
   }: {
     currentFilter: ItemFilter;
+    currentSort: SortOption;
     onFilterChange: (filter: ItemFilter) => void;
+    onSortChange: (sort: SortOption) => void;
   }) => {
     const activeTheme = useAppSelector(selectActiveTheme);
     const isDarkMode = activeTheme === 'dark';
@@ -93,7 +98,9 @@ const MemoizedFilterTabs = memo(
     return (
       <FilterTabs
         currentFilter={currentFilter}
+        currentSort={currentSort}
         onFilterChange={onFilterChange}
+        onSortChange={onSortChange}
         isDarkMode={isDarkMode}
       />
     );
@@ -105,8 +112,7 @@ MemoizedFilterTabs.displayName = 'MemoizedFilterTabs';
 const ItemsList = memo(({ items, filter }: { items: Item[]; filter: ItemFilter }) => {
   const router = useRouter();
   const activeTheme = useAppSelector(selectActiveTheme);
-  const isDarkMode = activeTheme === 'dark';
-
+  const isDarkMode = activeTheme === 'dark';  
   // State for action menu
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [showActionMenu, setShowActionMenu] = useState(false);
@@ -220,11 +226,13 @@ const ItemsList = memo(({ items, filter }: { items: Item[]; filter: ItemFilter }
 
 ItemsList.displayName = 'ItemsList';
 // Create the enhanced ItemsList with data from withItems HOC
-const EnhancedItemsList = ({ filter }: { filter: ItemFilter }) => {
+const EnhancedItemsList = ({ filter, sorted }: { filter: ItemFilter; sorted: SortOption }) => {
   // Use the HOC to get items based on the filter
   const WithItemsComponent = useMemo(() => {
-    return withItems({ filter })(({ items }) => <ItemsList items={items} filter={filter} />);
-  }, [filter]);
+    return withItems({ filter, sorted })(({ items }) => (
+      <ItemsList items={items} filter={filter} />
+    ));
+  }, [filter, sorted]);
 
   return <WithItemsComponent />;
 };
@@ -232,9 +240,9 @@ const EnhancedItemsList = ({ filter }: { filter: ItemFilter }) => {
 // Main HomeScreen component that manages filter state
 const HomeScreenWithFilter = () => {
   const [filter, setFilter] = useState<ItemFilter>('all');
+  const [sorted, setSorted] = useState<SortOption>('newest');
   const activeTheme = useAppSelector(selectActiveTheme);
   const isDarkMode = activeTheme === 'dark';
-
   return (
     <View
       style={[
@@ -249,12 +257,17 @@ const HomeScreenWithFilter = () => {
 
       {/* This component will re-render when filter changes */}
       <View>
-        <MemoizedFilterTabs currentFilter={filter} onFilterChange={setFilter} />
+        <MemoizedFilterTabs
+          currentFilter={filter}
+          onFilterChange={setFilter}
+          onSortChange={setSorted}
+          currentSort={sorted}
+        />
       </View>
 
       {/* This component will only re-render when necessary */}
       <View style={{ flex: 1 }}>
-        <EnhancedItemsList filter={filter} />
+        <EnhancedItemsList filter={filter} sorted={sorted} />
       </View>
     </View>
   );
