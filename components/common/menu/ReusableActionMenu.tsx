@@ -167,112 +167,111 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
     }
   }, [visible, menuPosition, scaleAnim, animationDuration]);
 
-  // Calculate menu position based on anchor position
-  const calculateMenuPosition = useCallback(() => {
-    console.log(menuHeight, 'menuHeight', menuWidth, 'menuWidth in calculateMenuPosition');
-    if (!position.x && !position.y) {
-      // If no position is provided, center the menu on screen
-      console.log('is code going here');
-      return setMenuPosition({
-        top: (SCREEN_HEIGHT - menuHeight) / 2,
-        left: (SCREEN_WIDTH - menuWidth) / 2,
-      });
-    }
-
-    const anchorX = position.x || 0;
-    const anchorY = position.y || 0;
-    const anchorWidth = position.width || 0;
-    const anchorHeight = position.height || 0;
-
-    // Default to showing below the anchor if not specified
-    const preferredPosition = position.position || 'bottom';
-    const preferredAlign = position.align || 'center';
-
-    let top = 0;
-    let left = 0;
-
-    // Vertical positioning
-    if (preferredPosition === 'bottom') {
-      top = anchorY + anchorHeight;
-
-      // Check if menu would go off screen bottom
-      if (top + menuHeight + SAFE_AREA_PADDING > SCREEN_HEIGHT) {
-        // Place above instead
-        top = anchorY - menuHeight;
+  // Update the calculateMenuPosition function to accept height and width parameters
+  const calculateMenuPosition = useCallback(
+    (menuHeight: number, menuWidth: number) => {
+      // Add parameters here
+      console.log(menuHeight, 'menuHeight', menuWidth, 'menuWidth in calculateMenuPosition');
+      if (!position.x && !position.y) {
+        // Center the menu if no position is provided
+        setMenuPosition({
+          top: (SCREEN_HEIGHT - menuHeight) / 2,
+          left: (SCREEN_WIDTH - menuWidth) / 2,
+        });
+        return;
       }
-    } else if (preferredPosition === 'top') {
-      top = anchorY - menuHeight;
 
-      // Check if menu would go off screen top
-      if (top < SAFE_AREA_PADDING) {
-        // Place below instead
+      const anchorX = position.x || 0;
+      const anchorY = position.y || 0;
+      const anchorWidth = position.width || 0;
+      const anchorHeight = position.height || 0;
+      const preferredPosition = position.position || 'bottom';
+      const preferredAlign = position.align || 'center';
+
+      let top = 0;
+      let left = 0;
+
+      // Vertical positioning logic (using menuHeight parameter)
+      if (preferredPosition === 'bottom') {
         top = anchorY + anchorHeight;
+        if (top + menuHeight + SAFE_AREA_PADDING > SCREEN_HEIGHT) {
+          top = anchorY - menuHeight;
+        }
+      } else if (preferredPosition === 'top') {
+        top = anchorY - menuHeight;
+        if (top < SAFE_AREA_PADDING) {
+          top = anchorY + anchorHeight;
+        }
+      } else if (preferredPosition === 'center') {
+        top = anchorY + anchorHeight / 2 - menuHeight / 2;
       }
-    } else if (preferredPosition === 'center') {
-      top = anchorY + anchorHeight / 2 - menuHeight / 2;
-    }
 
-    // Horizontal positioning
-    if (preferredAlign === 'center') {
-      console.log('preferredAlign', preferredAlign);
-      left = anchorX + anchorWidth / 2 - menuWidth / 2;
-    } else if (preferredAlign === 'start') {
-      console.log('preferredAlign', preferredAlign);
+      // Horizontal positioning logic (using menuWidth parameter)
+      if (preferredAlign === 'center') {
+        left = anchorX + anchorWidth / 2 - menuWidth / 2;
+      } else if (preferredAlign === 'start') {
+        left = anchorX;
+      } else if (preferredAlign === 'end') {
+        left = anchorX + anchorWidth - menuWidth;
+      }
 
-      left = anchorX;
-    } else if (preferredAlign === 'end') {
-      console.log('preferredAlign', preferredAlign, anchorX, anchorWidth, menuWidth);
+      // Adjust horizontal boundaries
+      if (left < SAFE_AREA_PADDING) {
+        left = SAFE_AREA_PADDING;
+      } else if (left + menuWidth + SAFE_AREA_PADDING > SCREEN_WIDTH) {
+        left = SCREEN_WIDTH - menuWidth - SAFE_AREA_PADDING;
+      }
 
-      left = anchorX + anchorWidth - menuWidth;
-    }
+      // Adjust vertical boundaries
+      if (top < SAFE_AREA_PADDING) {
+        top = SAFE_AREA_PADDING;
+      } else if (top + menuHeight + SAFE_AREA_PADDING > SCREEN_HEIGHT) {
+        setIsScrollable(true);
+        const availableHeight = SCREEN_HEIGHT - SAFE_AREA_PADDING * 2;
+        setMenuHeight(availableHeight);
+        top = SAFE_AREA_PADDING;
+      }
 
-    // Ensure menu stays within screen bounds horizontally
-    if (left < SAFE_AREA_PADDING) {
-      left = SAFE_AREA_PADDING;
-      console.log(left, 'SAFE_AREA_PADDING', SAFE_AREA_PADDING);
-    } else if (left + menuWidth + SAFE_AREA_PADDING > SCREEN_WIDTH) {
-      left = SCREEN_WIDTH - menuWidth - SAFE_AREA_PADDING;
-      console.log('or the code in this else if', left);
-    }
+      setMenuPosition({ top, left });
+      setIsPositioned(true);
+    },
+    [
+      position,
+      position.x,
+      position.y,
+      position.width,
+      position.height,
+      position.position,
+      position.align,
+    ],
+  );
 
-    // Ensure menu stays within screen bounds vertically
-    if (top < SAFE_AREA_PADDING) {
-      console.log('is code going here for height');
-      top = SAFE_AREA_PADDING;
-    } else if (top + menuHeight + SAFE_AREA_PADDING > SCREEN_HEIGHT) {
-      console.log('or the code in this else if height', top);
-      // If too large for screen, make it scrollable
-      setIsScrollable(true);
-      const availableHeight = SCREEN_HEIGHT - SAFE_AREA_PADDING * 2;
-      setMenuHeight(availableHeight);
-      top = SAFE_AREA_PADDING;
-    }
+  // 2. Add cleanup when menu closes
+  // Modify the visibility useEffect to reset position state
+  // useEffect(() => {
+  //   if (visible) {
+  //     // Reset positioning state when opening
+  //     setIsPositioned(false);
+  //     setMenuPosition({ top: 0, left: 0 });
 
-    setMenuPosition({ top, left });
-    setIsPositioned(true);
-  }, [
-    position.x,
-    position.y,
-    position.width,
-    position.height,
-    position.position,
-    position.align,
-    menuHeight,
-    menuWidth,
-  ]);
+  //     // Trigger fresh measurement
+  //     if (menuRef.current) {
+  //       menuRef.current.measureLayout(() => {
+  //         // This forces a re-layout
+  //       });
+  //     }
+  //   }
+  // }, [visible]);
 
-  // Measure menu height when loaded
+  // Update onMenuLayout to pass measured dimensions to calculateMenuPosition
   const onMenuLayout = useCallback(
     (event: LayoutChangeEvent) => {
       const { height, width } = event.nativeEvent.layout;
 
-      if (menuHeight === 0) {
-        setMenuHeight(height);
-      }
+      // Update state with new dimensions
+      if (menuHeight === 0) setMenuHeight(height);
       if (Math.abs(height - menuHeight) > 1) {
         setMenuHeight(height);
-
-        // Check if scrolling is needed
         if (height > maxHeight) {
           setIsScrollable(true);
           setMenuHeight(maxHeight);
@@ -281,29 +280,17 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
         }
       }
 
-      // Update width if it's different
       if (typeof width === 'number' && Math.abs(width - menuWidth) > 1) {
         setMenuWidth(width);
       }
 
-      // If not positioned yet, calculate position after layout
+      // Calculate position using the measured dimensions
       if (!isPositioned && visible) {
-        calculateMenuPosition();
+        calculateMenuPosition(height, width); // Pass the actual dimensions here
       }
     },
-    [menuHeight, menuWidth, maxHeight, isPositioned, calculateMenuPosition],
+    [menuHeight, menuWidth, maxHeight, isPositioned, visible, calculateMenuPosition],
   );
-
-  // Update position when relevant props change
-  useEffect(() => {
-    // Only calculate position if menu is visible and we have dimensions
-    if (visible && menuHeight > 0 && !isPositioned) {
-      calculateMenuPosition();
-    } else if (!visible) {
-      // Reset positioned flag when menu is hidden
-      setIsPositioned(false);
-    }
-  }, [visible, menuHeight, calculateMenuPosition, isPositioned]);
 
   // Reset scroll position when menu opens
   useEffect(() => {
@@ -321,6 +308,10 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
       useNativeDriver: true,
     }).start(() => {
       onClose();
+      setModalVisible(false);
+      setMenuPosition({ top: 0, left: 0 });
+      setIsPositioned(false);
+      setMenuHeight(0); 
     });
   }, [scaleAnim, onClose]);
 

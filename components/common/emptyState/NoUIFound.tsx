@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { COLORS, useTheme } from '@/theme';
+import { View, StyleSheet } from 'react-native';
+import { COLORS } from '@/theme';
 import { ItemFilter } from '@/types/item';
 import { ThemeText } from '@/components/core';
 import { scaler } from '@/utils';
@@ -154,7 +154,6 @@ const getIcon = (filter:string) => {
 };
 
 const NoItemsFound: React.FC<NoItemsFoundProps> = ({ filter }) => {
-  const theme = useTheme();
 
   const emptyState = EMPTY_STATES[filter] || EMPTY_STATES.default;
 
