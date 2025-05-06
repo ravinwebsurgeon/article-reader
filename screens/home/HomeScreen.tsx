@@ -21,10 +21,11 @@ import NoItemsFound from '@/components/common/emptyState/NoUIFound';
 import { scaler } from '@/utils';
 import { COLORS, lightColors } from '@/theme';
 import { syncEngine } from '@/database/sync/SyncEngine';
-import { withItems } from '@/database/hooks/withItems';
+import { useItems, withItems } from '@/database/hooks/withItems';
 import Item from '@/database/models/ItemModel';
 import Svg, { Path } from 'react-native-svg';
 import { SortOption } from '@/components/common/menu/SortMenu';
+import { ThemeText } from '@/components';
 
 // Use the exported fixed height from ArticleCard component
 const ITEM_HEIGHT = ARTICLE_CARD_HEIGHT;
@@ -109,120 +110,129 @@ const MemoizedFilterTabs = memo(
 
 MemoizedFilterTabs.displayName = 'MemoizedFilterTabs';
 // The base ItemsList component that only re-renders when items change
-const ItemsList = memo(({ items, filter }: { items: Item[]; filter: ItemFilter }) => {
-  const router = useRouter();
-  const activeTheme = useAppSelector(selectActiveTheme);
-  const isDarkMode = activeTheme === 'dark';  
-  // State for action menu
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const [showActionMenu, setShowActionMenu] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
+const ItemsList = memo(
+  ({ items, filter, loading }: { items: Item[]; filter: ItemFilter; loading: boolean }) => {
+    const router = useRouter();
+    const activeTheme = useAppSelector(selectActiveTheme);
+    const isDarkMode = activeTheme === 'dark';
+    // State for action menu
+    const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+    const [showActionMenu, setShowActionMenu] = useState(false);
+    const [isSyncing, setIsSyncing] = useState(false);
 
-  // Handle pull-to-refresh - sync with server
-  const handleRefresh = useCallback(async () => {
-    try {
-      setIsSyncing(true);
-      console.log('Performing refresh sync');
-      await syncEngine.sync();
-    } catch (error) {
-      console.error('Sync failed:', error);
-    } finally {
-      setIsSyncing(false);
-    }
-  }, []);
+    // Handle pull-to-refresh - sync with server
+    const handleRefresh = useCallback(async () => {
+      try {
+        setIsSyncing(true);
+        console.log('Performing refresh sync');
+        await syncEngine.sync();
+      } catch (error) {
+        console.error('Sync failed:', error);
+      } finally {
+        setIsSyncing(false);
+      }
+    }, []);
 
-  // Navigate to article detail
-  const navigateToArticle = useCallback(
-    (item: Item) => {
-      router.push({
-        pathname: '/reader/[id]',
-        params: { id: item.id },
-      });
-    },
-    [router],
-  );
+    // Navigate to article detail
+    const navigateToArticle = useCallback(
+      (item: Item) => {
+        router.push({
+          pathname: '/reader/[id]',
+          params: { id: item.id },
+        });
+      },
+      [router],
+    );
 
-  // Open action menu for an item
-  const openActionMenu = useCallback((id: string) => {
-    setSelectedItemId(id);
-    setShowActionMenu(true);
-  }, []);
+    // Open action menu for an item
+    const openActionMenu = useCallback((id: string) => {
+      setSelectedItemId(id);
+      setShowActionMenu(true);
+    }, []);
 
-  // Close action menu
-  const closeActionMenu = useCallback(() => {
-    setShowActionMenu(false);
-    setSelectedItemId(null);
-  }, []);
+    // Close action menu
+    const closeActionMenu = useCallback(() => {
+      setShowActionMenu(false);
+      setSelectedItemId(null);
+    }, []);
 
-  // Render the article item - wrapped in useCallback to prevent recreating on each render
-  const renderItem = useCallback(
-    ({ item }: { item: Item }) => (
-      <ArticleCard
-        item={item}
-        onPress={() => navigateToArticle(item)}
-        onMenuPress={() => openActionMenu(item.id)}
-      />
-    ),
-    [navigateToArticle, openActionMenu],
-  );
-
-  // Memoize keyExtractor to prevent recreation on each render
-  const keyExtractor = useCallback((item: Item) => item.id, []);
-
-  // Implement getItemLayout for fixed height items
-  // This allows FlatList to know item dimensions without measuring them
-  const getItemLayout = useCallback(
-    (_data: any, index: number) => ({
-      length: ITEM_HEIGHT,
-      offset: ITEM_HEIGHT * index,
-      index,
-    }),
-    [],
-  );
-
-  const isLoading = false; // We never show loading state - WatermelonDB handles this
-
-  return (
-    <>
-      {isLoading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary.main} />
-        </View>
-      ) : (
-        <FlatList
-          data={items}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          contentContainerStyle={[styles.listContent, items?.length === 0 && styles.emptyList]}
-          ListEmptyComponent={<NoItemsFound filter={filter} />}
-          refreshControl={
-            <RefreshControl
-              refreshing={isSyncing}
-              onRefresh={handleRefresh}
-              colors={[COLORS.primary.main]}
-              tintColor={COLORS.primary.main}
-            />
-          }
-          // Performance optimizations for FlatList
-          removeClippedSubviews={true}
-          maxToRenderPerBatch={10}
-          windowSize={10}
-          initialNumToRender={10}
-          updateCellsBatchingPeriod={50}
-          getItemLayout={getItemLayout}
+    // Render the article item - wrapped in useCallback to prevent recreating on each render
+    const renderItem = useCallback(
+      ({ item }: { item: Item }) => (
+        <ArticleCard
+          item={item}
+          onPress={() => navigateToArticle(item)}
+          onMenuPress={() => openActionMenu(item.id)}
         />
-      )}
+      ),
+      [navigateToArticle, openActionMenu],
+    );
 
-      {/* Action Menu Modal */}
-      {showActionMenu && selectedItemId && (
-        <ActionMenu
-          item={items.find((item) => item.id === selectedItemId)!}
-          onClose={closeActionMenu}
-        />
-      )}
-    </>
-  );
-});
+    // Memoize keyExtractor to prevent recreation on each render
+    const keyExtractor = useCallback((item: Item) => item.id, []);
+
+    // Implement getItemLayout for fixed height items
+    // This allows FlatList to know item dimensions without measuring them
+    const getItemLayout = useCallback(
+      (_data: any, index: number) => ({
+        length: ITEM_HEIGHT,
+        offset: ITEM_HEIGHT * index,
+        index,
+      }),
+      [],
+    );
+
+    const isLoading = loading; // We never show loading state - WatermelonDB handles this
+    console.log('ItemsList render', items.length, isLoading);
+
+    return (
+      <>
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={'#3C3C4399'} />
+            <ThemeText variant="h3" style={styles.message}>
+              Restoring Your Saves
+            </ThemeText>
+            <ThemeText variant="body2" style={styles.subMessage}>
+              Your saved pages are on the way.
+            </ThemeText>
+          </View>
+        ) : (
+          <FlatList
+            data={items}
+            renderItem={renderItem}
+            keyExtractor={keyExtractor}
+            contentContainerStyle={[styles.listContent, items?.length === 0 && styles.emptyList]}
+            ListEmptyComponent={<NoItemsFound filter={filter} />}
+            refreshControl={
+              <RefreshControl
+                refreshing={isSyncing}
+                onRefresh={handleRefresh}
+                colors={[COLORS.primary.main]}
+                tintColor={COLORS.primary.main}
+              />
+            }
+            // Performance optimizations for FlatList
+            removeClippedSubviews={true}
+            maxToRenderPerBatch={10}
+            windowSize={10}
+            initialNumToRender={10}
+            updateCellsBatchingPeriod={50}
+            getItemLayout={getItemLayout}
+          />
+        )}
+
+        {/* Action Menu Modal */}
+        {showActionMenu && selectedItemId && (
+          <ActionMenu
+            item={items.find((item) => item.id === selectedItemId)!}
+            onClose={closeActionMenu}
+          />
+        )}
+      </>
+    );
+  },
+);
 
 ItemsList.displayName = 'ItemsList';
 // Create the enhanced ItemsList with data from withItems HOC
@@ -243,6 +253,9 @@ const HomeScreenWithFilter = () => {
   const [sorted, setSorted] = useState<SortOption>('newest');
   const activeTheme = useAppSelector(selectActiveTheme);
   const isDarkMode = activeTheme === 'dark';
+
+  const { items, loading } = useItems({ filter, sorted });
+
   return (
     <View
       style={[
@@ -267,7 +280,8 @@ const HomeScreenWithFilter = () => {
 
       {/* This component will only re-render when necessary */}
       <View style={{ flex: 1 }}>
-        <EnhancedItemsList filter={filter} sorted={sorted} />
+        {/* <EnhancedItemsList filter={filter} sorted={sorted} /> */}
+        <ItemsList items={items} filter={filter} loading={loading} />
       </View>
     </View>
   );
@@ -309,6 +323,19 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: scaler(40),
+  },
+  message: {
+    fontSize: scaler(20),
+    lineHeight: scaler(36),
+    marginTop: scaler(16),
+    textAlign: 'center',
+    marginBottom: scaler(8),
+  },
+  subMessage: {
+    lineHeight: scaler(22),
+    color: COLORS.darkGray,
+    textAlign: 'center',
   },
   listContent: {
     paddingBottom: scaler(20),
