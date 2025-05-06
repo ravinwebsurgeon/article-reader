@@ -274,6 +274,8 @@ export const useTagManagement = (item?: Item) => {
       
       // Fetch all tags ordered by most recently used
       const tags = await tagsCollection.query().fetch();
+
+      console.log('does here any tags', tags);
       
       // Sort by recently used (this would ideally use a real recency metric)
       // In a real app, you might track usage timestamps or have a dedicated recent_tags table
