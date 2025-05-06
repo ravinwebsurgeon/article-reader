@@ -57,6 +57,8 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
     createTag,
     searchTags
   } = useTagManagement(item);
+
+  console.log('allTags Tags: in edit tags', allTags, recentTags, otherTags, selectedTagIds, isLoading);
   
   // Load data when component mounts and is visible
   useEffect(() => {
@@ -109,6 +111,9 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
   const selectedTags = useMemo(() => 
     allTags.filter(tag => selectedTagIds.has(tag.id)),
   [allTags, selectedTagIds]);
+
+  console.log('Selected Tags: in edit tags', selectedTags);
+  // console.log('display other tags: in edit tags', displayedOtherTags);
 
   return (
     <Modal
@@ -226,34 +231,6 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
                   )}
                 </>
               )}
-            </View>
-
-            {/* Add Button (Keyboard Accessory View) */}
-            <View style={[
-              styles.keyboardAccessory,
-              { backgroundColor: colors.gray[100] }
-            ]}>
-              <View style={styles.keyboardAccessoryContent}>
-                <TouchableOpacity
-                  style={[
-                    styles.addButton,
-                    isAddButtonEnabled
-                      ? { backgroundColor: colors.primary.main }
-                      : { backgroundColor: colors.gray[300] }
-                  ]}
-                  onPress={handleSubmit}
-                  disabled={!isAddButtonEnabled}
-                >
-                  <ThemeText
-                    style={[
-                      styles.addButtonText,
-                      { color: colors.white }
-                    ]}
-                  >
-                    Add
-                  </ThemeText>
-                </TouchableOpacity>
-              </View>
             </View>
           </View>
         </KeyboardAvoidingView>
