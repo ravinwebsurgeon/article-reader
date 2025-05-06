@@ -40,26 +40,6 @@ export const deleteItem = async (item: Item) => {
 };
 
 /**
- * Searches for items matching the provided query
- * @param query - Search term to find in item fields
- * @returns Promise resolving to matching items
- */
-export const searchItems = (query: string) => {
-  const searchTerm = query.toLowerCase();
-
-  return itemsCollection
-    .query(
-      Q.or(
-        Q.where('title', Q.like(`%${searchTerm}%`)),
-        Q.where('description', Q.like(`%${searchTerm}%`)),
-        Q.where('url', Q.like(`%${searchTerm}%`)),
-        Q.where('siteName', Q.like(`%${searchTerm}%`)),
-      ),
-    )
-    .fetch();
-};
-
-/**
  * Creates a reactive subscription to a single item by ID
  * @param id - Item ID to observe
  * @returns A function that provides the item as a prop to components
