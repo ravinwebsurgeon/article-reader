@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { COLORS, lightColors } from '@/theme';
 import { useLoginMutation } from '@/redux/services/authApi';
 import { useTheme } from '@/theme';
-import { ThemeText, ThemeView } from '@/components';
+import { ThemeButton, ThemeText, ThemeView } from '@/components';
 import { scaler } from '@/utils';
 import { Input } from '@/components/ui/TextInput/input';
 import { SvgIcon } from '@/components/SvgIcon';
@@ -28,7 +28,7 @@ interface LoginFormData {
   password: string;
 }
 
-function LoginScreen() {
+function AuthStart() {
   const dispatch = useAppDispatch();
   const theme = useTheme();
   console.log('theme in login', theme);
@@ -83,60 +83,31 @@ function LoginScreen() {
               <SvgIcon name="pocket-pink" size={48} color={theme.colors.primary.main} />
             </ThemeView>
             <ThemeText variant="h2" style={styles.title}>
-              Welcome Back!
+              How would you like to sign in?
             </ThemeText>
-            <ThemeText style={styles.subtitle}>Pick up where you left off.</ThemeText>
+            <ThemeText style={styles.subtitle}>Choose a method to get started.</ThemeText>
           </ThemeView>
 
-          <ThemeView style={styles.formContainer}>
-            <Input
-              control={control}
-              name="email"
-              // label="Email"
-              rules={{
-                required: 'Email is required',
-                pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: 'Invalid email address',
-                },
-              }}
-              placeholder="Email"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              spellCheck={false}
-              icon={<Ionicons name="mail-outline" size={20} color={COLORS.primary.main} />}
-              style={styles.input}
-            />
-            <Input
-              control={control}
-              name="password"
-              // label="Password"
-              rules={{
-                required: 'Password is required',
-                minLength: {
-                  value: 8,
-                  message: 'Password must be at least 8 characters',
-                },
-              }}
-              placeholder="Password"
-              secureTextEntry
-              icon={<Ionicons name="key-outline" size={20} color={COLORS.primary.main} />}
-              style={styles.input}
-            />
-
-            <TouchableOpacity
-              style={styles.forgotPasswordContainer}
-              onPress={navigateToForgotPassword}
-            >
-              {/* <ThemeText style={styles.forgotPasswordText}>Forgot password?</ThemeText> */}
-            </TouchableOpacity>
-
-            <Button
-              title="Log In"
+          <ThemeView style={styles.buttonContainer}>
+            <ThemeButton
+              title="Sign in with Google"
               onPress={handleSubmit(onSubmit)}
               style={styles.signInButton}
-              // leftIcon={<Ionicons name="log-in-outline" size={20} color={COLORS.white} />}
+              leftIcon={<Ionicons name="log-in-outline" size={20} color={COLORS.white} />}
+              rightIcon={null}
+            />
+            <ThemeButton
+              title="Sign in with Apple"
+              onPress={handleSubmit(onSubmit)}
+              style={styles.signInButton}
+              leftIcon={<Ionicons name="log-in-outline" size={20} color={COLORS.white} />}
+              rightIcon={null}
+            />
+            <ThemeButton
+              title="Sign in with Email"
+              onPress={handleSubmit(onSubmit)}
+              style={styles.signInButton}
+              leftIcon={<Ionicons name="log-in-outline" size={20} color={COLORS.white} />}
               rightIcon={null}
             />
           </ThemeView>
@@ -175,21 +146,6 @@ const styles = StyleSheet.create({
   logoContainer: {
     marginBottom: scaler(24),
   },
-  logoCircle: {
-    width: scaler(80),
-    height: scaler(80),
-    borderRadius: scaler(40),
-    backgroundColor: COLORS.primary.main,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: scaler(15),
-  },
-  logoHeart: {
-    width: scaler(30),
-    height: scaler(30),
-    backgroundColor: COLORS.primary.light,
-    borderRadius: scaler(15),
-  },
   title: {
     fontSize: scaler(28),
     fontWeight: 'bold',
@@ -203,9 +159,10 @@ const styles = StyleSheet.create({
     color: lightColors.text.disabled,
     marginBottom: scaler(16),
   },
-  formContainer: {
+  buttonContainer: {
     width: '100%',
     marginBottom: scaler(24),
+    gap: scaler(16),
   },
   inputContainer: {
     marginBottom: scaler(20),
@@ -237,8 +194,6 @@ const styles = StyleSheet.create({
     fontSize: scaler(14),
   },
   signInButton: {
-    backgroundColor: COLORS.primary.main,
-    height: scaler(56),
     borderRadius: scaler(28),
     justifyContent: 'center',
     alignItems: 'center',
@@ -249,7 +204,7 @@ const styles = StyleSheet.create({
     elevation: scaler(5),
   },
   signInButtonText: {
-    color: COLORS.white,
+    color: COLORS.primary.main,
     fontSize: scaler(18),
     fontWeight: '600',
   },
@@ -268,4 +223,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default AuthStart;
