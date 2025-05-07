@@ -2045,6 +2045,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@lovesworking/watermelondb-expo-plugin-sdk-52-plus@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "@lovesworking/watermelondb-expo-plugin-sdk-52-plus@npm:1.0.2"
+  checksum: cc26efcadd1ab5bdf2bd9e6a11972cb54a59e0a9936e8f87ca71226ab8517ae51c42c2550e29ce356c614de53d87f2f3787feb1aeab4b5b5a27692ece22b263a
+  languageName: node
+  linkType: hard
+
 "@napi-rs/wasm-runtime@npm:^0.2.9":
   version: 0.2.9
   resolution: "@napi-rs/wasm-runtime@npm:0.2.9"
@@ -9713,6 +9720,7 @@ __metadata:
     "@babel/core": ^7.25.2
     "@babel/plugin-proposal-decorators": ^7.25.9
     "@expo/vector-icons": ^14.0.2
+    "@lovesworking/watermelondb-expo-plugin-sdk-52-plus": ^1.0.2
     "@nozbe/watermelondb": ^0.28.0
     "@react-native-async-storage/async-storage": ^2.1.2
     "@react-native-community/netinfo": ^11.4.1

@@ -30,6 +30,8 @@ export type SvgIconName =
   | 'clockAlt-lined'
   | 'tag-lined'
   | 'underlined-start'
+  | 'circle-plus'
+  | 'close'
   | 'pocket-pink';
 
 /**

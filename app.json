@@ -42,6 +42,7 @@
           "imageWidth": 192
         }
       ],
+      ["@lovesworking/watermelondb-expo-plugin-sdk-52-plus"],
       [
         "expo-build-properties",
         {
