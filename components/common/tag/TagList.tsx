@@ -46,7 +46,7 @@ const TagList: React.FC<TagListProps> = ({
           activeOpacity={0.7}
           disabled={!onTagPress}
         >
-          <ThemeText style={[styles.tagText, typography.body1]}>{item.name}</ThemeText>
+          <ThemeText style={[styles.tagText, typography.body2]}>{item.name}</ThemeText>
 
           {onTagPress && (
             <View style={styles.iconContainer}>
@@ -56,7 +56,7 @@ const TagList: React.FC<TagListProps> = ({
                 </View>
               ) : (
                 <View style={[styles.circle, { borderColor: colors.gray[300] }]}>
-                  <SvgIcon name="plus" size={16} color={colors.gray[500]} />
+                  <SvgIcon name="circle-plus" size={24} color={colors.gray[500]} />
                 </View>
               )}
             </View>
@@ -82,7 +82,7 @@ const TagList: React.FC<TagListProps> = ({
     <View>
       {/* Optional Section Title */}
       {title && (
-        <ThemeText style={[styles.sectionTitle, { color: colors.text.secondary }]}>
+        <ThemeText style={[styles.sectionTitle, { color: colors.text.primary }]}>
           {title}
         </ThemeText>
       )}
@@ -116,6 +116,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: scaler(16),
     fontWeight: '600',
+    lineHeight:scaler(24),
     marginVertical: scaler(8),
   },
   tagItem: {
@@ -143,7 +144,7 @@ const styles = StyleSheet.create({
     width: scaler(24),
     height: scaler(24),
     borderRadius: scaler(12),
-    borderWidth: 1,
+    // borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
