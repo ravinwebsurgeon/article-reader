@@ -175,7 +175,9 @@ const ArticleActionMenu: React.FC<ArticleActionMenuProps> = ({
         width={240}
         animationPreset="bouncy"
       />
-      <TagEditor visible={tagEditorVisible} onClose={closeTagEditor} item={item} />
+      {/* <TagEditor visible={tagEditorVisible} onClose={closeTagEditor} item={item} /> */}
+      {/* <EditTagsModal visible={tagEditorVisible} onClose={closeTagEditor} item={item} /> */}
+
     </>
   );
 };
