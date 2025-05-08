@@ -80,33 +80,6 @@ const SignUpScreen = ({ navigation }) => {
           </ThemeView>
 
           <View style={styles.formContainer}>
-            {/* <Input
-              control={control}
-              name="userName"
-              label="Username"
-              rules={{
-                required: 'Username is required',
-                minLength: {
-                  value: 3,
-                  message: 'Username must be at least 3 characters',
-                },
-                maxLength: {
-                  value: 20,
-                  message: 'Username must be less than 20 characters',
-                },
-                pattern: {
-                  value: /^[a-zA-Z0-9_-]+$/,
-                  message: 'Username can only contain letters, numbers, underscores, and hyphens',
-                },
-              }}
-              placeholder="Enter your Username"
-              icon={<Ionicons name="person-outline" size={20} color={COLORS.primary.main} />}
-              autoCapitalize="none"
-              autoCorrect={false}
-              spellCheck={false}
-              style={styles.input}
-            /> */}
-
             <Input
               control={control}
               name="email"
