@@ -182,8 +182,7 @@ const ItemsList = memo(
       [],
     );
 
-    const isLoading = loading; // We never show loading state - WatermelonDB handles this
-    console.log('ItemsList render', items.length, isLoading);
+    console.log(loading,'check the loading state');
 
     return (
       <>
