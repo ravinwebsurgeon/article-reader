@@ -108,7 +108,7 @@ export const ThemeButton: React.FC<ThemeButtonProps> = ({
     <TouchableOpacity
       onPress={onPress}
       disabled={disabled || loading}
-      activeOpacity={0.7}
+      activeOpacity={0.9}
       style={[
         styles.button,
         {

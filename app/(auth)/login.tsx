@@ -31,7 +31,6 @@ interface LoginFormData {
 function LoginScreen() {
   const dispatch = useAppDispatch();
   const theme = useTheme();
-  console.log('theme in login', theme);
 
   const { error } = useAppSelector((state) => state.auth);
   const [login] = useLoginMutation();
@@ -83,7 +82,7 @@ function LoginScreen() {
               <SvgIcon name="pocket-pink" size={48} color={theme.colors.primary.main} />
             </ThemeView>
             <ThemeText variant="h2" style={styles.title}>
-              Welcome Back!
+              Welcome Back
             </ThemeText>
             <ThemeText style={styles.subtitle}>Pick up where you left off.</ThemeText>
           </ThemeView>
@@ -105,7 +104,7 @@ function LoginScreen() {
               autoCapitalize="none"
               autoCorrect={false}
               spellCheck={false}
-              icon={<Ionicons name="mail-outline" size={20} color={COLORS.primary.main} />}
+              icon={<SvgIcon name="envelope" size={24} color={COLORS.primary.main} />}
               style={styles.input}
             />
             <Input
@@ -121,7 +120,7 @@ function LoginScreen() {
               }}
               placeholder="Password"
               secureTextEntry
-              icon={<Ionicons name="key-outline" size={20} color={COLORS.primary.main} />}
+              icon={<SvgIcon name="key" size={24} color={COLORS.primary.main} />}
               style={styles.input}
             />
 
@@ -169,7 +168,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'flex-start',
-    marginBottom: scaler(40),
+    marginBottom: scaler(20),
     marginTop: scaler(20),
   },
   logoContainer: {
