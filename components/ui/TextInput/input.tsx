@@ -123,10 +123,10 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   input: {
-    height: scaler(56),
+    height: scaler(50),
     borderWidth: scaler(1),
     borderColor: lightColors.divider,
-    borderRadius: scaler(12),
+    borderRadius: scaler(16),
     paddingHorizontal: scaler(16),
     fontSize: scaler(16),
     // backgroundColor: COLORS.white,

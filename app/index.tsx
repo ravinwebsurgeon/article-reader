@@ -5,5 +5,5 @@ export default function Index() {
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
   // Redirect to tabs if authenticated, otherwise to auth login screen
-  return <Redirect href={isAuthenticated ? '/(tabs)' : '/(auth)/login'} />;
+  return <Redirect href={isAuthenticated ? '/(tabs)' : '/(auth)/auth-start'} />;
 }

@@ -41,7 +41,7 @@ const TagBadge: React.FC<TagBadgeProps> = ({
   
   // Default colors if not provided
   const badgeColor = color || colors.primary.main;
-  const badgeBgColor = backgroundColor || colors.primary.light;
+  const badgeBgColor = backgroundColor || colors.secondary.main;
   
   // Get dynamic styles based on size
   const getSizeStyles = () => {
@@ -51,7 +51,7 @@ const TagBadge: React.FC<TagBadgeProps> = ({
           container: {
             paddingHorizontal: scaler(8),
             paddingVertical: scaler(4),
-            borderRadius: scaler(12),
+            borderRadius: scaler(8),
           },
           text: {
             fontSize: scaler(12),
@@ -63,7 +63,7 @@ const TagBadge: React.FC<TagBadgeProps> = ({
           container: {
             paddingHorizontal: scaler(16),
             paddingVertical: scaler(8),
-            borderRadius: scaler(20),
+            borderRadius: scaler(8),
           },
           text: {
             fontSize: scaler(16),
@@ -75,10 +75,10 @@ const TagBadge: React.FC<TagBadgeProps> = ({
           container: {
             paddingHorizontal: scaler(12),
             paddingVertical: scaler(6),
-            borderRadius: scaler(16),
+            borderRadius: scaler(8),
           },
           text: {
-            fontSize: scaler(14),
+            fontSize: scaler(12),
           },
           icon: 16,
         };
@@ -132,11 +132,13 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     marginRight: scaler(8),
     marginBottom: scaler(8),
   },
   text: {
-    fontWeight: '500',
+    fontWeight: '600',
+    marginBottom: scaler(-2),
   },
   removeButton: {
     marginLeft: scaler(4),

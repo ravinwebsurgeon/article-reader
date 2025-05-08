@@ -9,7 +9,6 @@ import TabBarBackground from '@/components/ui/TabBarBackground';
 
 export default function TabLayout() {
   const theme = useTheme();
-  console.log(theme, 'colorScheme');
 
   return (
     <Tabs

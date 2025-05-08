@@ -21,6 +21,7 @@ import { selectActiveTheme } from '@/redux/utils';
 import { SvgIcon } from '@/components/SvgIcon';
 import { createMenuPosition, menuAnimationPresets } from '../menu/menuAnimationPresents';
 import ArticleActionMenu from '../menu/ArticleActionMenu';
+import { TagBadge } from '../tag';
 
 // Export a fixed height constant for use in FlatList
 export const ARTICLE_CARD_HEIGHT = scaler(143);
@@ -35,7 +36,7 @@ interface ArticleCardProps {
 
 const ArticleCardComponent: React.FC<ArticleCardProps> = ({
   item,
-  tags,
+  // tags,
   onPress,
   onMenuPress,
   style,
@@ -52,21 +53,28 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
   // State for action menu
   const [menuVisible, setMenuVisible] = useState(false);
   const [menuPosition, setMenuPosition] = useState({});
+  // Inside the component
+  const [tags, setTags] = useState<Tag[]>([]);
 
-  const getTags = async () => {
-    const result = await item?.tags.fetch();
-    setItemTags(result);
-  };
   useEffect(() => {
-    getTags();
-  }, []);
+    const loadTags = async () => {
+      const itemTags = await item.itemTags.fetch();
+      const tagObjects = await Promise.all(
+        itemTags.slice(0, 2).map(async (it) => {
+          return await it.tag.fetch();
+        }),
+      );
+      setTags(tagObjects);
+    };
 
-  // console.log('ArticleCard', item);
+    loadTags();
+  }, [item]);
+
   const formatReadTime = (minutes: number) => {
     return `${minutes} min`;
   };
 
-  // console.log('item in article card', item);
+  console.log('tags', tags);
 
   // const formatDate = (date: string | number | Date | null | undefined): string => {
   //   if (!date) return '';
@@ -179,9 +187,8 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
                   </Svg>
                 </View>
               )}
-
-              {itemTags.length > 0 &&
-                itemTags.map((tag: Tag, index: number) => (
+              {tags.length > 0 &&
+                tags.map((tag: Tag, index: number) => (
                   <View key={index} style={styles.tagContainer}>
                     <Svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                       <Path
@@ -207,7 +214,7 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
                     </ThemeText>
                   </View>
                 ))}
-
+                
               <TouchableOpacity
                 ref={menuButtonRef}
                 style={styles.menuButton}

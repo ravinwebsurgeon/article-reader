@@ -19,6 +19,7 @@ import Item from '@/database/models/ItemModel';
 import { SvgIcon } from '@/components/SvgIcon';
 import { useTagManagement } from '@/utils/hooks';
 import { TagBadge, TagList } from '@/components/common/tag';
+import database from '@/database/database';
 
 /**
  * TagEditor component allows users to manage tags for an article
@@ -44,98 +45,296 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
   // Input state
   const [tagText, setTagText] = useState('');
   const [searchResults, setSearchResults] = useState<Tag[]>([]);
-  
-  // Use the tag management hook
-  const {
+
+  // State for all tags and selected tags
+  const [allTags, setAllTags] = useState<Tag[]>([]);
+  const [selectedTagIds, setSelectedTagIds] = useState<Set<string>>(new Set());
+  const [recentTags, setRecentTags] = useState<Tag[]>([]);
+  const [otherTags, setOtherTags] = useState<Tag[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // const {
+  //   allTags,
+  //   recentTags,
+  //   otherTags,
+  //   selectedTagIds,
+  //   isLoading,
+  //   loadData,
+  //   toggleTag,
+  //   createTag,
+  //   searchTags
+  // } = useTagManagement(item);
+
+  console.log(
+    'allTags Tags: in edit tags',
     allTags,
     recentTags,
     otherTags,
     selectedTagIds,
     isLoading,
-    loadData,
-    toggleTag,
-    createTag,
-    searchTags
-  } = useTagManagement(item);
+  );
 
-  console.log('allTags Tags: in edit tags', allTags, recentTags, otherTags, selectedTagIds, isLoading);
-  
+  // Reference to the tags collection
+  const tagsCollection = database.collections.get<Tag>('tags');
+
+  // Load all tags and the item's current tags
+  const loadData = useCallback(async () => {
+    try {
+      setIsLoading(true);
+
+      // Load all tags
+      const tags = await tagsCollection.query().fetch();
+      setAllTags(tags);
+
+      // Categorize tags (simplified version - in real app, you'd use recency data)
+      const recent = tags.slice(0, Math.min(5, tags.length));
+      const others = tags.slice(Math.min(5, tags.length));
+      setRecentTags(recent);
+      setOtherTags(others);
+
+      // Load item's current tags
+      const itemTags = await item.itemTags.fetch();
+      const tagIds = new Set(
+        itemTags.map(async (itemTag) => {
+          const tag = await itemTag.tag.fetch();
+          return tag.id;
+        }),
+      );
+
+      // Wait for all promises to resolve
+      const resolvedTagIds = await Promise.all(Array.from(tagIds));
+      setSelectedTagIds(new Set(resolvedTagIds));
+    } catch (error) {
+      console.error('Error loading tags:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [item, tagsCollection]);
   // Load data when component mounts and is visible
   useEffect(() => {
     if (visible) {
       loadData();
     }
   }, [visible, loadData]);
-  
-  // Update search results when input changes
+
+  // Filter tags based on search input
   useEffect(() => {
     if (tagText.trim()) {
-      setSearchResults(searchTags(tagText));
+      const filtered = allTags.filter(tag =>
+        tag.name.toLowerCase().includes(tagText.toLowerCase())
+      );
+      setSearchResults(filtered);
     } else {
       setSearchResults([]);
     }
-  }, [tagText, searchTags]);
-  
-  // Handle tag creation
-  const handleCreateTag = useCallback(async () => {
-    if (!tagText.trim()) return;
-    
-    await createTag(tagText, true);
-    setTagText(''); // Clear input field
+  }, [tagText, allTags]);
+
+  const toggleTag = useCallback(
+    async (tag: Tag) => {
+      try {
+        // Update local UI state immediately for responsiveness
+        const newSelectedTagIds = new Set(selectedTagIds);
+
+        if (newSelectedTagIds.has(tag.id)) {
+          newSelectedTagIds.delete(tag.id);
+          await database.write(async () => {
+            const itemTagsRelation = await item.itemTags.fetch();
+            const itemTagToDelete = itemTagsRelation.find(async (it) => {
+              const tagObj = await it.tag.fetch();
+              return tagObj.id === tag.id;
+            });
+
+            if (itemTagToDelete) {
+              await itemTagToDelete.destroyPermanently();
+            }
+          });
+        } else {
+          newSelectedTagIds.add(tag.id);
+          await database.write(async () => {
+            const itemTagsCollection = database.collections.get('item_tags');
+            await itemTagsCollection.create((itemTag) => {
+              itemTag.item.set(item);
+              itemTag.tag.set(tag);
+            });
+          });
+        }
+
+        setSelectedTagIds(newSelectedTagIds);
+      } catch (error) {
+        console.error('Error toggling tag:', error);
+        // Reload data in case of error to ensure UI reflects actual database state
+        loadData();
+      }
+    },
+    [selectedTagIds, item, loadData, database],
+  );
+
+  // Create a new tag
+  const createTag = useCallback(
+    async (name: string) => {
+      if (!name.trim()) return null;
+
+      try {
+        // Check if tag already exists (case insensitive)
+        const existingTag = allTags.find(
+          (tag) => tag.name.toLowerCase() === name.trim().toLowerCase(),
+        );
+
+        if (existingTag) {
+          // If tag exists, select it and clear input
+          if (!selectedTagIds.has(existingTag.id)) {
+            await toggleTag(existingTag);
+          }
+          return existingTag;
+        } else {
+          // Create new tag
+          let newTag: Tag | null = null;
+
+          await database.write(async () => {
+            // Create the tag
+            newTag = await tagsCollection.create((tag) => {
+              tag.name = name.trim();
+            });
+
+            // Create the relationship
+            const itemTagsCollection = database.collections.get('item_tags');
+            await itemTagsCollection.create((itemTag) => {
+              itemTag.item.set(item);
+              itemTag.tag.set(newTag!);
+            });
+          });
+
+          // Update UI state
+          if (newTag) {
+            setAllTags((prev) => [...prev, newTag!]);
+            setRecentTags((prev) => [newTag!, ...prev].slice(0, 5));
+            setSelectedTagIds((prev) => new Set([...prev, newTag!.id]));
+          }
+
+          return newTag;
+        }
+      } catch (error) {
+        console.error('Error creating tag:', error);
+        return null;
+      }
+    },
+    [allTags, toggleTag, selectedTagIds, tagsCollection, item, database],
+  );
+
+  // Handle text input changes
+  const handleTextChange = useCallback(
+    (text: string) => {
+      // Check if the text includes a comma
+      if (text.includes(',')) {
+        // Split by comma and process each part
+        const parts = text.split(',');
+
+        // Process all parts except the last one (which might be incomplete)
+        const tagsToCreate = parts
+          .slice(0, -1)
+          .map((part) => part.trim())
+          .filter(Boolean);
+
+        // Create each tag
+        tagsToCreate.forEach((tagName) => {
+          createTag(tagName);
+        });
+
+        // Keep only the last part in the input
+        setTagText(parts[parts.length - 1].trim());
+      } else {
+        setTagText(text);
+      }
+    },
+    [createTag],
+  );
+
+  // Handle keyboard submit
+  const handleSubmit = useCallback(() => {
+    if (tagText.trim()) {
+      createTag(tagText.trim());
+      setTagText('');
+    }
   }, [tagText, createTag]);
 
-  // Simple handlers
-  const handleTextChange = useCallback((text: string) => {
-    setTagText(text);/////
-  }, []);
-
-  const handleSubmit = useCallback(() => {
-    handleCreateTag();
-  }, [handleCreateTag]);
+  // Get selected tags
+  const selectedTags = useMemo(
+    () => allTags.filter((tag) => selectedTagIds.has(tag.id)),
+    [allTags, selectedTagIds],
+  );
 
   // Filter displayed tags based on search state
-  const displayedRecentTags = useMemo(() => 
-    tagText.trim() ? [] : recentTags,
-  [tagText, recentTags]);
+  const displayedRecentTags = useMemo(
+    () => (tagText.trim() ? [] : recentTags),
+    [tagText, recentTags],
+  );
 
-  const displayedOtherTags = useMemo(() => 
-    tagText.trim() ? [] : otherTags,
-  [tagText, otherTags]);
+  const displayedOtherTags = useMemo(() => (tagText.trim() ? [] : otherTags), [tagText, otherTags]);
+  // </new>
+  //old
 
-  // Button state for add button
-  const isAddButtonEnabled = useMemo(() => 
-    tagText.trim().length > 0,
-  [tagText]);
+  // Update search results when input changes
+  // useEffect(() => {
+  //   if (tagText.trim()) {
+  //     setSearchResults(searchTags(tagText));
+  //   } else {
+  //     setSearchResults([]);
+  //   }
+  // }, [tagText, searchTags]);
 
-  // Get selected tags
-  const selectedTags = useMemo(() => 
-    allTags.filter(tag => selectedTagIds.has(tag.id)),
-  [allTags, selectedTagIds]);
+  // // Handle tag creation
+  // const handleCreateTag = useCallback(async () => {
+  //   if (!tagText.trim()) return;
 
-  console.log('Selected Tags: in edit tags', selectedTags);
+  //   await createTag(tagText, true);
+  //   setTagText(''); // Clear input field
+  // }, [tagText, createTag]);
+
+  // // Simple handlers
+  // const handleTextChange = useCallback((text: string) => {
+  //   setTagText(text);/////
+  // }, []);
+
+  // const handleSubmit = useCallback(() => {
+  //   handleCreateTag();
+  // }, [handleCreateTag]);
+
+  // // Filter displayed tags based on search state
+  // const displayedRecentTags = useMemo(() =>
+  //   tagText.trim() ? [] : recentTags,
+  // [tagText, recentTags]);
+
+  // const displayedOtherTags = useMemo(() =>
+  //   tagText.trim() ? [] : otherTags,
+  // [tagText, otherTags]);
+
+  // // Button state for add button
+  // const isAddButtonEnabled = useMemo(() =>
+  //   tagText.trim().length > 0,
+  // [tagText]);
+
+  // // Get selected tags
+  // const selectedTags = useMemo(() =>
+  //   allTags.filter(tag => selectedTagIds.has(tag.id)),
+  // [allTags, selectedTagIds]);
+
+  // console.log('Selected Tags: in edit tags', selectedTags);
   // console.log('display other tags: in edit tags', displayedOtherTags);
 
   return (
-    <Modal
-      transparent={true}
-      visible={visible}
-      animationType="slide"
-      onRequestClose={onClose}
-    >
+    <Modal transparent={true} visible={visible} animationType="slide" onRequestClose={onClose}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={styles.modalContainer}
         >
-          <View style={[
-            styles.container,
-            { backgroundColor: colors.background.paper },
-          ]}>
+          <View style={[styles.container, { backgroundColor: colors.background.paper }]}>
             {/* Header */}
+            <View style={styles.topBar}>
+              <View style={styles.topBarIndicator} />
+            </View>
             <View style={styles.header}>
-              <ThemeText style={[styles.title, typography.h6]}>
-                Edit Tags
-              </ThemeText>
+              <ThemeText style={[styles.title, typography.h6]}>Edit Tags</ThemeText>
               <TouchableOpacity onPress={onClose} style={styles.closeButton}>
                 <ThemeText style={[styles.closeText, { color: colors.primary.main }]}>
                   Done
@@ -144,17 +343,10 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
             </View>
 
             {/* Search/Input Area */}
-            <View style={[
-              styles.searchContainer,
-              { borderColor: colors.primary.light }
-            ]}>
-              <SvgIcon name="tag" size={20} color={colors.gray[500]} style={styles.searchIcon} />
+            <View style={[styles.searchContainer, { borderColor: colors.primary.light }]}>
+              <SvgIcon name="tag" size={24} color={colors.gray[500]} style={styles.searchIcon} />
               <TextInput
-                style={[
-                  styles.input,
-                  typography.body1,
-                  { color: colors.text.primary }
-                ]}
+                style={[styles.input, typography.body2, { color: colors.text.primary }]}
                 placeholder="Enter a Tag Name"
                 placeholderTextColor={colors.gray[400]}
                 value={tagText}
@@ -171,13 +363,9 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
                 <FlatList
                   data={selectedTags}
                   renderItem={({ item }) => (
-                    <TagBadge
-                      key={item.id}
-                      label={item.name}
-                      onRemove={() => toggleTag(item)}
-                    />
+                    <TagBadge key={item.id} color={theme.colors.white} label={item.name} onRemove={() => toggleTag(item)} />
                   )}
-                  keyExtractor={item => item.id}
+                  keyExtractor={(item) => item.id}
                   horizontal
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={styles.selectedTagsList}
@@ -232,6 +420,7 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
                 </>
               )}
             </View>
+           
           </View>
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
@@ -242,11 +431,11 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
 const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    // backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   container: {
     flex: 1,
-    marginTop: scaler(50),
+    // marginTop: scaler(50),
     borderTopLeftRadius: scaler(20),
     borderTopRightRadius: scaler(20),
     overflow: 'hidden',
@@ -256,19 +445,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: scaler(16),
-    paddingVertical: scaler(16),
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    paddingTop: scaler(4),
+    // borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#E0E0E0',
   },
   title: {
     fontWeight: '600',
+    fontSize: scaler(15),
+    lineHeight: scaler(20),
+    textAlign: 'center',
+    flex: 1,
+    marginRight: scaler(-40),
   },
   closeButton: {
     padding: scaler(4),
   },
   closeText: {
-    fontSize: scaler(16),
     fontWeight: '600',
+    fontSize: scaler(15),
+    lineHeight: scaler(20),
   },
   searchContainer: {
     flexDirection: 'row',
@@ -276,8 +471,20 @@ const styles = StyleSheet.create({
     margin: scaler(16),
     paddingHorizontal: scaler(12),
     paddingVertical: scaler(8),
-    borderWidth: 1,
-    borderRadius: scaler(24),
+    borderWidth: scaler(2),
+    borderRadius: scaler(16),
+  },
+  topBar: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  topBarIndicator: {
+    width: scaler(40),
+    height: scaler(4),
+    borderRadius: scaler(2),
+    backgroundColor: '#E0E0E0',
+    marginVertical: scaler(8),
   },
   searchIcon: {
     marginRight: scaler(8),
@@ -285,10 +492,11 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     padding: 0,
-    height: scaler(40),
+    height: scaler(30),
   },
   selectedTagsContainer: {
     paddingHorizontal: scaler(16),
+    // flexWrap: 'wrap',
     paddingBottom: scaler(8),
   },
   selectedTagsList: {
