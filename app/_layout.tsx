@@ -16,6 +16,7 @@ import { ThemeProvider } from '@/theme';
 import { DatabaseProvider } from '@/database/provider/DatabaseProvider';
 import NetworkProvider from '@/provider/NetworkProvider';
 
+
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
@@ -26,7 +27,6 @@ export default function RootLayout() {
     'Poppins-Medium': require('../assets/fonts/Poppins-Medium.ttf'),
     'Poppins-SemiBold': require('../assets/fonts/Poppins-SemiBold.ttf'),
     'Poppins-Bold': require('../assets/fonts/Poppins-Bold.ttf'),
-    
   });
 
   useEffect(() => {
