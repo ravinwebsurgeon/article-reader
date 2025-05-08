@@ -18,13 +18,9 @@ import { useRegisterMutation } from '@/redux/services/authApi';
 import { useTheme } from '@/theme';
 import { ThemeText, ThemeView } from '@/components';
 import { scaler } from '@/utils';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { SvgIcon } from '@/components/SvgIcon';
 
-type SignUpScreenProps = {
-  navigation: NativeStackNavigationProp<any>;
-};
-
-const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
+const SignUpScreen = ({ navigation }) => {
   const [loader, setLoader] = useState(false);
   const [register] = useRegisterMutation();
 
@@ -72,44 +68,22 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           {loader && <ActivityIndicator size="small" color="#007AFF" />}
           <ThemeView style={styles.header}>
+            <ThemeView style={styles.logoContainer}>
+              <SvgIcon name="pocket-pink" size={48} color={theme.colors.primary.main} />
+            </ThemeView>
             <ThemeText variant="h2" style={styles.title}>
-              Sign Up
+              Welcome to Pocket
             </ThemeText>
-            {/* <Text style={styles.subtitle}>Sign Up to Connect.</Text> */}
+            <ThemeText style={styles.subtitle}>
+              Log in or sign up to start saving articles you’ll actually get back to.
+            </ThemeText>
           </ThemeView>
 
           <View style={styles.formContainer}>
             <Input
               control={control}
-              name="userName"
-              label="Username"
-              rules={{
-                required: 'Username is required',
-                minLength: {
-                  value: 3,
-                  message: 'Username must be at least 3 characters',
-                },
-                maxLength: {
-                  value: 20,
-                  message: 'Username must be less than 20 characters',
-                },
-                pattern: {
-                  value: /^[a-zA-Z0-9_-]+$/,
-                  message: 'Username can only contain letters, numbers, underscores, and hyphens',
-                },
-              }}
-              placeholder="Enter your Username"
-              icon={<Ionicons name="person-outline" size={20} color={COLORS.primary.main} />}
-              autoCapitalize="none"
-              autoCorrect={false}
-              spellCheck={false}
-              style={styles.input}
-            />
-
-            <Input
-              control={control}
               name="email"
-              label="Email"
+              // label="Email"
               rules={{
                 required: 'Email is required',
                 pattern: {
@@ -117,19 +91,19 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
                   message: 'Invalid email address',
                 },
               }}
-              placeholder="Enter your Email"
+              placeholder="Email"
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
               spellCheck={false}
-              icon={<Ionicons name="mail-outline" size={20} color={COLORS.primary.main} />}
+              icon={<SvgIcon name="envelope" size={24} color={COLORS.primary.main} />}
               style={styles.input}
             />
 
             <Input
               control={control}
               name="password"
-              label="Password"
+              // label="Password"
               rules={{
                 required: 'Password is required',
                 minLength: {
@@ -142,31 +116,31 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
                     'Password must contain uppercase, lowercase, number and special character',
                 },
               }}
-              placeholder="Enter your Password"
+              placeholder="Password"
               secureTextEntry
-              icon={<Ionicons name="lock-closed-outline" size={20} color={COLORS.primary.main} />}
+              icon={<SvgIcon name="key" size={24} color={COLORS.primary.main} />}
               style={styles.input}
             />
 
             <Input
               control={control}
               name="confirmPassword"
-              label="Confirm Password"
+              // label="Confirm Password"
               rules={{
                 required: 'Please confirm your password',
                 validate: (value: string) => value === password || 'Passwords do not match',
               }}
-              placeholder="Confirm your Password"
+              placeholder="Confirm Password"
               secureTextEntry
-              icon={<Ionicons name="lock-closed-outline" size={20} color={COLORS.primary.main} />}
+              icon={<SvgIcon name="key-renter" size={24} color={COLORS.primary.main} />}
               style={styles.input}
             />
 
             <Button
-              title={loader ? 'Submiting...' : 'Sign Up'}
+              title={loader ? 'Submiting...' : 'Create Account'}
               onPress={handleSubmit(onSubmit)}
               style={styles.signUpButton}
-              leftIcon={<Ionicons name="person-add-outline" size={20} color="white" />}
+              // leftIcon={<Ionicons name="person-add-outline" size={20} color="white" />}
               rightIcon={null}
             />
           </View>
@@ -196,23 +170,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: scaler(24),
     paddingTop: scaler(40),
     paddingBottom: scaler(24),
-    justifyContent: 'center',
     alignItems: 'center',
   },
   header: {
-    marginBottom: scaler(24),
+    marginBottom: scaler(15),
+    alignItems: 'flex-start',
+    marginTop: scaler(20),
   },
   title: {
     fontSize: scaler(28),
     fontWeight: 'bold',
-    // color: COLORS.text,
-    textAlign: 'center',
     marginBottom: scaler(8),
   },
   subtitle: {
     fontSize: scaler(16),
     color: lightColors.text.disabled,
     marginBottom: scaler(16),
+  },
+  logoContainer: {
+    marginBottom: scaler(24),
   },
   formContainer: {
     width: '100%',
