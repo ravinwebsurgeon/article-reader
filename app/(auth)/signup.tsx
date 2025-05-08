@@ -53,7 +53,7 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
         },
       }).unwrap();
     } catch (error: any) {
-      console.log(error);
+      console.error(error);
     } finally {
       setLoader(false);
     }
