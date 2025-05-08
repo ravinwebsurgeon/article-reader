@@ -32,6 +32,11 @@ export type SvgIconName =
   | 'underlined-start'
   | 'circle-plus'
   | 'close'
+  | 'apple'
+  | 'google'
+  | 'envelope'
+  | 'key'
+  | 'key-renter'
   | 'pocket-pink';
 
 /**
