@@ -31,7 +31,6 @@ interface LoginFormData {
 function AuthStart() {
   const dispatch = useAppDispatch();
   const theme = useTheme();
-  console.log('theme in login', theme);
 
   const { error } = useAppSelector((state) => state.auth);
   const [login] = useLoginMutation();
@@ -44,12 +43,7 @@ function AuthStart() {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      await login({
-        user: {
-          email: data.email,
-          password: data.password,
-        },
-      }).unwrap();
+      router.push('/(auth)/login');
     } catch (err) {
       console.error('Login failed', err);
     }
@@ -91,23 +85,26 @@ function AuthStart() {
           <ThemeView style={styles.buttonContainer}>
             <ThemeButton
               title="Sign in with Google"
-              onPress={handleSubmit(onSubmit)}
+              //   onPress={handleSubmit(onSubmit)}
               style={styles.signInButton}
-              leftIcon={<Ionicons name="log-in-outline" size={20} color={COLORS.white} />}
+              textStyle={styles.signInButtonText}
+              leftIcon={<SvgIcon name="google" size={24} color={COLORS.primary.main} />}
               rightIcon={null}
             />
             <ThemeButton
               title="Sign in with Apple"
-              onPress={handleSubmit(onSubmit)}
+              //   onPress={handleSubmit(onSubmit)}
               style={styles.signInButton}
-              leftIcon={<Ionicons name="log-in-outline" size={20} color={COLORS.white} />}
+              textStyle={styles.signInButtonText}
+              leftIcon={<SvgIcon name="apple" size={24} color={COLORS.primary.main} />}
               rightIcon={null}
             />
             <ThemeButton
               title="Sign in with Email"
               onPress={handleSubmit(onSubmit)}
               style={styles.signInButton}
-              leftIcon={<Ionicons name="log-in-outline" size={20} color={COLORS.white} />}
+              textStyle={styles.signInButtonText}
+              leftIcon={<SvgIcon name="envelope" size={24} color={COLORS.primary.main} />}
               rightIcon={null}
             />
           </ThemeView>
@@ -194,19 +191,24 @@ const styles = StyleSheet.create({
     fontSize: scaler(14),
   },
   signInButton: {
+    backgroundColor: '#fff',
     borderRadius: scaler(28),
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: COLORS.primary.main,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: scaler(0.25),
-    shadowRadius: scaler(4),
-    elevation: scaler(5),
+    // shadowColor: COLORS.primary.main,
+    // shadowOffset: { width: 0, height: 4 },
+    // shadowOpacity: scaler(0.25),
+    // shadowRadius: scaler(4),
+    // elevation: scaler(5),
+    paddingVertical: scaler(14),
+    borderWidth: scaler(1),
+    borderColor: COLORS.primary.main,
   },
   signInButtonText: {
     color: COLORS.primary.main,
-    fontSize: scaler(18),
-    fontWeight: '600',
+    fontSize: scaler(14),
+    lineHeight: scaler(18),
+    fontWeight: '700',
   },
   signUpContainer: {
     flexDirection: 'row',

@@ -1,7 +1,8 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import Item from '@/database/models/ItemModel';
 import ReusableActionMenu, { ActionMenuItem, ActionMenuPosition } from './ReusableActionMenu';
 import { Linking } from 'react-native';
+import TagEditor from '@/screens/EditTag';
 
 interface ReaderActionMenuProps {
   item: Item;
@@ -22,6 +23,23 @@ const ReaderActionMenu: React.FC<ReaderActionMenuProps> = ({
   onClose,
   animationDuration,
 }) => {
+  const [tagEditorVisible, setTagEditorVisible] = useState(false);
+
+  // Open tag editor
+  const openTagEditor = useCallback(() => {
+    // Close action menu first
+    onClose();
+    // Then open tag editor
+    setTimeout(() => {
+      setTagEditorVisible(true);
+    }, 300); // Small delay for better UX
+  }, [onClose]);
+
+  // Close tag editor
+  const closeTagEditor = useCallback(() => {
+    setTagEditorVisible(false);
+  }, []);
+
   // Handle edit tags
   const handleEditTags = useCallback(() => {
     // Implement edit tags functionality
@@ -77,7 +95,7 @@ const ReaderActionMenu: React.FC<ReaderActionMenuProps> = ({
         id: 'edit-tags',
         label: 'Edit Tags',
         icon: 'tag',
-        onPress: handleEditTags,
+        onPress: openTagEditor,
         dividerAfter: true,
       },
       {
@@ -114,17 +132,22 @@ const ReaderActionMenu: React.FC<ReaderActionMenuProps> = ({
         },
       },
     ];
-  }, [item, handleEditTags, handleOpenInBrowser]);
+  }, [item, openTagEditor, handleOpenInBrowser]);
 
   return (
-    <ReusableActionMenu
-      visible={visible}
-      items={getMenuItems()}
-      onClose={onClose}
-      position={position}
-      width={240}
-      animationDuration={animationDuration}
-    />
+    <>
+      <ReusableActionMenu
+        visible={visible}
+        items={getMenuItems()}
+        onClose={onClose}
+        position={position}
+        width={240}
+        animationDuration={animationDuration}
+      />
+      {tagEditorVisible && (
+        <TagEditor visible={tagEditorVisible} onClose={closeTagEditor} item={item} />
+      )}
+    </>
   );
 };
 

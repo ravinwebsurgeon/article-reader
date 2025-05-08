@@ -92,7 +92,7 @@ export const Input = <T extends FieldValues>({
               >
                 <Ionicons
                   name={isSecureTextVisible ? 'eye-off-outline' : 'eye-outline'}
-                  size={20}
+                  size={24}
                   color={lightColors.text.disabled}
                 />
               </TouchableOpacity>
