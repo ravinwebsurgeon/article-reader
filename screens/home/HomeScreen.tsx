@@ -26,6 +26,9 @@ import Item from '@/database/models/ItemModel';
 import Svg, { Path } from 'react-native-svg';
 import { SortOption } from '@/components/common/menu/SortMenu';
 import { ThemeText } from '@/components';
+import { getLocales } from 'expo-localization';
+import { I18n } from 'i18n-js';
+import { isLoading } from 'expo-font';
 
 // Use the exported fixed height from ArticleCard component
 const ITEM_HEIGHT = ARTICLE_CARD_HEIGHT;
@@ -254,6 +257,7 @@ const HomeScreenWithFilter = () => {
   const isDarkMode = activeTheme === 'dark';
 
   const { items, loading } = useItems({ filter, sorted });
+  console.log(loading, 'is this component rendered?');
 
   return (
     <View
