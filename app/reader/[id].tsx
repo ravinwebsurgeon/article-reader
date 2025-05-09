@@ -31,6 +31,7 @@ import { SvgIcon } from '@/components/SvgIcon';
 import { ActionMenuPosition } from '@/components/common/menu/ReusableActionMenu';
 import ReaderActionMenu from '@/components/common/menu/ReaderActionMenu';
 import { createMenuPosition, menuAnimationPresets } from '@/components/common/menu/menuAnimationPresents';
+import { getLiterataVariableStyle } from '@/theme';
 
 // Get window width for content sizing
 const { width } = Dimensions.get('window');
@@ -239,15 +240,17 @@ const ReaderComponent = ({ item }: { item: Item }) => {
               color: theme.colors.text.primary,
               fontSize: scaler(18),
               lineHeight: scaler(27),
+              ...getLiterataVariableStyle(400, 18, false),
             }}
             tagsStyles={{
-              p: { marginBottom: scaler(16) },
+              p: { marginBottom: scaler(16), ...getLiterataVariableStyle(400, 18, false), },
               h1: {
                 fontSize: scaler(24),
                 marginBottom: scaler(14),
                 marginTop: scaler(22),
                 color: theme.colors.text.primary,
                 fontWeight: 'bold',
+                ...getLiterataVariableStyle(700, 24, false),
               },
               h2: {
                 fontSize: scaler(22),
@@ -255,6 +258,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
                 marginTop: scaler(22),
                 color: theme.colors.text.primary,
                 fontWeight: 'bold',
+                ...getLiterataVariableStyle(700, 22, false),
               },
               h3: {
                 fontSize: scaler(19),
@@ -262,12 +266,13 @@ const ReaderComponent = ({ item }: { item: Item }) => {
                 marginTop: scaler(18),
                 color: theme.colors.text.primary,
                 fontWeight: 'bold',
+                ...getLiterataVariableStyle(600, 19, false),
               },
-              a: { color: theme.colors.primary.main },
+              a: { color: theme.colors.primary.main,...getLiterataVariableStyle(400, 18, false), },
               img: { marginVertical: scaler(14) },
-              ul: { marginBottom: scaler(14), marginLeft: scaler(14) },
-              ol: { marginBottom: scaler(14), marginLeft: scaler(14) },
-              li: { marginBottom: scaler(8) },
+              ul: { marginBottom: scaler(14), marginLeft: scaler(14),...getLiterataVariableStyle(400, 18, false), },
+              ol: { marginBottom: scaler(14), marginLeft: scaler(14), ...getLiterataVariableStyle(400, 18, false), },
+              li: { marginBottom: scaler(8), ...getLiterataVariableStyle(400, 18, false), },
               blockquote: {
                 borderLeftWidth: scaler(2),
                 borderLeftColor: theme.colors.primary.main,
@@ -276,13 +281,34 @@ const ReaderComponent = ({ item }: { item: Item }) => {
                 marginRight: 0,
                 marginVertical: scaler(16),
                 fontStyle: 'italic',
+                ...getLiterataVariableStyle(400, 18, true), 
               },
-              figure: { marginVertical: scaler(16) },
+              figure: { marginVertical: scaler(16), ...getLiterataVariableStyle(400, 14, true), },
               figcaption: {
                 fontSize: scaler(14),
                 opacity: 0.7,
                 fontStyle: 'italic',
+                ...getLiterataVariableStyle(400, 14, true),
               },
+              em: {
+                ...getLiterataVariableStyle(400, 18, true), // weight: 400, optical size: 18, italic
+              },
+              strong: {
+                ...getLiterataVariableStyle(700, 18, false), // weight: 700, optical size: 18, not italic
+              },
+              code: {
+                fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+                backgroundColor: theme.colors.gray[100], 
+                paddingHorizontal: 4,
+                borderRadius: 4,
+              },
+              pre: {
+                backgroundColor: theme.colors.gray[100],
+                padding: scaler(12),
+                borderRadius: scaler(4),
+                marginVertical: scaler(14),
+                fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+              }
             }}
             defaultTextProps={{
               selectable: true,
