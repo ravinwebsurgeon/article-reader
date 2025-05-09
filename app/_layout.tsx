@@ -21,12 +21,15 @@ import NetworkProvider from '@/provider/NetworkProvider';
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  // This will check if the user has a valid token on app start
+
   const [loaded] = useFonts({
-    'Poppins-Regular': require('../assets/fonts/Poppins-Regular.ttf'),
-    'Poppins-Medium': require('../assets/fonts/Poppins-Medium.ttf'),
-    'Poppins-SemiBold': require('../assets/fonts/Poppins-SemiBold.ttf'),
-    'Poppins-Bold': require('../assets/fonts/Poppins-Bold.ttf'),
+    // Inter variable fonts
+    'InterVariable': require('../assets/fonts/InterVariable.ttf'),
+    'InterVariable-Italic': require('../assets/fonts/InterVariable-Italic.ttf'),
+    
+    // Literata variable fonts
+    'Literata-VariableFont_opsz,wght': require('../assets/fonts/Literata-VariableFont_opsz,wght.ttf'),
+    'Literata-Italic-VariableFont_opsz,wght': require('../assets/fonts/Literata-Italic-VariableFont_opsz,wght.ttf'),
   });
 
   useEffect(() => {

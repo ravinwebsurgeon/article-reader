@@ -6,6 +6,7 @@ import {
   StyleProp,
   View,
   TouchableOpacityProps,
+  ScrollView,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { COLORS, lightColors } from '@/theme';
@@ -22,6 +23,7 @@ import { SvgIcon } from '@/components/SvgIcon';
 import { createMenuPosition, menuAnimationPresets } from '../menu/menuAnimationPresents';
 import ArticleActionMenu from '../menu/ArticleActionMenu';
 import { TagBadge } from '../tag';
+import { LinearGradient } from 'expo-linear-gradient';
 
 // Export a fixed height constant for use in FlatList
 export const ARTICLE_CARD_HEIGHT = scaler(143);
@@ -36,7 +38,6 @@ interface ArticleCardProps {
 
 const ArticleCardComponent: React.FC<ArticleCardProps> = ({
   item,
-  // tags,
   onPress,
   onMenuPress,
   style,
@@ -60,7 +61,10 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
     const loadTags = async () => {
       const itemTags = await item.itemTags.fetch();
       const tagObjects = await Promise.all(
-        itemTags.slice(0, 2).map(async (it) => {
+        // itemTags.slice(0, 3).map(async (it) => {
+        //   return await it.tag.fetch();
+        // }),
+        itemTags.map(async (it) => {
           return await it.tag.fetch();
         }),
       );
@@ -112,7 +116,6 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
             },
           ]}
           onPress={onPress}
-          // onLongPress={() => console.log('onLongPress')}
           activeOpacity={0.7}
         >
           <View style={styles.contentContainer}>
@@ -175,7 +178,7 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
             <View style={styles.tagsContainer}>
               {item.favorite && (
                 <View style={styles.favoriteContainer}>
-                  <Svg width="36" height="24" viewBox="0 0 36 24" fill="none">
+                  <Svg width="36" height="28" viewBox="0 0 36 28" fill="none">
                     <Rect width="36" height="24" rx="6" fill="#FCE37D" />
 
                     <Path
@@ -187,34 +190,54 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({
                   </Svg>
                 </View>
               )}
-              {tags.length > 0 &&
-                tags.map((tag: Tag, index: number) => (
-                  <View key={index} style={styles.tagContainer}>
-                    <Svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <Path
-                        d="M11.1912 4.08891C10.9959 3.89364 10.6794 3.89364 10.4841 4.08891C10.2888 4.28417 10.2888 4.60075 10.4841 4.79601L11.1912 5.50312C11.3865 5.69838 11.703 5.69838 11.8983 5.50312C12.0936 5.30786 12.0936 4.99127 11.8983 4.79601L11.1912 4.08891Z"
-                        fill="#1C1F21"
-                        fillOpacity="0.84"
-                      />
-                      <Path
-                        fillRule="evenodd"
-                        clipRule="evenodd"
-                        d="M13.1241 1.77936C12.6084 1.26364 11.9089 0.973907 11.1795 0.973907H9.08119C8.35185 0.973907 7.65238 1.26364 7.13665 1.77936L1.51121 7.40481C0.437264 8.47875 0.437264 10.22 1.51121 11.2939L4.70173 14.4844C5.77134 15.554 7.504 15.559 8.5797 14.4955L14.2307 8.90853C14.7609 8.38434 15.0556 7.66733 15.0471 6.9218L15.0229 4.78634C15.0148 4.06783 14.7258 3.38104 14.2177 2.87294L13.1241 1.77936ZM11.1795 2.22391C11.5774 2.22391 11.9589 2.38194 12.2402 2.66325L13.3338 3.75682C13.6109 4.03397 13.7686 4.40858 13.773 4.8005L13.7972 6.93595C13.8018 7.3426 13.6411 7.7337 13.3519 8.01962L7.70087 13.6066C7.11413 14.1867 6.16904 14.184 5.58561 13.6005L2.39509 10.41C1.8093 9.82423 1.8093 8.87448 2.39509 8.28869L8.02053 2.66325C8.30184 2.38194 8.68337 2.22391 9.08119 2.22391H11.1795Z"
-                        fill="#1C1F21"
-                        fillOpacity="0.84"
-                      />
-                    </Svg>
-                    <ThemeText
-                      numberOfLines={1}
-                      style={styles.tagText}
-                      variant="tagStyle"
-                      color={theme.colors.text.dark}
-                    >
-                      {tag.name}
-                    </ThemeText>
-                  </View>
-                ))}
-                
+
+              {tags.length > 0 && (
+                <View style={styles.tagsContainerWrapper}>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.tagsScrollContent}
+                    scrollEventThrottle={16}
+                  >
+                    {tags.map((tag: Tag, index: number) => (
+                      <View key={index} style={styles.tagContainer}>
+                        <Svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+                          <Path
+                            d="M11.1912 4.08891C10.9959 3.89364 10.6794 3.89364 10.4841 4.08891C10.2888 4.28417 10.2888 4.60075 10.4841 4.79601L11.1912 5.50312C11.3865 5.69838 11.703 5.69838 11.8983 5.50312C12.0936 5.30786 12.0936 4.99127 11.8983 4.79601L11.1912 4.08891Z"
+                            fill="#1C1F21"
+                            fillOpacity="0.84"
+                          />
+                          <Path
+                            fillRule="evenodd"
+                            clipRule="evenodd"
+                            d="M13.1241 1.77936C12.6084 1.26364 11.9089 0.973907 11.1795 0.973907H9.08119C8.35185 0.973907 7.65238 1.26364 7.13665 1.77936L1.51121 7.40481C0.437264 8.47875 0.437264 10.22 1.51121 11.2939L4.70173 14.4844C5.77134 15.554 7.504 15.559 8.5797 14.4955L14.2307 8.90853C14.7609 8.38434 15.0556 7.66733 15.0471 6.9218L15.0229 4.78634C15.0148 4.06783 14.7258 3.38104 14.2177 2.87294L13.1241 1.77936ZM11.1795 2.22391C11.5774 2.22391 11.9589 2.38194 12.2402 2.66325L13.3338 3.75682C13.6109 4.03397 13.7686 4.40858 13.773 4.8005L13.7972 6.93595C13.8018 7.3426 13.6411 7.7337 13.3519 8.01962L7.70087 13.6066C7.11413 14.1867 6.16904 14.184 5.58561 13.6005L2.39509 10.41C1.8093 9.82423 1.8093 8.87448 2.39509 8.28869L8.02053 2.66325C8.30184 2.38194 8.68337 2.22391 9.08119 2.22391H11.1795Z"
+                            fill="#1C1F21"
+                            fillOpacity="0.84"
+                          />
+                        </Svg>
+                        <ThemeText
+                          numberOfLines={1}
+                          style={styles.tagText}
+                          variant="tagStyle"
+                          color={theme.colors.text.dark}
+                        >
+                          {tag.name}
+                        </ThemeText>
+                      </View>
+                    ))}
+                  </ScrollView>
+                  <LinearGradient
+                    colors={[
+                      'rgba(255, 255, 255, 0)',
+                      isDarkMode ? COLORS.dark.background : '#f8f9fa',
+                    ]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.tagsGradient}
+                  />
+                </View>
+              )}
+
               <TouchableOpacity
                 ref={menuButtonRef}
                 style={styles.menuButton}
@@ -281,12 +304,12 @@ const styles = StyleSheet.create({
   },
   tagsContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: scaler(0),
   },
   favoriteContainer: {
-    marginRight: scaler(8),
+    marginRight: scaler(4),
   },
   tagContainer: {
     flexDirection: 'row',
@@ -295,7 +318,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: scaler(10),
     borderRadius: scaler(8),
     marginRight: scaler(4),
-    marginBottom: scaler(4),
     minHeight: 24,
   },
   tagText: {
@@ -317,6 +339,30 @@ const styles = StyleSheet.create({
   },
   date: {
     color: COLORS.darkGray,
+  },
+  tagsContainerWrapper: {
+    position: 'relative',
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: scaler(0),
+    overflow: 'hidden',
+    marginRight: scaler(40), 
+  },
+  tagsScrollContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: scaler(40), // Add extra space for fade effect
+  },
+  tagsGradient: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    bottom: 0,
+    width: scaler(60),
+    zIndex: 1,
+    pointerEvents: 'none',
   },
 });
 
