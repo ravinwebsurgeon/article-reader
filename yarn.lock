@@ -5752,6 +5752,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-linear-gradient@npm:~14.1.4":
+  version: 14.1.4
+  resolution: "expo-linear-gradient@npm:14.1.4"
+  peerDependencies:
+    expo: "*"
+    react: "*"
+    react-native: "*"
+  checksum: eab8d01fcce1b8b42ea401c681b5151c3b161666fa3a00181fddae4fb64c23f65945afc60176f9c367fe6963fdd4192e5de86a8b50203581f99bcea872b11451
+  languageName: node
+  linkType: hard
+
 "expo-linking@npm:~7.1.4":
   version: 7.1.4
   resolution: "expo-linking@npm:7.1.4"
@@ -9515,6 +9526,7 @@ __metadata:
     expo-font: ~13.3.1
     expo-haptics: ~14.1.4
     expo-image: ~2.1.7
+    expo-linear-gradient: ~14.1.4
     expo-linking: ~7.1.4
     expo-localization: ~16.1.5
     expo-router: ~5.0.6
