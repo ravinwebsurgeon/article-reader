@@ -347,12 +347,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: scaler(0),
     overflow: 'hidden',
-    flexBasis:scaler(50),
-
+    marginRight: scaler(40), 
   },
   tagsScrollContent: {
     flex: 1,
-    flexBasis:'80%',
     flexDirection: 'row',
     alignItems: 'center',
     paddingRight: scaler(40), // Add extra space for fade effect
