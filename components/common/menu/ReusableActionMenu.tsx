@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   View,
   StyleSheet,
@@ -112,72 +112,77 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
 
   // Animation values
   const scaleAnim = useRef(new Animated.Value(0)).current;
-  const [modalVisible, setModalVisible] = useState(visible);
+  const [modalVisible, setModalVisible] = useState(false);
 
   // State for menu dimensions and positioning
-  const [menuHeight, setMenuHeight] = useState(0);
-  const [menuWidth, setMenuWidth] = useState(
-    typeof width === 'number' ? scaler(width) : DEFAULT_MENU_WIDTH,
-  );
+  const [menuDimensions, setMenuDimensions] = useState({ height: 0, width: typeof width === 'number' ? scaler(width) : DEFAULT_MENU_WIDTH });
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const [isPositioned, setIsPositioned] = useState(false);
   const [isScrollable, setIsScrollable] = useState(false);
 
-  // Handle visibility changes
+  // Update visibility state separately from animation to avoid race conditions
   useEffect(() => {
     if (visible) {
-      // Only show modal after we have a position
-      if (menuPosition.top !== 0 || menuPosition.left !== 0) {
-        setModalVisible(true);
-        // Reset animation value before starting
-        scaleAnim.setValue(0);
-
-        // Get animation preset based on the prop or use default
-        const presetName = animationPreset || 'bouncy';
-        const preset = menuAnimationPresets[presetName] || menuAnimationPresets.bouncy;
-
-        // Start animation
-        Animated.timing(scaleAnim, {
-          toValue: 1,
-          duration: animationDuration,
-          // easing: Easing.out(Easing.back(1.5)),
-          easing: Easing.out(Easing.back(preset.bounceIntensity)),
-          useNativeDriver: true,
-        }).start();
-      }
-    } else {
-      // When closing, we don't immediately hide the modal
-      // We'll do that after the animation completes
-      if (modalVisible) {
-        // Get animation preset based on the prop or use default
-        const presetName = animationPreset || 'bouncy';
-        const preset = menuAnimationPresets[presetName] || menuAnimationPresets.bouncy;
-        Animated.timing(scaleAnim, {
-          toValue: 0,
-          // duration: animationDuration * 0.75, // Slightly faster closing animation
-          duration: preset.closeDelay,
-          easing: Easing.in(Easing.ease),
-          useNativeDriver: true,
-        }).start(() => {
-          setModalVisible(false);
-          // Reset position when closed
-          setMenuPosition({ top: 0, left: 0 });
-        });
-      }
+      setModalVisible(true);
     }
-  }, [visible, menuPosition, scaleAnim, animationDuration]);
+  }, [visible]);
 
-  // Update the calculateMenuPosition function to accept height and width parameters
+  // Handle animation based on visibility
+  useEffect(() => {
+    if (visible && isPositioned) {
+      // Only animate after we have a position
+      scaleAnim.setValue(0);
+
+      // Get animation preset
+      const presetName = animationPreset || 'bouncy';
+      const preset = menuAnimationPresets[presetName] || menuAnimationPresets.bouncy;
+
+      // Start animation
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: animationDuration,
+        easing: Easing.out(Easing.back(preset.bounceIntensity)),
+        useNativeDriver: true,
+      }).start();
+    } else if (!visible && modalVisible) {
+      // Get animation preset
+      const presetName = animationPreset || 'bouncy';
+      const preset = menuAnimationPresets[presetName] || menuAnimationPresets.bouncy;
+
+      // Animate out
+      Animated.timing(scaleAnim, {
+        toValue: 0,
+        duration: preset.closeDelay,
+        easing: Easing.in(Easing.ease),
+        useNativeDriver: true,
+      }).start(() => {
+        setModalVisible(false);
+        // Reset positioning state after animation completes
+        setIsPositioned(false);
+      });
+    }
+  }, [visible, isPositioned, modalVisible, scaleAnim, animationDuration, animationPreset]);
+
+  // Reset state when menu closes completely
+  useEffect(() => {
+    if (!modalVisible && !visible) {
+      // Clean up state only after modal is fully hidden
+      setMenuPosition({ top: 0, left: 0 });
+      setMenuDimensions({ height: 0, width: typeof width === 'number' ? scaler(width) : DEFAULT_MENU_WIDTH });
+      setIsScrollable(false);
+    }
+  }, [modalVisible, visible, width]);
+
+  // Calculate menu position based on measured dimensions
   const calculateMenuPosition = useCallback(
     (menuHeight: number, menuWidth: number) => {
-      // Add parameters here
-      console.log(menuHeight, 'menuHeight', menuWidth, 'menuWidth in calculateMenuPosition');
+      // Center the menu if no position is provided
       if (!position.x && !position.y) {
-        // Center the menu if no position is provided
         setMenuPosition({
           top: (SCREEN_HEIGHT - menuHeight) / 2,
           left: (SCREEN_WIDTH - menuWidth) / 2,
         });
+        setIsPositioned(true);
         return;
       }
 
@@ -191,7 +196,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
       let top = 0;
       let left = 0;
 
-      // Vertical positioning logic (using menuHeight parameter)
+      // Vertical positioning logic
       if (preferredPosition === 'bottom') {
         top = anchorY + anchorHeight;
         if (top + menuHeight + SAFE_AREA_PADDING > SCREEN_HEIGHT) {
@@ -206,7 +211,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
         top = anchorY + anchorHeight / 2 - menuHeight / 2;
       }
 
-      // Horizontal positioning logic (using menuWidth parameter)
+      // Horizontal positioning logic
       if (preferredAlign === 'center') {
         left = anchorX + anchorWidth / 2 - menuWidth / 2;
       } else if (preferredAlign === 'start') {
@@ -226,94 +231,62 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
       if (top < SAFE_AREA_PADDING) {
         top = SAFE_AREA_PADDING;
       } else if (top + menuHeight + SAFE_AREA_PADDING > SCREEN_HEIGHT) {
-        setIsScrollable(true);
+        const shouldScroll = true;
         const availableHeight = SCREEN_HEIGHT - SAFE_AREA_PADDING * 2;
-        setMenuHeight(availableHeight);
+        
+        // Create a new function for this update to avoid state batching issues
+        setIsScrollable(shouldScroll);
+        setMenuDimensions(prev => ({ ...prev, height: Math.min(availableHeight, maxHeight) }));
         top = SAFE_AREA_PADDING;
       }
 
+      // Update position state
       setMenuPosition({ top, left });
       setIsPositioned(true);
     },
-    [
-      position,
-      position.x,
-      position.y,
-      position.width,
-      position.height,
-      position.position,
-      position.align,
-    ],
+    [position, maxHeight],
   );
 
-  // 2. Add cleanup when menu closes
-  // Modify the visibility useEffect to reset position state
-  // useEffect(() => {
-  //   if (visible) {
-  //     // Reset positioning state when opening
-  //     setIsPositioned(false);
-  //     setMenuPosition({ top: 0, left: 0 });
-
-  //     // Trigger fresh measurement
-  //     if (menuRef.current) {
-  //       menuRef.current.measureLayout(() => {
-  //         // This forces a re-layout
-  //       });
-  //     }
-  //   }
-  // }, [visible]);
-
-  // Update onMenuLayout to pass measured dimensions to calculateMenuPosition
+  // Handle menu layout measurements
   const onMenuLayout = useCallback(
     (event: LayoutChangeEvent) => {
       const { height, width } = event.nativeEvent.layout;
-
-      // Update state with new dimensions
-      if (menuHeight === 0) setMenuHeight(height);
-      if (Math.abs(height - menuHeight) > 1) {
-        setMenuHeight(height);
+      
+      // Skip redundant updates if dimensions haven't changed significantly
+      const hasHeightChanged = Math.abs(height - menuDimensions.height) > 1;
+      const hasWidthChanged = Math.abs(width - menuDimensions.width) > 1;
+      
+      if (!isPositioned && visible) {
+        // Batch dimension updates together
+        const newHeight = height > maxHeight ? maxHeight : height;
+        const newWidth = typeof width === 'number' ? width : menuDimensions.width;
+        
+        // Update dimensions first
+        setMenuDimensions({ height: newHeight, width: newWidth });
+        
+        // Then calculate position based on these dimensions
+        calculateMenuPosition(newHeight, newWidth);
+        
+        // Update scrollable state if needed
         if (height > maxHeight) {
           setIsScrollable(true);
-          setMenuHeight(maxHeight);
-        } else {
-          setIsScrollable(false);
         }
-      }
-
-      if (typeof width === 'number' && Math.abs(width - menuWidth) > 1) {
-        setMenuWidth(width);
-      }
-
-      // Calculate position using the measured dimensions
-      if (!isPositioned && visible) {
-        calculateMenuPosition(height, width); // Pass the actual dimensions here
+      } else if ((hasHeightChanged || hasWidthChanged) && !isPositioned) {
+        // Only update dimensions if position hasn't been calculated yet
+        const updatedDimensions = {
+          height: hasHeightChanged ? height : menuDimensions.height,
+          width: hasWidthChanged ? width : menuDimensions.width
+        };
+        setMenuDimensions(updatedDimensions);
       }
     },
-    [menuHeight, menuWidth, maxHeight, isPositioned, visible, calculateMenuPosition],
+    [menuDimensions, maxHeight, isPositioned, visible, calculateMenuPosition],
   );
-
-  // Reset scroll position when menu opens
-  useEffect(() => {
-    if (!visible) {
-      setIsScrollable(false);
-    }
-  }, [visible]);
 
   // Handle close with animation
   const handleClose = useCallback(() => {
-    Animated.timing(scaleAnim, {
-      toValue: 0,
-      duration: 150,
-      easing: Easing.out(Easing.ease),
-      useNativeDriver: true,
-    }).start(() => {
-      onClose();
-      setModalVisible(false);
-      setMenuPosition({ top: 0, left: 0 });
-      setIsPositioned(false);
-      setMenuHeight(0); 
-    });
-  }, [scaleAnim, onClose]);
+    onClose();
+  }, [onClose]);
 
   // Render each menu item
   const renderMenuItem = useCallback(
@@ -387,14 +360,9 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
     [isDarkMode, theme.colors.text.dark, handleClose],
   );
 
+  // Animation styles
   const animatedStyle = useMemo(() => {
-    // Get animation parameters from presets
-    const initialScale = 0.1; // Start very small to create "growing from dot" effect
-
-    // We need to calculate the exact position of the menu-dots relative to the menu
-    // to make it look like the menu is growing out from that exact point
-
-    // These will hold the translation offsets for making it look like it's growing from the dots
+    const initialScale = 0.1;
     let translateX = 0;
     let translateY = 0;
 
@@ -404,20 +372,19 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
       position.y !== undefined &&
       position.height !== undefined
     ) {
-      // 1. Calculate the anchor point (center of the menu-dots button)
+      // Calculate the anchor point (center of the menu-dots button)
       const anchorCenterX = position.x + position.width / 2;
       const anchorCenterY = position.y + position.height / 2;
 
-      // 2. Calculate the menu's center
-      const menuCenterX = menuPosition.left + menuWidth / 2;
-      const menuCenterY = menuPosition.top + menuHeight / 2;
+      // Calculate the menu's center
+      const menuCenterX = menuPosition.left + menuDimensions.width / 2;
+      const menuCenterY = menuPosition.top + menuDimensions.height / 2;
 
-      // 3. Calculate the distance between the anchor center and menu center
+      // Calculate the distance between the anchor center and menu center
       const deltaX = anchorCenterX - menuCenterX;
       const deltaY = anchorCenterY - menuCenterY;
 
-      // 4. Scale this distance based on how much we're scaling
-      // This creates the effect of the menu growing outward from the dot
+      // Scale this distance for animation
       translateX = deltaX * (1 - initialScale);
       translateY = deltaY * (1 - initialScale);
     }
@@ -447,13 +414,18 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
         },
       ],
     };
-  }, [scaleAnim, position, menuPosition, menuWidth, menuHeight]);
+  }, [scaleAnim, position, menuPosition, menuDimensions]);
+
+  // Don't render anything if modal shouldn't be visible
+  if (!visible && !modalVisible) {
+    return null;
+  }
 
   return (
     <Modal
       transparent
-      visible={visible}
-      animationType={'none'}
+      visible={modalVisible}
+      animationType="none"
       onRequestClose={handleClose}
       statusBarTranslucent
     >
@@ -470,11 +442,10 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
                     : lightColors.background.paper,
                   top: menuPosition.top,
                   left: menuPosition.left,
-                  width: typeof width === 'string' ? width : scaler(width),
+                  width: typeof width === 'string' ? width : menuDimensions.width,
                   maxHeight: isScrollable ? maxHeight : undefined,
                 },
                 theme.shadows[3],
-                // Animation styles for the menu
                 animatedStyle,
               ]}
               onLayout={onMenuLayout}
@@ -520,7 +491,6 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    // backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -530,9 +500,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: MENU_PADDING,
     elevation: scaler(5),
     overflow: 'hidden',
-    // Add origin for scale animations
     backfaceVisibility: 'hidden',
-    // Add shadow styles for iOS
     ...Platform.select({
       ios: {
         shadowColor: 'rgba(0, 0, 0, 0.3)',
@@ -568,7 +536,6 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   iconContainer: {
-    // marginRight: scaler(16),
     width: scaler(24),
     height: scaler(24),
     alignItems: 'center',
@@ -585,8 +552,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: StyleSheet.hairlineWidth,
-    // marginVertical: scaler(4),
-    // marginHorizontal: scaler(16),
   },
   menuFooter: {
     paddingHorizontal: scaler(8),
