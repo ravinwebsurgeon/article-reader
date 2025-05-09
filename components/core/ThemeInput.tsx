@@ -10,6 +10,7 @@ import {
   StyleProp,
 } from 'react-native';
 import { ThemeText } from './ThemeText';
+import { getInterVariableStyle } from '@/theme';
 
 export interface ThemeInputProps extends TextInputProps {
   label?: string;
@@ -92,6 +93,7 @@ export const ThemeInput: React.FC<ThemeInputProps> = ({
             styles.input,
             {
               color: theme.colors.text.primary,
+              ...getInterVariableStyle(400, false),
             },
             style,
           ]}
