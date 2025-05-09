@@ -86,9 +86,38 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
       const tags = await tagsCollection.query().fetch();
       setAllTags(tags);
 
-      // Categorize tags (simplified version - in real app, you'd use recency data)
-      const recent = tags.slice(0, Math.min(5, tags.length));
-      const others = tags.slice(Math.min(5, tags.length));
+
+    // Get all ItemTag relationships to determine tag usage
+    const itemTagsCollection = database.collections.get('item_tags');
+    const allItemTags = await itemTagsCollection.query().fetch();
+    
+    // Create a map of tag ID to its most recent usage timestamp
+    const tagLastUsedMap = new Map();
+    
+    // Process all ItemTag relationships to find the most recent usage for each tag
+    allItemTags.forEach(itemTag => {
+      const tagId = itemTag.tag.id;
+      const usageTime = itemTag.createdAt.getTime();
+      
+      if (!tagLastUsedMap.has(tagId) || usageTime > tagLastUsedMap.get(tagId)) {
+        tagLastUsedMap.set(tagId, usageTime);
+      }
+    });
+
+    // Sort tags by last usage time (most recent first)
+    const sortedTags = [...tags].sort((a, b) => {
+      const aLastUsed = tagLastUsedMap.get(a.id) || a.createdAt.getTime();
+      const bLastUsed = tagLastUsedMap.get(b.id) || b.createdAt.getTime();
+      return bLastUsed - aLastUsed; // Descending order (newest first)
+    });
+
+    // Get the 5 most recently used tags
+    const recent = sortedTags.slice(0, Math.min(5, sortedTags.length));
+    // All other tags
+    const others = sortedTags.slice(Math.min(5, sortedTags.length));
+
+      // const recent = tags.slice(0, Math.min(5, tags.length));
+      // const others = tags.slice(Math.min(5, tags.length));
       setRecentTags(recent);
       setOtherTags(others);
 
