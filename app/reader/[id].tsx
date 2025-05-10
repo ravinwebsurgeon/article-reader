@@ -16,7 +16,7 @@ import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { marked } from "marked";
 import { RenderHTML } from "react-native-render-html";
-import { menuAnimationPresets } from "@/components/common/menu/menuAnimationPresents";
+import { menuAnimationPresets , createMenuPosition } from "@/components/common/menu/menuAnimationPresents";
 
 // Import themed components
 import { ThemeView, ThemeText } from "@/components/core";
@@ -31,7 +31,6 @@ import RecommendedArticles from "./RecommendedArticles";
 import { SvgIcon } from "@/components/SvgIcon";
 import { ActionMenuPosition } from "@/components/common/menu/ReusableActionMenu";
 import ReaderActionMenu from "@/components/common/menu/ReaderActionMenu";
-import { createMenuPosition } from "@/components/common/menu/menuAnimationPresents";
 import { getLiterataVariableStyle } from "@/theme";
 
 // Get window width for content sizing
