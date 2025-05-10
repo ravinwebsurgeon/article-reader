@@ -31,7 +31,6 @@ import { withObservables } from "@nozbe/watermelondb/react";
 import { Database } from "@nozbe/watermelondb";
 import { useDatabase } from "@/database/provider/DatabaseProvider";
 import Item from "@/database/models/ItemModel";
-import { scaler } from "@/utils";
 import RecommendedArticles from "./RecommendedArticles";
 import { SvgIcon } from "@/components/SvgIcon";
 import { ActionMenuPosition } from "@/components/common/menu/ReusableActionMenu";
@@ -253,16 +252,16 @@ const ReaderComponent = ({ item }: { item: Item }) => {
           {/* Markdown content rendering */}
           <RenderHTML
             source={{ html: processedContent }}
-            contentWidth={width - scaler(40)}
+            contentWidth={width - 40}
             baseStyle={{
               color: theme.colors.text.primary,
-              fontSize: scaler(18),
-              lineHeight: scaler(27),
+              fontSize: 18,
+              lineHeight: 27,
               ...omitCursor(getLiterataVariableStyle(400, 18, false)),
             }}
             tagsStyles={{
               p: {
-                marginBottom: scaler(16),
+                marginBottom: 16,
               },
             }}
           />
@@ -395,17 +394,17 @@ const styles = StyleSheet.create({
   customHeader: {
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: scaler(8),
-    paddingVertical: scaler(12),
-    paddingTop: scaler(50),
-    borderBottomWidth: scaler(1),
+    paddingHorizontal: 8,
+    paddingVertical: 12,
+    paddingTop: 50,
+    borderBottomWidth: 1,
     borderBottomColor: "rgba(0, 0, 0, 0.1)",
     ...Platform.select({
       ios: {
-        paddingTop: scaler(50),
+        paddingTop: 50,
       },
       android: {
-        paddingTop: scaler(30),
+        paddingTop: 30,
       },
     }),
   },
@@ -416,108 +415,108 @@ const styles = StyleSheet.create({
   backButton: {
     flexDirection: "row",
     alignItems: "center",
-    padding: scaler(4),
+    padding: 4,
   },
   savesText: {
-    marginLeft: scaler(4),
+    marginLeft: 4,
   },
   headerRight: {
     flexDirection: "row",
     alignItems: "center",
   },
   headerIconButton: {
-    padding: scaler(8),
-    marginLeft: scaler(8),
+    padding: 8,
+    marginLeft: 8,
   },
   // Menu styles
   androidMenu: {
     position: "absolute",
-    top: scaler(50),
-    right: scaler(10),
-    borderRadius: scaler(8),
-    padding: scaler(8),
-    width: scaler(180),
+    top: 50,
+    right: 10,
+    borderRadius: 8,
+    padding: 8,
+    width: 180,
     zIndex: 1000,
   },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
-    padding: scaler(12),
+    padding: 12,
   },
   menuItemText: {
-    marginLeft: scaler(12),
+    marginLeft: 12,
   },
   contentContainer: {
-    paddingHorizontal: scaler(20),
-    paddingTop: scaler(20),
-    paddingBottom: scaler(40),
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 40,
   },
   title: {
     fontWeight: "700",
-    marginBottom: scaler(16),
+    marginBottom: 16,
   },
   metaContainer: {
-    marginBottom: scaler(24),
+    marginBottom: 24,
   },
   metaText: {
-    marginBottom: scaler(16),
+    marginBottom: 16,
   },
   // After Reading section
   afterReadingSection: {
-    marginTop: scaler(40),
-    paddingTop: scaler(16),
+    marginTop: 40,
+    paddingTop: 16,
   },
   afterReadingText: {
-    // marginBottom: scaler(16),
-    marginLeft: scaler(8),
+    // marginBottom: 16,
+    marginLeft: 8,
   },
   footerActions: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    paddingVertical: scaler(12),
-    gap: scaler(8),
-    marginVertical: scaler(16),
+    paddingVertical: 12,
+    gap: 8,
+    marginVertical: 16,
   },
   footerButton: {
-    paddingVertical: scaler(8),
+    paddingVertical: 8,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: scaler(8),
+    gap: 8,
     flex: 1,
     flexBasis: "40%",
-    borderRadius: scaler(8),
+    borderRadius: 8,
   },
   footerIcon: {
-    // marginBottom: scaler(6),
+    // marginBottom: 6,
   },
   // Up Next section
   upNextSection: {
-    marginTop: scaler(40),
+    marginTop: 40,
     position: "relative",
-    paddingTop: scaler(16),
-    borderTopWidth: scaler(1),
+    paddingTop: 16,
+    borderTopWidth: 1,
     borderTopColor: "rgba(0, 0, 0, 0.1)",
   },
   upNextHeader: {
     alignItems: "center",
-    marginBottom: scaler(12),
+    marginBottom: 12,
     position: "absolute",
-    top: scaler(-12),
+    top: -12,
   },
   upNextText: {
-    marginLeft: scaler(8),
+    marginLeft: 8,
   },
   afterReadingSec: {
     position: "relative",
-    borderTopWidth: scaler(1),
+    borderTopWidth: 1,
     borderTopColor: "rgba(0, 0, 0, 0.1)",
   },
   afterReading: {
     alignItems: "center",
-    marginBottom: scaler(12),
+    marginBottom: 12,
     position: "absolute",
-    top: scaler(-12),
+    top: -12,
   },
 });

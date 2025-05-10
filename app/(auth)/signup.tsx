@@ -17,7 +17,6 @@ import { router } from "expo-router";
 import { useRegisterMutation } from "@/redux/services/authApi";
 import { useTheme } from "@/theme";
 import { ThemeText, ThemeView } from "@/components";
-import { scaler } from "@/utils";
 import { SvgIcon } from "@/components/SvgIcon";
 
 interface SignUpFormData {
@@ -82,25 +81,25 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
       backgroundColor: theme.colors.background.default,
     },
     subtitle: {
-      fontSize: scaler(16),
+      fontSize: 16,
       color: theme.colors.text.disabled,
-      marginBottom: scaler(16),
+      marginBottom: 16,
     },
     signUpButton: {
       backgroundColor: theme.colors.primary.main,
-      height: scaler(56),
-      borderRadius: scaler(28),
+      height: 56,
+      borderRadius: 28,
       justifyContent: "center",
       alignItems: "center",
       shadowColor: theme.colors.primary.main,
       shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: scaler(0.25),
-      shadowRadius: scaler(4),
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
       elevation: 5,
     },
     loginLinkText: {
       color: theme.colors.primary.main,
-      fontSize: scaler(16),
+      fontSize: 16,
       fontWeight: "600" as const,
     },
   };
@@ -208,38 +207,38 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
-    paddingHorizontal: scaler(24),
-    paddingTop: scaler(40),
-    paddingBottom: scaler(24),
+    paddingHorizontal: 24,
+    paddingTop: 40,
+    paddingBottom: 24,
     alignItems: "center",
   },
   header: {
-    marginBottom: scaler(15),
+    marginBottom: 15,
     alignItems: "flex-start",
-    marginTop: scaler(20),
+    marginTop: 20,
   },
   title: {
-    fontSize: scaler(28),
+    fontSize: 28,
     fontWeight: "bold",
-    marginBottom: scaler(8),
+    marginBottom: 8,
   },
   logoContainer: {
-    marginBottom: scaler(24),
+    marginBottom: 24,
   },
   formContainer: {
     width: "100%",
-    marginBottom: scaler(24),
+    marginBottom: 24,
   },
   input: {
-    marginBottom: scaler(16),
+    marginBottom: 16,
   },
   loginContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: scaler(24),
+    marginTop: 24,
   },
   loginText: {
-    fontSize: scaler(16),
+    fontSize: 16,
   },
 });
 

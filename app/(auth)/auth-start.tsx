@@ -16,7 +16,6 @@ import { useAppDispatch, useAppSelector } from "@/redux/hook";
 import { useForm } from "react-hook-form";
 import { useTheme } from "@/theme";
 import { ThemeButton, ThemeText, ThemeView } from "@/components";
-import { scaler } from "@/utils";
 import { SvgIcon } from "@/components/SvgIcon";
 
 interface LoginFormData {
@@ -68,29 +67,29 @@ function AuthStart() {
       backgroundColor: theme.colors.background.default,
     },
     subtitle: {
-      fontSize: scaler(17),
-      lineHeight: scaler(26),
+      fontSize: 17,
+      lineHeight: 26,
       fontWeight: "400" as const,
       color: theme.colors.text.disabled,
-      marginBottom: scaler(16),
+      marginBottom: 16,
     },
     signInButton: {
       backgroundColor: theme.colors.white,
-      borderRadius: scaler(28),
+      borderRadius: 28,
       justifyContent: "center",
       alignItems: "center",
-      paddingVertical: scaler(14),
-      borderWidth: scaler(1),
+      paddingVertical: 14,
+      borderWidth: 1,
       borderColor: theme.colors.primary.main,
     },
     signInButtonText: {
       color: theme.colors.primary.main,
-      fontSize: scaler(14),
-      lineHeight: scaler(18),
+      fontSize: 14,
+      lineHeight: 18,
     },
     signUpLinkText: {
       color: theme.colors.primary.main,
-      fontSize: scaler(16),
+      fontSize: 16,
       fontWeight: "600" as const,
     },
   };
@@ -158,36 +157,36 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
-    paddingHorizontal: scaler(24),
-    paddingTop: scaler(40),
-    paddingBottom: scaler(24),
+    paddingHorizontal: 24,
+    paddingTop: 40,
+    paddingBottom: 24,
   },
   header: {
     alignItems: "flex-start",
-    marginBottom: scaler(40),
-    marginTop: scaler(20),
+    marginBottom: 40,
+    marginTop: 20,
   },
   logoContainer: {
-    marginBottom: scaler(24),
+    marginBottom: 24,
   },
   title: {
-    fontSize: scaler(28),
+    fontSize: 28,
     fontWeight: "bold",
     textAlign: "left",
-    marginBottom: scaler(8),
+    marginBottom: 8,
   },
   buttonContainer: {
     width: "100%",
-    marginBottom: scaler(24),
-    gap: scaler(16),
+    marginBottom: 24,
+    gap: 16,
   },
   signUpContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: scaler(24),
+    marginTop: 24,
   },
   signUpText: {
-    fontSize: scaler(16),
+    fontSize: 16,
   },
 });
 

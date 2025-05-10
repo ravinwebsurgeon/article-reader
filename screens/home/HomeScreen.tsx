@@ -8,14 +8,12 @@ import ArticleCard, { ARTICLE_CARD_HEIGHT } from "@/components/common/card/Artic
 import FilterTabs from "@/components/common/tabBar/FilterTabs";
 import ActionMenu from "@/components/common/menu/ActionMenu";
 import NoItemsFound from "@/components/common/emptyState/NoUIFound";
-import { scaler } from "@/utils";
 import { useTheme } from "@/theme";
 import { syncEngine } from "@/database/sync/SyncEngine";
 import { withItems } from "@/database/hooks/withItems";
 import Item from "@/database/models/ItemModel";
 import Svg, { Path } from "react-native-svg";
 import { SortOption } from "@/components/common/menu/SortMenu";
-import { ThemeText } from "@/components";
 
 // Use the exported fixed height from ArticleCard component
 const ITEM_HEIGHT = ARTICLE_CARD_HEIGHT;
@@ -250,9 +248,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingHorizontal: scaler(16),
-    paddingTop: scaler(48),
-    paddingBottom: scaler(12),
+    paddingHorizontal: 16,
+    paddingTop: 48,
+    paddingBottom: 12,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -260,12 +258,12 @@ const styles = StyleSheet.create({
   logoContainer: {
     flexDirection: "row",
     alignItems: "center",
-    width: scaler(50),
-    height: scaler(30),
+    width: 50,
+    height: 30,
   },
   logoIcon: {
-    width: scaler(120),
-    height: scaler(30),
+    width: 120,
+    height: 30,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -274,33 +272,47 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   iconButton: {
-    marginLeft: scaler(20),
-    padding: scaler(4),
+    marginLeft: 20,
+    padding: 4,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: scaler(40),
+    padding: 40,
   },
   message: {
-    fontSize: scaler(20),
-    lineHeight: scaler(36),
-    marginTop: scaler(16),
+    fontSize: 20,
+    lineHeight: 36,
+    marginTop: 16,
     textAlign: "center",
-    marginBottom: scaler(8),
+    marginBottom: 8,
   },
   subMessage: {
-    lineHeight: scaler(22),
+    lineHeight: 22,
     textAlign: "center",
   },
   listContent: {
-    paddingBottom: scaler(20),
+    paddingBottom: 20,
   },
   emptyList: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  title: {
+    fontSize: 20,
+    lineHeight: 36,
+    marginTop: 16,
+  },
+  subtitle: {
+    marginBottom: 8,
+  },
+  description: {
+    lineHeight: 22,
+  },
+  footer: {
+    paddingBottom: 20,
   },
 });
 

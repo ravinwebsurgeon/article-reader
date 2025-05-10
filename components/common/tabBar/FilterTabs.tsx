@@ -2,7 +2,6 @@ import React, { useRef, useState, useMemo, useCallback } from "react";
 import { Text, StyleSheet, ScrollView, TouchableOpacity, View } from "react-native";
 import { useTheme, useDarkMode, type Theme } from "@/theme";
 import { ItemFilter } from "@/types/item";
-import { scaler } from "@/utils";
 import SortMenu, { SortOption } from "../menu/SortMenu";
 import { ActionMenuPosition } from "../menu/ReusableActionMenu";
 import { SvgIcon } from "@/components/SvgIcon";
@@ -183,39 +182,39 @@ const FilterTabs: React.FC<FilterTabsProps> = ({
 const makeStyles = (theme: Theme, isDarkMode: boolean) =>
   StyleSheet.create({
     container: {
-      borderBottomWidth: scaler(1),
+      borderBottomWidth: 1,
       borderBottomColor: theme.colors.divider,
     },
     scrollContainer: {
-      paddingHorizontal: scaler(12),
-      paddingVertical: scaler(12),
+      paddingHorizontal: 12,
+      paddingVertical: 12,
     },
     tab: {
       flexDirection: "row",
       alignItems: "center",
-      paddingHorizontal: scaler(16),
-      paddingVertical: scaler(10),
-      marginHorizontal: scaler(4),
-      borderRadius: scaler(20),
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+      marginHorizontal: 4,
+      borderRadius: 20,
       alignSelf: "center",
-      height: scaler(40),
+      height: 40,
     },
     iconContainer: {
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      width: scaler(24),
-      height: scaler(24),
+      width: 24,
+      height: 24,
     },
     tabText: {
-      fontSize: scaler(13),
+      fontSize: 13,
       fontWeight: "600",
-      lineHeight: scaler(19),
+      lineHeight: 19,
     },
     iconOnlyTab: {
-      paddingHorizontal: scaler(16),
-      minWidth: scaler(40),
-      paddingVertical: scaler(8),
+      paddingHorizontal: 16,
+      minWidth: 40,
+      paddingVertical: 8,
       alignSelf: "center",
       justifyContent: "center",
     },

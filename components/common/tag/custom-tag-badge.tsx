@@ -2,7 +2,6 @@ import type React from "react";
 import { TouchableOpacity, View, StyleSheet, type ViewStyle, type TextStyle } from "react-native";
 import { ThemeText } from "@/components/core";
 import { SvgIcon } from "@/components/SvgIcon";
-import { scaler } from "@/utils";
 import { useTheme } from "@/theme";
 
 export interface CustomTagBadgeProps {
@@ -43,18 +42,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#FF8A8A",
-    paddingHorizontal: scaler(12),
-    paddingVertical: scaler(6),
-    borderRadius: scaler(16),
-    marginRight: scaler(8),
-    marginBottom: scaler(8),
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    marginRight: 8,
+    marginBottom: 8,
   },
   text: {
     fontWeight: "500",
-    fontSize: scaler(14),
+    fontSize: 14,
   },
   removeButton: {
-    marginLeft: scaler(4),
+    marginLeft: 4,
   },
 });
 
