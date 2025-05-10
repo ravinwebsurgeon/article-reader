@@ -1,14 +1,6 @@
 import React, { useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Modal,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-} from 'react-native';
+import { StyleSheet, Modal, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
 import { useTheme, type Theme } from '@/theme';
-import { Ionicons } from '@expo/vector-icons';
 import Item from '@/database/models/ItemModel';
 import { ThemeText, ThemeView } from '@/components/core';
 import { scaler } from '@/utils';

@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import Item from '@/database/models/ItemModel';
 import ReusableActionMenu, { ActionMenuItem, ActionMenuPosition } from './ReusableActionMenu';
-import { useActionMenu } from '@/utils/hooks';
 import { useTheme } from '@/theme';
 import { Alert, Share } from 'react-native';
 import TagEditor from '@/screens/EditTag';

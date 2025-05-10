@@ -9,13 +9,14 @@ import {
   NativeScrollEvent,
   StyleSheet,
   Platform,
-  TouchableOpacityProps,
+  View,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { marked } from 'marked';
 import { RenderHTML } from 'react-native-render-html';
+import { menuAnimationPresets } from '@/components/common/menu/menuAnimationPresents';
 
 // Import themed components
 import { ThemeView, ThemeText } from '@/components/core';
@@ -30,26 +31,27 @@ import RecommendedArticles from './RecommendedArticles';
 import { SvgIcon } from '@/components/SvgIcon';
 import { ActionMenuPosition } from '@/components/common/menu/ReusableActionMenu';
 import ReaderActionMenu from '@/components/common/menu/ReaderActionMenu';
-import { createMenuPosition, menuAnimationPresets } from '@/components/common/menu/menuAnimationPresents';
+import { createMenuPosition } from '@/components/common/menu/menuAnimationPresents';
 import { getLiterataVariableStyle } from '@/theme';
 
 // Get window width for content sizing
 const { width } = Dimensions.get('window');
+
+function omitCursor(style: any) {
+  if (!style) return style;
+  const { cursor, ...rest } = style;
+  return rest;
+}
 
 // Base component that receives the item as a prop
 const ReaderComponent = ({ item }: { item: Item }) => {
   const router = useRouter();
   const theme = useTheme();
   const isDarkMode = useDarkMode();
-  const menuAnchorRef = useRef<typeof TouchableOpacity>(null);
-  
-  useEffect(() => {
-      console.log('ReaderComponent mounted');
-  },[])
 
   // Refs
   const scrollViewRef = useRef<ScrollView>(null);
-  const menuButtonRef = useRef<TouchableOpacityProps>(null);
+  const menuButtonRef = useRef<View>(null);
 
   // State
   const [progress, setProgress] = useState(item.progress);
@@ -123,7 +125,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
       );
 
       // Only update if significant change (avoid too many database operations)
-      if (Math.abs(newProgress - progress) > 0.01) {        
+      if (Math.abs(newProgress - progress) > 0.01) {
         setProgress(newProgress);
       }
     }
@@ -154,16 +156,18 @@ const ReaderComponent = ({ item }: { item: Item }) => {
   // Handle opening the action menu
   const handleOpenMenu = () => {
     if (menuButtonRef.current) {
-      menuButtonRef.current.measure((x, y, width, height, pageX, pageY) => {
-        setMenuPosition({
-          x: pageX,
-          y: pageY,
-          width,
-          height,
-          ...createMenuPosition('bottomRight'),
-        });
-        setMenuVisible(true);
-      });
+      menuButtonRef.current.measure(
+        (x: number, y: number, width: number, height: number, pageX: number, pageY: number) => {
+          setMenuPosition({
+            x: pageX,
+            y: pageY,
+            width,
+            height,
+            ...createMenuPosition('bottomRight'),
+          });
+          setMenuVisible(true);
+        },
+      );
     }
   };
 
@@ -238,77 +242,97 @@ const ReaderComponent = ({ item }: { item: Item }) => {
             contentWidth={width - scaler(40)}
             baseStyle={{
               color: theme.colors.text.primary,
-              fontSize: scaler(18),
-              lineHeight: scaler(27),
-              ...getLiterataVariableStyle(400, 18, false),
+              fontSize: Number(scaler(18)),
+              lineHeight: Number(scaler(27)),
+              ...omitCursor(getLiterataVariableStyle(400, 18, false)),
             }}
             tagsStyles={{
-              p: { marginBottom: scaler(16), ...getLiterataVariableStyle(400, 18, false), },
+              p: {
+                marginBottom: Number(scaler(16)),
+                ...omitCursor(getLiterataVariableStyle(400, 18, false)),
+              },
               h1: {
-                fontSize: scaler(24),
-                marginBottom: scaler(14),
-                marginTop: scaler(22),
+                fontSize: Number(scaler(24)),
+                marginBottom: Number(scaler(14)),
+                marginTop: Number(scaler(22)),
                 color: theme.colors.text.primary,
                 fontWeight: 'bold',
-                ...getLiterataVariableStyle(700, 24, false),
+                ...omitCursor(getLiterataVariableStyle(700, 24, false)),
               },
               h2: {
-                fontSize: scaler(22),
-                marginBottom: scaler(14),
-                marginTop: scaler(22),
+                fontSize: Number(scaler(22)),
+                marginBottom: Number(scaler(14)),
+                marginTop: Number(scaler(22)),
                 color: theme.colors.text.primary,
                 fontWeight: 'bold',
-                ...getLiterataVariableStyle(700, 22, false),
+                ...omitCursor(getLiterataVariableStyle(700, 22, false)),
               },
               h3: {
-                fontSize: scaler(19),
-                marginBottom: scaler(14),
-                marginTop: scaler(18),
+                fontSize: Number(scaler(19)),
+                marginBottom: Number(scaler(14)),
+                marginTop: Number(scaler(18)),
                 color: theme.colors.text.primary,
                 fontWeight: 'bold',
-                ...getLiterataVariableStyle(600, 19, false),
+                ...omitCursor(getLiterataVariableStyle(600, 19, false)),
               },
-              a: { color: theme.colors.primary.main,...getLiterataVariableStyle(400, 18, false), },
-              img: { marginVertical: scaler(14) },
-              ul: { marginBottom: scaler(14), marginLeft: scaler(14),...getLiterataVariableStyle(400, 18, false), },
-              ol: { marginBottom: scaler(14), marginLeft: scaler(14), ...getLiterataVariableStyle(400, 18, false), },
-              li: { marginBottom: scaler(8), ...getLiterataVariableStyle(400, 18, false), },
+              a: {
+                color: theme.colors.primary.main,
+                ...omitCursor(getLiterataVariableStyle(400, 18, false)),
+              },
+              img: { marginVertical: Number(scaler(14)) },
+              ul: {
+                marginBottom: Number(scaler(14)),
+                marginLeft: Number(scaler(14)),
+                ...omitCursor(getLiterataVariableStyle(400, 18, false)),
+              },
+              ol: {
+                marginBottom: Number(scaler(14)),
+                marginLeft: Number(scaler(14)),
+                ...omitCursor(getLiterataVariableStyle(400, 18, false)),
+              },
+              li: {
+                marginBottom: Number(scaler(8)),
+                ...omitCursor(getLiterataVariableStyle(400, 18, false)),
+              },
               blockquote: {
-                borderLeftWidth: scaler(2),
+                borderLeftWidth: Number(scaler(2)),
                 borderLeftColor: theme.colors.primary.main,
-                paddingLeft: scaler(16),
+                paddingLeft: Number(scaler(16)),
                 marginLeft: 0,
                 marginRight: 0,
-                marginVertical: scaler(16),
+                marginVertical: Number(scaler(16)),
                 fontStyle: 'italic',
-                ...getLiterataVariableStyle(400, 18, true), 
+                ...omitCursor(getLiterataVariableStyle(400, 18, true)),
               },
-              figure: { marginVertical: scaler(16), ...getLiterataVariableStyle(400, 14, true), },
+              figure: {
+                marginVertical: Number(scaler(16)),
+                ...omitCursor(getLiterataVariableStyle(400, 14, true)),
+              },
               figcaption: {
-                fontSize: scaler(14),
+                fontSize: Number(scaler(14)),
                 opacity: 0.7,
                 fontStyle: 'italic',
-                ...getLiterataVariableStyle(400, 14, true),
+                ...omitCursor(getLiterataVariableStyle(400, 14, true)),
               },
               em: {
-                ...getLiterataVariableStyle(400, 18, true), // weight: 400, optical size: 18, italic
+                ...omitCursor(getLiterataVariableStyle(400, 18, true)), // weight: 400, optical size: 18, italic
               },
               strong: {
-                ...getLiterataVariableStyle(700, 18, false), // weight: 700, optical size: 18, not italic
+                ...omitCursor(getLiterataVariableStyle(700, 18, false)), // weight: 700, optical size: 18, not italic
               },
               code: {
                 fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
-                backgroundColor: theme.colors.gray[100], 
+                backgroundColor: theme.colors.gray[100],
                 paddingHorizontal: 4,
                 borderRadius: 4,
               },
               pre: {
                 backgroundColor: theme.colors.gray[100],
-                padding: scaler(12),
-                borderRadius: scaler(4),
-                marginVertical: scaler(14),
+                padding: Number(scaler(12)),
+                borderRadius: Number(scaler(4)),
+                marginVertical: Number(scaler(14)),
                 fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
-              }
+              },
             }}
             defaultTextProps={{
               selectable: true,
@@ -424,7 +448,6 @@ const EnhancedReader = withObservables(['id'], ({ id, database }: EnhancedReader
 export default function ReaderScreen() {
   const { id } = useLocalSearchParams();
   const database = useDatabase();
-  const theme = useTheme();
 
   if (!id) {
     return (

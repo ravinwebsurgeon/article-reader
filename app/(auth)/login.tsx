@@ -12,9 +12,6 @@ import { router } from 'expo-router';
 import { resetAuthError } from '@/redux/slices/authSlice';
 import { useAppDispatch, useAppSelector } from '@/redux/hook';
 import { useForm } from 'react-hook-form';
-import { Ionicons } from '@expo/vector-icons';
-import { FormInput } from '@/components/ui/form/form-input';
-import { Button } from '@/components/ui/button';
 import { COLORS, lightColors } from '@/theme';
 import { useLoginMutation } from '@/redux/services/authApi';
 import { useTheme } from '@/theme';
@@ -22,6 +19,7 @@ import { ThemeText, ThemeView } from '@/components';
 import { scaler } from '@/utils';
 import { Input } from '@/components/ui/TextInput/input';
 import { SvgIcon } from '@/components/SvgIcon';
+import { Button } from '@/components/ui/button';
 
 interface LoginFormData {
   email: string;

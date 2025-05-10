@@ -9,7 +9,6 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useForm } from 'react-hook-form';
-import { Ionicons } from '@expo/vector-icons';
 import { Input } from '@/components/ui/TextInput/input';
 import { Button } from '@/components/ui/button';
 import { router } from 'expo-router';
@@ -20,7 +19,11 @@ import { ThemeText, ThemeView } from '@/components';
 import { scaler } from '@/utils';
 import { SvgIcon } from '@/components/SvgIcon';
 
-const SignUpScreen = ({ navigation }) => {
+interface SignUpScreenProps {
+  navigation: any; // TODO: Replace with proper navigation type
+}
+
+const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
   const [loader, setLoader] = useState(false);
   const [register] = useRegisterMutation();
 
@@ -75,7 +78,7 @@ const SignUpScreen = ({ navigation }) => {
               Welcome to Pocket
             </ThemeText>
             <ThemeText style={styles.subtitle}>
-              Log in or sign up to start saving articles you’ll actually get back to.
+              Log in or sign up to start saving articles you'll actually get back to.
             </ThemeText>
           </ThemeView>
 
