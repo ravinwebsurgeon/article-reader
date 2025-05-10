@@ -25,7 +25,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   onChangeText,
   ...rest
 }) => {
-  const [text, setText] = useState(value || "");
+  const [text, setText] = useState(value ?? "");
   const theme = useTheme();
 
   const handleChangeText = (newText: string) => {

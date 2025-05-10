@@ -22,6 +22,14 @@ interface ArticleCardProps {
   onPress: () => void;
 }
 
+interface ItemTag {
+  tag:
+    | {
+        fetch: () => Promise<Tag>;
+      }
+    | Tag;
+}
+
 const ArticleCardComponent: React.FC<ArticleCardProps> = ({ item, onPress, style }) => {
   const theme = useTheme();
   const isDarkMode = useDarkMode();
@@ -34,16 +42,16 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({ item, onPress, style
 
   useEffect(() => {
     const loadTags = async () => {
-      if (!item || !item.itemTags) {
+      if (!item?.itemTags) {
         setItemLocalTags([]);
         return;
       }
       try {
         // It is assumed that item.itemTags is a Relation<ItemTag[]>
         const fetchedItemTags = await item.itemTags.fetch();
-        const tagPromises = fetchedItemTags.map(async (itemTag: any) => {
+        const tagPromises = fetchedItemTags.map(async (itemTag: ItemTag) => {
           // Assuming itemTag.tag is a Relation<Tag>
-          if (itemTag.tag && typeof itemTag.tag.fetch === "function") {
+          if ("fetch" in itemTag.tag) {
             return await itemTag.tag.fetch();
           }
           // If itemTag.tag is already a Tag instance (e.g., due to pre-fetching)

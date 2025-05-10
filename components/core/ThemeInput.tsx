@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   ViewStyle,
   StyleProp,
+  NativeSyntheticEvent,
+  TextInputFocusEventData,
 } from "react-native";
 import { ThemeText } from "./ThemeText";
 import { getInterVariableStyle } from "@/theme";
@@ -39,19 +41,15 @@ export const ThemeInput: React.FC<ThemeInputProps> = ({
   const [isFocused, setIsFocused] = useState(false);
 
   // Handle focus state
-  const handleFocus = (e: any) => {
+  const handleFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
     setIsFocused(true);
-    if (inputProps.onFocus) {
-      inputProps.onFocus(e);
-    }
+    inputProps.onFocus?.(e);
   };
 
   // Handle blur state
-  const handleBlur = (e: any) => {
+  const handleBlur = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
     setIsFocused(false);
-    if (inputProps.onBlur) {
-      inputProps.onBlur(e);
-    }
+    inputProps.onBlur?.(e);
   };
 
   // Get border color based on state
@@ -113,13 +111,13 @@ export const ThemeInput: React.FC<ThemeInputProps> = ({
         )}
       </View>
 
-      {(error || hint) && (
+      {(error ?? hint) && (
         <ThemeText
           variant="caption"
           color={error ? theme.colors.error.main : theme.colors.text.hint}
           style={styles.helperText}
         >
-          {error || hint}
+          {error ?? hint}
         </ThemeText>
       )}
     </View>

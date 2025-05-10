@@ -49,7 +49,7 @@ const EMPTY_STATES = {
   },
 };
 
-const getIcon = (filter: string, theme: Theme) => {
+const getIcon = (filter: string, theme: Theme): JSX.Element => {
   const subtleFill = theme.colors.gray[300];
   const mediumFill = theme.colors.gray[500];
 
@@ -123,7 +123,7 @@ const NoItemsFound: React.FC<NoItemsFoundProps> = ({ filter }) => {
 
   return (
     <View style={styles.container}>
-      {getIcon(filter, theme) as any}
+      {getIcon(filter, theme)}
       <ThemeText variant="h3" style={styles.message}>
         {emptyState.message}
       </ThemeText>

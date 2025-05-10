@@ -20,8 +20,17 @@ import { ThemeText, ThemeView } from "@/components";
 import { scaler } from "@/utils";
 import { SvgIcon } from "@/components/SvgIcon";
 
+interface SignUpFormData {
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
 interface SignUpScreenProps {
-  navigation: any; // TODO: Replace with proper navigation type
+  navigation: {
+    navigate: (screen: string) => void;
+  };
 }
 
 const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
@@ -29,9 +38,9 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
   const [register] = useRegisterMutation();
   const theme = useTheme();
 
-  const { control, handleSubmit, watch } = useForm({
+  const { control, handleSubmit, watch } = useForm<SignUpFormData>({
     defaultValues: {
-      userName: "",
+      username: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -40,7 +49,7 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
 
   const password = watch("password");
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: SignUpFormData) => {
     console.log(data);
     setLoader(true);
     try {
@@ -51,7 +60,7 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
           password: data.password,
         },
       }).unwrap();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
     } finally {
       setLoader(false);

@@ -37,7 +37,7 @@ const TagList: React.FC<TagListProps> = ({
   // Render a single tag item
   const renderTagItem = useCallback(
     ({ item }: { item: Tag }) => {
-      const isSelected = selectedTagIds?.has(item.id) || false;
+      const isSelected = selectedTagIds?.has(item.id) ?? false;
 
       return (
         <TouchableOpacity
