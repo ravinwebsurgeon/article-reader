@@ -82,7 +82,7 @@ export const ThemeText: React.FC<ThemeTextProps> = ({
   // Combine styles
   const combinedStyle = [
     getVariantStyle(),
-    { color: color || defaultTextColor },
+    { color: color ?? defaultTextColor },
     align && { textAlign: align },
     bold && styles.bold,
     italic && styles.italic,

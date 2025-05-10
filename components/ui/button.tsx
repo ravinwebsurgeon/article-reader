@@ -31,27 +31,27 @@ export const Button = ({
 
   const getButtonStyle = () => {
     switch (variant) {
+      case "primary":
+        return styles.primaryButton;
       case "secondary":
         return styles.secondaryButton;
       case "outline":
         return styles.outlineButton;
       case "text":
         return styles.textButton;
-      default:
-        return styles.primaryButton;
     }
   };
 
   const getButtonTextStyle = () => {
     switch (variant) {
+      case "primary":
+        return styles.primaryButtonText;
       case "secondary":
         return styles.secondaryButtonText;
       case "outline":
         return styles.outlineButtonText;
       case "text":
         return styles.textButtonText;
-      default:
-        return styles.primaryButtonText;
     }
   };
 
@@ -59,10 +59,10 @@ export const Button = ({
     switch (size) {
       case "small":
         return styles.smallButton;
+      case "medium":
+        return styles.mediumButton;
       case "large":
         return styles.largeButton;
-      default:
-        return styles.mediumButton;
     }
   };
 

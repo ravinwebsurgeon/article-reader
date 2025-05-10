@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useMemo } from "react";
-import { View, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, StyleSheet, TouchableOpacity, ActivityIndicator, ViewStyle } from "react-native";
 import { ThemeText } from "@/components/core";
 import { SvgIcon } from "@/components/SvgIcon";
 import { useTheme, type Theme } from "@/theme";
@@ -13,7 +13,7 @@ import TagEditor from "@/screens/EditTag";
 export interface TagSelectorProps {
   item: Item;
   onTagsChanged?: () => void;
-  containerStyle?: any;
+  containerStyle?: ViewStyle;
   title?: string;
   maxTags?: number;
   showAddButton?: boolean;
@@ -52,7 +52,7 @@ const TagSelector: React.FC<TagSelectorProps> = ({
     try {
       setLoading(true);
       const itemTags = await getItemTags(item);
-      setTags(itemTags);
+      setTags(itemTags as Tag[]);
     } catch (error) {
       console.error("Error loading tags:", error);
     } finally {

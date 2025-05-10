@@ -40,8 +40,8 @@ const TagBadge: React.FC<TagBadgeProps> = ({
   const colors = useColors();
 
   // Default colors if not provided
-  const badgeColor = color || colors.primary.main;
-  const badgeBgColor = backgroundColor || colors.secondary.main;
+  const badgeColor = color ?? colors.primary.main;
+  const badgeBgColor = backgroundColor ?? colors.secondary.main;
 
   // Get dynamic styles based on size
   const getSizeStyles = () => {
@@ -58,6 +58,18 @@ const TagBadge: React.FC<TagBadgeProps> = ({
           },
           icon: 14,
         };
+      case "medium":
+        return {
+          container: {
+            paddingHorizontal: scaler(12),
+            paddingVertical: scaler(6),
+            borderRadius: scaler(8),
+          },
+          text: {
+            fontSize: scaler(12),
+          },
+          icon: 16,
+        };
       case "large":
         return {
           container: {
@@ -69,18 +81,6 @@ const TagBadge: React.FC<TagBadgeProps> = ({
             fontSize: scaler(16),
           },
           icon: 18,
-        };
-      default: // medium
-        return {
-          container: {
-            paddingHorizontal: scaler(12),
-            paddingVertical: scaler(6),
-            borderRadius: scaler(8),
-          },
-          text: {
-            fontSize: scaler(12),
-          },
-          icon: 16,
         };
     }
   };

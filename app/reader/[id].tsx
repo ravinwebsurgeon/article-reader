@@ -10,13 +10,17 @@ import {
   StyleSheet,
   Platform,
   View,
+  TextStyle,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { marked } from "marked";
 import { RenderHTML } from "react-native-render-html";
-import { menuAnimationPresets , createMenuPosition } from "@/components/common/menu/menuAnimationPresents";
+import {
+  menuAnimationPresets,
+  createMenuPosition,
+} from "@/components/common/menu/menuAnimationPresents";
 
 // Import themed components
 import { ThemeView, ThemeText } from "@/components/core";
@@ -24,6 +28,7 @@ import { useTheme, useDarkMode } from "@/theme/hooks";
 
 // Import WatermelonDB components
 import { withObservables } from "@nozbe/watermelondb/react";
+import { Database } from "@nozbe/watermelondb";
 import { useDatabase } from "@/database/provider/DatabaseProvider";
 import Item from "@/database/models/ItemModel";
 import { scaler } from "@/utils";
@@ -36,10 +41,13 @@ import { getLiterataVariableStyle } from "@/theme";
 // Get window width for content sizing
 const { width } = Dimensions.get("window");
 
-function omitCursor(style: any) {
+function omitCursor(style: TextStyle | undefined) {
   if (!style) return style;
-  const { cursor, ...rest } = style;
-  return rest;
+  const { cursor, overflow, ...rest } = style;
+  // Only add overflow back if it's not 'scroll'
+  const filtered = overflow === "scroll" ? rest : { ...rest, ...(overflow ? { overflow } : {}) };
+  // Remove any properties with value null
+  return Object.fromEntries(Object.entries(filtered).filter(([_, v]) => v !== null));
 }
 
 // Base component that receives the item as a prop
@@ -91,7 +99,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
 
   // Process markdown content
   const processedContent = useMemo(() => {
-    return marked.parse(item.content || "") as string;
+    return marked.parse(item.content ?? "") as string;
   }, [item.content]);
 
   // Handle navigation back
@@ -156,7 +164,14 @@ const ReaderComponent = ({ item }: { item: Item }) => {
   const handleOpenMenu = () => {
     if (menuButtonRef.current) {
       menuButtonRef.current.measure(
-        (x: number, y: number, width: number, height: number, pageX: number, pageY: number) => {
+        (
+          x: number,
+          y: number,
+          width: number,
+          height: number,
+          pageX: number,
+          pageY: number,
+        ): void => {
           setMenuPosition({
             x: pageX,
             y: pageY,
@@ -241,100 +256,14 @@ const ReaderComponent = ({ item }: { item: Item }) => {
             contentWidth={width - scaler(40)}
             baseStyle={{
               color: theme.colors.text.primary,
-              fontSize: Number(scaler(18)),
-              lineHeight: Number(scaler(27)),
+              fontSize: scaler(18),
+              lineHeight: scaler(27),
               ...omitCursor(getLiterataVariableStyle(400, 18, false)),
             }}
             tagsStyles={{
               p: {
-                marginBottom: Number(scaler(16)),
-                ...omitCursor(getLiterataVariableStyle(400, 18, false)),
+                marginBottom: scaler(16),
               },
-              h1: {
-                fontSize: Number(scaler(24)),
-                marginBottom: Number(scaler(14)),
-                marginTop: Number(scaler(22)),
-                color: theme.colors.text.primary,
-                fontWeight: "bold",
-                ...omitCursor(getLiterataVariableStyle(700, 24, false)),
-              },
-              h2: {
-                fontSize: Number(scaler(22)),
-                marginBottom: Number(scaler(14)),
-                marginTop: Number(scaler(22)),
-                color: theme.colors.text.primary,
-                fontWeight: "bold",
-                ...omitCursor(getLiterataVariableStyle(700, 22, false)),
-              },
-              h3: {
-                fontSize: Number(scaler(19)),
-                marginBottom: Number(scaler(14)),
-                marginTop: Number(scaler(18)),
-                color: theme.colors.text.primary,
-                fontWeight: "bold",
-                ...omitCursor(getLiterataVariableStyle(600, 19, false)),
-              },
-              a: {
-                color: theme.colors.primary.main,
-                ...omitCursor(getLiterataVariableStyle(400, 18, false)),
-              },
-              img: { marginVertical: Number(scaler(14)) },
-              ul: {
-                marginBottom: Number(scaler(14)),
-                marginLeft: Number(scaler(14)),
-                ...omitCursor(getLiterataVariableStyle(400, 18, false)),
-              },
-              ol: {
-                marginBottom: Number(scaler(14)),
-                marginLeft: Number(scaler(14)),
-                ...omitCursor(getLiterataVariableStyle(400, 18, false)),
-              },
-              li: {
-                marginBottom: Number(scaler(8)),
-                ...omitCursor(getLiterataVariableStyle(400, 18, false)),
-              },
-              blockquote: {
-                borderLeftWidth: Number(scaler(2)),
-                borderLeftColor: theme.colors.primary.main,
-                paddingLeft: Number(scaler(16)),
-                marginLeft: 0,
-                marginRight: 0,
-                marginVertical: Number(scaler(16)),
-                fontStyle: "italic",
-                ...omitCursor(getLiterataVariableStyle(400, 18, true)),
-              },
-              figure: {
-                marginVertical: Number(scaler(16)),
-                ...omitCursor(getLiterataVariableStyle(400, 14, true)),
-              },
-              figcaption: {
-                fontSize: Number(scaler(14)),
-                opacity: 0.7,
-                fontStyle: "italic",
-                ...omitCursor(getLiterataVariableStyle(400, 14, true)),
-              },
-              em: {
-                ...omitCursor(getLiterataVariableStyle(400, 18, true)), // weight: 400, optical size: 18, italic
-              },
-              strong: {
-                ...omitCursor(getLiterataVariableStyle(700, 18, false)), // weight: 700, optical size: 18, not italic
-              },
-              code: {
-                fontFamily: Platform.OS === "ios" ? "Menlo" : "monospace",
-                backgroundColor: theme.colors.gray[100],
-                paddingHorizontal: 4,
-                borderRadius: 4,
-              },
-              pre: {
-                backgroundColor: theme.colors.gray[100],
-                padding: Number(scaler(12)),
-                borderRadius: Number(scaler(4)),
-                marginVertical: Number(scaler(14)),
-                fontFamily: Platform.OS === "ios" ? "Menlo" : "monospace",
-              },
-            }}
-            defaultTextProps={{
-              selectable: true,
             }}
           />
         </ThemeView>
@@ -435,12 +364,12 @@ const ReaderComponent = ({ item }: { item: Item }) => {
 // Enhanced component that observes the item from the database
 interface EnhancedReaderProps {
   id: string;
-  database: any; // TODO: Import proper Database type from WatermelonDB
+  database: Database;
 }
 
 // Enhanced component that observes the item from the database
 const EnhancedReader = withObservables(["id"], ({ id, database }: EnhancedReaderProps) => ({
-  item: database.collections.get("items").findAndObserve(id),
+  item: database.collections.get<Item>("items").findAndObserve(id),
 }))(ReaderComponent);
 
 // Wrapper component that provides the database context
