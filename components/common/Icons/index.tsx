@@ -1,6 +1,6 @@
 import React from "react";
 import { View, ViewStyle } from "react-native";
-import Svg, { Path, Circle } from "react-native-svg";
+import Svg, { Path } from "react-native-svg";
 import { useTheme } from "@/theme";
 
 /**
@@ -42,23 +42,6 @@ const createIcon = (
 };
 
 /**
- * Back arrow icon component
- */
-export const BackIcon = createIcon(
-  ({ color }) => (
-    <Path
-      d="M19 12H5M12 19L5 12L12 5"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  ),
-  24,
-  "BackIcon",
-);
-
-/**
  * Search icon component
  */
 export const SearchIcon = createIcon(
@@ -73,21 +56,6 @@ export const SearchIcon = createIcon(
   ),
   24,
   "SearchIcon",
-);
-
-/**
- * More options icon component (three dots)
- */
-export const MoreIcon = createIcon(
-  ({ color }) => (
-    <>
-      <Circle cx="12" cy="12" r="1" fill={color} />
-      <Circle cx="19" cy="12" r="1" fill={color} />
-      <Circle cx="5" cy="12" r="1" fill={color} />
-    </>
-  ),
-  24,
-  "MoreIcon",
 );
 
 /**

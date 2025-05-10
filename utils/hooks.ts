@@ -4,7 +4,6 @@ import NetInfo from "@react-native-community/netinfo";
 import { useCallback } from "react";
 import { View } from "react-native";
 import { ActionMenuItem, ActionMenuPosition } from "@/components/common/menu/ReusableActionMenu";
-import { Q } from "@nozbe/watermelondb";
 import Tag from "@/database/models/TagModel";
 import Item from "@/database/models/ItemModel";
 import ItemTag from "@/database/models/ItemTagModel";
