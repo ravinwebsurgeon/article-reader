@@ -191,10 +191,11 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({ item, onPress, style
                     ))}
                   </ScrollView>
                   <LinearGradient
-                    colors={[theme.colors.transparent, theme.colors.background.default]}
+                    colors={["rgba(255, 255, 255, 0)", theme.colors.background.default]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
-                    style={styles.tagsGradient}
+                    style={[styles.tagsGradient, { width: 24 }]}
+                    locations={[0.3, 1]}
                   />
                 </View>
               )}
