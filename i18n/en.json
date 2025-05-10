@@ -1,0 +1,35 @@
+{
+  "app": {
+    "name": "Pocket",
+    "tagline": "Your personal pocket companion"
+  },
+  "common": {
+    "ok": "OK",
+    "cancel": "Cancel",
+    "yes": "Yes",
+    "no": "No",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit"
+  },
+  "auth": {
+    "login": {
+      "title": "Log In",
+      "email": "Email address",
+      "password": "Password",
+      "button": "Sign in"
+    },
+    "signup": {
+      "title": "Create an account",
+      "button": "Sign up"
+    }
+  },
+  "home": {
+    "welcome": "Welcome back, {{name}}!",
+    "subtitle": "Here's what's new"
+  },
+  "errors": {
+    "network": "Network error. Please try again.",
+    "unauthorized": "You must be logged in to do that."
+  }
+} 
