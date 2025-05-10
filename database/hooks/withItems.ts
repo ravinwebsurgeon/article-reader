@@ -1,17 +1,17 @@
-import { Q } from '@nozbe/watermelondb';
-import { withObservables } from '@nozbe/watermelondb/react';
-import { map } from 'rxjs/operators';
-import Item from '../models/ItemModel';
-import database from '../database';
-import { ItemFilter } from '@/types/item';
-import { SortOption } from '@/components/common/menu/SortMenu';
-import { useState, useEffect } from 'react';
-import { Subscription } from 'rxjs';
+import { Q } from "@nozbe/watermelondb";
+import { withObservables } from "@nozbe/watermelondb/react";
+import { map } from "rxjs/operators";
+import Item from "../models/ItemModel";
+import database from "../database";
+import { ItemFilter } from "@/types/item";
+import { SortOption } from "@/components/common/menu/SortMenu";
+import { useState, useEffect } from "react";
+import { Subscription } from "rxjs";
 
 /**
  * Access to the items collection in the WatermelonDB database
  */
-const itemsCollection = database.collections.get<Item>('items');
+const itemsCollection = database.collections.get<Item>("items");
 
 /**
  * Creates a new item in the database with the provided URL
@@ -47,7 +47,7 @@ export const deleteItem = async (item: Item) => {
  * @returns A function that provides the item as a prop to components
  */
 export const withItem = (id: string) => {
-  return withObservables(['id'], () => ({
+  return withObservables(["id"], () => ({
     item: itemsCollection.findAndObserve(id),
   }));
 };
@@ -62,44 +62,44 @@ interface WithItemsProps {
  * @param filter - Optional filter type to apply ('all', 'favorites', 'archived', etc.)
  * @returns A function that provides the filtered items as props to components
  */
-export const withItems = ({ filter = 'all', sorted = 'newest' }: WithItemsProps = {}) => {
-  const sort = sorted === 'newest' ? Q.desc : Q.asc;
-  
-  return withObservables(['filter'], () => {
+export const withItems = ({ filter = "all", sorted = "newest" }: WithItemsProps = {}) => {
+  const sort = sorted === "newest" ? Q.desc : Q.asc;
+
+  return withObservables(["filter"], () => {
     let query;
 
-    if (filter === 'favorites') {
+    if (filter === "favorites") {
       query = itemsCollection.query(
-        Q.where('favorite', true),
-        Q.where('archived', false),
-        Q.sortBy('created_at', sort),
+        Q.where("favorite", true),
+        Q.where("archived", false),
+        Q.sortBy("created_at", sort),
       );
-    } else if (filter === 'archived') {
-      query = itemsCollection.query(Q.where('archived', true), Q.sortBy('created_at', sort));
-    } else if (filter === 'tagged') {
+    } else if (filter === "archived") {
+      query = itemsCollection.query(Q.where("archived", true), Q.sortBy("created_at", sort));
+    } else if (filter === "tagged") {
       query = itemsCollection.query(
-        Q.where('archived', false),
-        Q.experimentalJoinTables(['item_tags']),
-        Q.on('item_tags', Q.where('tag_id', Q.notEq(null))),
-        Q.sortBy('created_at', sort),
+        Q.where("archived", false),
+        Q.experimentalJoinTables(["item_tags"]),
+        Q.on("item_tags", Q.where("tag_id", Q.notEq(null))),
+        Q.sortBy("created_at", sort),
       );
-    } else if (filter === 'short') {
+    } else if (filter === "short") {
       query = itemsCollection.query(
         // 260wpm * 4min = 1040 words
-        Q.where('word_count', Q.lte(1040)),
-        Q.where('archived', false),
-        Q.sortBy('created_at', sort),
+        Q.where("word_count", Q.lte(1040)),
+        Q.where("archived", false),
+        Q.sortBy("created_at", sort),
       );
-    } else if (filter === 'long') {
+    } else if (filter === "long") {
       query = itemsCollection.query(
         // 260wpm * 10min = 2600 words
-        Q.where('word_count', Q.gte(2600)),
-        Q.where('archived', false),
-        Q.sortBy('created_at', sort),
+        Q.where("word_count", Q.gte(2600)),
+        Q.where("archived", false),
+        Q.sortBy("created_at", sort),
       );
     } else {
       // Default to unarchived items
-      query = itemsCollection.query(Q.where('archived', false), Q.sortBy('created_at', sort));
+      query = itemsCollection.query(Q.where("archived", false), Q.sortBy("created_at", sort));
     }
 
     return {
@@ -107,97 +107,6 @@ export const withItems = ({ filter = 'all', sorted = 'newest' }: WithItemsProps 
     };
   });
 };
-
-export function useItems({
-  filter = 'all',
-  sorted = 'newest',
-}: {
-  filter: ItemFilter;
-  sorted: SortOption;
-}) {
-  const [items, setItems] = useState<Item[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setLoading(true);
-    const sortOrder = sorted === 'newest' ? Q.desc : Q.asc;
-    let query = database.collections
-      .get<Item>('items')
-      .query(Q.where('archived', false), Q.sortBy('created_at', sortOrder));
-
-    // apply the extra filter clauses
-    switch (filter) {
-      case 'favorites':
-        query = database.collections
-          .get<Item>('items')
-          .query(
-            Q.where('favorite', true),
-            Q.where('archived', false),
-            Q.sortBy('created_at', sortOrder),
-          );
-        break;
-
-      case 'archived':
-        query = database.collections
-          .get<Item>('items')
-          .query(Q.where('archived', true), Q.sortBy('created_at', sortOrder));
-        break;
-
-      case 'tagged':
-        query = database.collections
-          .get<Item>('items')
-          .query(
-            Q.where('archived', false),
-            Q.experimentalJoinTables(['item_tags']),
-            Q.on('item_tags', Q.where('tag_id', Q.notEq(null))),
-            Q.sortBy('created_at', sortOrder),
-          );
-        break;
-
-      case 'short':
-        query = database.collections
-          .get<Item>('items')
-          .query(
-            Q.where('word_count', Q.lte(1040)),
-            Q.where('archived', false),
-            Q.sortBy('created_at', sortOrder),
-          );
-        break;
-
-      case 'long':
-        query = database.collections
-          .get<Item>('items')
-          .query(
-            Q.where('word_count', Q.gte(2600)),
-            Q.where('archived', false),
-            Q.sortBy('created_at', sortOrder),
-          );
-        break;
-
-      case 'all':
-      default:
-        // already defaulted above
-        break;
-    }
-
-    console.time('Items.observe()');
-    const subscription: Subscription = query.observe().subscribe((freshItems) => {
-      console.timeEnd('Items.observe()');
-      console.log('[useItems] got items:', freshItems);
-      setItems(freshItems);
-      setLoading(false);
-
-    });
-
-    // cleanup on unmount / deps change
-    return () => {
-      subscription.unsubscribe();
-      setLoading(false);
-    };
-  }, [filter, sorted]);
-
-  return {items, loading};
-}
 
 interface WithSearchProps {
   query?: string;
@@ -209,12 +118,12 @@ interface WithSearchProps {
  * @returns A function that provides the search results as props to components
  */
 export const withSearch = ({ query }: WithSearchProps = {}) => {
-  return withObservables(['query'], ({ query: searchQuery }: { query?: string }) => {
-    const searchInput = searchQuery || '';
+  return withObservables(["query"], ({ query: searchQuery }: { query?: string }) => {
+    const searchInput = searchQuery || "";
 
     if (!searchInput.trim()) {
       return {
-        items: itemsCollection.query(Q.sortBy('id', Q.desc)).observe(),
+        items: itemsCollection.query(Q.sortBy("id", Q.desc)).observe(),
       };
     }
 
@@ -228,10 +137,10 @@ export const withSearch = ({ query }: WithSearchProps = {}) => {
     // For each term, create a condition that checks if it exists in any field
     const termConditions = searchTerms.map((term) =>
       Q.or(
-        Q.where('title', Q.like(`%${term}%`)),
-        Q.where('description', Q.like(`%${term}%`)),
-        Q.where('url', Q.like(`%${term}%`)),
-        Q.where('site_name', Q.like(`%${term}%`)),
+        Q.where("title", Q.like(`%${term}%`)),
+        Q.where("description", Q.like(`%${term}%`)),
+        Q.where("url", Q.like(`%${term}%`)),
+        Q.where("site_name", Q.like(`%${term}%`)),
       ),
     );
 
@@ -268,10 +177,10 @@ export const withSearch = ({ query }: WithSearchProps = {}) => {
 
             const scoredResults = results.map((item: Item) => {
               // Extract and lowercase text fields only once
-              const title = (item.title || '').toLowerCase();
-              const description = (item.description || '').toLowerCase();
-              const url = (item.url || '').toLowerCase();
-              const siteName = (item.siteName || '').toLowerCase();
+              const title = (item.title || "").toLowerCase();
+              const description = (item.description || "").toLowerCase();
+              const url = (item.url || "").toLowerCase();
+              const siteName = (item.siteName || "").toLowerCase();
 
               // Track matched terms for multiplier calculation
               const matchedTerms = new Set<string>();
@@ -298,7 +207,7 @@ export const withSearch = ({ query }: WithSearchProps = {}) => {
                   totalScore += 30;
                   matchedTerms.add(term);
                   // Domain match bonus
-                  if (url.replace(/https?:\/\/(www\.)?/, '').startsWith(term)) {
+                  if (url.replace(/https?:\/\/(www\.)?/, "").startsWith(term)) {
                     totalScore += 15;
                   }
                 }

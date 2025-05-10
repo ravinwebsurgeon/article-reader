@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from "react";
 import {
   View,
   StyleSheet,
@@ -10,16 +10,17 @@ import {
   Modal,
   Keyboard,
   TouchableWithoutFeedback,
-} from 'react-native';
-import { useTheme, useColors, useTypography } from '@/theme/hooks';
-import { scaler } from '@/utils';
-import { ThemeText, ThemeView } from '@/components/core';
-import Tag from '@/database/models/TagModel';
-import Item from '@/database/models/ItemModel';
-import { SvgIcon } from '@/components/SvgIcon';
-import { useTagManagement } from '@/utils/hooks';
-import { TagBadge, TagList } from '@/components/common/tag';
-import database from '@/database/database';
+} from "react-native";
+import { useTheme, useColors, useTypography } from "@/theme/hooks";
+import { ThemeText, ThemeView } from "@/components/core";
+import Tag from "@/database/models/TagModel";
+import Item from "@/database/models/ItemModel";
+import ItemTag from "@/database/models/ItemTagModel";
+import { SvgIcon } from "@/components/SvgIcon";
+import { useTagManagement } from "@/utils/hooks";
+import { TagBadge, TagList } from "@/components/common/tag";
+import database from "@/database/database";
+import { Q } from "@nozbe/watermelondb";
 
 /**
  * TagEditor component allows users to manage tags for an article
@@ -43,7 +44,7 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
   const typography = useTypography();
 
   // Input state
-  const [tagText, setTagText] = useState('');
+  const [tagText, setTagText] = useState("");
   const [searchResults, setSearchResults] = useState<Tag[]>([]);
 
   // State for all tags and selected tags
@@ -66,7 +67,7 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
   // } = useTagManagement(item);
 
   console.log(
-    'allTags Tags: in edit tags',
+    "allTags Tags: in edit tags",
     allTags,
     recentTags,
     otherTags,
@@ -75,7 +76,7 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
   );
 
   // Reference to the tags collection
-  const tagsCollection = database.collections.get<Tag>('tags');
+  const tagsCollection = database.collections.get<Tag>("tags");
 
   // Load all tags and the item's current tags
   const loadData = useCallback(async () => {
@@ -86,55 +87,51 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
       const tags = await tagsCollection.query().fetch();
       setAllTags(tags);
 
+      // Get all ItemTag relationships to determine tag usage
+      const itemTagsCollection = database.collections.get<ItemTag>("item_tags");
+      const allItemTags = await itemTagsCollection.query().fetch();
 
-    // Get all ItemTag relationships to determine tag usage
-    const itemTagsCollection = database.collections.get('item_tags');
-    const allItemTags = await itemTagsCollection.query().fetch();
-    
-    // Create a map of tag ID to its most recent usage timestamp
-    const tagLastUsedMap = new Map();
-    
-    // Process all ItemTag relationships to find the most recent usage for each tag
-    allItemTags.forEach(itemTag => {
-      const tagId = itemTag.tag.id;
-      const usageTime = itemTag.createdAt.getTime();
-      
-      if (!tagLastUsedMap.has(tagId) || usageTime > tagLastUsedMap.get(tagId)) {
-        tagLastUsedMap.set(tagId, usageTime);
+      // Create a map of tag ID to its most recent usage timestamp
+      const tagLastUsedMap = new Map<string, number>();
+
+      // Process all ItemTag relationships to find the most recent usage for each tag
+      for (const itemTag of allItemTags) {
+        const tagId = itemTag.tag.id;
+        const usageTime = itemTag.createdAt.getTime();
+
+        if (!tagLastUsedMap.has(tagId) || usageTime > tagLastUsedMap.get(tagId)!) {
+          tagLastUsedMap.set(tagId, usageTime);
+        }
       }
-    });
 
-    // Sort tags by last usage time (most recent first)
-    const sortedTags = [...tags].sort((a, b) => {
-      const aLastUsed = tagLastUsedMap.get(a.id) || a.createdAt.getTime();
-      const bLastUsed = tagLastUsedMap.get(b.id) || b.createdAt.getTime();
-      return bLastUsed - aLastUsed; // Descending order (newest first)
-    });
+      // Sort tags by last usage time (most recent first)
+      const sortedTags = [...tags].sort((a, b) => {
+        const aLastUsed = tagLastUsedMap.get(a.id) || a.createdAt.getTime();
+        const bLastUsed = tagLastUsedMap.get(b.id) || b.createdAt.getTime();
+        return bLastUsed - aLastUsed; // Descending order (newest first)
+      });
 
-    // Get the 5 most recently used tags
-    const recent = sortedTags.slice(0, Math.min(5, sortedTags.length));
-    // All other tags
-    const others = sortedTags.slice(Math.min(5, sortedTags.length));
+      // Get the 5 most recently used tags
+      const recent = sortedTags.slice(0, Math.min(5, sortedTags.length));
+      // All other tags
+      const others = sortedTags.slice(Math.min(5, sortedTags.length));
 
-      // const recent = tags.slice(0, Math.min(5, tags.length));
-      // const others = tags.slice(Math.min(5, tags.length));
       setRecentTags(recent);
       setOtherTags(others);
 
       // Load item's current tags
       const itemTags = await item.itemTags.fetch();
-      const tagIds = new Set(
+      const tagIds = await Promise.all(
         itemTags.map(async (itemTag) => {
-          const tag = await itemTag.tag.fetch();
+          // Use the proper relation method to get the tag
+          const tag = await itemTag.tag;
           return tag.id;
         }),
       );
 
-      // Wait for all promises to resolve
-      const resolvedTagIds = await Promise.all(Array.from(tagIds));
-      setSelectedTagIds(new Set(resolvedTagIds));
+      setSelectedTagIds(new Set(tagIds));
     } catch (error) {
-      console.error('Error loading tags:', error);
+      console.error("Error loading tags:", error);
     } finally {
       setIsLoading(false);
     }
@@ -149,8 +146,8 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
   // Filter tags based on search input
   useEffect(() => {
     if (tagText.trim()) {
-      const filtered = allTags.filter(tag =>
-        tag.name.toLowerCase().includes(tagText.toLowerCase())
+      const filtered = allTags.filter((tag) =>
+        tag.name.toLowerCase().includes(tagText.toLowerCase()),
       );
       setSearchResults(filtered);
     } else {
@@ -168,10 +165,13 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
           newSelectedTagIds.delete(tag.id);
           await database.write(async () => {
             const itemTagsRelation = await item.itemTags.fetch();
-            const itemTagToDelete = itemTagsRelation.find(async (it) => {
-              const tagObj = await it.tag.fetch();
-              return tagObj.id === tag.id;
-            });
+            const itemTagToDelete = await Promise.all(
+              itemTagsRelation.map(async (it) => {
+                // Use the proper relation method to get the tag
+                const tagObj = await it.tag;
+                return tagObj.id === tag.id ? it : null;
+              }),
+            ).then((results) => results.find((result) => result !== null));
 
             if (itemTagToDelete) {
               await itemTagToDelete.destroyPermanently();
@@ -180,17 +180,18 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
         } else {
           newSelectedTagIds.add(tag.id);
           await database.write(async () => {
-            const itemTagsCollection = database.collections.get('item_tags');
+            const itemTagsCollection = database.collections.get<ItemTag>("item_tags");
             await itemTagsCollection.create((itemTag) => {
-              itemTag.item.set(item);
-              itemTag.tag.set(tag);
+              // Use the proper relation setters
+              itemTag.item = item;
+              itemTag.tag = tag;
             });
           });
         }
 
         setSelectedTagIds(newSelectedTagIds);
       } catch (error) {
-        console.error('Error toggling tag:', error);
+        console.error("Error toggling tag:", error);
         // Reload data in case of error to ensure UI reflects actual database state
         loadData();
       }
@@ -226,10 +227,10 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
             });
 
             // Create the relationship
-            const itemTagsCollection = database.collections.get('item_tags');
+            const itemTagsCollection = database.collections.get<ItemTag>("item_tags");
             await itemTagsCollection.create((itemTag) => {
-              itemTag.item.set(item);
-              itemTag.tag.set(newTag!);
+              itemTag.item = item;
+              itemTag.tag = newTag!;
             });
           });
 
@@ -243,7 +244,7 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
           return newTag;
         }
       } catch (error) {
-        console.error('Error creating tag:', error);
+        console.error("Error creating tag:", error);
         return null;
       }
     },
@@ -254,9 +255,9 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
   const handleTextChange = useCallback(
     (text: string) => {
       // Check if the text includes a comma
-      if (text.includes(',')) {
+      if (text.includes(",")) {
         // Split by comma and process each part
-        const parts = text.split(',');
+        const parts = text.split(",");
 
         // Process all parts except the last one (which might be incomplete)
         const tagsToCreate = parts
@@ -282,7 +283,7 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
   const handleSubmit = useCallback(() => {
     if (tagText.trim()) {
       createTag(tagText.trim());
-      setTagText('');
+      setTagText("");
     }
   }, [tagText, createTag]);
 
@@ -354,7 +355,7 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
     <Modal transparent={true} visible={visible} animationType="slide" onRequestClose={onClose}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
           style={styles.modalContainer}
         >
           <View style={[styles.container, { backgroundColor: colors.background.paper }]}>
@@ -392,7 +393,12 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
                 <FlatList
                   data={selectedTags}
                   renderItem={({ item }) => (
-                    <TagBadge key={item.id} color={theme.colors.white} label={item.name} onRemove={() => toggleTag(item)} />
+                    <TagBadge
+                      key={item.id}
+                      color={theme.colors.white}
+                      label={item.name}
+                      onRemove={() => toggleTag(item)}
+                    />
                   )}
                   keyExtractor={(item) => item.id}
                   horizontal
@@ -441,7 +447,7 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
                           onTagPress={toggleTag}
                           title="Other Tags"
                           emptyMessage="No other tags found"
-                          maxHeight={scaler(300)}
+                          maxHeight={300}
                         />
                       )}
                     </>
@@ -449,7 +455,6 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
                 </>
               )}
             </View>
-           
           </View>
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
@@ -464,103 +469,103 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    // marginTop: scaler(50),
-    borderTopLeftRadius: scaler(20),
-    borderTopRightRadius: scaler(20),
-    overflow: 'hidden',
+    // marginTop: 50,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    overflow: "hidden",
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: scaler(16),
-    paddingTop: scaler(4),
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingTop: 4,
     // borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: "#E0E0E0",
   },
   title: {
-    fontWeight: '600',
-    fontSize: scaler(15),
-    lineHeight: scaler(20),
-    textAlign: 'center',
+    fontWeight: "600",
+    fontSize: 15,
+    lineHeight: 20,
+    textAlign: "center",
     flex: 1,
-    marginRight: scaler(-40),
+    marginRight: -40,
   },
   closeButton: {
-    padding: scaler(4),
+    padding: 4,
   },
   closeText: {
-    fontWeight: '600',
-    fontSize: scaler(15),
-    lineHeight: scaler(20),
+    fontWeight: "600",
+    fontSize: 15,
+    lineHeight: 20,
   },
   searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    margin: scaler(16),
-    paddingHorizontal: scaler(12),
-    paddingVertical: scaler(8),
-    borderWidth: scaler(2),
-    borderRadius: scaler(16),
+    flexDirection: "row",
+    alignItems: "center",
+    margin: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderWidth: 2,
+    borderRadius: 16,
   },
   topBar: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
   topBarIndicator: {
-    width: scaler(40),
-    height: scaler(4),
-    borderRadius: scaler(2),
-    backgroundColor: '#E0E0E0',
-    marginVertical: scaler(8),
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "#E0E0E0",
+    marginVertical: 8,
   },
   searchIcon: {
-    marginRight: scaler(8),
+    marginRight: 8,
   },
   input: {
     flex: 1,
     padding: 0,
-    height: scaler(30),
+    height: 30,
   },
   selectedTagsContainer: {
-    paddingHorizontal: scaler(16),
+    paddingHorizontal: 16,
     // flexWrap: 'wrap',
-    paddingBottom: scaler(8),
+    paddingBottom: 8,
   },
   selectedTagsList: {
-    paddingVertical: scaler(4),
+    paddingVertical: 4,
   },
   content: {
     flex: 1,
-    paddingHorizontal: scaler(16),
+    paddingHorizontal: 16,
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   keyboardAccessory: {
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#E0E0E0',
-    paddingBottom: Platform.OS === 'ios' ? scaler(24) : scaler(8),
+    borderTopColor: "#E0E0E0",
+    paddingBottom: Platform.OS === "ios" ? 24 : 8,
   },
   keyboardAccessoryContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: scaler(8),
-    paddingHorizontal: scaler(16),
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
   },
   addButton: {
-    paddingHorizontal: scaler(32),
-    paddingVertical: scaler(10),
-    borderRadius: scaler(8),
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingHorizontal: 32,
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
   },
   addButtonText: {
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
 

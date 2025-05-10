@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   TextInput,
@@ -6,9 +6,9 @@ import {
   TouchableOpacity,
   TextInputProps,
   ViewStyle,
-} from 'react-native';
-import { useColors, useTypography } from '../../../theme';
-import { SearchIcon, CloseIcon } from '../Icons';
+} from "react-native";
+import { useTheme } from "@/theme";
+import { SearchIcon, CloseIcon } from "../Icons";
 
 interface SearchInputProps extends TextInputProps {
   containerStyle?: ViewStyle;
@@ -17,7 +17,7 @@ interface SearchInputProps extends TextInputProps {
 }
 
 export const SearchInput: React.FC<SearchInputProps> = ({
-  placeholder = 'Search...',
+  placeholder = "Search...",
   containerStyle,
   onClear,
   onSearch,
@@ -25,9 +25,8 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   onChangeText,
   ...rest
 }) => {
-  const [text, setText] = useState(value || '');
-  const colors = useColors();
-  const typography = useTypography();
+  const [text, setText] = useState(value ?? "");
+  const theme = useTheme();
 
   const handleChangeText = (newText: string) => {
     setText(newText);
@@ -35,9 +34,9 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   };
 
   const handleClear = () => {
-    setText('');
+    setText("");
     onClear?.();
-    onChangeText?.('');
+    onChangeText?.("");
   };
 
   const handleSubmit = () => {
@@ -45,13 +44,15 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.gray[200] }, containerStyle]}>
-      <SearchIcon size={20} color={colors.gray[500]} style={styles.searchIcon} />
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.inputBackground }, containerStyle]}
+    >
+      <SearchIcon size={20} color={theme.colors.icon} style={styles.searchIcon} />
 
       <TextInput
-        style={[styles.input, typography.body2, { color: colors.text.primary }]}
+        style={[styles.input, theme.typography.body2, { color: theme.colors.text.primary }]}
         placeholder={placeholder}
-        placeholderTextColor={colors.gray[500]}
+        placeholderTextColor={theme.colors.text.hint}
         value={text}
         onChangeText={handleChangeText}
         onSubmitEditing={handleSubmit}
@@ -66,7 +67,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
           onPress={handleClear}
           hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
         >
-          <CloseIcon size={16} color={colors.gray[500]} />
+          <CloseIcon size={16} color={theme.colors.icon} />
         </TouchableOpacity>
       )}
     </View>
@@ -75,8 +76,8 @@ export const SearchInput: React.FC<SearchInputProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     height: 44,
     borderRadius: 22,
     paddingHorizontal: 16,
@@ -86,7 +87,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    height: '100%',
+    height: "100%",
     padding: 0,
   },
   clearButton: {

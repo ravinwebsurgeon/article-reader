@@ -1,6 +1,7 @@
-import React from 'react';
-import { View, ViewStyle } from 'react-native';
-import Svg, { Path, Circle } from 'react-native-svg';
+import React from "react";
+import { View, ViewStyle } from "react-native";
+import Svg, { Path } from "react-native-svg";
+import { useTheme } from "@/theme";
 
 /**
  * Props for icon components
@@ -18,43 +19,27 @@ interface IconProps {
  * Helper function to create icon components
  * @param renderPaths - Function that renders the SVG paths
  * @param defaultSize - Default size of the icon
- * @param defaultColor - Default color of the icon
  * @param displayName - Display name of the icon
  */
 const createIcon = (
   renderPaths: (props: { size: number; color: string }) => React.ReactNode,
   defaultSize = 24,
-  defaultColor = '#000',
   displayName: string,
 ) => {
-  const Icon = ({ size = defaultSize, color = defaultColor, style }: IconProps) => (
-    <View style={[{ width: size, height: size }, style]}>
-      <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-        {renderPaths({ size, color })}
-      </Svg>
-    </View>
-  );
+  const Icon: React.FC<IconProps> = ({ size = defaultSize, color, style }) => {
+    const theme = useTheme();
+    const iconColor = color ?? theme.colors.icon;
+    return (
+      <View style={[{ width: size, height: size }, style]}>
+        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          {renderPaths({ size, color: iconColor })}
+        </Svg>
+      </View>
+    );
+  };
   Icon.displayName = displayName;
   return Icon;
 };
-
-/**
- * Back arrow icon component
- */
-export const BackIcon = createIcon(
-  ({ color }) => (
-    <Path
-      d="M19 12H5M12 19L5 12L12 5"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  ),
-  24,
-  '#000',
-  'BackIcon',
-);
 
 /**
  * Search icon component
@@ -70,24 +55,7 @@ export const SearchIcon = createIcon(
     />
   ),
   24,
-  '#000',
-  'SearchIcon',
-);
-
-/**
- * More options icon component (three dots)
- */
-export const MoreIcon = createIcon(
-  ({ color }) => (
-    <>
-      <Circle cx="12" cy="12" r="1" fill={color} />
-      <Circle cx="19" cy="12" r="1" fill={color} />
-      <Circle cx="5" cy="12" r="1" fill={color} />
-    </>
-  ),
-  24,
-  '#000',
-  'MoreIcon',
+  "SearchIcon",
 );
 
 /**
@@ -104,6 +72,5 @@ export const CloseIcon = createIcon(
     />
   ),
   24,
-  '#000',
-  'CloseIcon',
+  "CloseIcon",
 );

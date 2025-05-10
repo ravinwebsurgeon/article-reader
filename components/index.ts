@@ -17,7 +17,7 @@
  */
 
 // Export core themed components
-export * from './core';
+export * from "./core";
 
 /**
  * Usage Guide

@@ -45,4 +45,4 @@ export interface ItemUpdateRequest {
 }
 
 // Filter types
-export type ItemFilter = 'all' | 'favorites' | 'tagged' | 'short' | 'long' | 'archived';
+export type ItemFilter = "all" | "favorites" | "tagged" | "short" | "long" | "archived";

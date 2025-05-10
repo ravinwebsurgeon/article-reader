@@ -1,158 +1,126 @@
-import React, { useEffect, useRef, useState } from 'react';
-import {
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  View,
-  ColorValue,
-  TouchableOpacityProps,
-} from 'react-native';
-import { COLORS } from '@/theme';
-import { ItemFilter } from '@/types/item';
-import { scaler } from '@/utils';
-import Svg, { Path } from 'react-native-svg';
-import { Platform } from 'react-native';
-import SortMenu, { SortOption } from '../menu/SortMenu';
-import { ActionMenuPosition } from '../menu/ReusableActionMenu';
-import { SvgIcon } from '@/components/SvgIcon';
+import React, { useRef, useState, useMemo, useCallback } from "react";
+import { Text, StyleSheet, ScrollView, TouchableOpacity, View } from "react-native";
+import { useTheme, useDarkMode, type Theme } from "@/theme";
+import { ItemFilter } from "@/types/item";
+import SortMenu, { SortOption } from "../menu/SortMenu";
+import { ActionMenuPosition } from "../menu/ReusableActionMenu";
+import { SvgIcon } from "@/components/SvgIcon";
 
 interface FilterTabsProps {
   currentFilter: ItemFilter;
   onFilterChange: (filter: ItemFilter) => void;
-  isDarkMode: boolean;
   currentSort?: SortOption;
   onSortChange?: (sort: SortOption) => void;
 }
 
-interface FilterOption {
-  id: ItemFilter;
-  icon: string;
+interface FilterOptionType {
+  id: ItemFilter | "sorting";
+  label?: string;
+  icon?: (color: string) => React.ReactNode;
 }
 
-const filterOptions = [
+const filterOptions: FilterOptionType[] = [
   {
-    id: 'sorting',
-    label: '',
-    icon: (color: ColorValue | undefined) => (
-      <SvgIcon name='sort-descending' size={24} color={color} />
-    ),
+    id: "sorting",
+    icon: (color: string) => <SvgIcon name="sort-descending" size={24} color={color} />,
+  },
+  { id: "all", label: "All" },
+  {
+    id: "favorites",
+    label: "Favorites",
+    icon: (color: string) => <SvgIcon name="favorite" size={24} color={color} />,
   },
   {
-    id: 'all',
-    label: 'All',
+    id: "tagged",
+    label: "Tagged",
+    icon: (color: string) => <SvgIcon name="tag" size={24} color={color} />,
   },
   {
-    id: 'favorites',
-    label: 'Favorites',
-    icon: (color: ColorValue | undefined) => (
-      <SvgIcon name='favorite' size={24} color={color} />
-    ),
+    id: "short",
+    label: "Short Reads",
+    icon: (color: string) => <SvgIcon name="time-short" size={24} color={color} />,
   },
   {
-    id: 'tagged',
-    label: 'Tagged',
-    icon: (color: ColorValue | undefined) => (
-      <SvgIcon name='tag' size={24} color={color} />
-    ),
+    id: "long",
+    label: "Long Reads",
+    icon: (color: string) => <SvgIcon name="time-long" size={24} color={color} />,
   },
   {
-    id: 'short',
-    label: 'Short Reads',
-    icon: (color: ColorValue | undefined) => (
-      <SvgIcon name='time-short' size={24} color={color} />
-    ),
-  },
-  {
-    id: 'long',
-    label: 'Long Reads',
-    icon: (color: ColorValue | undefined) => (
-      <SvgIcon name='time-long' size={24} color={color} />
-    ),
-  },
-  {
-    id: 'archived',
-    label: 'Archived',
-    icon: (color: ColorValue | undefined) => (
-      <SvgIcon name='archive' size={24} color={color} />
-    ),
+    id: "archived",
+    label: "Archived",
+    icon: (color: string) => <SvgIcon name="archive" size={24} color={color} />,
   },
 ];
-
 
 const FilterTabs: React.FC<FilterTabsProps> = ({
   currentFilter,
   onFilterChange,
-  isDarkMode,
-  currentSort = 'newest',
+  currentSort = "newest",
   onSortChange = () => {},
 }) => {
-  // Ref to track tab measurements
+  const theme = useTheme();
+  const isDarkMode = useDarkMode();
+  const styles = useMemo(() => makeStyles(theme, isDarkMode), [theme, isDarkMode]);
+
   const tabRefs = useRef<{ [key: string]: View | null }>({});
-
-  // Ref for the sort button
-  const sortButtonRef = useRef<TouchableOpacityProps | null>(null);
-
-  // Sort menu state
+  const sortButtonRef = useRef<View>(null);
   const [sortMenuVisible, setSortMenuVisible] = useState(false);
   const [sortMenuPosition, setSortMenuPosition] = useState<ActionMenuPosition>({});
 
-  const handleTabPress = (filterId: string | ItemFilter) => {
-    // Special case for the sorting button
-    if (filterId === 'sorting') {
+  const handleTabPress = (filterId: ItemFilter | "sorting") => {
+    if (filterId === "sorting") {
       handleSortButtonPress();
       return;
     }
-
-    // Otherwise change the filter
-    onFilterChange(filterId);
+    onFilterChange(filterId as ItemFilter);
   };
 
-  // Handle sort button press
   const handleSortButtonPress = () => {
     if (sortButtonRef.current) {
-      sortButtonRef.current.measure((x, y, width, height, pageX, pageY) => {
-        setSortMenuPosition({
-          x: pageX,
-          y: pageY,
-          width,
-          height,
-          position: 'bottom',
-          align: 'start',
-        });
-        setSortMenuVisible(true);
-      });
+      sortButtonRef.current.measure(
+        (_x: number, _y: number, width: number, height: number, pageX: number, pageY: number) => {
+          setSortMenuPosition({
+            x: pageX,
+            y: pageY,
+            width,
+            height,
+            position: "bottom",
+            align: "start",
+          });
+          setSortMenuVisible(true);
+        },
+      );
     }
   };
 
-  // Handle sort selection
   const handleSortChange = (sort: SortOption) => {
     onSortChange(sort);
     setSortMenuVisible(false);
   };
 
-  const getIconColor = (filterId: string) => {
-    return currentFilter === filterId ? COLORS.white : isDarkMode ? COLORS.white : COLORS.black;
-  };
+  const getIconColor = useCallback(
+    (filterId: ItemFilter | "sorting"): string => {
+      return currentFilter === filterId ? theme.colors.primary.contrast : theme.colors.icon;
+    },
+    [currentFilter, theme.colors],
+  );
 
-  const getTextColor = (filterId: string) => {
-    return currentFilter === filterId
-      ? COLORS.white
-      : isDarkMode
-        ? COLORS.lightGray
-        : COLORS.darkGray;
-  };
+  const getTextColor = useCallback(
+    (filterId: ItemFilter | "sorting"): string => {
+      return currentFilter === filterId ? theme.colors.primary.contrast : theme.colors.text.primary;
+    },
+    [currentFilter, theme.colors],
+  );
 
-  const getTabBackgroundColor = (filterId: string) => {
-    if (currentFilter === filterId) {
-      return filterId === 'all'
-        ? COLORS.primary.main
-        : isDarkMode
-          ? COLORS.darkGray
-          : COLORS.lightGray;
-    }
-    return isDarkMode ? COLORS.darkGray : COLORS.lightGray;
-  };
+  const getTabBackgroundColor = useCallback(
+    (filterId: ItemFilter | "sorting"): string => {
+      if (currentFilter === filterId) {
+        return theme.colors.primary.main;
+      }
+      return theme.colors.inputBackground;
+    },
+    [currentFilter, theme.colors],
+  );
 
   return (
     <>
@@ -160,31 +128,26 @@ const FilterTabs: React.FC<FilterTabsProps> = ({
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContainer}
-        style={[
-          styles.container,
-          { borderBottomColor: isDarkMode ? COLORS.darkBorder : COLORS.tasksConBorder },
-        ]}
-        // Use this to prevent gesture handling issues
+        style={styles.container}
         keyboardShouldPersistTaps="handled"
-        // Disable scroll indicator
         scrollIndicatorInsets={{ right: 1 }}
-        // Maintain smooth scroll animation
         scrollEventThrottle={16}
-        // Improve performance by disabling dynamic content height changes
         removeClippedSubviews={true}
       >
         {filterOptions.map((option) => (
           <TouchableOpacity
             key={option.id}
-            // ref={(ref) => (tabRefs.current[option.id] = ref)}
             ref={
-              option.id === 'sorting' ? sortButtonRef : (ref) => (tabRefs.current[option.id] = ref)
+              option.id === "sorting"
+                ? sortButtonRef
+                : (ref: View | null) => {
+                    tabRefs.current[option.id as string] = ref;
+                  }
             }
             style={[
               styles.tab,
               !option.label && styles.iconOnlyTab,
               { backgroundColor: getTabBackgroundColor(option.id) },
-              currentFilter === option.id && styles.activeTab,
             ]}
             onPress={() => handleTabPress(option.id)}
             activeOpacity={0.7}
@@ -196,8 +159,7 @@ const FilterTabs: React.FC<FilterTabsProps> = ({
               <Text
                 style={[
                   styles.tabText,
-                  { color: getTextColor(option.id) },
-                  { marginLeft: option.icon ? 4 : 0 },
+                  { color: getTextColor(option.id), marginLeft: option.icon ? 4 : 0 },
                 ]}
               >
                 {option.label}
@@ -217,62 +179,45 @@ const FilterTabs: React.FC<FilterTabsProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    borderBottomWidth: scaler(1),
-    borderBottomColor: COLORS.lightBorder,
-  },
-  scrollContainer: {
-    paddingHorizontal: scaler(12),
-    paddingVertical: scaler(12),
-  },
-  tab: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: scaler(16),
-    paddingVertical: scaler(10),
-    marginHorizontal: scaler(4),
-    borderRadius: scaler(20),
-    backgroundColor: COLORS.lightGray,
-    alignSelf: 'center',
-    height: scaler(40),
-  },
-  activeTab: {
-    backgroundColor: COLORS.primary.main,
-  },
-  inactiveTab: {
-    backgroundColor: COLORS.lightGray,
-  },
-  darkTab: {
-    backgroundColor: COLORS.darkGray,
-  },
-  icon: {
-    marginRight: scaler(4),
-  },
-  tabText: {
-    fontSize: scaler(13),
-    fontWeight: '600',
-    color: COLORS.text,
-    lineHeight: scaler(19),
-  },
-  activeTabText: {
-    color: COLORS.white,
-  },
-  iconContainer: {
-    marginRight: scaler(0),
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: scaler(24),
-    height: scaler(24),
-  },
-  iconOnlyTab: {
-    paddingHorizontal: scaler(16),
-    minWidth: scaler(40),
-    paddingVertical: scaler(8),
-    alignSelf: 'center',
-    justifyContent: 'center',
-  },
-});
+const makeStyles = (theme: Theme, isDarkMode: boolean) =>
+  StyleSheet.create({
+    container: {
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.divider,
+    },
+    scrollContainer: {
+      paddingHorizontal: 12,
+      paddingVertical: 12,
+    },
+    tab: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+      marginHorizontal: 4,
+      borderRadius: 20,
+      alignSelf: "center",
+      height: 40,
+    },
+    iconContainer: {
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      width: 24,
+      height: 24,
+    },
+    tabText: {
+      fontSize: 13,
+      fontWeight: "600",
+      lineHeight: 19,
+    },
+    iconOnlyTab: {
+      paddingHorizontal: 16,
+      minWidth: 40,
+      paddingVertical: 8,
+      alignSelf: "center",
+      justifyContent: "center",
+    },
+  });
 
 export default React.memo(FilterTabs);

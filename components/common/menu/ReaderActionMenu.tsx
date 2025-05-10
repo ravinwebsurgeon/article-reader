@@ -1,8 +1,9 @@
-import React, { useCallback, useState } from 'react';
-import Item from '@/database/models/ItemModel';
-import ReusableActionMenu, { ActionMenuItem, ActionMenuPosition } from './ReusableActionMenu';
-import { Linking } from 'react-native';
-import TagEditor from '@/screens/EditTag';
+import React, { useCallback, useState } from "react";
+import Item from "@/database/models/ItemModel";
+import ReusableActionMenu, { ActionMenuItem, ActionMenuPosition } from "./ReusableActionMenu";
+import { Linking } from "react-native";
+import TagEditor from "@/screens/EditTag";
+import { useTheme } from "@/theme";
 
 interface ReaderActionMenuProps {
   item: Item;
@@ -23,6 +24,7 @@ const ReaderActionMenu: React.FC<ReaderActionMenuProps> = ({
   onClose,
   animationDuration,
 }) => {
+  const theme = useTheme();
   const [tagEditorVisible, setTagEditorVisible] = useState(false);
 
   // Open tag editor
@@ -40,13 +42,6 @@ const ReaderActionMenu: React.FC<ReaderActionMenuProps> = ({
     setTagEditorVisible(false);
   }, []);
 
-  // Handle edit tags
-  const handleEditTags = useCallback(() => {
-    // Implement edit tags functionality
-    console.log('Edit tags for item:', item.id);
-    onClose();
-  }, [item, onClose]);
-
   // Handle open in browser
   const handleOpenInBrowser = useCallback(async () => {
     if (item.url) {
@@ -55,10 +50,10 @@ const ReaderActionMenu: React.FC<ReaderActionMenuProps> = ({
         if (canOpen) {
           await Linking.openURL(item.url);
         } else {
-          console.error('Cannot open URL:', item.url);
+          console.error("Cannot open URL:", item.url);
         }
       } catch (error) {
-        console.error('Error opening URL:', error);
+        console.error("Error opening URL:", error);
       }
     }
     onClose();
@@ -68,71 +63,71 @@ const ReaderActionMenu: React.FC<ReaderActionMenuProps> = ({
   const getMenuItems = useCallback((): ActionMenuItem[] => {
     return [
       {
-        id: 'share',
-        label: 'Share',
-        icon: 'share',
+        id: "share",
+        label: "Share",
+        icon: "share",
         onPress: () => {
           // Implement share functionality
-          console.log('Share item:', item.id);
+          console.log("Share item:", item.id);
         },
         dividerAfter: true,
       },
       {
-        id: 'favorite',
-        label: item.favorite ? 'Unfavorite' : 'Favorite',
-        icon: item.favorite ? 'favorite' : 'favorite',
-        iconColor: item.favorite ? '#F8E61B' : undefined, // Yellow for favorited items
+        id: "favorite",
+        label: item.favorite ? "Unfavorite" : "Favorite",
+        icon: item.favorite ? "favorite" : "favorite",
+        iconColor: item.favorite ? theme.colors.favorite : undefined,
         onPress: async () => {
           try {
             await item.toggleFavorite();
           } catch (error) {
-            console.error('Error toggling favorite:', error);
+            console.error("Error toggling favorite:", error);
           }
         },
         dividerAfter: true,
       },
       {
-        id: 'edit-tags',
-        label: 'Edit Tags',
-        icon: 'tag',
+        id: "edit-tags",
+        label: "Edit Tags",
+        icon: "tag",
         onPress: openTagEditor,
         dividerAfter: true,
       },
       {
-        id: 'open-browser',
-        label: 'Open in Browser',
-        icon: 'compass',
+        id: "open-browser",
+        label: "Open in Browser",
+        icon: "compass",
         onPress: handleOpenInBrowser,
         dividerAfter: true,
       },
       {
-        id: 'archive',
-        label: item.archived ? 'Unarchive' : 'Archive',
-        icon: 'archive',
+        id: "archive",
+        label: item.archived ? "Unarchive" : "Archive",
+        icon: "archive",
         onPress: async () => {
           try {
             await item.toggleArchived();
           } catch (error) {
-            console.error('Error toggling archive:', error);
+            console.error("Error toggling archive:", error);
           }
         },
         dividerAfter: true,
       },
       {
-        id: 'delete',
-        label: 'Delete',
-        icon: 'trash',
+        id: "delete",
+        label: "Delete",
+        icon: "trash",
         destructive: true,
         onPress: async () => {
           try {
             await item.markAsDeleted();
           } catch (error) {
-            console.error('Error deleting item:', error);
+            console.error("Error deleting item:", error);
           }
         },
       },
     ];
-  }, [item, openTagEditor, handleOpenInBrowser]);
+  }, [item, openTagEditor, handleOpenInBrowser, theme.colors.favorite]);
 
   return (
     <>

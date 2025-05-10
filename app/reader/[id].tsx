@@ -1,5 +1,5 @@
 // src/screens/ReaderScreen.tsx
-import React, { useState, useRef, useMemo, useEffect } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from "react";
 import {
   ScrollView,
   TouchableOpacity,
@@ -9,47 +9,55 @@ import {
   NativeScrollEvent,
   StyleSheet,
   Platform,
-  TouchableOpacityProps,
-} from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { Ionicons } from '@expo/vector-icons';
-import { marked } from 'marked';
-import { RenderHTML } from 'react-native-render-html';
+  View,
+  TextStyle,
+} from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { Ionicons } from "@expo/vector-icons";
+import { marked } from "marked";
+import { RenderHTML } from "react-native-render-html";
+import {
+  menuAnimationPresets,
+  createMenuPosition,
+} from "@/components/common/menu/menuAnimationPresents";
 
 // Import themed components
-import { ThemeView, ThemeText } from '@/components/core';
-import { useTheme, useDarkMode } from '@/theme/hooks';
+import { ThemeView, ThemeText } from "@/components/core";
+import { useTheme, useDarkMode } from "@/theme/hooks";
 
 // Import WatermelonDB components
-import { withObservables } from '@nozbe/watermelondb/react';
-import { useDatabase } from '@/database/provider/DatabaseProvider';
-import Item from '@/database/models/ItemModel';
-import { scaler } from '@/utils';
-import RecommendedArticles from './RecommendedArticles';
-import { SvgIcon } from '@/components/SvgIcon';
-import { ActionMenuPosition } from '@/components/common/menu/ReusableActionMenu';
-import ReaderActionMenu from '@/components/common/menu/ReaderActionMenu';
-import { createMenuPosition, menuAnimationPresets } from '@/components/common/menu/menuAnimationPresents';
-import { getLiterataVariableStyle } from '@/theme';
+import { withObservables } from "@nozbe/watermelondb/react";
+import { Database } from "@nozbe/watermelondb";
+import { useDatabase } from "@/database/provider/DatabaseProvider";
+import Item from "@/database/models/ItemModel";
+import RecommendedArticles from "./RecommendedArticles";
+import { SvgIcon } from "@/components/SvgIcon";
+import { ActionMenuPosition } from "@/components/common/menu/ReusableActionMenu";
+import ReaderActionMenu from "@/components/common/menu/ReaderActionMenu";
+import { getLiterataVariableStyle } from "@/theme";
 
 // Get window width for content sizing
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
+
+function omitCursor(style: TextStyle | undefined) {
+  if (!style) return style;
+  const { cursor, overflow, ...rest } = style;
+  // Only add overflow back if it's not 'scroll'
+  const filtered = overflow === "scroll" ? rest : { ...rest, ...(overflow ? { overflow } : {}) };
+  // Remove any properties with value null
+  return Object.fromEntries(Object.entries(filtered).filter(([_, v]) => v !== null));
+}
 
 // Base component that receives the item as a prop
 const ReaderComponent = ({ item }: { item: Item }) => {
   const router = useRouter();
   const theme = useTheme();
   const isDarkMode = useDarkMode();
-  const menuAnchorRef = useRef<typeof TouchableOpacity>(null);
-  
-  useEffect(() => {
-      console.log('ReaderComponent mounted');
-  },[])
 
   // Refs
   const scrollViewRef = useRef<ScrollView>(null);
-  const menuButtonRef = useRef<TouchableOpacityProps>(null);
+  const menuButtonRef = useRef<View>(null);
 
   // State
   const [progress, setProgress] = useState(item.progress);
@@ -90,16 +98,16 @@ const ReaderComponent = ({ item }: { item: Item }) => {
 
   // Process markdown content
   const processedContent = useMemo(() => {
-    return marked.parse(item.content || '') as string;
+    return marked.parse(item.content ?? "") as string;
   }, [item.content]);
 
   // Handle navigation back
   const handleBack = async () => {
     // Save reading progress before navigating back
-    console.log('Saving progress:', progress);
+    console.log("Saving progress:", progress);
     await item
       .setProgress(progress)
-      .catch((error) => console.error('Error saving progress:', error));
+      .catch((error) => console.error("Error saving progress:", error));
     router.back();
   };
 
@@ -123,7 +131,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
       );
 
       // Only update if significant change (avoid too many database operations)
-      if (Math.abs(newProgress - progress) > 0.01) {        
+      if (Math.abs(newProgress - progress) > 0.01) {
         setProgress(newProgress);
       }
     }
@@ -147,23 +155,32 @@ const ReaderComponent = ({ item }: { item: Item }) => {
         url: item.url,
       });
     } catch (error) {
-      console.error('Error sharing article:', error);
+      console.error("Error sharing article:", error);
     }
   };
 
   // Handle opening the action menu
   const handleOpenMenu = () => {
     if (menuButtonRef.current) {
-      menuButtonRef.current.measure((x, y, width, height, pageX, pageY) => {
-        setMenuPosition({
-          x: pageX,
-          y: pageY,
-          width,
-          height,
-          ...createMenuPosition('bottomRight'),
-        });
-        setMenuVisible(true);
-      });
+      menuButtonRef.current.measure(
+        (
+          x: number,
+          y: number,
+          width: number,
+          height: number,
+          pageX: number,
+          pageY: number,
+        ): void => {
+          setMenuPosition({
+            x: pageX,
+            y: pageY,
+            width,
+            height,
+            ...createMenuPosition("bottomRight"),
+          });
+          setMenuVisible(true);
+        },
+      );
     }
   };
 
@@ -203,7 +220,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
 
   return (
     <ThemeView style={{ flex: 1 }} backgroundColor={theme.colors.background.paper}>
-      <StatusBar style={isDarkMode ? 'light' : 'dark'} />
+      <StatusBar style={isDarkMode ? "light" : "dark"} />
       {renderCustomHeader()}
 
       {/* Article content */}
@@ -235,83 +252,17 @@ const ReaderComponent = ({ item }: { item: Item }) => {
           {/* Markdown content rendering */}
           <RenderHTML
             source={{ html: processedContent }}
-            contentWidth={width - scaler(40)}
+            contentWidth={width - 40}
             baseStyle={{
               color: theme.colors.text.primary,
-              fontSize: scaler(18),
-              lineHeight: scaler(27),
-              ...getLiterataVariableStyle(400, 18, false),
+              fontSize: 18,
+              lineHeight: 27,
+              ...omitCursor(getLiterataVariableStyle(400, 18, false)),
             }}
             tagsStyles={{
-              p: { marginBottom: scaler(16), ...getLiterataVariableStyle(400, 18, false), },
-              h1: {
-                fontSize: scaler(24),
-                marginBottom: scaler(14),
-                marginTop: scaler(22),
-                color: theme.colors.text.primary,
-                fontWeight: 'bold',
-                ...getLiterataVariableStyle(700, 24, false),
+              p: {
+                marginBottom: 16,
               },
-              h2: {
-                fontSize: scaler(22),
-                marginBottom: scaler(14),
-                marginTop: scaler(22),
-                color: theme.colors.text.primary,
-                fontWeight: 'bold',
-                ...getLiterataVariableStyle(700, 22, false),
-              },
-              h3: {
-                fontSize: scaler(19),
-                marginBottom: scaler(14),
-                marginTop: scaler(18),
-                color: theme.colors.text.primary,
-                fontWeight: 'bold',
-                ...getLiterataVariableStyle(600, 19, false),
-              },
-              a: { color: theme.colors.primary.main,...getLiterataVariableStyle(400, 18, false), },
-              img: { marginVertical: scaler(14) },
-              ul: { marginBottom: scaler(14), marginLeft: scaler(14),...getLiterataVariableStyle(400, 18, false), },
-              ol: { marginBottom: scaler(14), marginLeft: scaler(14), ...getLiterataVariableStyle(400, 18, false), },
-              li: { marginBottom: scaler(8), ...getLiterataVariableStyle(400, 18, false), },
-              blockquote: {
-                borderLeftWidth: scaler(2),
-                borderLeftColor: theme.colors.primary.main,
-                paddingLeft: scaler(16),
-                marginLeft: 0,
-                marginRight: 0,
-                marginVertical: scaler(16),
-                fontStyle: 'italic',
-                ...getLiterataVariableStyle(400, 18, true), 
-              },
-              figure: { marginVertical: scaler(16), ...getLiterataVariableStyle(400, 14, true), },
-              figcaption: {
-                fontSize: scaler(14),
-                opacity: 0.7,
-                fontStyle: 'italic',
-                ...getLiterataVariableStyle(400, 14, true),
-              },
-              em: {
-                ...getLiterataVariableStyle(400, 18, true), // weight: 400, optical size: 18, italic
-              },
-              strong: {
-                ...getLiterataVariableStyle(700, 18, false), // weight: 700, optical size: 18, not italic
-              },
-              code: {
-                fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
-                backgroundColor: theme.colors.gray[100], 
-                paddingHorizontal: 4,
-                borderRadius: 4,
-              },
-              pre: {
-                backgroundColor: theme.colors.gray[100],
-                padding: scaler(12),
-                borderRadius: scaler(4),
-                marginVertical: scaler(14),
-                fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
-              }
-            }}
-            defaultTextProps={{
-              selectable: true,
             }}
           />
         </ThemeView>
@@ -340,18 +291,18 @@ const ReaderComponent = ({ item }: { item: Item }) => {
               onPress={handleFavoriteToggle}
             >
               <SvgIcon
-                name={item.favorite ? 'favorite' : 'favorite'}
+                name={item.favorite ? "favorite" : "favorite"}
                 size={22}
                 color={theme.colors.text.primary}
                 style={styles.footerIcon}
               />
-              <ThemeText variant="body2">{item.favorite ? 'Favorited' : 'Favorite'}</ThemeText>
+              <ThemeText variant="body2">{item.favorite ? "Favorited" : "Favorite"}</ThemeText>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[
                 styles.footerButton,
-                { backgroundColor: theme.colors.background.default, alignItems: 'center' },
+                { backgroundColor: theme.colors.background.default, alignItems: "center" },
               ]}
               onPress={handleArchiveToggle}
             >
@@ -412,19 +363,18 @@ const ReaderComponent = ({ item }: { item: Item }) => {
 // Enhanced component that observes the item from the database
 interface EnhancedReaderProps {
   id: string;
-  database: any; // TODO: Import proper Database type from WatermelonDB
+  database: Database;
 }
 
 // Enhanced component that observes the item from the database
-const EnhancedReader = withObservables(['id'], ({ id, database }: EnhancedReaderProps) => ({
-  item: database.collections.get('items').findAndObserve(id),
+const EnhancedReader = withObservables(["id"], ({ id, database }: EnhancedReaderProps) => ({
+  item: database.collections.get<Item>("items").findAndObserve(id),
 }))(ReaderComponent);
 
 // Wrapper component that provides the database context
 export default function ReaderScreen() {
   const { id } = useLocalSearchParams();
   const database = useDatabase();
-  const theme = useTheme();
 
   if (!id) {
     return (
@@ -442,131 +392,131 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   customHeader: {
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: scaler(8),
-    paddingVertical: scaler(12),
-    paddingTop: scaler(50),
-    borderBottomWidth: scaler(1),
-    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 8,
+    paddingVertical: 12,
+    paddingTop: 50,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(0, 0, 0, 0.1)",
     ...Platform.select({
       ios: {
-        paddingTop: scaler(50),
+        paddingTop: 50,
       },
       android: {
-        paddingTop: scaler(30),
+        paddingTop: 30,
       },
     }),
   },
   headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   backButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: scaler(4),
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 4,
   },
   savesText: {
-    marginLeft: scaler(4),
+    marginLeft: 4,
   },
   headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   headerIconButton: {
-    padding: scaler(8),
-    marginLeft: scaler(8),
+    padding: 8,
+    marginLeft: 8,
   },
   // Menu styles
   androidMenu: {
-    position: 'absolute',
-    top: scaler(50),
-    right: scaler(10),
-    borderRadius: scaler(8),
-    padding: scaler(8),
-    width: scaler(180),
+    position: "absolute",
+    top: 50,
+    right: 10,
+    borderRadius: 8,
+    padding: 8,
+    width: 180,
     zIndex: 1000,
   },
   menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: scaler(12),
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 12,
   },
   menuItemText: {
-    marginLeft: scaler(12),
+    marginLeft: 12,
   },
   contentContainer: {
-    paddingHorizontal: scaler(20),
-    paddingTop: scaler(20),
-    paddingBottom: scaler(40),
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 40,
   },
   title: {
-    fontWeight: '700',
-    marginBottom: scaler(16),
+    fontWeight: "700",
+    marginBottom: 16,
   },
   metaContainer: {
-    marginBottom: scaler(24),
+    marginBottom: 24,
   },
   metaText: {
-    marginBottom: scaler(16),
+    marginBottom: 16,
   },
   // After Reading section
   afterReadingSection: {
-    marginTop: scaler(40),
-    paddingTop: scaler(16),
+    marginTop: 40,
+    paddingTop: 16,
   },
   afterReadingText: {
-    // marginBottom: scaler(16),
-    marginLeft: scaler(8),
+    // marginBottom: 16,
+    marginLeft: 8,
   },
   footerActions: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    paddingVertical: scaler(12),
-    gap: scaler(8),
-    marginVertical: scaler(16),
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    paddingVertical: 12,
+    gap: 8,
+    marginVertical: 16,
   },
   footerButton: {
-    paddingVertical: scaler(8),
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: scaler(8),
+    paddingVertical: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
     flex: 1,
-    flexBasis: '40%',
-    borderRadius: scaler(8),
+    flexBasis: "40%",
+    borderRadius: 8,
   },
   footerIcon: {
-    // marginBottom: scaler(6),
+    // marginBottom: 6,
   },
   // Up Next section
   upNextSection: {
-    marginTop: scaler(40),
-    position: 'relative',
-    paddingTop: scaler(16),
-    borderTopWidth: scaler(1),
-    borderTopColor: 'rgba(0, 0, 0, 0.1)',
+    marginTop: 40,
+    position: "relative",
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(0, 0, 0, 0.1)",
   },
   upNextHeader: {
-    alignItems: 'center',
-    marginBottom: scaler(12),
-    position: 'absolute',
-    top: scaler(-12),
+    alignItems: "center",
+    marginBottom: 12,
+    position: "absolute",
+    top: -12,
   },
   upNextText: {
-    marginLeft: scaler(8),
+    marginLeft: 8,
   },
   afterReadingSec: {
-    position: 'relative',
-    borderTopWidth: scaler(1),
-    borderTopColor: 'rgba(0, 0, 0, 0.1)',
+    position: "relative",
+    borderTopWidth: 1,
+    borderTopColor: "rgba(0, 0, 0, 0.1)",
   },
   afterReading: {
-    alignItems: 'center',
-    marginBottom: scaler(12),
-    position: 'absolute',
-    top: scaler(-12),
+    alignItems: "center",
+    marginBottom: 12,
+    position: "absolute",
+    top: -12,
   },
 });

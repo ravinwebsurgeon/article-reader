@@ -18,11 +18,11 @@
  */
 
 // Export theme creation and types
-export { createTheme, lightTheme, darkTheme } from './theme';
-export type { Theme, ThemeMode } from './theme';
+export { createTheme, lightTheme, darkTheme } from "./theme";
+export type { Theme, ThemeMode } from "./theme";
 
 // Export theme provider
-export { ThemeProvider, ThemeContext } from './ThemeProvider';
+export { ThemeProvider, ThemeContext } from "./ThemeProvider";
 
 // Export theme hooks
 export {
@@ -35,10 +35,15 @@ export {
   useSpacing,
   useShadows,
   useActiveThemeMode,
-} from './hooks';
+  useThemeColor,
+} from "./hooks";
+export type { UseThemeColorProps } from "./hooks";
 
 // Export theme tokens for direct access if needed
-export * from './tokens';
+export * from "./tokens";
+
+// Export individual core components for convenience
+export { getInterVariableStyle } from "./tokens/typography";
 
 /**
  * Usage Guide

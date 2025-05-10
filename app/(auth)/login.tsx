@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect } from "react";
 import {
   StyleSheet,
   TouchableOpacity,
@@ -7,21 +7,19 @@ import {
   ScrollView,
   Alert,
   SafeAreaView,
-} from 'react-native';
-import { router } from 'expo-router';
-import { resetAuthError } from '@/redux/slices/authSlice';
-import { useAppDispatch, useAppSelector } from '@/redux/hook';
-import { useForm } from 'react-hook-form';
-import { Ionicons } from '@expo/vector-icons';
-import { FormInput } from '@/components/ui/form/form-input';
-import { Button } from '@/components/ui/button';
-import { COLORS, lightColors } from '@/theme';
-import { useLoginMutation } from '@/redux/services/authApi';
-import { useTheme } from '@/theme';
-import { ThemeText, ThemeView } from '@/components';
-import { scaler } from '@/utils';
-import { Input } from '@/components/ui/TextInput/input';
-import { SvgIcon } from '@/components/SvgIcon';
+  ViewStyle,
+  TextStyle,
+} from "react-native";
+import { router } from "expo-router";
+import { resetAuthError } from "@/redux/slices/authSlice";
+import { useAppDispatch, useAppSelector } from "@/redux/hook";
+import { useForm } from "react-hook-form";
+import { useTheme } from "@/theme";
+import { useLoginMutation } from "@/redux/services/authApi";
+import { ThemeText, ThemeView } from "@/components";
+import { Input } from "@/components/ui/TextInput/input";
+import { SvgIcon } from "@/components/SvgIcon";
+import { Button } from "@/components/ui/button";
 
 interface LoginFormData {
   email: string;
@@ -36,8 +34,8 @@ function LoginScreen() {
   const [login] = useLoginMutation();
   const { control, handleSubmit } = useForm<LoginFormData>({
     defaultValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
     },
   });
 
@@ -50,12 +48,12 @@ function LoginScreen() {
         },
       }).unwrap();
     } catch (err) {
-      console.error('Login failed', err);
+      console.error("Login failed", err);
     }
   };
 
   const navigateToSignUp = () => {
-    router.push('/(auth)/signup');
+    router.push("/(auth)/signup");
   };
 
   const navigateToForgotPassword = () => {
@@ -65,15 +63,89 @@ function LoginScreen() {
   // Show error alert if needed
   useEffect(() => {
     if (error) {
-      Alert.alert('Login Error', error);
+      Alert.alert("Login Error", error);
       dispatch(resetAuthError());
     }
   }, [error, dispatch]);
 
+  const dynamicStyles: {
+    container: ViewStyle;
+    logoCircle: ViewStyle;
+    logoHeart: ViewStyle;
+    subtitle: TextStyle;
+    inputError: ViewStyle;
+    errorText: TextStyle;
+    forgotPasswordText: TextStyle;
+    signInButton: ViewStyle;
+    signInButtonText: TextStyle;
+    signUpLinkText: TextStyle;
+  } = {
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background.default,
+    },
+    logoCircle: {
+      width: 80,
+      height: 80,
+      borderRadius: 40,
+      backgroundColor: theme.colors.primary.main,
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 15,
+    },
+    logoHeart: {
+      width: 30,
+      height: 30,
+      backgroundColor: theme.colors.primary.light,
+      borderRadius: 15,
+    },
+    subtitle: {
+      fontSize: 17,
+      lineHeight: 26,
+      fontWeight: "400" as const,
+      color: theme.colors.text.disabled,
+      marginBottom: 16,
+    },
+    inputError: {
+      borderColor: theme.colors.error.main,
+    },
+    errorText: {
+      color: theme.colors.error.main,
+      fontSize: 12,
+      marginTop: 4,
+    },
+    forgotPasswordText: {
+      color: theme.colors.primary.main,
+      fontSize: 14,
+    },
+    signInButton: {
+      backgroundColor: theme.colors.primary.main,
+      height: 56,
+      borderRadius: 28,
+      justifyContent: "center",
+      alignItems: "center",
+      shadowColor: theme.colors.primary.main,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 5,
+    },
+    signInButtonText: {
+      color: theme.colors.white,
+      fontSize: 18,
+      fontWeight: "600" as const,
+    },
+    signUpLinkText: {
+      color: theme.colors.primary.main,
+      fontSize: 16,
+      fontWeight: "600" as const,
+    },
+  };
+
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background.default }]}>
+    <SafeAreaView style={[styles.container, dynamicStyles.container]}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardAvoidingContainer}
       >
         <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -84,19 +156,18 @@ function LoginScreen() {
             <ThemeText variant="h2" style={styles.title}>
               Welcome Back
             </ThemeText>
-            <ThemeText style={styles.subtitle}>Pick up where you left off.</ThemeText>
+            <ThemeText style={dynamicStyles.subtitle}>Pick up where you left off.</ThemeText>
           </ThemeView>
 
           <ThemeView style={styles.formContainer}>
             <Input
               control={control}
               name="email"
-              // label="Email"
               rules={{
-                required: 'Email is required',
+                required: "Email is required",
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: 'Invalid email address',
+                  message: "Invalid email address",
                 },
               }}
               placeholder="Email"
@@ -104,23 +175,22 @@ function LoginScreen() {
               autoCapitalize="none"
               autoCorrect={false}
               spellCheck={false}
-              icon={<SvgIcon name="envelope" size={24} color={COLORS.primary.main} />}
+              icon={<SvgIcon name="envelope" size={24} color={theme.colors.primary.main} />}
               style={styles.input}
             />
             <Input
               control={control}
               name="password"
-              // label="Password"
               rules={{
-                required: 'Password is required',
+                required: "Password is required",
                 minLength: {
                   value: 8,
-                  message: 'Password must be at least 8 characters',
+                  message: "Password must be at least 8 characters",
                 },
               }}
               placeholder="Password"
               secureTextEntry
-              icon={<SvgIcon name="key" size={24} color={COLORS.primary.main} />}
+              icon={<SvgIcon name="key" size={24} color={theme.colors.primary.main} />}
               style={styles.input}
             />
 
@@ -128,14 +198,13 @@ function LoginScreen() {
               style={styles.forgotPasswordContainer}
               onPress={navigateToForgotPassword}
             >
-              {/* <ThemeText style={styles.forgotPasswordText}>Forgot password?</ThemeText> */}
+              {/* <ThemeText style={dynamicStyles.forgotPasswordText}>Forgot password?</ThemeText> */}
             </TouchableOpacity>
 
             <Button
               title="Log In"
               onPress={handleSubmit(onSubmit)}
-              style={styles.signInButton}
-              // leftIcon={<Ionicons name="log-in-outline" size={20} color={COLORS.white} />}
+              style={dynamicStyles.signInButton}
               rightIcon={null}
             />
           </ThemeView>
@@ -143,7 +212,7 @@ function LoginScreen() {
           <ThemeView style={styles.signUpContainer}>
             <ThemeText style={styles.signUpText}>New Here? </ThemeText>
             <TouchableOpacity onPress={navigateToSignUp}>
-              <ThemeText style={styles.signUpLinkText}>Create and account</ThemeText>
+              <ThemeText style={dynamicStyles.signUpLinkText}>Create and account</ThemeText>
             </TouchableOpacity>
           </ThemeView>
         </ScrollView>
@@ -155,115 +224,47 @@ function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: lightColors.background.default,
   },
   keyboardAvoidingContainer: {
     flex: 1,
   },
   scrollContainer: {
     flexGrow: 1,
-    paddingHorizontal: scaler(24),
-    paddingTop: scaler(40),
-    paddingBottom: scaler(24),
+    paddingHorizontal: 24,
+    paddingTop: 40,
+    paddingBottom: 24,
   },
   header: {
-    alignItems: 'flex-start',
-    marginBottom: scaler(20),
-    marginTop: scaler(20),
+    alignItems: "flex-start",
+    marginBottom: 20,
+    marginTop: 20,
   },
   logoContainer: {
-    marginBottom: scaler(24),
-  },
-  logoCircle: {
-    width: scaler(80),
-    height: scaler(80),
-    borderRadius: scaler(40),
-    backgroundColor: COLORS.primary.main,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: scaler(15),
-  },
-  logoHeart: {
-    width: scaler(30),
-    height: scaler(30),
-    backgroundColor: COLORS.primary.light,
-    borderRadius: scaler(15),
+    marginBottom: 24,
   },
   title: {
-    fontSize: scaler(28),
-    fontWeight: 'bold',
-    textAlign: 'left',
-    marginBottom: scaler(8),
-  },
-  subtitle: {
-    fontSize: scaler(17),
-    lineHeight: scaler(26),
-    fontWeight: '400',
-    color: lightColors.text.disabled,
-    marginBottom: scaler(16),
+    fontSize: 28,
+    fontWeight: "bold",
+    textAlign: "left",
+    marginBottom: 8,
   },
   formContainer: {
-    width: '100%',
-    marginBottom: scaler(24),
-  },
-  inputContainer: {
-    marginBottom: scaler(20),
-  },
-  iconContainer: {
-    position: 'absolute',
-    left: scaler(12),
-    top: scaler(15),
-    zIndex: 1,
+    marginTop: 32,
   },
   input: {
-    marginBottom: scaler(16),
-  },
-  inputError: {
-    borderColor: COLORS.error.main,
-  },
-  errorText: {
-    color: COLORS.error.main,
-    fontSize: scaler(12),
-    marginTop: scaler(4),
-    marginLeft: scaler(12),
+    marginBottom: 16,
   },
   forgotPasswordContainer: {
-    alignSelf: 'flex-end',
-    marginBottom: scaler(24),
-  },
-  forgotPasswordText: {
-    color: COLORS.primary.main,
-    fontSize: scaler(14),
-  },
-  signInButton: {
-    backgroundColor: COLORS.primary.main,
-    height: scaler(56),
-    borderRadius: scaler(28),
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: COLORS.primary.main,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: scaler(0.25),
-    shadowRadius: scaler(4),
-    elevation: scaler(5),
-  },
-  signInButtonText: {
-    color: COLORS.white,
-    fontSize: scaler(18),
-    fontWeight: '600',
+    alignItems: "flex-end",
+    marginBottom: 24,
   },
   signUpContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: scaler(24),
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 24,
   },
   signUpText: {
-    fontSize: scaler(16),
-  },
-  signUpLinkText: {
-    color: COLORS.primary.main,
-    fontSize: scaler(16),
-    fontWeight: '600',
+    fontSize: 16,
   },
 });
 

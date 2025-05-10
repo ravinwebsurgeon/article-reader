@@ -1,9 +1,9 @@
-import React from 'react';
-import { View, ActivityIndicator, Text, ViewStyle, TextStyle } from 'react-native';
-import { useColors, useTypography, useSpacing } from '@/theme/hooks';
+import React from "react";
+import { View, ActivityIndicator, Text, ViewStyle, TextStyle } from "react-native";
+import { useTheme } from "@/theme/hooks";
 
 interface LoaderProps {
-  size?: 'small' | 'large';
+  size?: "small" | "large";
   color?: string;
   text?: string;
   fullScreen?: boolean;
@@ -11,46 +11,46 @@ interface LoaderProps {
 }
 
 export const Loader: React.FC<LoaderProps> = ({
-  size = 'large',
+  size = "large",
   color,
   text,
   fullScreen = false,
   style,
 }) => {
-  const colors = useColors();
-  const typography = useTypography();
-  const spacing = useSpacing();
+  const theme = useTheme();
 
   const containerStyle: ViewStyle = {
-    padding: spacing.lg,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
+    padding: theme.spacing.lg,
+    alignItems: "center" as const,
+    justifyContent: "center" as const,
   };
 
   const fullScreenStyle: ViewStyle = {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: colors.white,
+    backgroundColor: theme.colors.background.paper,
     zIndex: 10,
   };
 
   const textStyle: TextStyle = {
-    ...typography.body2,
-    color: colors.text.secondary,
-    marginTop: spacing.md,
-    textAlign: 'center' as const,
+    ...theme.typography.body2,
+    color: theme.colors.text.secondary,
+    marginTop: theme.spacing.md,
+    textAlign: "center" as const,
   };
 
-  const rootStyle: ViewStyle[] = [containerStyle, fullScreen && fullScreenStyle, style].filter(
-    Boolean,
-  ) as ViewStyle[];
+  const rootStyle: ViewStyle[] = [
+    containerStyle,
+    fullScreen ? fullScreenStyle : undefined,
+    style,
+  ].filter(Boolean) as ViewStyle[];
 
   return (
     <View style={rootStyle}>
-      <ActivityIndicator size={size} color={color || colors.primary.main} />
+      <ActivityIndicator size={size} color={color ?? theme.colors.activityIndicator} />
       {text && <Text style={textStyle}>{text}</Text>}
     </View>
   );
