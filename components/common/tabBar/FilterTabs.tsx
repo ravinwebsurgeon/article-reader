@@ -1,17 +1,8 @@
-import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
-import {
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  View,
-  ColorValue,
-  Platform,
-} from 'react-native';
+import React, { useRef, useState, useMemo, useCallback } from 'react';
+import { Text, StyleSheet, ScrollView, TouchableOpacity, View } from 'react-native';
 import { useTheme, useDarkMode, type Theme } from '@/theme';
 import { ItemFilter } from '@/types/item';
 import { scaler } from '@/utils';
-import Svg, { Path } from 'react-native-svg';
 import SortMenu, { SortOption } from '../menu/SortMenu';
 import { ActionMenuPosition } from '../menu/ReusableActionMenu';
 import { SvgIcon } from '@/components/SvgIcon';
@@ -72,8 +63,8 @@ const FilterTabs: React.FC<FilterTabsProps> = ({
   const isDarkMode = useDarkMode();
   const styles = useMemo(() => makeStyles(theme, isDarkMode), [theme, isDarkMode]);
 
-  const tabRefs = useRef<{ [key: string]: TouchableOpacity | null }>({});
-  const sortButtonRef = useRef<TouchableOpacity>(null);
+  const tabRefs = useRef<{ [key: string]: View | null }>({});
+  const sortButtonRef = useRef<View>(null);
   const [sortMenuVisible, setSortMenuVisible] = useState(false);
   const [sortMenuPosition, setSortMenuPosition] = useState<ActionMenuPosition>({});
 
@@ -150,7 +141,9 @@ const FilterTabs: React.FC<FilterTabsProps> = ({
             ref={
               option.id === 'sorting'
                 ? sortButtonRef
-                : (ref: TouchableOpacity | null) => (tabRefs.current[option.id as string] = ref)
+                : (ref: View | null) => {
+                    tabRefs.current[option.id as string] = ref;
+                  }
             }
             style={[
               styles.tab,

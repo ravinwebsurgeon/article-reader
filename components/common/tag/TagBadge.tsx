@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, View, StyleSheet, ViewStyle, TextStyle } from 'react-native';
+import { TouchableOpacity, StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import { ThemeText } from '@/components/core';
 import { SvgIcon } from '@/components/SvgIcon';
 import { useColors } from '@/theme/hooks';
@@ -19,7 +19,7 @@ export interface TagBadgeProps {
 
 /**
  * TagBadge component displays a tag in a chip/badge format
- * 
+ *
  * Features:
  * - Customizable colors
  * - Different size options
@@ -38,11 +38,11 @@ const TagBadge: React.FC<TagBadgeProps> = ({
   removable = true,
 }) => {
   const colors = useColors();
-  
+
   // Default colors if not provided
   const badgeColor = color || colors.primary.main;
   const badgeBgColor = backgroundColor || colors.secondary.main;
-  
+
   // Get dynamic styles based on size
   const getSizeStyles = () => {
     switch (size) {
@@ -84,44 +84,30 @@ const TagBadge: React.FC<TagBadgeProps> = ({
         };
     }
   };
-  
+
   const sizeStyles = getSizeStyles();
-  
+
   return (
     <TouchableOpacity
-      style={[
-        styles.container,
-        sizeStyles.container,
-        { backgroundColor: badgeBgColor },
-        style,
-      ]}
+      style={[styles.container, sizeStyles.container, { backgroundColor: badgeBgColor }, style]}
       onPress={onPress}
       activeOpacity={onPress ? 0.7 : 1}
       disabled={!onPress}
     >
       <ThemeText
-        style={[
-          styles.text,
-          sizeStyles.text,
-          { color: badgeColor },
-          textStyle,
-        ]}
+        style={[styles.text, sizeStyles.text, { color: badgeColor }, textStyle]}
         numberOfLines={1}
       >
         {label}
       </ThemeText>
-      
+
       {removable && onRemove && (
         <TouchableOpacity
           style={styles.removeButton}
           onPress={onRemove}
           hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
         >
-          <SvgIcon
-            name="close"
-            size={sizeStyles.icon}
-            color={badgeColor}
-          />
+          <SvgIcon name="close" size={sizeStyles.icon} color={badgeColor} />
         </TouchableOpacity>
       )}
     </TouchableOpacity>

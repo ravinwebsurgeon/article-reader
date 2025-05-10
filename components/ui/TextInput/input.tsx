@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { Controller, Control, FieldValues, Path } from 'react-hook-form';
 import { Ionicons } from '@expo/vector-icons';
-import { useTheme, useDarkMode, type Theme } from '@/theme';
+import { useTheme, type Theme } from '@/theme';
 import { scaler } from '@/utils';
 import { ThemeText } from '@/components/core';
 
