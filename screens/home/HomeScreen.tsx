@@ -89,7 +89,6 @@ const MemoizedFilterTabs = memo(
         currentSort={currentSort}
         onFilterChange={onFilterChange}
         onSortChange={onSortChange}
-        isDarkMode={theme.mode === "dark"}
       />
     );
   },

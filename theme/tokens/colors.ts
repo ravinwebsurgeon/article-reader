@@ -101,6 +101,7 @@ export interface ColorPalette {
   inputBackground: string;
   icon: string;
   activityIndicator: string;
+  border: string;
 }
 
 // Define base colors - shared between themes
@@ -181,6 +182,7 @@ export const lightColors: ColorPalette = {
   inputBackground: "#F3F4F6",
   icon: "#1C1F21",
   activityIndicator: "#6B7280",
+  border: "#E0E0E0",
 };
 
 // Dark theme color palette
@@ -199,24 +201,25 @@ export const darkColors: ColorPalette = {
     900: "#F5F6F7",
   },
   text: {
-    primary: "#ECEDEE",
+    primary: "#FFFFFF",
     secondary: "#B0B3B8",
-    secondary2: "#A0AEC0",
-    disabled: "#6C7178",
+    secondary2: "#8A8D91",
+    disabled: "#6C6C6C",
     hint: "#8A8D91",
-    dark: "#1C1F21",
-    subtle: "#A0AEC0",
+    dark: "#FFFFFF",
+    subtle: "#8A8D91",
   },
   background: {
-    default: "#151718",
+    default: "#18191A",
     paper: "#242526",
-    elevated: "#2D2E2F",
+    elevated: "#3A3B3C",
   },
   divider: "#3A3B3C",
-  backdrop: "rgba(0, 0, 0, 0.7)",
-  inputBackground: "#1F2937",
+  backdrop: "rgba(0, 0, 0, 0.5)",
+  inputBackground: "#3A3B3C",
   icon: "#FFFFFF",
-  activityIndicator: "#A0AEC0",
+  activityIndicator: "#8A8D91",
+  border: "#3A3B3C",
 };
 
 const tintColorLight = "#ef3e55";
