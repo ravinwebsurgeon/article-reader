@@ -4,7 +4,6 @@ import { useRouter } from "expo-router";
 import { withRecommendedItems } from "@/database/hooks/withRecommendedItems";
 import Item from "@/database/models/ItemModel";
 import { useTheme } from "@/theme/hooks";
-import { scaler } from "@/utils";
 import ArticleCard from "@/components/common/card/ArticleCard";
 
 // Base component for the Recommended Articles section
@@ -31,7 +30,7 @@ const RecommendedArticlesBase = ({
     <ArticleCard
       item={item}
       onPress={() => navigateToArticle(item)}
-      style={{ paddingHorizontal: scaler(-16) }}
+      style={{ paddingHorizontal: -16 }}
       //   onMenuPress={() => openActionMenu(item.id)}
     />
   );
@@ -71,7 +70,7 @@ const RecommendedArticles = ({ currentItem }: { currentItem: Item }) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: scaler(8),
+    marginTop: 8,
   },
   recommendedItem: {
     flexDirection: "row",
@@ -81,9 +80,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   recommendedTitle: {
-    fontSize: scaler(16),
+    fontSize: 16,
     fontWeight: "500",
-    marginBottom: scaler(4),
+    marginBottom: 4,
   },
   recommendedMeta: {
     flexDirection: "row",
@@ -92,14 +91,14 @@ const styles = StyleSheet.create({
   },
   recommendedSource: {
     flex: 1,
-    marginRight: scaler(8),
+    marginRight: 8,
   },
   recommendedArrow: {
-    marginLeft: scaler(12),
+    marginLeft: 12,
   },
   separator: {
     height: StyleSheet.hairlineWidth,
-    marginLeft: scaler(16),
+    marginLeft: 16,
   },
 });
 

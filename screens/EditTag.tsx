@@ -12,7 +12,6 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { useTheme, useColors, useTypography } from "@/theme/hooks";
-import { scaler } from "@/utils";
 import { ThemeText, ThemeView } from "@/components/core";
 import Tag from "@/database/models/TagModel";
 import Item from "@/database/models/ItemModel";
@@ -448,7 +447,7 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
                           onTagPress={toggleTag}
                           title="Other Tags"
                           emptyMessage="No other tags found"
-                          maxHeight={scaler(300)}
+                          maxHeight={300}
                         />
                       )}
                     </>
@@ -470,44 +469,44 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    // marginTop: scaler(50),
-    borderTopLeftRadius: scaler(20),
-    borderTopRightRadius: scaler(20),
+    // marginTop: 50,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     overflow: "hidden",
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: scaler(16),
-    paddingTop: scaler(4),
+    paddingHorizontal: 16,
+    paddingTop: 4,
     // borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: "#E0E0E0",
   },
   title: {
     fontWeight: "600",
-    fontSize: scaler(15),
-    lineHeight: scaler(20),
+    fontSize: 15,
+    lineHeight: 20,
     textAlign: "center",
     flex: 1,
-    marginRight: scaler(-40),
+    marginRight: -40,
   },
   closeButton: {
-    padding: scaler(4),
+    padding: 4,
   },
   closeText: {
     fontWeight: "600",
-    fontSize: scaler(15),
-    lineHeight: scaler(20),
+    fontSize: 15,
+    lineHeight: 20,
   },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    margin: scaler(16),
-    paddingHorizontal: scaler(12),
-    paddingVertical: scaler(8),
-    borderWidth: scaler(2),
-    borderRadius: scaler(16),
+    margin: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderWidth: 2,
+    borderRadius: 16,
   },
   topBar: {
     flexDirection: "row",
@@ -515,31 +514,31 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   topBarIndicator: {
-    width: scaler(40),
-    height: scaler(4),
-    borderRadius: scaler(2),
+    width: 40,
+    height: 4,
+    borderRadius: 2,
     backgroundColor: "#E0E0E0",
-    marginVertical: scaler(8),
+    marginVertical: 8,
   },
   searchIcon: {
-    marginRight: scaler(8),
+    marginRight: 8,
   },
   input: {
     flex: 1,
     padding: 0,
-    height: scaler(30),
+    height: 30,
   },
   selectedTagsContainer: {
-    paddingHorizontal: scaler(16),
+    paddingHorizontal: 16,
     // flexWrap: 'wrap',
-    paddingBottom: scaler(8),
+    paddingBottom: 8,
   },
   selectedTagsList: {
-    paddingVertical: scaler(4),
+    paddingVertical: 4,
   },
   content: {
     flex: 1,
-    paddingHorizontal: scaler(16),
+    paddingHorizontal: 16,
   },
   loadingContainer: {
     flex: 1,
@@ -549,19 +548,19 @@ const styles = StyleSheet.create({
   keyboardAccessory: {
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: "#E0E0E0",
-    paddingBottom: Platform.OS === "ios" ? scaler(24) : scaler(8),
+    paddingBottom: Platform.OS === "ios" ? 24 : 8,
   },
   keyboardAccessoryContent: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: scaler(8),
-    paddingHorizontal: scaler(16),
+    paddingVertical: 8,
+    paddingHorizontal: 16,
   },
   addButton: {
-    paddingHorizontal: scaler(32),
-    paddingVertical: scaler(10),
-    borderRadius: scaler(8),
+    paddingHorizontal: 32,
+    paddingVertical: 10,
+    borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
   },

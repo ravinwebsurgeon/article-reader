@@ -11,7 +11,6 @@ import {
 import { Controller, Control, FieldValues, Path, RegisterOptions } from "react-hook-form";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme, type Theme } from "@/theme";
-import { scaler } from "@/utils";
 import { ThemeText } from "@/components/core";
 
 interface InputProps<T extends FieldValues> {
@@ -106,51 +105,51 @@ export const Input = <T extends FieldValues>({
 
 const makeStyles = (theme: Theme) =>
   StyleSheet.create({
-    inputWrapper: { marginBottom: scaler(16), width: "100%" },
+    inputWrapper: { marginBottom: 16, width: "100%" },
     inputLabel: {
-      fontSize: scaler(14),
-      marginBottom: scaler(8),
+      fontSize: 14,
+      marginBottom: 8,
       color: theme.colors.text.primary,
       fontWeight: "500",
     },
     inputContainer: { position: "relative", width: "100%" },
     input: {
-      height: scaler(50),
-      borderWidth: scaler(1),
+      height: 50,
+      borderWidth: 1,
       borderColor: theme.colors.divider,
-      borderRadius: scaler(16),
-      paddingHorizontal: scaler(16),
-      fontSize: scaler(16),
+      borderRadius: 16,
+      paddingHorizontal: 16,
+      fontSize: 16,
       backgroundColor: theme.colors.inputBackground,
       color: theme.colors.text.primary,
     },
     multilineInput: {
-      height: scaler(120),
-      paddingTop: scaler(12),
-      paddingBottom: scaler(12),
+      height: 120,
+      paddingTop: 12,
+      paddingBottom: 12,
       textAlignVertical: "top",
     },
-    inputWithIcon: { paddingLeft: scaler(44) },
-    inputWithSecureToggle: { paddingRight: scaler(44) },
+    inputWithIcon: { paddingLeft: 44 },
+    inputWithSecureToggle: { paddingRight: 44 },
     inputError: { borderColor: theme.colors.error.main },
     iconContainer: {
       position: "absolute",
-      left: scaler(16),
+      left: 16,
       top: "50%",
       transform: [{ translateY: -10 }],
       zIndex: 1,
     },
     secureTextToggle: {
       position: "absolute",
-      right: scaler(16),
+      right: 16,
       top: "50%",
       transform: [{ translateY: -10 }],
       zIndex: 1,
     },
     errorText: {
       color: theme.colors.error.main,
-      fontSize: scaler(12),
-      marginTop: scaler(4),
-      marginLeft: scaler(4),
+      fontSize: 12,
+      marginTop: 4,
+      marginLeft: 4,
     },
   });

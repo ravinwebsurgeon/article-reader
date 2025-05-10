@@ -15,7 +15,6 @@ import {
 } from "react-native";
 import { useTheme, useDarkMode, type Theme } from "@/theme";
 import { ThemeText } from "@/components/core";
-import { scaler } from "@/utils";
 import { SvgIcon, SvgIconName } from "@/components/SvgIcon";
 import Svg, { Path } from "react-native-svg";
 import { menuAnimationPresets } from "./menuAnimationPresents";
@@ -84,10 +83,10 @@ export interface ActionMenuProps {
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SCREEN_HEIGHT = Dimensions.get("window").height;
-const DEFAULT_MENU_WIDTH = scaler(240);
-const DEFAULT_MAX_HEIGHT = scaler(400);
-const MENU_PADDING = scaler(8);
-const SAFE_AREA_PADDING = scaler(16);
+const DEFAULT_MENU_WIDTH = 240;
+const DEFAULT_MAX_HEIGHT = 400;
+const MENU_PADDING = 8;
+const SAFE_AREA_PADDING = 16;
 const DEFAULT_ANIMATION_DURATION = 200;
 
 const ReusableActionMenu: React.FC<ActionMenuProps> = ({
@@ -118,7 +117,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
   // State for menu dimensions and positioning
   const [menuDimensions, setMenuDimensions] = useState({
     height: 0,
-    width: typeof width === "number" ? scaler(width) : DEFAULT_MENU_WIDTH,
+    width: typeof width === "number" ? width : DEFAULT_MENU_WIDTH,
   });
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const [isPositioned, setIsPositioned] = useState(false);
@@ -174,7 +173,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
       setMenuPosition({ top: 0, left: 0 });
       setMenuDimensions({
         height: 0,
-        width: typeof width === "number" ? scaler(width) : DEFAULT_MENU_WIDTH,
+        width: typeof width === "number" ? width : DEFAULT_MENU_WIDTH,
       });
       setIsScrollable(false);
     }
@@ -496,23 +495,23 @@ const makeStyles = (theme: Theme, isDarkMode: boolean) =>
     },
     menuContainer: {
       position: "absolute",
-      borderRadius: scaler(12),
+      borderRadius: 12,
       paddingHorizontal: MENU_PADDING,
-      elevation: scaler(5),
+      elevation: 5,
       overflow: "hidden",
       backfaceVisibility: "hidden",
       ...Platform.select({
         ios: {
           shadowColor: "rgba(0, 0, 0, 0.3)",
-          shadowOffset: { width: 0, height: scaler(3) },
+          shadowOffset: { width: 0, height: 3 },
           shadowOpacity: 0.6,
-          shadowRadius: scaler(8),
+          shadowRadius: 8,
         },
       }),
     },
     menuHeader: {
-      paddingHorizontal: scaler(8),
-      paddingVertical: scaler(8),
+      paddingHorizontal: 8,
+      paddingVertical: 8,
       borderBottomWidth: StyleSheet.hairlineWidth,
       borderBottomColor: theme.colors.divider,
     },
@@ -520,14 +519,14 @@ const makeStyles = (theme: Theme, isDarkMode: boolean) =>
       fontWeight: "600",
     },
     scrollContent: {
-      paddingBottom: scaler(4),
+      paddingBottom: 4,
     },
     menuItem: {
       flexDirection: "row",
       alignItems: "center",
-      paddingVertical: scaler(8),
-      paddingHorizontal: scaler(8),
-      minHeight: scaler(48),
+      paddingVertical: 8,
+      paddingHorizontal: 8,
+      minHeight: 48,
     },
     disabledItem: {
       opacity: 0.5,
@@ -536,30 +535,30 @@ const makeStyles = (theme: Theme, isDarkMode: boolean) =>
       opacity: 0.7,
     },
     iconContainer: {
-      width: scaler(24),
-      height: scaler(24),
+      width: 24,
+      height: 24,
       alignItems: "center",
       justifyContent: "center",
     },
     menuText: {
-      fontSize: scaler(16),
+      fontSize: 16,
       flex: 1,
     },
     selectedIndicator: {
-      marginRight: scaler(12),
-      width: scaler(14),
-      height: scaler(14),
+      marginRight: 12,
+      width: 14,
+      height: 14,
       alignItems: "center",
       justifyContent: "center",
     },
     divider: {
       height: StyleSheet.hairlineWidth,
       backgroundColor: theme.colors.divider,
-      marginVertical: scaler(4),
+      marginVertical: 4,
     },
     menuFooter: {
-      paddingHorizontal: scaler(8),
-      paddingVertical: scaler(8),
+      paddingHorizontal: 8,
+      paddingVertical: 8,
       borderTopWidth: StyleSheet.hairlineWidth,
       borderTopColor: theme.colors.divider,
     },
