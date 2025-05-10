@@ -91,7 +91,7 @@ export const ThemeTouchable: React.FC<ThemeTouchableProps> = ({
 
   // Combine styles
   const combinedStyle = [
-    { backgroundColor: backgroundColor || theme.colors.background.paper },
+    { backgroundColor: backgroundColor ?? theme.colors.background.paper },
     getPadding() !== undefined && { padding: getPadding() },
     getMargin() !== undefined && { margin: getMargin() },
     getBorderRadius() !== undefined && { borderRadius: getBorderRadius() },

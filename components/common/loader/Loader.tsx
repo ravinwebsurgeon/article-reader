@@ -50,7 +50,7 @@ export const Loader: React.FC<LoaderProps> = ({
 
   return (
     <View style={rootStyle}>
-      <ActivityIndicator size={size} color={color || theme.colors.activityIndicator} />
+      <ActivityIndicator size={size} color={color ?? theme.colors.activityIndicator} />
       {text && <Text style={textStyle}>{text}</Text>}
     </View>
   );

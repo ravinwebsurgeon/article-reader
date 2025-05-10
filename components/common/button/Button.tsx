@@ -112,8 +112,8 @@ export const Button: React.FC<ButtonProps> = ({
 };
 
 const makeStyles = (theme: Theme) => {
-  const getNativeTextStyle = (typographyStyle: any): Omit<TextStyle, "cursor"> => {
-    const { cursor, ...nativeStyle } = typographyStyle || {};
+  const getNativeTextStyle = (typographyStyle: TextStyle): Omit<TextStyle, "cursor"> => {
+    const { cursor, ...nativeStyle } = typographyStyle ?? {};
     return nativeStyle;
   };
 
@@ -174,13 +174,13 @@ const makeStyles = (theme: Theme) => {
       color: theme.colors.text.primary,
     },
     text_small: {
-      ...(nativeButtonSmallTypography || nativeButtonTypography),
+      ...(nativeButtonSmallTypography ?? nativeButtonTypography),
     },
     text_medium: {
-      ...(nativeButtonMediumTypography || nativeButtonTypography),
+      ...(nativeButtonMediumTypography ?? nativeButtonTypography),
     },
     text_large: {
-      ...(nativeButtonLargeTypography || nativeButtonTypography),
+      ...(nativeButtonLargeTypography ?? nativeButtonTypography),
     },
     text_disabled: {
       opacity: 0.5,

@@ -57,10 +57,10 @@ export const ThemeButton: React.FC<ThemeButtonProps> = ({
     switch (size) {
       case "sm":
         return { vertical: theme.spacing.xs, horizontal: theme.spacing.sm };
+      case "md":
+        return { vertical: theme.spacing.sm, horizontal: theme.spacing.md };
       case "lg":
         return { vertical: theme.spacing.md, horizontal: theme.spacing.lg };
-      default:
-        return { vertical: theme.spacing.sm, horizontal: theme.spacing.md };
     }
   };
 
@@ -97,10 +97,10 @@ export const ThemeButton: React.FC<ThemeButtonProps> = ({
     switch (size) {
       case "sm":
         return "body2Bold";
+      case "md":
+        return "body1Bold";
       case "lg":
         return "subtitle1";
-      default:
-        return "body1Bold";
     }
   };
 

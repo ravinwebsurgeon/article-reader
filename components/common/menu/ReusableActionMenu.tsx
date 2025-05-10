@@ -11,6 +11,7 @@ import {
   ScrollView,
   Animated,
   Easing,
+  ViewStyle,
 } from "react-native";
 import { useTheme, useDarkMode, type Theme } from "@/theme";
 import { ThemeText } from "@/components/core";
@@ -192,12 +193,12 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
         return;
       }
 
-      const anchorX = position.x || 0;
-      const anchorY = position.y || 0;
-      const anchorWidth = position.width || 0;
-      const anchorHeight = position.height || 0;
-      const preferredPosition = position.position || "bottom";
-      const preferredAlign = position.align || "center";
+      const anchorX = position.x ?? 0;
+      const anchorY = position.y ?? 0;
+      const anchorWidth = position.width ?? 0;
+      const anchorHeight = position.height ?? 0;
+      const preferredPosition = position.position ?? "bottom";
+      const preferredAlign = position.align ?? "center";
 
       let top = 0;
       let left = 0;
@@ -299,11 +300,11 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
     (item: ActionMenuItem, index: number) => {
       const textColor = item.destructive
         ? theme.colors.error.main
-        : item.textColor || theme.colors.text.primary;
+        : (item.textColor ?? theme.colors.text.primary);
 
       const iconColor = item.destructive
         ? theme.colors.error.main
-        : item.iconColor || theme.colors.text.primary;
+        : (item.iconColor ?? theme.colors.text.primary);
 
       return (
         <React.Fragment key={item.id || index}>
@@ -421,10 +422,13 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
   }
 
   // Prepare container style for Animated.View, ensuring width is number or valid percentage string
-  const menuContainerDynamicStyle: any = {
+  const menuContainerDynamicStyle: ViewStyle = {
     top: menuPosition.top,
     left: menuPosition.left,
-    width: typeof width === "string" ? width : menuDimensions.width, // Keep as is, assume valid string (e.g., "80%") or number
+    width:
+      typeof width === "string"
+        ? (width as import("react-native").DimensionValue)
+        : menuDimensions.width,
     maxHeight: isScrollable ? maxHeight : undefined,
   };
 
@@ -445,15 +449,15 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
               onLayout={onMenuLayout}
             >
               {/* Optional title */}
-              {(title || headerComponent) && (
+              {(title ?? headerComponent) && (
                 <View style={styles.menuHeader}>
-                  {headerComponent || (
+                  {headerComponent ?? (
                     <ThemeText
                       variant="subtitle2"
                       style={styles.menuTitle}
                       color={theme.colors.text.secondary}
                     >
-                      {title}
+                      {title ?? ""}
                     </ThemeText>
                   )}
                 </View>

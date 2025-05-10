@@ -28,7 +28,7 @@ const createIcon = (
 ) => {
   const Icon: React.FC<IconProps> = ({ size = defaultSize, color, style }) => {
     const theme = useTheme();
-    const iconColor = color || theme.colors.icon;
+    const iconColor = color ?? theme.colors.icon;
     return (
       <View style={[{ width: size, height: size }, style]}>
         <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
