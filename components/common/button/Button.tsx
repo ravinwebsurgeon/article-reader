@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   TouchableOpacity,
   Text,
@@ -9,8 +9,7 @@ import {
   TextStyle,
   View,
 } from 'react-native';
-import { typography, spacing } from '@/theme/tokens';
-import { lightColors } from '@/theme/tokens/colors';
+import { useTheme, type Theme } from '@/theme';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'tertiary' | 'icon';
 export type ButtonSize = 'small' | 'medium' | 'large';
@@ -41,10 +40,13 @@ export const Button: React.FC<ButtonProps> = ({
   disabled = false,
   ...rest
 }) => {
+  const theme = useTheme();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
+
   const getButtonStyles = (): ViewStyle => {
     const baseStyle = styles.button;
-    const variantStyle = styles[`button_${variant}`];
-    const sizeStyle = styles[`button_${size}`];
+    const variantStyle = styles[`button_${variant}` as keyof typeof styles];
+    const sizeStyle = styles[`button_${size}` as keyof typeof styles];
     const disabledStyle = disabled ? styles.button_disabled : {};
 
     return {
@@ -53,13 +55,13 @@ export const Button: React.FC<ButtonProps> = ({
       ...sizeStyle,
       ...disabledStyle,
       ...buttonStyle,
-    };
+    } as ViewStyle;
   };
 
   const getTextStyles = (): TextStyle => {
     const baseStyle = styles.text;
-    const variantStyle = styles[`text_${variant}`];
-    const sizeStyle = styles[`text_${size}`];
+    const variantStyle = styles[`text_${variant}` as keyof typeof styles];
+    const sizeStyle = styles[`text_${size}` as keyof typeof styles];
     const disabledStyle = disabled ? styles.text_disabled : {};
 
     return {
@@ -68,16 +70,20 @@ export const Button: React.FC<ButtonProps> = ({
       ...sizeStyle,
       ...disabledStyle,
       ...textStyle,
-    };
+    } as TextStyle;
   };
 
   const renderContent = () => {
     if (isLoading) {
-      return (
-        <ActivityIndicator
-          color={variant === 'primary' ? lightColors.white : lightColors.primary.main}
-        />
-      );
+      let loaderColor = theme.colors.primary.main;
+      if (variant === 'primary') {
+        loaderColor = theme.colors.white;
+      } else if (variant === 'secondary') {
+        loaderColor = theme.colors.text.primary;
+      } else if (variant === 'tertiary') {
+        loaderColor = theme.colors.primary.main;
+      }
+      return <ActivityIndicator color={loaderColor} />;
     }
 
     if (icon && !title) {
@@ -105,73 +111,85 @@ export const Button: React.FC<ButtonProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 24,
-  },
-  button_primary: {
-    backgroundColor: lightColors.primary.main,
-  },
-  button_secondary: {
-    backgroundColor: lightColors.gray[200],
-  },
-  button_tertiary: {
-    backgroundColor: 'transparent',
-  },
-  button_icon: {
-    backgroundColor: 'transparent',
-    padding: 8,
-  },
-  button_small: {
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.sm,
-  },
-  button_medium: {
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-  },
-  button_large: {
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-  },
-  button_disabled: {
-    opacity: 0.5,
-  },
-  text: {
-    textAlign: 'center',
-    ...typography.button,
-  },
-  text_primary: {
-    color: lightColors.white,
-  },
-  text_secondary: {
-    color: lightColors.text.primary,
-  },
-  text_tertiary: {
-    color: lightColors.primary.main,
-  },
-  text_icon: {
-    color: lightColors.text.primary,
-  },
-  text_small: {
-    ...typography.button_small,
-  },
-  text_medium: {
-    ...typography.button_medium,
-  },
-  text_large: {
-    ...typography.button_large,
-  },
-  text_disabled: {
-    opacity: 0.5,
-  },
-  iconLeft: {
-    marginRight: spacing.xs,
-  },
-  iconRight: {
-    marginLeft: spacing.xs,
-  },
-});
+const makeStyles = (theme: Theme) => {
+  const getNativeTextStyle = (typographyStyle: any): Omit<TextStyle, 'cursor'> => {
+    const { cursor, ...nativeStyle } = typographyStyle || {};
+    return nativeStyle;
+  };
+
+  const nativeButtonTypography = getNativeTextStyle(theme.typography.button);
+  const nativeButtonSmallTypography = getNativeTextStyle(theme.typography.button_small);
+  const nativeButtonMediumTypography = getNativeTextStyle(theme.typography.button_medium);
+  const nativeButtonLargeTypography = getNativeTextStyle(theme.typography.button_large);
+
+  return StyleSheet.create({
+    button: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 24,
+    },
+    button_primary: {
+      backgroundColor: theme.colors.primary.main,
+    },
+    button_secondary: {
+      backgroundColor: theme.colors.gray[200],
+    },
+    button_tertiary: {
+      backgroundColor: 'transparent',
+    },
+    button_icon: {
+      backgroundColor: 'transparent',
+      padding: 8,
+    },
+    button_small: {
+      paddingVertical: theme.spacing.xs,
+      paddingHorizontal: theme.spacing.sm,
+    },
+    button_medium: {
+      paddingVertical: theme.spacing.sm,
+      paddingHorizontal: theme.spacing.md,
+    },
+    button_large: {
+      paddingVertical: theme.spacing.md,
+      paddingHorizontal: theme.spacing.lg,
+    },
+    button_disabled: {
+      opacity: 0.5,
+    },
+    text: {
+      textAlign: 'center',
+      ...nativeButtonTypography,
+    },
+    text_primary: {
+      color: theme.colors.white,
+    },
+    text_secondary: {
+      color: theme.colors.text.primary,
+    },
+    text_tertiary: {
+      color: theme.colors.primary.main,
+    },
+    text_icon: {
+      color: theme.colors.text.primary,
+    },
+    text_small: {
+      ...(nativeButtonSmallTypography || nativeButtonTypography),
+    },
+    text_medium: {
+      ...(nativeButtonMediumTypography || nativeButtonTypography),
+    },
+    text_large: {
+      ...(nativeButtonLargeTypography || nativeButtonTypography),
+    },
+    text_disabled: {
+      opacity: 0.5,
+    },
+    iconLeft: {
+      marginRight: theme.spacing.xs,
+    },
+    iconRight: {
+      marginLeft: theme.spacing.xs,
+    },
+  });
+};

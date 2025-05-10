@@ -129,7 +129,7 @@ const ArticleActionMenu: React.FC<ArticleActionMenuProps> = ({
         id: 'favorite',
         label: item.favorite ? 'Unfavorite' : 'Favorite',
         icon: item.favorite ? 'favorite' : 'favorite',
-        iconColor: item.favorite ? '#F8E61B' : undefined, // Yellow for favorited items
+        iconColor: item.favorite ? theme.colors.favorite : undefined,
         onPress: toggleFavorite,
         dividerAfter: true,
       },

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, ActivityIndicator, Text, ViewStyle, TextStyle } from 'react-native';
-import { useColors, useTypography, useSpacing } from '@/theme/hooks';
+import { useTheme } from '@/theme/hooks';
 
 interface LoaderProps {
   size?: 'small' | 'large';
@@ -17,12 +17,10 @@ export const Loader: React.FC<LoaderProps> = ({
   fullScreen = false,
   style,
 }) => {
-  const colors = useColors();
-  const typography = useTypography();
-  const spacing = useSpacing();
+  const theme = useTheme();
 
   const containerStyle: ViewStyle = {
-    padding: spacing.lg,
+    padding: theme.spacing.lg,
     alignItems: 'center' as const,
     justifyContent: 'center' as const,
   };
@@ -33,24 +31,26 @@ export const Loader: React.FC<LoaderProps> = ({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: colors.white,
+    backgroundColor: theme.colors.background.paper,
     zIndex: 10,
   };
 
   const textStyle: TextStyle = {
-    ...typography.body2,
-    color: colors.text.secondary,
-    marginTop: spacing.md,
+    ...theme.typography.body2,
+    color: theme.colors.text.secondary,
+    marginTop: theme.spacing.md,
     textAlign: 'center' as const,
   };
 
-  const rootStyle: ViewStyle[] = [containerStyle, fullScreen && fullScreenStyle, style].filter(
-    Boolean,
-  ) as ViewStyle[];
+  const rootStyle: ViewStyle[] = [
+    containerStyle,
+    fullScreen ? fullScreenStyle : undefined,
+    style,
+  ].filter(Boolean) as ViewStyle[];
 
   return (
     <View style={rootStyle}>
-      <ActivityIndicator size={size} color={color || colors.primary.main} />
+      <ActivityIndicator size={size} color={color || theme.colors.activityIndicator} />
       {text && <Text style={textStyle}>{text}</Text>}
     </View>
   );
