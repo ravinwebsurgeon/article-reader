@@ -12,6 +12,8 @@ interface EditTagsModalProps {
 }
 
 const EditTagsModal: React.FC<EditTagsModalProps> = ({ visible, onClose, item }) => {
+  if (!visible) return null;
+
   return (
     <Modal
       visible={visible}
@@ -19,7 +21,7 @@ const EditTagsModal: React.FC<EditTagsModalProps> = ({ visible, onClose, item })
       presentationStyle="pageSheet"
       onRequestClose={onClose}
     >
-      <EditTagsScreen item={item} onClose={onClose} />
+      <EditTagsScreen item={item} onClose={onClose} visible={visible} />
     </Modal>
   );
 };

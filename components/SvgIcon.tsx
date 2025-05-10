@@ -1,43 +1,9 @@
-import { ICONS } from "@/assets/Icons";
+import { ICONS } from "../assets/Icons";
 import React from "react";
 import { View, StyleProp, ViewStyle } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
-export type SvgIconName =
-  | "discover"
-  | "saves"
-  | "settings"
-  | "archive"
-  | "compass"
-  | "goto"
-  | "listen"
-  | "menu-dots"
-  | "pocket-solid"
-  | "share"
-  | "sort-ascending"
-  | "sort-descending"
-  | "time-short"
-  | "time-long"
-  | "trash"
-  | "up-next"
-  | "tag"
-  | "favorite"
-  | "check"
-  | "clock-lined"
-  | "shield-lined"
-  | "start-lined"
-  | "paste-lined"
-  | "clockAlt-lined"
-  | "tag-lined"
-  | "underlined-start"
-  | "circle-plus"
-  | "close"
-  | "apple"
-  | "google"
-  | "envelope"
-  | "key"
-  | "key-renter"
-  | "pocket-pink";
+export type SvgIconName = keyof typeof ICONS;
 
 /**
  * Custom SVG icon component that uses the provided SVG paths for each icon.

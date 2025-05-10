@@ -16,10 +16,12 @@ import { scaler } from "@/utils";
 import { ThemeText, ThemeView } from "@/components/core";
 import Tag from "@/database/models/TagModel";
 import Item from "@/database/models/ItemModel";
+import ItemTag from "@/database/models/ItemTagModel";
 import { SvgIcon } from "@/components/SvgIcon";
 import { useTagManagement } from "@/utils/hooks";
 import { TagBadge, TagList } from "@/components/common/tag";
 import database from "@/database/database";
+import { Q } from "@nozbe/watermelondb";
 
 /**
  * TagEditor component allows users to manage tags for an article
@@ -87,21 +89,21 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
       setAllTags(tags);
 
       // Get all ItemTag relationships to determine tag usage
-      const itemTagsCollection = database.collections.get("item_tags");
+      const itemTagsCollection = database.collections.get<ItemTag>("item_tags");
       const allItemTags = await itemTagsCollection.query().fetch();
 
       // Create a map of tag ID to its most recent usage timestamp
-      const tagLastUsedMap = new Map();
+      const tagLastUsedMap = new Map<string, number>();
 
       // Process all ItemTag relationships to find the most recent usage for each tag
-      allItemTags.forEach((itemTag) => {
+      for (const itemTag of allItemTags) {
         const tagId = itemTag.tag.id;
         const usageTime = itemTag.createdAt.getTime();
 
-        if (!tagLastUsedMap.has(tagId) || usageTime > tagLastUsedMap.get(tagId)) {
+        if (!tagLastUsedMap.has(tagId) || usageTime > tagLastUsedMap.get(tagId)!) {
           tagLastUsedMap.set(tagId, usageTime);
         }
-      });
+      }
 
       // Sort tags by last usage time (most recent first)
       const sortedTags = [...tags].sort((a, b) => {
@@ -115,23 +117,20 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
       // All other tags
       const others = sortedTags.slice(Math.min(5, sortedTags.length));
 
-      // const recent = tags.slice(0, Math.min(5, tags.length));
-      // const others = tags.slice(Math.min(5, tags.length));
       setRecentTags(recent);
       setOtherTags(others);
 
       // Load item's current tags
       const itemTags = await item.itemTags.fetch();
-      const tagIds = new Set(
+      const tagIds = await Promise.all(
         itemTags.map(async (itemTag) => {
-          const tag = await itemTag.tag.fetch();
+          // Use the proper relation method to get the tag
+          const tag = await itemTag.tag;
           return tag.id;
         }),
       );
 
-      // Wait for all promises to resolve
-      const resolvedTagIds = await Promise.all(Array.from(tagIds));
-      setSelectedTagIds(new Set(resolvedTagIds));
+      setSelectedTagIds(new Set(tagIds));
     } catch (error) {
       console.error("Error loading tags:", error);
     } finally {
@@ -167,10 +166,13 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
           newSelectedTagIds.delete(tag.id);
           await database.write(async () => {
             const itemTagsRelation = await item.itemTags.fetch();
-            const itemTagToDelete = itemTagsRelation.find(async (it) => {
-              const tagObj = await it.tag.fetch();
-              return tagObj.id === tag.id;
-            });
+            const itemTagToDelete = await Promise.all(
+              itemTagsRelation.map(async (it) => {
+                // Use the proper relation method to get the tag
+                const tagObj = await it.tag;
+                return tagObj.id === tag.id ? it : null;
+              }),
+            ).then((results) => results.find((result) => result !== null));
 
             if (itemTagToDelete) {
               await itemTagToDelete.destroyPermanently();
@@ -179,10 +181,11 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
         } else {
           newSelectedTagIds.add(tag.id);
           await database.write(async () => {
-            const itemTagsCollection = database.collections.get("item_tags");
+            const itemTagsCollection = database.collections.get<ItemTag>("item_tags");
             await itemTagsCollection.create((itemTag) => {
-              itemTag.item.set(item);
-              itemTag.tag.set(tag);
+              // Use the proper relation setters
+              itemTag.item = item;
+              itemTag.tag = tag;
             });
           });
         }
@@ -225,10 +228,10 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
             });
 
             // Create the relationship
-            const itemTagsCollection = database.collections.get("item_tags");
+            const itemTagsCollection = database.collections.get<ItemTag>("item_tags");
             await itemTagsCollection.create((itemTag) => {
-              itemTag.item.set(item);
-              itemTag.tag.set(newTag!);
+              itemTag.item = item;
+              itemTag.tag = newTag!;
             });
           });
 
