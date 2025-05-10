@@ -1,43 +1,58 @@
-import { ThemeText } from '@/components';
-import { ThemedView } from '@/components/ThemedView';
-import { Button } from '@/components/ui/button';
-import { useLogoutMutation } from '@/redux/services/authApi';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Pressable } from "react-native";
+import { ThemeText, ThemeView } from "@/components";
+import { Ionicons } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
-  const [logout] = useLogoutMutation();
-
-  const handleSubmit = async () => {
-    try {
-      await logout();
-    } catch (err) {
-      console.error('Login failed', err);
-    }
-  };
-
   return (
-    <ThemedView style={styles.titleContainer}>
-      <ThemeText variant="h2">Explore</ThemeText>
-      <Button
-        title="Sign out"
-        onPress={handleSubmit}
-        leftIcon={null}
-        rightIcon={null}
-        style={styles.titleContainer}
-      />
-    </ThemedView>
+    <SafeAreaView style={styles.safeArea}>
+      <ThemeView style={styles.container} padded="lg">
+        <ThemeText variant="h2" style={styles.header}>
+          Explore
+        </ThemeText>
+
+        <ThemeView style={styles.section} rounded="md">
+          <Pressable style={styles.settingItem}>
+            <ThemeView style={styles.settingContent}>
+              <Ionicons name="compass-outline" size={24} color="#007AFF" />
+              <ThemeText style={styles.settingText}>Discover</ThemeText>
+            </ThemeView>
+            <Ionicons name="chevron-forward" size={20} color="#8E8E93" />
+          </Pressable>
+        </ThemeView>
+      </ThemeView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -10,
-    left: -35,
-    position: 'absolute',
+  safeArea: {
+    flex: 1,
   },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
+  container: {
+    flex: 1,
+  },
+  header: {
+    marginBottom: 24,
+  },
+  section: {
+    backgroundColor: "#FFFFFF",
+    overflow: "hidden",
+  },
+  settingItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "#C6C6C8",
+  },
+  settingContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  settingText: {
+    fontSize: 16,
   },
 });

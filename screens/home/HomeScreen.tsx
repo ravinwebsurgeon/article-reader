@@ -1,55 +1,40 @@
-import React, { useState, useCallback, useMemo, memo } from 'react';
-import {
-  View,
-  FlatList,
-  StyleSheet,
-  RefreshControl,
-  TouchableOpacity,
-  ActivityIndicator,
-  Image,
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { ItemFilter } from '@/types/item';
-import { Images } from '@/assets';
-import { useAppSelector } from '@/redux/hook';
-import { selectActiveTheme } from '@/redux/utils';
-import ArticleCard, { ARTICLE_CARD_HEIGHT } from '@/components/common/card/ArticleCard';
-import FilterTabs from '@/components/common/tabBar/FilterTabs';
-import ActionMenu from '@/components/common/menu/ActionMenu';
-import NoItemsFound from '@/components/common/emptyState/NoUIFound';
-import { scaler } from '@/utils';
-import { COLORS, lightColors } from '@/theme';
-import { syncEngine } from '@/database/sync/SyncEngine';
-import { useItems, withItems } from '@/database/hooks/withItems';
-import Item from '@/database/models/ItemModel';
-import Svg, { Path } from 'react-native-svg';
-import { SortOption } from '@/components/common/menu/SortMenu';
-import { ThemeText } from '@/components';
-import { getLocales } from 'expo-localization';
-import { I18n } from 'i18n-js';
-import { isLoading } from 'expo-font';
+import React, { useState, useCallback, useMemo, memo } from "react";
+import { View, FlatList, StyleSheet, RefreshControl, TouchableOpacity, Image } from "react-native";
+import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { ItemFilter } from "@/types/item";
+import { Images } from "@/assets";
+import ArticleCard, { ARTICLE_CARD_HEIGHT } from "@/components/common/card/ArticleCard";
+import FilterTabs from "@/components/common/tabBar/FilterTabs";
+import ActionMenu from "@/components/common/menu/ActionMenu";
+import NoItemsFound from "@/components/common/emptyState/NoUIFound";
+import { useTheme } from "@/theme";
+import { syncEngine } from "@/database/sync/SyncEngine";
+import { withItems } from "@/database/hooks/withItems";
+import Item from "@/database/models/ItemModel";
+import Svg, { Path } from "react-native-svg";
+import { SortOption } from "@/components/common/menu/SortMenu";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 // Use the exported fixed height from ArticleCard component
 const ITEM_HEIGHT = ARTICLE_CARD_HEIGHT;
 
 const Header = memo(() => {
   const router = useRouter();
-  const activeTheme = useAppSelector(selectActiveTheme);
-  const isDarkMode = activeTheme === 'dark';
+  const theme = useTheme();
 
   const navigateToSearch = useCallback(() => {
-    router.push('/search');
+    router.push("/search");
   }, [router]);
 
   const navigateToAddArticle = useCallback(() => {
-    router.push('/add-article');
+    router.push("/add-article");
   }, [router]);
 
   return (
     <View style={styles.header}>
       <View style={styles.logoContainer}>
-        {isDarkMode ? (
+        {theme.mode === "dark" ? (
           <Image style={styles.logoIcon} source={Images.pa_dark_logo} />
         ) : (
           <Image style={styles.logoIcon} source={Images.pa_logo} />
@@ -61,7 +46,7 @@ const Header = memo(() => {
           <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
             <Path
               d="M10.5 1.99994C5.80558 1.99994 2 5.80552 2 10.4999C2 15.1944 5.80558 18.9999 10.5 18.9999C12.5772 18.9999 14.4803 18.2549 15.9568 17.0174L20.7203 21.7809C21.0132 22.0738 21.488 22.0738 21.7809 21.7809C22.0738 21.488 22.0738 21.0131 21.7809 20.7202L17.0174 15.9567C18.2549 14.4803 19 12.5771 19 10.4999C19 5.80552 15.1944 1.99994 10.5 1.99994ZM3.5 10.4999C3.5 6.63395 6.63401 3.49994 10.5 3.49994C14.366 3.49994 17.5 6.63395 17.5 10.4999C17.5 14.3659 14.366 17.4999 10.5 17.4999C6.63401 17.4999 3.5 14.3659 3.5 10.4999Z"
-              fill={isDarkMode ? COLORS.white : '#1C1F21'}
+              fill={theme.colors.icon}
               fillOpacity="0.84"
             />
           </Svg>
@@ -71,7 +56,7 @@ const Header = memo(() => {
           <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
             <Path
               d="M12.25 2.99995C12.6642 2.99995 13 3.33574 13 3.74995V11H20.5C20.9142 11 21.25 11.3358 21.25 11.75C21.25 12.1642 20.9142 12.5 20.5 12.5H13V19.75C13 20.1642 12.6642 20.5 12.25 20.5C11.8358 20.5 11.5 20.1642 11.5 19.75V12.5H4C3.58579 12.5 3.25 12.1642 3.25 11.75C3.25 11.3358 3.58579 11 4 11H11.5V3.74995C11.5 3.33574 11.8358 2.99995 12.25 2.99995Z"
-              fill={isDarkMode ? COLORS.white : '#1C1F21'}
+              fill={theme.colors.icon}
               fillOpacity="0.84"
             />
           </Svg>
@@ -81,7 +66,7 @@ const Header = memo(() => {
   );
 });
 
-Header.displayName = 'Header';
+Header.displayName = "Header";
 
 // Memoized FilterTabs component
 const MemoizedFilterTabs = memo(
@@ -96,147 +81,126 @@ const MemoizedFilterTabs = memo(
     onFilterChange: (filter: ItemFilter) => void;
     onSortChange: (sort: SortOption) => void;
   }) => {
-    const activeTheme = useAppSelector(selectActiveTheme);
-    const isDarkMode = activeTheme === 'dark';
-
+    const theme = useTheme();
     return (
       <FilterTabs
         currentFilter={currentFilter}
         currentSort={currentSort}
         onFilterChange={onFilterChange}
         onSortChange={onSortChange}
-        isDarkMode={isDarkMode}
       />
     );
   },
 );
 
-MemoizedFilterTabs.displayName = 'MemoizedFilterTabs';
+MemoizedFilterTabs.displayName = "MemoizedFilterTabs";
 // The base ItemsList component that only re-renders when items change
-const ItemsList = memo(
-  ({ items, filter, loading }: { items: Item[]; filter: ItemFilter; loading: boolean }) => {
-    const router = useRouter();
-    const activeTheme = useAppSelector(selectActiveTheme);
-    const isDarkMode = activeTheme === 'dark';
-    // State for action menu
-    const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-    const [showActionMenu, setShowActionMenu] = useState(false);
-    const [isSyncing, setIsSyncing] = useState(false);
+const ItemsList = memo(({ items, filter }: { items: Item[]; filter: ItemFilter }) => {
+  const router = useRouter();
+  const theme = useTheme();
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [showActionMenu, setShowActionMenu] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
-    // Handle pull-to-refresh - sync with server
-    const handleRefresh = useCallback(async () => {
-      try {
-        setIsSyncing(true);
-        console.log('Performing refresh sync');
-        await syncEngine.sync();
-      } catch (error) {
-        console.error('Sync failed:', error);
-      } finally {
-        setIsSyncing(false);
-      }
-    }, []);
+  // Handle pull-to-refresh - sync with server
+  const handleRefresh = useCallback(async () => {
+    try {
+      setIsSyncing(true);
+      console.log("Performing refresh sync");
+      await syncEngine.sync();
+    } catch (error) {
+      console.error("Sync failed:", error);
+    } finally {
+      setIsSyncing(false);
+    }
+  }, []);
 
-    // Navigate to article detail
-    const navigateToArticle = useCallback(
-      (item: Item) => {
-        router.push({
-          pathname: '/reader/[id]',
-          params: { id: item.id },
-        });
-      },
-      [router],
-    );
+  // Navigate to article detail
+  const navigateToArticle = useCallback(
+    (item: Item) => {
+      router.push({
+        pathname: "/reader/[id]",
+        params: { id: item.id },
+      });
+    },
+    [router],
+  );
 
-    // Open action menu for an item
-    const openActionMenu = useCallback((id: string) => {
-      setSelectedItemId(id);
-      setShowActionMenu(true);
-    }, []);
+  // Open action menu for an item
+  const openActionMenu = useCallback((id: string) => {
+    setSelectedItemId(id);
+    setShowActionMenu(true);
+  }, []);
 
-    // Close action menu
-    const closeActionMenu = useCallback(() => {
-      setShowActionMenu(false);
-      setSelectedItemId(null);
-    }, []);
+  // Close action menu
+  const closeActionMenu = useCallback(() => {
+    setShowActionMenu(false);
+    setSelectedItemId(null);
+  }, []);
 
-    // Render the article item - wrapped in useCallback to prevent recreating on each render
-    const renderItem = useCallback(
-      ({ item }: { item: Item }) => (
-        <ArticleCard
-          item={item}
-          onPress={() => navigateToArticle(item)}
-          onMenuPress={() => openActionMenu(item.id)}
+  // Render the article item - wrapped in useCallback to prevent recreating on each render
+  const renderItem = useCallback(
+    ({ item }: { item: Item }) => (
+      <ArticleCard
+        item={item}
+        onPress={() => navigateToArticle(item)}
+        onMenuPress={() => openActionMenu(item.id)}
+      />
+    ),
+    [navigateToArticle, openActionMenu],
+  );
+
+  // Memoize keyExtractor to prevent recreation on each render
+  const keyExtractor = useCallback((item: Item) => item.id, []);
+
+  // Implement getItemLayout for fixed height items
+  // This allows FlatList to know item dimensions without measuring them
+  const getItemLayout = useCallback(
+    (_data: any, index: number) => ({
+      length: ITEM_HEIGHT,
+      offset: ITEM_HEIGHT * index,
+      index,
+    }),
+    [],
+  );
+
+  return (
+    <>
+      <FlatList
+        data={items}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        contentContainerStyle={[styles.listContent, items?.length === 0 && styles.emptyList]}
+        ListEmptyComponent={<NoItemsFound filter={filter} />}
+        refreshControl={
+          <RefreshControl
+            refreshing={isSyncing}
+            onRefresh={handleRefresh}
+            colors={[theme.colors.primary.main]}
+            tintColor={theme.colors.primary.main}
+          />
+        }
+        // Performance optimizations for FlatList
+        removeClippedSubviews={true}
+        maxToRenderPerBatch={10}
+        windowSize={10}
+        initialNumToRender={10}
+        updateCellsBatchingPeriod={50}
+        getItemLayout={getItemLayout}
+      />
+
+      {/* Action Menu Modal */}
+      {showActionMenu && selectedItemId && (
+        <ActionMenu
+          item={items.find((item) => item.id === selectedItemId)!}
+          onClose={closeActionMenu}
         />
-      ),
-      [navigateToArticle, openActionMenu],
-    );
+      )}
+    </>
+  );
+});
 
-    // Memoize keyExtractor to prevent recreation on each render
-    const keyExtractor = useCallback((item: Item) => item.id, []);
-
-    // Implement getItemLayout for fixed height items
-    // This allows FlatList to know item dimensions without measuring them
-    const getItemLayout = useCallback(
-      (_data: any, index: number) => ({
-        length: ITEM_HEIGHT,
-        offset: ITEM_HEIGHT * index,
-        index,
-      }),
-      [],
-    );
-
-    console.log(loading,'check the loading state');
-
-    return (
-      <>
-        {loading ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={'#3C3C4399'} />
-            <ThemeText variant="h3" style={styles.message}>
-              Restoring Your Saves
-            </ThemeText>
-            <ThemeText variant="body2" style={styles.subMessage}>
-              Your saved pages are on the way.
-            </ThemeText>
-          </View>
-        ) : (
-          <FlatList
-            data={items}
-            renderItem={renderItem}
-            keyExtractor={keyExtractor}
-            contentContainerStyle={[styles.listContent, items?.length === 0 && styles.emptyList]}
-            ListEmptyComponent={<NoItemsFound filter={filter} />}
-            refreshControl={
-              <RefreshControl
-                refreshing={isSyncing}
-                onRefresh={handleRefresh}
-                colors={[COLORS.primary.main]}
-                tintColor={COLORS.primary.main}
-              />
-            }
-            // Performance optimizations for FlatList
-            removeClippedSubviews={true}
-            maxToRenderPerBatch={10}
-            windowSize={10}
-            initialNumToRender={10}
-            updateCellsBatchingPeriod={50}
-            getItemLayout={getItemLayout}
-          />
-        )}
-
-        {/* Action Menu Modal */}
-        {showActionMenu && selectedItemId && (
-          <ActionMenu
-            item={items.find((item) => item.id === selectedItemId)!}
-            onClose={closeActionMenu}
-          />
-        )}
-      </>
-    );
-  },
-);
-
-ItemsList.displayName = 'ItemsList';
+ItemsList.displayName = "ItemsList";
 // Create the enhanced ItemsList with data from withItems HOC
 const EnhancedItemsList = ({ filter, sorted }: { filter: ItemFilter; sorted: SortOption }) => {
   // Use the HOC to get items based on the filter
@@ -251,22 +215,13 @@ const EnhancedItemsList = ({ filter, sorted }: { filter: ItemFilter; sorted: Sor
 
 // Main HomeScreen component that manages filter state
 const HomeScreenWithFilter = () => {
-  const [filter, setFilter] = useState<ItemFilter>('all');
-  const [sorted, setSorted] = useState<SortOption>('newest');
-  const activeTheme = useAppSelector(selectActiveTheme);
-  const isDarkMode = activeTheme === 'dark';
-
-  const { items, loading } = useItems({ filter, sorted });
-  console.log(loading, 'is this component rendered?');
+  const [filter, setFilter] = useState<ItemFilter>("all");
+  const [sorted, setSorted] = useState<SortOption>("newest");
+  const theme = useTheme();
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: isDarkMode ? COLORS.darkBackground : lightColors.background.default },
-      ]}
-    >
-      <StatusBar style={isDarkMode ? 'light' : 'dark'} />
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background.default }]}>
+      <StatusBar style={theme.mode === "dark" ? "light" : "dark"} />
 
       {/* These components will not re-render when the filter changes */}
       <Header />
@@ -283,10 +238,9 @@ const HomeScreenWithFilter = () => {
 
       {/* This component will only re-render when necessary */}
       <View style={{ flex: 1 }}>
-        {/* <EnhancedItemsList filter={filter} sorted={sorted} /> */}
-        <ItemsList items={items} filter={filter} loading={loading} />
+        <EnhancedItemsList filter={filter} sorted={sorted} />
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -295,58 +249,71 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingHorizontal: scaler(16),
-    paddingTop: scaler(48),
-    paddingBottom: scaler(12),
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   logoContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: scaler(50),
-    height: scaler(30),
+    flexDirection: "row",
+    alignItems: "center",
+    width: 50,
+    height: 30,
   },
   logoIcon: {
-    width: scaler(120),
-    height: scaler(30),
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: 120,
+    height: 30,
+    justifyContent: "center",
+    alignItems: "center",
   },
   headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   iconButton: {
-    marginLeft: scaler(20),
-    padding: scaler(4),
+    marginLeft: 20,
+    padding: 4,
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: scaler(40),
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 40,
   },
   message: {
-    fontSize: scaler(20),
-    lineHeight: scaler(36),
-    marginTop: scaler(16),
-    textAlign: 'center',
-    marginBottom: scaler(8),
+    fontSize: 20,
+    lineHeight: 36,
+    marginTop: 16,
+    textAlign: "center",
+    marginBottom: 8,
   },
   subMessage: {
-    lineHeight: scaler(22),
-    color: COLORS.darkGray,
-    textAlign: 'center',
+    lineHeight: 22,
+    textAlign: "center",
   },
   listContent: {
-    paddingBottom: scaler(20),
+    paddingBottom: 20,
   },
   emptyList: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 20,
+    lineHeight: 36,
+    marginTop: 16,
+  },
+  subtitle: {
+    marginBottom: 8,
+  },
+  description: {
+    lineHeight: 22,
+  },
+  footer: {
+    paddingBottom: 20,
   },
 });
 

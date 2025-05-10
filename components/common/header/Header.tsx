@@ -1,11 +1,11 @@
-import React from 'react';
-import { StyleSheet, StatusBar } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import React from "react";
+import { StyleSheet, StatusBar } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 
 // Import themed components and hooks
-import { ThemeView, ThemeText, ThemeTouchable } from '@/components/core';
-import { useTheme, useDarkMode } from '@/theme/hooks';
+import { ThemeView, ThemeText, ThemeTouchable } from "@/components/core";
+import { useTheme, useDarkMode } from "@/theme/hooks";
 
 interface HeaderProps {
   title?: string;
@@ -40,8 +40,8 @@ export const Header: React.FC<HeaderProps> = ({
   const isDarkMode = useDarkMode();
 
   // Default colors from theme if not specified
-  const bgColor = backgroundColor || theme.colors.background.paper;
-  const txtColor = titleColor || theme.colors.text.primary;
+  const bgColor = backgroundColor ?? theme.colors.background.paper;
+  const txtColor = titleColor ?? theme.colors.text.primary;
 
   const renderLeftContent = () => {
     if (renderLeft) {
@@ -82,9 +82,9 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <SafeAreaView edges={['top']} style={[styles.safeArea, { backgroundColor: bgColor }]}>
+    <SafeAreaView edges={["top"]} style={[styles.safeArea, { backgroundColor: bgColor }]}>
       <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+        barStyle={isDarkMode ? "light-content" : "dark-content"}
         backgroundColor={bgColor}
         translucent={false}
       />
@@ -105,28 +105,28 @@ export const Header: React.FC<HeaderProps> = ({
 
 const styles = StyleSheet.create({
   safeArea: {
-    width: '100%',
+    width: "100%",
     zIndex: 10,
   },
   container: {
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingVertical: 12,
     height: 56,
   },
   leftContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     minWidth: 40,
   },
   rightContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     minWidth: 40,
   },
   title: {
     flex: 1,
-    textAlign: 'center',
+    textAlign: "center",
   },
   iconButton: {
     padding: 4,

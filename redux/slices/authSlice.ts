@@ -1,6 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { authApi } from '../services/authApi';
-import { User } from '../../types/api';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { authApi } from "../services/authApi";
+import { User } from "../../types/api";
 
 // Types
 interface AuthState {
@@ -24,7 +24,7 @@ const initialState: AuthState = {
 
 // Slice
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
     resetAuthError(state) {
@@ -50,7 +50,7 @@ const authSlice = createSlice({
     });
     builder.addMatcher(authApi.endpoints.login.matchRejected, (state, action) => {
       state.isLoading = false;
-      state.error = action.error.message || 'Login failed';
+      state.error = action.error.message || "Login failed";
     });
 
     // Register
@@ -66,7 +66,7 @@ const authSlice = createSlice({
     });
     builder.addMatcher(authApi.endpoints.register.matchRejected, (state, action) => {
       state.isLoading = false;
-      state.error = action.error.message || 'Registration failed';
+      state.error = action.error.message || "Registration failed";
     });
 
     // Logout

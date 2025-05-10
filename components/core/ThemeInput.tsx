@@ -1,5 +1,5 @@
-import { useTheme } from '@/theme/hooks';
-import React, { useState } from 'react';
+import { useTheme } from "@/theme/hooks";
+import React, { useState } from "react";
 import {
   TextInput,
   TextInputProps,
@@ -8,9 +8,11 @@ import {
   TouchableOpacity,
   ViewStyle,
   StyleProp,
-} from 'react-native';
-import { ThemeText } from './ThemeText';
-import { getInterVariableStyle } from '@/theme';
+  NativeSyntheticEvent,
+  TextInputFocusEventData,
+} from "react-native";
+import { ThemeText } from "./ThemeText";
+import { getInterVariableStyle } from "@/theme";
 
 export interface ThemeInputProps extends TextInputProps {
   label?: string;
@@ -39,26 +41,22 @@ export const ThemeInput: React.FC<ThemeInputProps> = ({
   const [isFocused, setIsFocused] = useState(false);
 
   // Handle focus state
-  const handleFocus = (e: any) => {
+  const handleFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
     setIsFocused(true);
-    if (inputProps.onFocus) {
-      inputProps.onFocus(e);
-    }
+    inputProps.onFocus?.(e);
   };
 
   // Handle blur state
-  const handleBlur = (e: any) => {
+  const handleBlur = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
     setIsFocused(false);
-    if (inputProps.onBlur) {
-      inputProps.onBlur(e);
-    }
+    inputProps.onBlur?.(e);
   };
 
   // Get border color based on state
   const getBorderColor = () => {
     if (error) return theme.colors.error.main;
     if (isFocused) return theme.colors.primary.main;
-    return theme.colors.gray[300];
+    return theme.colors.divider;
   };
 
   return (
@@ -78,8 +76,7 @@ export const ThemeInput: React.FC<ThemeInputProps> = ({
           styles.inputContainer,
           {
             borderColor: getBorderColor(),
-            backgroundColor:
-              theme.mode === 'dark' ? theme.colors.gray[800] : theme.colors.gray[100],
+            backgroundColor: theme.colors.inputBackground,
           },
           isFocused && styles.inputContainerFocused,
           error && styles.inputContainerError,
@@ -114,13 +111,13 @@ export const ThemeInput: React.FC<ThemeInputProps> = ({
         )}
       </View>
 
-      {(error || hint) && (
+      {(error ?? hint) && (
         <ThemeText
           variant="caption"
           color={error ? theme.colors.error.main : theme.colors.text.hint}
           style={styles.helperText}
         >
-          {error || hint}
+          {error ?? hint}
         </ThemeText>
       )}
     </View>
@@ -130,14 +127,14 @@ export const ThemeInput: React.FC<ThemeInputProps> = ({
 const styles = StyleSheet.create({
   container: {
     marginBottom: 16,
-    width: '100%',
+    width: "100%",
   },
   label: {
     marginBottom: 4,
   },
   inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 12,
@@ -151,7 +148,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    height: '100%',
+    height: "100%",
     padding: 0,
     fontSize: 16,
   },

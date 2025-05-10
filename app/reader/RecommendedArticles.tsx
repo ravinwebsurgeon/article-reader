@@ -1,11 +1,10 @@
-import React, { memo } from 'react';
-import { View, StyleSheet, FlatList } from 'react-native';
-import { useRouter } from 'expo-router';
-import { withRecommendedItems } from '@/database/hooks/withRecommendedItems';
-import Item from '@/database/models/ItemModel';
-import { useTheme } from '@/theme/hooks';
-import { scaler } from '@/utils';
-import ArticleCard from '@/components/common/card/ArticleCard';
+import React, { memo } from "react";
+import { View, StyleSheet, FlatList } from "react-native";
+import { useRouter } from "expo-router";
+import { withRecommendedItems } from "@/database/hooks/withRecommendedItems";
+import Item from "@/database/models/ItemModel";
+import { useTheme } from "@/theme/hooks";
+import ArticleCard from "@/components/common/card/ArticleCard";
 
 // Base component for the Recommended Articles section
 const RecommendedArticlesBase = ({
@@ -21,7 +20,7 @@ const RecommendedArticlesBase = ({
   // Navigate to the selected article
   const navigateToArticle = (item: Item) => {
     router.push({
-      pathname: '/reader/[id]',
+      pathname: "/reader/[id]",
       params: { id: item.id },
     });
   };
@@ -31,8 +30,8 @@ const RecommendedArticlesBase = ({
     <ArticleCard
       item={item}
       onPress={() => navigateToArticle(item)}
-      style={{paddingHorizontal: scaler(-16)}}
-    //   onMenuPress={() => openActionMenu(item.id)}
+      style={{ paddingHorizontal: -16 }}
+      //   onMenuPress={() => openActionMenu(item.id)}
     />
   );
 
@@ -71,35 +70,35 @@ const RecommendedArticles = ({ currentItem }: { currentItem: Item }) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: scaler(8),
+    marginTop: 8,
   },
   recommendedItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    alignItems: "flex-start",
   },
   recommendedContent: {
     flex: 1,
   },
   recommendedTitle: {
-    fontSize: scaler(16),
-    fontWeight: '500',
-    marginBottom: scaler(4),
+    fontSize: 16,
+    fontWeight: "500",
+    marginBottom: 4,
   },
   recommendedMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   recommendedSource: {
     flex: 1,
-    marginRight: scaler(8),
+    marginRight: 8,
   },
   recommendedArrow: {
-    marginLeft: scaler(12),
+    marginLeft: 12,
   },
   separator: {
     height: StyleSheet.hairlineWidth,
-    marginLeft: scaler(16),
+    marginLeft: 16,
   },
 });
 

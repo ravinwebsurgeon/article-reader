@@ -1,22 +1,28 @@
-"use client"
-
-import type React from "react"
-import { Modal } from "react-native"
-import type Item from "@/database/models/ItemModel"
-import EditTagsScreen from "@/screens/EditTag"
+"use client";
+import type React from "react";
+import { Modal } from "react-native";
+import type Item from "@/database/models/ItemModel";
+import EditTagsScreen from "@/screens/EditTag";
 
 interface EditTagsModalProps {
-  visible: boolean
-  onClose: () => void
-  item: Item
+  visible: boolean;
+  onClose: () => void;
+  item: Item;
 }
 
 const EditTagsModal: React.FC<EditTagsModalProps> = ({ visible, onClose, item }) => {
-  return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
-      <EditTagsScreen item={item} onClose={onClose} />
-    </Modal>
-  )
-}
+  if (!visible) return null;
 
-export default EditTagsModal
+  return (
+    <Modal
+      visible={visible}
+      animationType="slide"
+      presentationStyle="pageSheet"
+      onRequestClose={onClose}
+    >
+      <EditTagsScreen item={item} onClose={onClose} visible={visible} />
+    </Modal>
+  );
+};
+
+export default EditTagsModal;

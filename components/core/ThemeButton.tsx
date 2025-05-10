@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   TouchableOpacity,
   ActivityIndicator,
@@ -6,14 +6,14 @@ import {
   StyleProp,
   ViewStyle,
   TextStyle,
-} from 'react-native';
-import { ThemeView } from './ThemeView';
-import { useTheme } from '@/theme/hooks';
-import { ThemeText } from './ThemeText';
+} from "react-native";
+import { ThemeView } from "./ThemeView";
+import { useTheme } from "@/theme/hooks";
+import { ThemeText } from "./ThemeText";
 
-export type ButtonVariant = 'filled' | 'outlined' | 'text';
-export type ButtonSize = 'sm' | 'md' | 'lg';
-export type ButtonColor = 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'info';
+export type ButtonVariant = "filled" | "outlined" | "text";
+export type ButtonSize = "sm" | "md" | "lg";
+export type ButtonColor = "primary" | "secondary" | "success" | "error" | "warning" | "info";
 
 export interface ThemeButtonProps {
   onPress?: () => void;
@@ -34,9 +34,9 @@ export interface ThemeButtonProps {
 export const ThemeButton: React.FC<ThemeButtonProps> = ({
   onPress,
   title,
-  variant = 'filled',
-  size = 'md',
-  color = 'primary',
+  variant = "filled",
+  size = "md",
+  color = "primary",
   disabled = false,
   loading = false,
   fullWidth = false,
@@ -55,25 +55,25 @@ export const ThemeButton: React.FC<ThemeButtonProps> = ({
   // Get padding based on size
   const getPadding = () => {
     switch (size) {
-      case 'sm':
+      case "sm":
         return { vertical: theme.spacing.xs, horizontal: theme.spacing.sm };
-      case 'lg':
-        return { vertical: theme.spacing.md, horizontal: theme.spacing.lg };
-      default:
+      case "md":
         return { vertical: theme.spacing.sm, horizontal: theme.spacing.md };
+      case "lg":
+        return { vertical: theme.spacing.md, horizontal: theme.spacing.lg };
     }
   };
 
   // Get background color based on variant and state
   const getBackgroundColor = () => {
     if (disabled) return theme.colors.gray[300];
-    if (variant === 'filled') return getBaseColor();
-    return 'transparent';
+    if (variant === "filled") return getBaseColor();
+    return "transparent";
   };
 
   // Get border style based on variant
   const getBorderStyle = () => {
-    if (variant === 'outlined') {
+    if (variant === "outlined") {
       return {
         borderWidth: 1,
         borderColor: disabled ? theme.colors.gray[300] : getBaseColor(),
@@ -84,8 +84,8 @@ export const ThemeButton: React.FC<ThemeButtonProps> = ({
 
   // Get text color based on variant and state
   const getTextColor = () => {
-    if (disabled) return theme.colors.gray[500];
-    if (variant === 'filled') return getContrastColor();
+    if (disabled) return theme.colors.text.disabled;
+    if (variant === "filled") return getContrastColor();
     return getBaseColor();
   };
 
@@ -95,12 +95,12 @@ export const ThemeButton: React.FC<ThemeButtonProps> = ({
   // Get font size based on button size
   const getFontVariant = () => {
     switch (size) {
-      case 'sm':
-        return 'body2Bold';
-      case 'lg':
-        return 'subtitle1';
-      default:
-        return 'body1Bold';
+      case "sm":
+        return "body2Bold";
+      case "md":
+        return "body1Bold";
+      case "lg":
+        return "subtitle1";
     }
   };
 
@@ -118,7 +118,7 @@ export const ThemeButton: React.FC<ThemeButtonProps> = ({
           opacity: disabled ? 0.6 : 1,
         },
         getBorderStyle(),
-        variant === 'text' && styles.textButton,
+        variant === "text" && styles.textButton,
         fullWidth && styles.fullWidth,
         style,
       ]}
@@ -128,7 +128,7 @@ export const ThemeButton: React.FC<ThemeButtonProps> = ({
 
         {loading && (
           <ActivityIndicator
-            size={size === 'sm' ? 'small' : 'small'}
+            size={size === "sm" ? "small" : "small"}
             color={getTextColor()}
             style={styles.loader}
           />
@@ -152,20 +152,20 @@ export const ThemeButton: React.FC<ThemeButtonProps> = ({
 const styles = StyleSheet.create({
   button: {
     borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   textButton: {
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     paddingHorizontal: 8,
   },
   fullWidth: {
-    width: '100%',
+    width: "100%",
   },
   content: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
   leftIcon: {
     marginRight: 8,

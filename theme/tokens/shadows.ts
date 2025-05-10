@@ -1,4 +1,4 @@
-import { Platform, ViewStyle } from 'react-native';
+import { Platform, ViewStyle } from "react-native";
 
 export type ElevationLevel = 0 | 1 | 2 | 3 | 4 | 5;
 
@@ -12,7 +12,7 @@ export type ShadowsDefinition = {
 const createShadow = (level: ElevationLevel): ViewStyle => {
   if (level === 0) {
     return {
-      shadowColor: 'transparent',
+      shadowColor: "transparent",
       shadowOffset: { width: 0, height: 0 },
       shadowOpacity: 0,
       shadowRadius: 0,
@@ -21,9 +21,9 @@ const createShadow = (level: ElevationLevel): ViewStyle => {
   }
 
   // iOS uses shadow properties
-  if (Platform.OS === 'ios') {
+  if (Platform.OS === "ios") {
     return {
-      shadowColor: '#000000',
+      shadowColor: "#000000",
       shadowOffset: {
         width: 0,
         height: level === 1 ? 1 : level,
@@ -54,11 +54,11 @@ export const lightShadows: ShadowsDefinition = {
 export const darkShadows: ShadowsDefinition = {
   none: createShadow(0),
   0: createShadow(0),
-  1: { ...createShadow(1), shadowColor: '#222222', elevation: 2 },
-  2: { ...createShadow(2), shadowColor: '#222222', elevation: 4 },
-  3: { ...createShadow(3), shadowColor: '#222222', elevation: 6 },
-  4: { ...createShadow(4), shadowColor: '#222222', elevation: 8 },
-  5: { ...createShadow(5), shadowColor: '#222222', elevation: 10 },
+  1: { ...createShadow(1), shadowColor: "#222222", elevation: 2 },
+  2: { ...createShadow(2), shadowColor: "#222222", elevation: 4 },
+  3: { ...createShadow(3), shadowColor: "#222222", elevation: 6 },
+  4: { ...createShadow(4), shadowColor: "#222222", elevation: 8 },
+  5: { ...createShadow(5), shadowColor: "#222222", elevation: 10 },
 };
 
 // export const shadows = {
