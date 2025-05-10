@@ -2,7 +2,6 @@ import { Tabs } from "expo-router";
 import React from "react";
 import { Platform } from "react-native";
 import { SvgIcon } from "@/components/SvgIcon";
-import { scaler } from "@/utils";
 import { useTheme } from "@/theme";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 
@@ -23,10 +22,10 @@ export default function TabLayout() {
             position: "absolute",
           },
           android: {
-            paddingVertical: scaler(20),
+            paddingVertical: 20,
           },
           default: {
-            paddingVertical: scaler(20),
+            paddingVertical: 20,
           },
         }),
       }}

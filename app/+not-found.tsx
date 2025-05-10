@@ -1,7 +1,6 @@
 import React from "react";
 import { Link, Stack } from "expo-router";
 import { StyleSheet } from "react-native";
-
 import { ThemeText } from "@/components/core/ThemeText";
 import { ThemeView } from "@/components/core/ThemeView";
 

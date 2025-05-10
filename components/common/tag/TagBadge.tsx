@@ -3,7 +3,6 @@ import { TouchableOpacity, StyleSheet, ViewStyle, TextStyle } from "react-native
 import { ThemeText } from "@/components/core";
 import { SvgIcon } from "@/components/SvgIcon";
 import { useColors } from "@/theme/hooks";
-import { scaler } from "@/utils";
 
 export interface TagBadgeProps {
   label: string;
@@ -49,36 +48,36 @@ const TagBadge: React.FC<TagBadgeProps> = ({
       case "small":
         return {
           container: {
-            paddingHorizontal: scaler(8),
-            paddingVertical: scaler(4),
-            borderRadius: scaler(8),
+            paddingHorizontal: 8,
+            paddingVertical: 4,
+            borderRadius: 8,
           },
           text: {
-            fontSize: scaler(12),
+            fontSize: 12,
           },
           icon: 14,
         };
       case "medium":
         return {
           container: {
-            paddingHorizontal: scaler(12),
-            paddingVertical: scaler(6),
-            borderRadius: scaler(8),
+            paddingHorizontal: 12,
+            paddingVertical: 6,
+            borderRadius: 8,
           },
           text: {
-            fontSize: scaler(12),
+            fontSize: 12,
           },
           icon: 16,
         };
       case "large":
         return {
           container: {
-            paddingHorizontal: scaler(16),
-            paddingVertical: scaler(8),
-            borderRadius: scaler(8),
+            paddingHorizontal: 16,
+            paddingVertical: 8,
+            borderRadius: 8,
           },
           text: {
-            fontSize: scaler(16),
+            fontSize: 16,
           },
           icon: 18,
         };
@@ -119,15 +118,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginRight: scaler(8),
-    marginBottom: scaler(8),
+    marginRight: 8,
+    marginBottom: 8,
   },
   text: {
     fontWeight: "600",
-    marginBottom: scaler(-2),
+    marginBottom: -2,
   },
   removeButton: {
-    marginLeft: scaler(4),
+    marginLeft: 4,
   },
 });
 
