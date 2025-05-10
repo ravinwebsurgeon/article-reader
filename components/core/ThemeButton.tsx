@@ -84,7 +84,7 @@ export const ThemeButton: React.FC<ThemeButtonProps> = ({
 
   // Get text color based on variant and state
   const getTextColor = () => {
-    if (disabled) return theme.colors.gray[500];
+    if (disabled) return theme.colors.text.disabled;
     if (variant === 'filled') return getContrastColor();
     return getBaseColor();
   };

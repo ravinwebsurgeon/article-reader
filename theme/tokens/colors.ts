@@ -1,6 +1,6 @@
 export type ColorScheme = 'light' | 'dark';
 
-export type ColorPalette = {
+export interface ColorPalette {
   // Brand colors
   primary: {
     main: string;
@@ -59,7 +59,8 @@ export type ColorPalette = {
     secondary2: string;
     disabled: string;
     hint: string;
-    dark: string;    
+    dark: string;
+    subtle: string;
   };
   // Background colors
   background: {
@@ -74,7 +75,11 @@ export type ColorPalette = {
   white: string;
   black: string;
   transparent: string;
-};
+  // New semantic colors
+  inputBackground: string;
+  icon: string;
+  activityIndicator: string;
+}
 
 // Define base colors - shared between themes
 const baseColors = {
@@ -138,9 +143,11 @@ export const lightColors: ColorPalette = {
   text: {
     primary: '#2C2F4A',
     secondary: '#5C768D',
+    secondary2: '#A0AEC0',
     disabled: '#9E9E9E',
     hint: '#7F7F9C',
-     dark:'#1C1F21'
+    dark: '#1C1F21',
+    subtle: '#6C757D',
   },
   background: {
     default: '#f8f9fa',
@@ -149,6 +156,9 @@ export const lightColors: ColorPalette = {
   },
   divider: '#E0E0E0',
   backdrop: 'rgba(0, 0, 0, 0.5)',
+  inputBackground: '#F3F4F6',
+  icon: '#1C1F21',
+  activityIndicator: '#6B7280',
 };
 
 // Dark theme color palette
@@ -169,10 +179,11 @@ export const darkColors: ColorPalette = {
   text: {
     primary: '#ECEDEE',
     secondary: '#B0B3B8',
-    secondary2: '#1C1F21B8',
+    secondary2: '#A0AEC0',
     disabled: '#6C7178',
     hint: '#8A8D91',
-    dark:'#1C1F21'
+    dark: '#1C1F21',
+    subtle: '#A0AEC0',
   },
   background: {
     default: '#151718',
@@ -181,6 +192,9 @@ export const darkColors: ColorPalette = {
   },
   divider: '#3A3B3C',
   backdrop: 'rgba(0, 0, 0, 0.7)',
+  inputBackground: '#1F2937',
+  icon: '#FFFFFF',
+  activityIndicator: '#A0AEC0',
 };
 
 const tintColorLight = '#ef3e55';

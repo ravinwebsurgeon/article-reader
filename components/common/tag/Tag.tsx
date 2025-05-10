@@ -1,8 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { TouchableOpacity, Text, StyleSheet, TouchableOpacityProps } from 'react-native';
-import { COLORS } from '@/theme/tokens';
-import { typography } from '@/theme/tokens/typography';
-import { spacing } from '@/theme/tokens/spacing';
+import { useTheme, type Theme } from '@/theme';
 
 interface TagProps extends TouchableOpacityProps {
   label: string;
@@ -11,6 +9,9 @@ interface TagProps extends TouchableOpacityProps {
 }
 
 export const Tag: React.FC<TagProps> = ({ label, active = false, onClose, style, ...rest }) => {
+  const theme = useTheme();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
+
   return (
     <TouchableOpacity
       style={[styles.container, active && styles.containerActive, style]}
@@ -32,33 +33,34 @@ export const Tag: React.FC<TagProps> = ({ label, active = false, onClose, style,
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.sm,
-    borderRadius: 16,
-    backgroundColor: COLORS.lightGray,
-    marginRight: spacing.xs,
-    marginBottom: spacing.xs,
-  },
-  containerActive: {
-    backgroundColor: COLORS.primary.main,
-  },
-  label: {
-    ...typography.caption,
-    color: COLORS.darkGray,
-  },
-  labelActive: {
-    color: COLORS.white,
-  },
-  closeButton: {
-    marginLeft: spacing.xs,
-  },
-  closeIcon: {
-    ...typography.caption,
-    fontWeight: 'bold',
-    color: COLORS.darkGray,
-  },
-});
+const makeStyles = (theme: Theme) =>
+  StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: theme.spacing.xs,
+      paddingHorizontal: theme.spacing.sm,
+      borderRadius: 16,
+      backgroundColor: theme.colors.gray[200],
+      marginRight: theme.spacing.xs,
+      marginBottom: theme.spacing.xs,
+    },
+    containerActive: {
+      backgroundColor: theme.colors.primary.main,
+    },
+    label: {
+      ...theme.typography.caption,
+      color: theme.colors.text.secondary,
+    },
+    labelActive: {
+      color: theme.colors.primary.contrast,
+    },
+    closeButton: {
+      marginLeft: theme.spacing.xs,
+    },
+    closeIcon: {
+      ...theme.typography.caption,
+      fontWeight: 'bold',
+      color: theme.colors.icon,
+    },
+  });

@@ -1,10 +1,25 @@
 import * as React from 'react';
-import { Text } from 'react-native';
+import { Text, type TextProps } from 'react-native';
+import { useTextColor } from '@/theme';
 
-interface ThemedTextProps {
-  children: React.ReactNode;
-}
+// Define available text variants, matching useTextColor
+export type TextVariant = 'primary' | 'secondary' | 'disabled' | 'hint' | 'subtle';
 
-export const ThemedText: React.FC<ThemedTextProps> = ({ children }) => {
-  return <Text>{children}</Text>;
+export type ThemedTextProps = TextProps & {
+  variant?: TextVariant;
+};
+
+export const ThemedText: React.FC<ThemedTextProps> = ({
+  children,
+  style,
+  variant = 'primary',
+  ...rest
+}) => {
+  const textColor = useTextColor(variant);
+
+  return (
+    <Text style={[{ color: textColor }, style]} {...rest}>
+      {children}
+    </Text>
+  );
 };

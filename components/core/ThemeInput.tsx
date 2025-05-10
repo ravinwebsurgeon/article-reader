@@ -58,7 +58,7 @@ export const ThemeInput: React.FC<ThemeInputProps> = ({
   const getBorderColor = () => {
     if (error) return theme.colors.error.main;
     if (isFocused) return theme.colors.primary.main;
-    return theme.colors.gray[300];
+    return theme.colors.divider;
   };
 
   return (
@@ -78,8 +78,7 @@ export const ThemeInput: React.FC<ThemeInputProps> = ({
           styles.inputContainer,
           {
             borderColor: getBorderColor(),
-            backgroundColor:
-              theme.mode === 'dark' ? theme.colors.gray[800] : theme.colors.gray[100],
+            backgroundColor: theme.colors.inputBackground,
           },
           isFocused && styles.inputContainerFocused,
           error && styles.inputContainerError,
