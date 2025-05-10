@@ -1,5 +1,4 @@
 //
-import { COLORS } from '@/theme';
 import { useTheme } from '@/theme/hooks';
 import React from 'react';
 import { TouchableOpacity, TouchableOpacityProps, StyleSheet } from 'react-native';
@@ -92,7 +91,7 @@ export const ThemeTouchable: React.FC<ThemeTouchableProps> = ({
 
   // Combine styles
   const combinedStyle = [
-    { backgroundColor: backgroundColor || COLORS.darkBackground },
+    { backgroundColor: backgroundColor || theme.colors.background.paper },
     getPadding() !== undefined && { padding: getPadding() },
     getMargin() !== undefined && { margin: getMargin() },
     getBorderRadius() !== undefined && { borderRadius: getBorderRadius() },
@@ -103,7 +102,7 @@ export const ThemeTouchable: React.FC<ThemeTouchableProps> = ({
   ];
 
   return (
-    <TouchableOpacity style={combinedStyle} {...otherProps}>
+    <TouchableOpacity style={combinedStyle} activeOpacity={activeOpacity} {...otherProps}>
       {children}
     </TouchableOpacity>
   );
