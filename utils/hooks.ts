@@ -440,7 +440,7 @@ export const useTagManagement = (item?: Item) => {
       const itemTags = await itemToQuery.itemTags.fetch();
       return await Promise.all(
         itemTags.map(async (itemTag) => {
-          return await itemTag.tag.fetch();
+          return await itemTag.tag;
         }),
       );
     } catch (error) {
