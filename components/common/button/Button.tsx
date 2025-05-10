@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo } from "react";
 import {
   TouchableOpacity,
   Text,
@@ -8,11 +8,11 @@ import {
   ViewStyle,
   TextStyle,
   View,
-} from 'react-native';
-import { useTheme, type Theme } from '@/theme';
+} from "react-native";
+import { useTheme, type Theme } from "@/theme";
 
-export type ButtonVariant = 'primary' | 'secondary' | 'tertiary' | 'icon';
-export type ButtonSize = 'small' | 'medium' | 'large';
+export type ButtonVariant = "primary" | "secondary" | "tertiary" | "icon";
+export type ButtonSize = "small" | "medium" | "large";
 
 interface ButtonProps extends TouchableOpacityProps {
   title?: string;
@@ -29,8 +29,8 @@ interface ButtonProps extends TouchableOpacityProps {
 
 export const Button: React.FC<ButtonProps> = ({
   title,
-  variant = 'primary',
-  size = 'medium',
+  variant = "primary",
+  size = "medium",
   isLoading = false,
   icon,
   leftIcon,
@@ -76,11 +76,11 @@ export const Button: React.FC<ButtonProps> = ({
   const renderContent = () => {
     if (isLoading) {
       let loaderColor = theme.colors.primary.main;
-      if (variant === 'primary') {
+      if (variant === "primary") {
         loaderColor = theme.colors.white;
-      } else if (variant === 'secondary') {
+      } else if (variant === "secondary") {
         loaderColor = theme.colors.text.primary;
-      } else if (variant === 'tertiary') {
+      } else if (variant === "tertiary") {
         loaderColor = theme.colors.primary.main;
       }
       return <ActivityIndicator color={loaderColor} />;
@@ -112,7 +112,7 @@ export const Button: React.FC<ButtonProps> = ({
 };
 
 const makeStyles = (theme: Theme) => {
-  const getNativeTextStyle = (typographyStyle: any): Omit<TextStyle, 'cursor'> => {
+  const getNativeTextStyle = (typographyStyle: any): Omit<TextStyle, "cursor"> => {
     const { cursor, ...nativeStyle } = typographyStyle || {};
     return nativeStyle;
   };
@@ -124,9 +124,9 @@ const makeStyles = (theme: Theme) => {
 
   return StyleSheet.create({
     button: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
       borderRadius: 24,
     },
     button_primary: {
@@ -136,10 +136,10 @@ const makeStyles = (theme: Theme) => {
       backgroundColor: theme.colors.gray[200],
     },
     button_tertiary: {
-      backgroundColor: 'transparent',
+      backgroundColor: "transparent",
     },
     button_icon: {
-      backgroundColor: 'transparent',
+      backgroundColor: "transparent",
       padding: 8,
     },
     button_small: {
@@ -158,7 +158,7 @@ const makeStyles = (theme: Theme) => {
       opacity: 0.5,
     },
     text: {
-      textAlign: 'center',
+      textAlign: "center",
       ...nativeButtonTypography,
     },
     text_primary: {

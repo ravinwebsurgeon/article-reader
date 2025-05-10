@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -7,12 +7,12 @@ import {
   TouchableOpacity,
   ViewStyle,
   KeyboardTypeOptions,
-} from 'react-native';
-import { Controller, Control, FieldValues, Path } from 'react-hook-form';
-import { Ionicons } from '@expo/vector-icons';
-import { useTheme, type Theme } from '@/theme';
-import { scaler } from '@/utils';
-import { ThemeText } from '@/components/core';
+} from "react-native";
+import { Controller, Control, FieldValues, Path } from "react-hook-form";
+import { Ionicons } from "@expo/vector-icons";
+import { useTheme, type Theme } from "@/theme";
+import { scaler } from "@/utils";
+import { ThemeText } from "@/components/core";
 
 interface InputProps<T extends FieldValues> {
   control: Control<T>;
@@ -23,7 +23,7 @@ interface InputProps<T extends FieldValues> {
   secureTextEntry?: boolean;
   keyboardType?: KeyboardTypeOptions;
   icon?: React.ReactNode;
-  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  autoCapitalize?: "none" | "sentences" | "words" | "characters";
   autoCorrect?: boolean;
   spellCheck?: boolean;
   multiline?: boolean;
@@ -39,9 +39,9 @@ export const Input = <T extends FieldValues>({
   placeholder,
   label,
   secureTextEntry = false,
-  keyboardType = 'default',
+  keyboardType = "default",
   icon,
-  autoCapitalize = 'none',
+  autoCapitalize = "none",
   autoCorrect = false,
   spellCheck = false,
   multiline = false,
@@ -82,7 +82,7 @@ export const Input = <T extends FieldValues>({
               placeholderTextColor={theme.colors.text.hint}
               multiline={multiline}
               numberOfLines={multiline ? numberOfLines : 1}
-              textAlignVertical={multiline ? 'top' : 'center'}
+              textAlignVertical={multiline ? "top" : "center"}
             />
             {secureTextEntry && (
               <TouchableOpacity
@@ -90,7 +90,7 @@ export const Input = <T extends FieldValues>({
                 onPress={() => setIsSecureTextVisible(!isSecureTextVisible)}
               >
                 <Ionicons
-                  name={isSecureTextVisible ? 'eye-off-outline' : 'eye-outline'}
+                  name={isSecureTextVisible ? "eye-off-outline" : "eye-outline"}
                   size={24}
                   color={theme.colors.icon}
                 />
@@ -106,14 +106,14 @@ export const Input = <T extends FieldValues>({
 
 const makeStyles = (theme: Theme) =>
   StyleSheet.create({
-    inputWrapper: { marginBottom: scaler(16), width: '100%' },
+    inputWrapper: { marginBottom: scaler(16), width: "100%" },
     inputLabel: {
       fontSize: scaler(14),
       marginBottom: scaler(8),
       color: theme.colors.text.primary,
-      fontWeight: '500',
+      fontWeight: "500",
     },
-    inputContainer: { position: 'relative', width: '100%' },
+    inputContainer: { position: "relative", width: "100%" },
     input: {
       height: scaler(50),
       borderWidth: scaler(1),
@@ -128,22 +128,22 @@ const makeStyles = (theme: Theme) =>
       height: scaler(120),
       paddingTop: scaler(12),
       paddingBottom: scaler(12),
-      textAlignVertical: 'top',
+      textAlignVertical: "top",
     },
     inputWithIcon: { paddingLeft: scaler(44) },
     inputWithSecureToggle: { paddingRight: scaler(44) },
     inputError: { borderColor: theme.colors.error.main },
     iconContainer: {
-      position: 'absolute',
+      position: "absolute",
       left: scaler(16),
-      top: '50%',
+      top: "50%",
       transform: [{ translateY: -10 }],
       zIndex: 1,
     },
     secureTextToggle: {
-      position: 'absolute',
+      position: "absolute",
       right: scaler(16),
-      top: '50%',
+      top: "50%",
       transform: [{ translateY: -10 }],
       zIndex: 1,
     },

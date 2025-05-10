@@ -1,6 +1,6 @@
-import { StyleSheet } from 'react-native';
-import { ThemedView } from '@/components/ThemedView';
-import { ThemeText } from '@/components';
+import { StyleSheet } from "react-native";
+import { ThemedView } from "@/components/ThemedView";
+import { ThemeText } from "@/components";
 
 export default function Settings() {
   return (
@@ -12,13 +12,13 @@ export default function Settings() {
 
 const styles = StyleSheet.create({
   headerImage: {
-    color: '#808080',
+    color: "#808080",
     bottom: -90,
     left: -35,
-    position: 'absolute',
+    position: "absolute",
   },
   titleContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 8,
   },
 });

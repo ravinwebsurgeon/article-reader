@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   StyleSheet,
@@ -7,17 +7,17 @@ import {
   Platform,
   ScrollView,
   ActivityIndicator,
-} from 'react-native';
-import { useForm } from 'react-hook-form';
-import { Input } from '@/components/ui/TextInput/input';
-import { Button } from '@/components/ui/button';
-import { router } from 'expo-router';
-import { COLORS, lightColors } from '@/theme';
-import { useRegisterMutation } from '@/redux/services/authApi';
-import { useTheme } from '@/theme';
-import { ThemeText, ThemeView } from '@/components';
-import { scaler } from '@/utils';
-import { SvgIcon } from '@/components/SvgIcon';
+} from "react-native";
+import { useForm } from "react-hook-form";
+import { Input } from "@/components/ui/TextInput/input";
+import { Button } from "@/components/ui/button";
+import { router } from "expo-router";
+import { COLORS, lightColors } from "@/theme";
+import { useRegisterMutation } from "@/redux/services/authApi";
+import { useTheme } from "@/theme";
+import { ThemeText, ThemeView } from "@/components";
+import { scaler } from "@/utils";
+import { SvgIcon } from "@/components/SvgIcon";
 
 interface SignUpScreenProps {
   navigation: any; // TODO: Replace with proper navigation type
@@ -31,14 +31,14 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
 
   const { control, handleSubmit, watch } = useForm({
     defaultValues: {
-      userName: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
+      userName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
     },
   });
 
-  const password = watch('password');
+  const password = watch("password");
 
   const onSubmit = async (data: any) => {
     console.log(data);
@@ -59,13 +59,13 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
   };
 
   const navigateToLogin = () => {
-    router.push('/(auth)/login');
+    router.push("/(auth)/login");
   };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background.default }]}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardAvoidingContainer}
       >
         <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -88,10 +88,10 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
               name="email"
               // label="Email"
               rules={{
-                required: 'Email is required',
+                required: "Email is required",
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: 'Invalid email address',
+                  message: "Invalid email address",
                 },
               }}
               placeholder="Email"
@@ -108,15 +108,15 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
               name="password"
               // label="Password"
               rules={{
-                required: 'Password is required',
+                required: "Password is required",
                 minLength: {
                   value: 8,
-                  message: 'Password must be at least 8 characters',
+                  message: "Password must be at least 8 characters",
                 },
                 pattern: {
                   value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
                   message:
-                    'Password must contain uppercase, lowercase, number and special character',
+                    "Password must contain uppercase, lowercase, number and special character",
                 },
               }}
               placeholder="Password"
@@ -130,8 +130,8 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
               name="confirmPassword"
               // label="Confirm Password"
               rules={{
-                required: 'Please confirm your password',
-                validate: (value: string) => value === password || 'Passwords do not match',
+                required: "Please confirm your password",
+                validate: (value: string) => value === password || "Passwords do not match",
               }}
               placeholder="Confirm Password"
               secureTextEntry
@@ -140,7 +140,7 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
             />
 
             <Button
-              title={loader ? 'Submiting...' : 'Create Account'}
+              title={loader ? "Submiting..." : "Create Account"}
               onPress={handleSubmit(onSubmit)}
               style={styles.signUpButton}
               // leftIcon={<Ionicons name="person-add-outline" size={20} color="white" />}
@@ -173,16 +173,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: scaler(24),
     paddingTop: scaler(40),
     paddingBottom: scaler(24),
-    alignItems: 'center',
+    alignItems: "center",
   },
   header: {
     marginBottom: scaler(15),
-    alignItems: 'flex-start',
+    alignItems: "flex-start",
     marginTop: scaler(20),
   },
   title: {
     fontSize: scaler(28),
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: scaler(8),
   },
   subtitle: {
@@ -194,15 +194,15 @@ const styles = StyleSheet.create({
     marginBottom: scaler(24),
   },
   formContainer: {
-    width: '100%',
+    width: "100%",
     marginBottom: scaler(24),
   },
   signUpButton: {
     marginTop: scaler(16),
   },
   loginContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginTop: scaler(16),
   },
   loginText: {
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
   loginLinkText: {
     color: COLORS.primary.main,
     fontSize: scaler(16),
-    fontWeight: '600',
+    fontWeight: "600",
   },
   input: {
     marginBottom: scaler(16),

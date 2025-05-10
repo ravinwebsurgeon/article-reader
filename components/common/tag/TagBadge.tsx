@@ -1,9 +1,9 @@
-import React from 'react';
-import { TouchableOpacity, StyleSheet, ViewStyle, TextStyle } from 'react-native';
-import { ThemeText } from '@/components/core';
-import { SvgIcon } from '@/components/SvgIcon';
-import { useColors } from '@/theme/hooks';
-import { scaler } from '@/utils';
+import React from "react";
+import { TouchableOpacity, StyleSheet, ViewStyle, TextStyle } from "react-native";
+import { ThemeText } from "@/components/core";
+import { SvgIcon } from "@/components/SvgIcon";
+import { useColors } from "@/theme/hooks";
+import { scaler } from "@/utils";
 
 export interface TagBadgeProps {
   label: string;
@@ -11,7 +11,7 @@ export interface TagBadgeProps {
   onRemove?: () => void;
   color?: string;
   backgroundColor?: string;
-  size?: 'small' | 'medium' | 'large';
+  size?: "small" | "medium" | "large";
   style?: ViewStyle;
   textStyle?: TextStyle;
   removable?: boolean;
@@ -32,7 +32,7 @@ const TagBadge: React.FC<TagBadgeProps> = ({
   onRemove,
   color,
   backgroundColor,
-  size = 'medium',
+  size = "medium",
   style,
   textStyle,
   removable = true,
@@ -46,7 +46,7 @@ const TagBadge: React.FC<TagBadgeProps> = ({
   // Get dynamic styles based on size
   const getSizeStyles = () => {
     switch (size) {
-      case 'small':
+      case "small":
         return {
           container: {
             paddingHorizontal: scaler(8),
@@ -58,7 +58,7 @@ const TagBadge: React.FC<TagBadgeProps> = ({
           },
           icon: 14,
         };
-      case 'large':
+      case "large":
         return {
           container: {
             paddingHorizontal: scaler(16),
@@ -116,14 +116,14 @@ const TagBadge: React.FC<TagBadgeProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginRight: scaler(8),
     marginBottom: scaler(8),
   },
   text: {
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: scaler(-2),
   },
   removeButton: {

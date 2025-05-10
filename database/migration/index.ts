@@ -1,4 +1,4 @@
-import { schemaMigrations } from '@nozbe/watermelondb/Schema/migrations';
+import { schemaMigrations } from "@nozbe/watermelondb/Schema/migrations";
 
 // Define your database migrations here
 export default schemaMigrations({

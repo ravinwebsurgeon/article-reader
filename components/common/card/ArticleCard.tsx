@@ -1,17 +1,17 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, TouchableOpacity, ViewStyle, StyleProp, View, ScrollView } from 'react-native';
-import { Image } from 'expo-image';
-import Item from '@/database/models/ItemModel';
-import Tag from '@/database/models/TagModel';
-import { useDarkMode, useTheme, type Theme } from '@/theme';
-import { ThemeText } from '@/components/core';
-import { scaler } from '@/utils';
-import { withObservables } from '@nozbe/watermelondb/react';
-import Svg, { Path, Rect } from 'react-native-svg';
-import { SvgIcon } from '@/components/SvgIcon';
-import { createMenuPosition, menuAnimationPresets } from '../menu/menuAnimationPresents';
-import ArticleActionMenu from '../menu/ArticleActionMenu';
-import { LinearGradient } from 'expo-linear-gradient';
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { StyleSheet, TouchableOpacity, ViewStyle, StyleProp, View, ScrollView } from "react-native";
+import { Image } from "expo-image";
+import Item from "@/database/models/ItemModel";
+import Tag from "@/database/models/TagModel";
+import { useDarkMode, useTheme, type Theme } from "@/theme";
+import { ThemeText } from "@/components/core";
+import { scaler } from "@/utils";
+import { withObservables } from "@nozbe/watermelondb/react";
+import Svg, { Path, Rect } from "react-native-svg";
+import { SvgIcon } from "@/components/SvgIcon";
+import { createMenuPosition, menuAnimationPresets } from "../menu/menuAnimationPresents";
+import ArticleActionMenu from "../menu/ArticleActionMenu";
+import { LinearGradient } from "expo-linear-gradient";
 
 // Export a fixed height constant for use in FlatList
 export const ARTICLE_CARD_HEIGHT = scaler(143);
@@ -43,7 +43,7 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({ item, onPress, style
         const fetchedItemTags = await item.itemTags.fetch();
         const tagPromises = fetchedItemTags.map(async (itemTag: any) => {
           // Assuming itemTag.tag is a Relation<Tag>
-          if (itemTag.tag && typeof itemTag.tag.fetch === 'function') {
+          if (itemTag.tag && typeof itemTag.tag.fetch === "function") {
             return await itemTag.tag.fetch();
           }
           // If itemTag.tag is already a Tag instance (e.g., due to pre-fetching)
@@ -55,7 +55,7 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({ item, onPress, style
         const tagObjects = (await Promise.all(tagPromises)).filter(Boolean) as Tag[];
         setItemLocalTags(tagObjects);
       } catch (error) {
-        console.error('Failed to load tags for article card:', item.id, error);
+        console.error("Failed to load tags for article card:", item.id, error);
         setItemLocalTags([]);
       }
     };
@@ -75,7 +75,7 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({ item, onPress, style
             y: pageY,
             width,
             height,
-            ...createMenuPosition('bottomRight'),
+            ...createMenuPosition("bottomRight"),
           });
           setMenuVisible(true);
         },
@@ -232,9 +232,9 @@ const makeStyles = (theme: Theme, isDarkMode: boolean) =>
     },
     cardTop: {
       flex: 1,
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'flex-start',
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
       gap: scaler(8),
     },
     cardTopLeft: {
@@ -247,8 +247,8 @@ const makeStyles = (theme: Theme, isDarkMode: boolean) =>
       lineHeight: scaler(22),
     },
     metaContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       marginBottom: scaler(8),
     },
     sourceText: {
@@ -263,36 +263,36 @@ const makeStyles = (theme: Theme, isDarkMode: boolean) =>
       color: theme.colors.text.subtle,
     },
     tagsAndMenuContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
       marginTop: scaler(0),
     },
     leftSectionOfTagsAndMenu: {
       flex: 1,
-      flexDirection: 'row',
-      alignItems: 'center',
-      overflow: 'hidden',
+      flexDirection: "row",
+      alignItems: "center",
+      overflow: "hidden",
     },
     favoriteContainer: {
       marginRight: scaler(4),
     },
     tagsContainerWrapper: {
-      position: 'relative',
+      position: "relative",
       flex: 1,
-      flexDirection: 'row',
-      alignItems: 'center',
-      overflow: 'hidden',
+      flexDirection: "row",
+      alignItems: "center",
+      overflow: "hidden",
       marginRight: scaler(8),
     },
     tagsScrollContent: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       paddingRight: scaler(40),
     },
     tagItemContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       backgroundColor: theme.colors.gray[200],
       paddingHorizontal: scaler(10),
       paddingVertical: scaler(2),
@@ -313,24 +313,24 @@ const makeStyles = (theme: Theme, isDarkMode: boolean) =>
       width: scaler(100),
       height: scaler(75),
       borderRadius: scaler(4),
-      overflow: 'hidden',
+      overflow: "hidden",
     },
     thumbnail: {
-      width: '100%',
-      height: '100%',
+      width: "100%",
+      height: "100%",
     },
     tagsGradient: {
-      position: 'absolute',
+      position: "absolute",
       right: 0,
       top: 0,
       bottom: 0,
       width: scaler(60),
       zIndex: 1,
-      pointerEvents: 'none',
+      pointerEvents: "none",
     },
   });
 
-const enhance = withObservables(['item'], ({ item }: { item: Item }) => ({
+const enhance = withObservables(["item"], ({ item }: { item: Item }) => ({
   item: item.observe(),
 }));
 

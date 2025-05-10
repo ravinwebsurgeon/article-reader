@@ -1,26 +1,26 @@
-import { ColorPalette, lightColors, darkColors } from './tokens/colors';
-import { typography } from './tokens/typography';
-import { spacing } from './tokens/spacing';
-import { lightShadows, darkShadows, ShadowsDefinition } from './tokens/shadows';
+import { ColorPalette, lightColors, darkColors } from "./tokens/colors";
+import { typography } from "./tokens/typography";
+import { spacing } from "./tokens/spacing";
+import { lightShadows, darkShadows, ShadowsDefinition } from "./tokens/shadows";
 
-export type ThemeMode = 'light' | 'dark' | 'system';
+export type ThemeMode = "light" | "dark" | "system";
 
 export interface Theme {
-  mode: 'light' | 'dark';
+  mode: "light" | "dark";
   colors: ColorPalette;
   typography: typeof typography;
   spacing: typeof spacing;
   shadows: ShadowsDefinition;
 }
 
-export const createTheme = (mode: 'light' | 'dark'): Theme => ({
+export const createTheme = (mode: "light" | "dark"): Theme => ({
   mode,
-  colors: mode === 'light' ? lightColors : darkColors,
+  colors: mode === "light" ? lightColors : darkColors,
   typography,
   spacing,
-  shadows: mode === 'light' ? lightShadows : darkShadows,
+  shadows: mode === "light" ? lightShadows : darkShadows,
 });
 
 // Light and dark theme instances
-export const lightTheme = createTheme('light');
-export const darkTheme = createTheme('dark');
+export const lightTheme = createTheme("light");
+export const darkTheme = createTheme("dark");

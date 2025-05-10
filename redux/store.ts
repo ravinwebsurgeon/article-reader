@@ -1,6 +1,6 @@
-import { configureStore, combineReducers } from '@reduxjs/toolkit';
-import { setupListeners } from '@reduxjs/toolkit/query';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { configureStore, combineReducers } from "@reduxjs/toolkit";
+import { setupListeners } from "@reduxjs/toolkit/query";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   persistReducer,
   persistStore,
@@ -10,23 +10,23 @@ import {
   PERSIST,
   PURGE,
   REGISTER,
-} from 'redux-persist';
+} from "redux-persist";
 
 // Import reducers
-import authReducer from './slices/authSlice';
-import themeReducer from './slices/themeSlice';
-import networkReducer from './slices/networkSlice';
+import authReducer from "./slices/authSlice";
+import themeReducer from "./slices/themeSlice";
+import networkReducer from "./slices/networkSlice";
 
 // Import API services
-import { api } from './services/api';
-import { tokenRefreshMiddleware } from './middleware/tokenRefresh';
+import { api } from "./services/api";
+import { tokenRefreshMiddleware } from "./middleware/tokenRefresh";
 
 // Persistence configuration
 const persistConfig = {
-  key: 'root',
+  key: "root",
   storage: AsyncStorage,
-  whitelist: ['auth', 'theme'], // Only persist these reducers
-  blacklist: [api.reducerPath, 'network'], // Don't persist API cache
+  whitelist: ["auth", "theme"], // Only persist these reducers
+  blacklist: [api.reducerPath, "network"], // Don't persist API cache
 };
 
 const middlewares = [api.middleware, tokenRefreshMiddleware];

@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, ViewStyle } from 'react-native';
-import Svg, { Path, Circle } from 'react-native-svg';
-import { useTheme } from '@/theme';
+import React from "react";
+import { View, ViewStyle } from "react-native";
+import Svg, { Path, Circle } from "react-native-svg";
+import { useTheme } from "@/theme";
 
 /**
  * Props for icon components
@@ -55,7 +55,7 @@ export const BackIcon = createIcon(
     />
   ),
   24,
-  'BackIcon',
+  "BackIcon",
 );
 
 /**
@@ -72,7 +72,7 @@ export const SearchIcon = createIcon(
     />
   ),
   24,
-  'SearchIcon',
+  "SearchIcon",
 );
 
 /**
@@ -87,7 +87,7 @@ export const MoreIcon = createIcon(
     </>
   ),
   24,
-  'MoreIcon',
+  "MoreIcon",
 );
 
 /**
@@ -104,5 +104,5 @@ export const CloseIcon = createIcon(
     />
   ),
   24,
-  'CloseIcon',
+  "CloseIcon",
 );

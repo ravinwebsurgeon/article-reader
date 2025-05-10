@@ -1,9 +1,9 @@
-import React from 'react';
-import { View, ActivityIndicator, Text, ViewStyle, TextStyle } from 'react-native';
-import { useTheme } from '@/theme/hooks';
+import React from "react";
+import { View, ActivityIndicator, Text, ViewStyle, TextStyle } from "react-native";
+import { useTheme } from "@/theme/hooks";
 
 interface LoaderProps {
-  size?: 'small' | 'large';
+  size?: "small" | "large";
   color?: string;
   text?: string;
   fullScreen?: boolean;
@@ -11,7 +11,7 @@ interface LoaderProps {
 }
 
 export const Loader: React.FC<LoaderProps> = ({
-  size = 'large',
+  size = "large",
   color,
   text,
   fullScreen = false,
@@ -21,12 +21,12 @@ export const Loader: React.FC<LoaderProps> = ({
 
   const containerStyle: ViewStyle = {
     padding: theme.spacing.lg,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
+    alignItems: "center" as const,
+    justifyContent: "center" as const,
   };
 
   const fullScreenStyle: ViewStyle = {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
@@ -39,7 +39,7 @@ export const Loader: React.FC<LoaderProps> = ({
     ...theme.typography.body2,
     color: theme.colors.text.secondary,
     marginTop: theme.spacing.md,
-    textAlign: 'center' as const,
+    textAlign: "center" as const,
   };
 
   const rootStyle: ViewStyle[] = [

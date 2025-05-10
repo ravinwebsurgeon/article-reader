@@ -1,10 +1,10 @@
-import React, { useMemo } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { useTheme, type Theme } from '@/theme';
-import { ItemFilter } from '@/types/item';
-import { ThemeText } from '@/components/core';
-import { scaler } from '@/utils';
-import Svg, { Path } from 'react-native-svg';
+import React, { useMemo } from "react";
+import { View, StyleSheet } from "react-native";
+import { useTheme, type Theme } from "@/theme";
+import { ItemFilter } from "@/types/item";
+import { ThemeText } from "@/components/core";
+import { scaler } from "@/utils";
+import Svg, { Path } from "react-native-svg";
 
 interface NoItemsFoundProps {
   filter: ItemFilter;
@@ -12,40 +12,40 @@ interface NoItemsFoundProps {
 
 const EMPTY_STATES = {
   favorites: {
-    message: 'No Favorites Just Yet',
-    subMessage: 'Use the star to favorite pages you want saved to keep handy.',
+    message: "No Favorites Just Yet",
+    subMessage: "Use the star to favorite pages you want saved to keep handy.",
   },
   tagged: {
-    message: 'Sort Things Your Way',
-    subMessage: 'Use tags like travel or gift ideas to organize your saves.',
+    message: "Sort Things Your Way",
+    subMessage: "Use tags like travel or gift ideas to organize your saves.",
   },
   archived: {
-    message: 'Nothing Archived',
+    message: "Nothing Archived",
     subMessage: "When you're done with a save, move it here to keep things tidy.",
   },
   short: {
-    message: 'No Short Reads Yet',
+    message: "No Short Reads Yet",
     subMessage: "When you save something quick to read, it'll show up here.",
   },
   long: {
-    message: 'No Long Reads Yet',
+    message: "No Long Reads Yet",
     subMessage: "When you save something quick to read, it'll show up here.",
   },
   default: {
-    message: 'Ready to Start Saving?',
+    message: "Ready to Start Saving?",
     subMessage: "Add pages you want to come back to. They'll appear here when you're ready.",
   },
   all: {
-    message: 'Ready to Start Saving?',
+    message: "Ready to Start Saving?",
     subMessage: "Add pages you want to come back to. They'll appear here when you're ready.",
   },
   restoring: {
-    message: 'Restoring Your Saves',
-    subMessage: 'Your saved pages are on the way.',
+    message: "Restoring Your Saves",
+    subMessage: "Your saved pages are on the way.",
   },
   sort: {
-    message: 'Sort Things Your Way',
-    subMessage: 'Use tags list, filter or gift ideas to keep handy.',
+    message: "Sort Things Your Way",
+    subMessage: "Use tags list, filter or gift ideas to keep handy.",
   },
 };
 
@@ -54,7 +54,7 @@ const getIcon = (filter: string, theme: Theme) => {
   const mediumFill = theme.colors.gray[500];
 
   switch (filter) {
-    case 'favorites':
+    case "favorites":
       return (
         <Svg width="48" height="48" viewBox="0 0 48 48" fill="none">
           <Path
@@ -69,16 +69,16 @@ const getIcon = (filter: string, theme: Theme) => {
           />
         </Svg>
       );
-    case 'tagged':
+    case "tagged":
       return (
         <>
-          <Svg width="48" height="48" viewBox="0 0 48 48" fill={'none'}>
+          <Svg width="48" height="48" viewBox="0 0 48 48" fill={"none"}>
             <Path d="..." fill={subtleFill} fillOpacity={0.16} />
             <Path d="..." fill={mediumFill} fillOpacity={0.55} />
           </Svg>
         </>
       );
-    case 'archived':
+    case "archived":
       return (
         <Svg width="48" height="48" viewBox="0 0 48 48" fill="none">
           <Path d="..." fill={subtleFill} fillOpacity={0.16} />
@@ -86,14 +86,14 @@ const getIcon = (filter: string, theme: Theme) => {
           <Path d="..." fill={mediumFill} fillOpacity={0.55} />
         </Svg>
       );
-    case 'short':
+    case "short":
       return (
         <Svg width="48" height="48" viewBox="0 0 48 48" fill="none">
           <Path d="..." fill={subtleFill} fillOpacity={0.16} />
           <Path d="..." fill={mediumFill} fillOpacity={0.55} />
         </Svg>
       );
-    case 'long':
+    case "long":
       return (
         <Svg width="48" height="48" viewBox="0 0 48 48" fill="none">
           <Path d="..." fill={subtleFill} fillOpacity={0.16} />
@@ -138,8 +138,8 @@ const makeStyles = (theme: Theme) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
+      justifyContent: "center",
+      alignItems: "center",
       padding: scaler(40),
       backgroundColor: theme.colors.background.default,
     },
@@ -147,14 +147,14 @@ const makeStyles = (theme: Theme) =>
       fontSize: scaler(20),
       lineHeight: scaler(36),
       marginTop: scaler(16),
-      textAlign: 'center',
+      textAlign: "center",
       marginBottom: scaler(8),
       color: theme.colors.text.primary,
     },
     subMessage: {
       lineHeight: scaler(22),
       color: theme.colors.text.secondary,
-      textAlign: 'center',
+      textAlign: "center",
     },
   });
 

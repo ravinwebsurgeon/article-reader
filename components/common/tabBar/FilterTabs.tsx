@@ -1,11 +1,11 @@
-import React, { useRef, useState, useMemo, useCallback } from 'react';
-import { Text, StyleSheet, ScrollView, TouchableOpacity, View } from 'react-native';
-import { useTheme, useDarkMode, type Theme } from '@/theme';
-import { ItemFilter } from '@/types/item';
-import { scaler } from '@/utils';
-import SortMenu, { SortOption } from '../menu/SortMenu';
-import { ActionMenuPosition } from '../menu/ReusableActionMenu';
-import { SvgIcon } from '@/components/SvgIcon';
+import React, { useRef, useState, useMemo, useCallback } from "react";
+import { Text, StyleSheet, ScrollView, TouchableOpacity, View } from "react-native";
+import { useTheme, useDarkMode, type Theme } from "@/theme";
+import { ItemFilter } from "@/types/item";
+import { scaler } from "@/utils";
+import SortMenu, { SortOption } from "../menu/SortMenu";
+import { ActionMenuPosition } from "../menu/ReusableActionMenu";
+import { SvgIcon } from "@/components/SvgIcon";
 
 interface FilterTabsProps {
   currentFilter: ItemFilter;
@@ -15,40 +15,40 @@ interface FilterTabsProps {
 }
 
 interface FilterOptionType {
-  id: ItemFilter | 'sorting';
+  id: ItemFilter | "sorting";
   label?: string;
   icon?: (color: string) => React.ReactNode;
 }
 
 const filterOptions: FilterOptionType[] = [
   {
-    id: 'sorting',
+    id: "sorting",
     icon: (color: string) => <SvgIcon name="sort-descending" size={24} color={color} />,
   },
-  { id: 'all', label: 'All' },
+  { id: "all", label: "All" },
   {
-    id: 'favorites',
-    label: 'Favorites',
+    id: "favorites",
+    label: "Favorites",
     icon: (color: string) => <SvgIcon name="favorite" size={24} color={color} />,
   },
   {
-    id: 'tagged',
-    label: 'Tagged',
+    id: "tagged",
+    label: "Tagged",
     icon: (color: string) => <SvgIcon name="tag" size={24} color={color} />,
   },
   {
-    id: 'short',
-    label: 'Short Reads',
+    id: "short",
+    label: "Short Reads",
     icon: (color: string) => <SvgIcon name="time-short" size={24} color={color} />,
   },
   {
-    id: 'long',
-    label: 'Long Reads',
+    id: "long",
+    label: "Long Reads",
     icon: (color: string) => <SvgIcon name="time-long" size={24} color={color} />,
   },
   {
-    id: 'archived',
-    label: 'Archived',
+    id: "archived",
+    label: "Archived",
     icon: (color: string) => <SvgIcon name="archive" size={24} color={color} />,
   },
 ];
@@ -56,7 +56,7 @@ const filterOptions: FilterOptionType[] = [
 const FilterTabs: React.FC<FilterTabsProps> = ({
   currentFilter,
   onFilterChange,
-  currentSort = 'newest',
+  currentSort = "newest",
   onSortChange = () => {},
 }) => {
   const theme = useTheme();
@@ -68,8 +68,8 @@ const FilterTabs: React.FC<FilterTabsProps> = ({
   const [sortMenuVisible, setSortMenuVisible] = useState(false);
   const [sortMenuPosition, setSortMenuPosition] = useState<ActionMenuPosition>({});
 
-  const handleTabPress = (filterId: ItemFilter | 'sorting') => {
-    if (filterId === 'sorting') {
+  const handleTabPress = (filterId: ItemFilter | "sorting") => {
+    if (filterId === "sorting") {
       handleSortButtonPress();
       return;
     }
@@ -85,8 +85,8 @@ const FilterTabs: React.FC<FilterTabsProps> = ({
             y: pageY,
             width,
             height,
-            position: 'bottom',
-            align: 'start',
+            position: "bottom",
+            align: "start",
           });
           setSortMenuVisible(true);
         },
@@ -100,21 +100,21 @@ const FilterTabs: React.FC<FilterTabsProps> = ({
   };
 
   const getIconColor = useCallback(
-    (filterId: ItemFilter | 'sorting'): string => {
+    (filterId: ItemFilter | "sorting"): string => {
       return currentFilter === filterId ? theme.colors.primary.contrast : theme.colors.icon;
     },
     [currentFilter, theme.colors],
   );
 
   const getTextColor = useCallback(
-    (filterId: ItemFilter | 'sorting'): string => {
+    (filterId: ItemFilter | "sorting"): string => {
       return currentFilter === filterId ? theme.colors.primary.contrast : theme.colors.text.primary;
     },
     [currentFilter, theme.colors],
   );
 
   const getTabBackgroundColor = useCallback(
-    (filterId: ItemFilter | 'sorting'): string => {
+    (filterId: ItemFilter | "sorting"): string => {
       if (currentFilter === filterId) {
         return theme.colors.primary.main;
       }
@@ -139,7 +139,7 @@ const FilterTabs: React.FC<FilterTabsProps> = ({
           <TouchableOpacity
             key={option.id}
             ref={
-              option.id === 'sorting'
+              option.id === "sorting"
                 ? sortButtonRef
                 : (ref: View | null) => {
                     tabRefs.current[option.id as string] = ref;
@@ -191,33 +191,33 @@ const makeStyles = (theme: Theme, isDarkMode: boolean) =>
       paddingVertical: scaler(12),
     },
     tab: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       paddingHorizontal: scaler(16),
       paddingVertical: scaler(10),
       marginHorizontal: scaler(4),
       borderRadius: scaler(20),
-      alignSelf: 'center',
+      alignSelf: "center",
       height: scaler(40),
     },
     iconContainer: {
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
       width: scaler(24),
       height: scaler(24),
     },
     tabText: {
       fontSize: scaler(13),
-      fontWeight: '600',
+      fontWeight: "600",
       lineHeight: scaler(19),
     },
     iconOnlyTab: {
       paddingHorizontal: scaler(16),
       minWidth: scaler(40),
       paddingVertical: scaler(8),
-      alignSelf: 'center',
-      justifyContent: 'center',
+      alignSelf: "center",
+      justifyContent: "center",
     },
   });
 
