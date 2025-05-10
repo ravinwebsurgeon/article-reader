@@ -14,7 +14,7 @@ import { ReduxProvider } from "@/provider/ReduxProvider";
 import { selectActiveTheme } from "@/redux/utils";
 import { ThemeProvider } from "@/theme";
 import { DatabaseProvider } from "@/database/provider/DatabaseProvider";
-import NetworkProvider from "@/provider/NetworkProvider";
+import { NetworkProvider } from "@/provider/NetworkProvider";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
