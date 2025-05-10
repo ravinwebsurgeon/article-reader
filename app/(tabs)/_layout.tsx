@@ -1,10 +1,9 @@
 import { Tabs } from "expo-router";
 import React from "react";
 import { Platform } from "react-native";
-import { HapticTab } from "@/components/HapticTab";
 import { SvgIcon } from "@/components/SvgIcon";
 import { scaler } from "@/utils";
-import { COLORS, useTheme } from "@/theme";
+import { useTheme } from "@/theme";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 
 export default function TabLayout() {
@@ -14,9 +13,9 @@ export default function TabLayout() {
     <Tabs
       initialRouteName="saves"
       screenOptions={{
-        tabBarActiveTintColor: COLORS[theme.mode ?? "light"].tint,
+        tabBarActiveTintColor:
+          theme.mode === "dark" ? theme.colors.white : theme.colors.primary.main,
         headerShown: false,
-        tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
           ios: {
@@ -36,10 +35,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Discover",
-          tabBarIcon: ({ color }) => (
-            // <IconSymbol size={28} name="house.fill" color={color} />
-            <SvgIcon name="discover" color={color} size={24} />
-          ),
+          tabBarIcon: ({ color }) => <SvgIcon name="discover" color={color} size={24} />,
         }}
       />
       <Tabs.Screen

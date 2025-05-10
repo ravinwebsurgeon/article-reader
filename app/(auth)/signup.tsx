@@ -7,12 +7,13 @@ import {
   Platform,
   ScrollView,
   ActivityIndicator,
+  ViewStyle,
+  TextStyle,
 } from "react-native";
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/TextInput/input";
 import { Button } from "@/components/ui/button";
 import { router } from "expo-router";
-import { COLORS, lightColors } from "@/theme";
 import { useRegisterMutation } from "@/redux/services/authApi";
 import { useTheme } from "@/theme";
 import { ThemeText, ThemeView } from "@/components";
@@ -26,7 +27,6 @@ interface SignUpScreenProps {
 const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
   const [loader, setLoader] = useState(false);
   const [register] = useRegisterMutation();
-
   const theme = useTheme();
 
   const { control, handleSubmit, watch } = useForm({
@@ -62,14 +62,48 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
     router.push("/(auth)/login");
   };
 
+  const dynamicStyles: {
+    container: ViewStyle;
+    subtitle: TextStyle;
+    signUpButton: ViewStyle;
+    loginLinkText: TextStyle;
+  } = {
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background.default,
+    },
+    subtitle: {
+      fontSize: scaler(16),
+      color: theme.colors.text.disabled,
+      marginBottom: scaler(16),
+    },
+    signUpButton: {
+      backgroundColor: theme.colors.primary.main,
+      height: scaler(56),
+      borderRadius: scaler(28),
+      justifyContent: "center",
+      alignItems: "center",
+      shadowColor: theme.colors.primary.main,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: scaler(0.25),
+      shadowRadius: scaler(4),
+      elevation: 5,
+    },
+    loginLinkText: {
+      color: theme.colors.primary.main,
+      fontSize: scaler(16),
+      fontWeight: "600" as const,
+    },
+  };
+
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background.default }]}>
+    <SafeAreaView style={[styles.container, dynamicStyles.container]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardAvoidingContainer}
       >
         <ScrollView contentContainerStyle={styles.scrollContainer}>
-          {loader && <ActivityIndicator size="small" color="#007AFF" />}
+          {loader && <ActivityIndicator size="small" color={theme.colors.primary.main} />}
           <ThemeView style={styles.header}>
             <ThemeView style={styles.logoContainer}>
               <SvgIcon name="pocket-pink" size={48} color={theme.colors.primary.main} />
@@ -77,7 +111,7 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
             <ThemeText variant="h2" style={styles.title}>
               Welcome to Pocket
             </ThemeText>
-            <ThemeText style={styles.subtitle}>
+            <ThemeText style={dynamicStyles.subtitle}>
               Log in or sign up to start saving articles you'll actually get back to.
             </ThemeText>
           </ThemeView>
@@ -86,7 +120,6 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
             <Input
               control={control}
               name="email"
-              // label="Email"
               rules={{
                 required: "Email is required",
                 pattern: {
@@ -99,14 +132,13 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
               autoCapitalize="none"
               autoCorrect={false}
               spellCheck={false}
-              icon={<SvgIcon name="envelope" size={24} color={COLORS.primary.main} />}
+              icon={<SvgIcon name="envelope" size={24} color={theme.colors.primary.main} />}
               style={styles.input}
             />
 
             <Input
               control={control}
               name="password"
-              // label="Password"
               rules={{
                 required: "Password is required",
                 minLength: {
@@ -121,36 +153,34 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
               }}
               placeholder="Password"
               secureTextEntry
-              icon={<SvgIcon name="key" size={24} color={COLORS.primary.main} />}
+              icon={<SvgIcon name="key" size={24} color={theme.colors.primary.main} />}
               style={styles.input}
             />
 
             <Input
               control={control}
               name="confirmPassword"
-              // label="Confirm Password"
               rules={{
                 required: "Please confirm your password",
                 validate: (value: string) => value === password || "Passwords do not match",
               }}
               placeholder="Confirm Password"
               secureTextEntry
-              icon={<SvgIcon name="key-renter" size={24} color={COLORS.primary.main} />}
+              icon={<SvgIcon name="key-renter" size={24} color={theme.colors.primary.main} />}
               style={styles.input}
             />
 
             <Button
               title={loader ? "Submiting..." : "Create Account"}
               onPress={handleSubmit(onSubmit)}
-              style={styles.signUpButton}
-              // leftIcon={<Ionicons name="person-add-outline" size={20} color="white" />}
+              style={dynamicStyles.signUpButton}
               rightIcon={null}
             />
           </View>
 
           <View style={styles.loginContainer}>
             <ThemeText style={styles.loginText}>Already have an account? </ThemeText>
-            <ThemeText style={styles.loginLinkText} onPress={navigateToLogin}>
+            <ThemeText style={dynamicStyles.loginLinkText} onPress={navigateToLogin}>
               Sign in
             </ThemeText>
           </View>
@@ -163,7 +193,6 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: lightColors.background.default,
   },
   keyboardAvoidingContainer: {
     flex: 1,
@@ -185,11 +214,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: scaler(8),
   },
-  subtitle: {
-    fontSize: scaler(16),
-    color: lightColors.text.disabled,
-    marginBottom: scaler(16),
-  },
   logoContainer: {
     marginBottom: scaler(24),
   },
@@ -197,25 +221,16 @@ const styles = StyleSheet.create({
     width: "100%",
     marginBottom: scaler(24),
   },
-  signUpButton: {
-    marginTop: scaler(16),
+  input: {
+    marginBottom: scaler(16),
   },
   loginContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: scaler(16),
+    marginTop: scaler(24),
   },
   loginText: {
-    // color: COLORS.text,
     fontSize: scaler(16),
-  },
-  loginLinkText: {
-    color: COLORS.primary.main,
-    fontSize: scaler(16),
-    fontWeight: "600",
-  },
-  input: {
-    marginBottom: scaler(16),
   },
 });
 
