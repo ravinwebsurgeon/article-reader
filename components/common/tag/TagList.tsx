@@ -1,10 +1,10 @@
-import React, { useCallback, useMemo } from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import { SvgIcon } from '@/components/SvgIcon';
-import { ThemeText } from '@/components/core';
-import { useTheme, type Theme } from '@/theme';
-import { scaler } from '@/utils';
-import Tag from '@/database/models/TagModel';
+import React, { useCallback, useMemo } from "react";
+import { View, StyleSheet, FlatList, TouchableOpacity } from "react-native";
+import { SvgIcon } from "@/components/SvgIcon";
+import { ThemeText } from "@/components/core";
+import { useTheme, type Theme } from "@/theme";
+import { scaler } from "@/utils";
+import Tag from "@/database/models/TagModel";
 
 export interface TagListProps {
   tags: Tag[];
@@ -29,7 +29,7 @@ const TagList: React.FC<TagListProps> = ({
   onTagPress,
   title,
   maxHeight,
-  emptyMessage = 'No tags found',
+  emptyMessage = "No tags found",
 }) => {
   const theme = useTheme();
   const styles = useMemo(() => makeStyles(theme), [theme]);
@@ -105,22 +105,22 @@ const TagList: React.FC<TagListProps> = ({
 const makeStyles = (theme: Theme) =>
   StyleSheet.create({
     listContainer: {
-      width: '100%',
+      width: "100%",
     },
     listContent: {
       paddingBottom: scaler(8),
     },
     sectionTitle: {
       fontSize: scaler(16),
-      fontWeight: '600',
+      fontWeight: "600",
       lineHeight: scaler(24),
       marginVertical: scaler(8),
       color: theme.colors.text.primary,
     },
     tagItem: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
       paddingVertical: scaler(12),
       borderBottomWidth: StyleSheet.hairlineWidth,
       borderBottomColor: theme.colors.divider,
@@ -137,24 +137,24 @@ const makeStyles = (theme: Theme) =>
       width: scaler(24),
       height: scaler(24),
       borderRadius: scaler(12),
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: "center",
+      justifyContent: "center",
     },
     circle: {
       width: scaler(24),
       height: scaler(24),
       borderRadius: scaler(12),
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: "center",
+      justifyContent: "center",
     },
     emptyContainer: {
       paddingVertical: scaler(16),
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: "center",
+      justifyContent: "center",
     },
     emptyText: {
       fontSize: scaler(14),
-      fontStyle: 'italic',
+      fontStyle: "italic",
       color: theme.colors.text.hint,
     },
   });

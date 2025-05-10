@@ -1,14 +1,14 @@
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { View, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { ThemeText } from '@/components/core';
-import { SvgIcon } from '@/components/SvgIcon';
-import { useTheme, type Theme } from '@/theme';
-import TagBadge from './TagBadge';
-import { scaler } from '@/utils';
-import Item from '@/database/models/ItemModel';
-import Tag from '@/database/models/TagModel';
-import { useTagManagement } from '@/utils/hooks';
-import TagEditor from '@/screens/EditTag';
+import React, { useState, useCallback, useEffect, useMemo } from "react";
+import { View, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
+import { ThemeText } from "@/components/core";
+import { SvgIcon } from "@/components/SvgIcon";
+import { useTheme, type Theme } from "@/theme";
+import TagBadge from "./TagBadge";
+import { scaler } from "@/utils";
+import Item from "@/database/models/ItemModel";
+import Tag from "@/database/models/TagModel";
+import { useTagManagement } from "@/utils/hooks";
+import TagEditor from "@/screens/EditTag";
 
 export interface TagSelectorProps {
   item: Item;
@@ -32,7 +32,7 @@ const TagSelector: React.FC<TagSelectorProps> = ({
   item,
   onTagsChanged,
   containerStyle,
-  title = 'Tags',
+  title = "Tags",
   maxTags,
   showAddButton = true,
 }) => {
@@ -54,7 +54,7 @@ const TagSelector: React.FC<TagSelectorProps> = ({
       const itemTags = await getItemTags(item);
       setTags(itemTags);
     } catch (error) {
-      console.error('Error loading tags:', error);
+      console.error("Error loading tags:", error);
     } finally {
       setLoading(false);
     }
@@ -86,7 +86,7 @@ const TagSelector: React.FC<TagSelectorProps> = ({
         setTags((prev) => prev.filter((t) => t.id !== tag.id));
         onTagsChanged?.();
       } catch (error) {
-        console.error('Error removing tag:', error);
+        console.error("Error removing tag:", error);
       }
     },
     [item, onTagsChanged],
@@ -161,14 +161,14 @@ const makeStyles = (theme: Theme) =>
       marginVertical: scaler(8),
     },
     headerContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
       marginBottom: scaler(8),
     },
     title: {
       fontSize: scaler(16),
-      fontWeight: '600',
+      fontWeight: "600",
       color: theme.colors.text.primary,
     },
     addButton: {
@@ -176,20 +176,20 @@ const makeStyles = (theme: Theme) =>
     },
     loadingContainer: {
       height: scaler(40),
-      justifyContent: 'center',
-      alignItems: 'center',
+      justifyContent: "center",
+      alignItems: "center",
     },
     tagsContainer: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
+      flexDirection: "row",
+      flexWrap: "wrap",
     },
     emptyContainer: {
       height: scaler(40),
-      justifyContent: 'center',
+      justifyContent: "center",
     },
     emptyText: {
       fontSize: scaler(14),
-      fontStyle: 'italic',
+      fontStyle: "italic",
     },
     moreTagsButton: {
       paddingHorizontal: scaler(12),
@@ -200,7 +200,7 @@ const makeStyles = (theme: Theme) =>
     },
     moreTagsText: {
       fontSize: scaler(14),
-      fontWeight: '500',
+      fontWeight: "500",
     },
   });
 

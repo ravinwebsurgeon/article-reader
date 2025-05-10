@@ -1,10 +1,10 @@
-import React, { useMemo } from 'react';
-import { View, TextInput, StyleSheet, KeyboardTypeOptions } from 'react-native';
-import { Control, Controller, FieldValues, Path, RegisterOptions } from 'react-hook-form';
-import { useTheme, type Theme } from '@/theme';
-import { ThemeText } from '@/components/core';
-import { ThemedView } from '@/components/ThemedView';
-import { scaler } from '@/utils';
+import React, { useMemo } from "react";
+import { View, TextInput, StyleSheet, KeyboardTypeOptions } from "react-native";
+import { Control, Controller, FieldValues, Path, RegisterOptions } from "react-hook-form";
+import { useTheme, type Theme } from "@/theme";
+import { ThemeText } from "@/components/core";
+import { ThemedView } from "@/components/ThemedView";
+import { scaler } from "@/utils";
 
 interface FormInputProps<T extends FieldValues> {
   control: Control<T>;
@@ -14,7 +14,7 @@ interface FormInputProps<T extends FieldValues> {
   secureTextEntry?: boolean;
   icon?: React.ReactNode;
   keyboardType?: KeyboardTypeOptions;
-  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  autoCapitalize?: "none" | "sentences" | "words" | "characters";
   autoCorrect?: boolean;
   spellCheck?: boolean;
 }
@@ -30,8 +30,8 @@ export const FormInput = <T extends FieldValues>({
   placeholder,
   secureTextEntry = false,
   icon,
-  keyboardType = 'default',
-  autoCapitalize = 'none',
+  keyboardType = "default",
+  autoCapitalize = "none",
   autoCorrect = false,
   spellCheck = false,
 }: FormInputProps<T>) => {
@@ -82,7 +82,7 @@ const makeStyles = (theme: Theme) =>
       paddingBottom: scaler(24),
     },
     header: {
-      alignItems: 'center',
+      alignItems: "center",
       marginBottom: scaler(40),
     },
     logoContainer: {
@@ -93,8 +93,8 @@ const makeStyles = (theme: Theme) =>
       height: scaler(80),
       borderRadius: scaler(40),
       backgroundColor: theme.colors.primary.main,
-      justifyContent: 'center',
-      alignItems: 'center',
+      justifyContent: "center",
+      alignItems: "center",
       padding: scaler(15),
     },
     logoHeart: {
@@ -105,7 +105,7 @@ const makeStyles = (theme: Theme) =>
     },
     title: {
       fontSize: scaler(28),
-      fontWeight: 'bold',
+      fontWeight: "bold",
       color: theme.colors.text.primary,
       marginBottom: scaler(8),
     },
@@ -115,14 +115,14 @@ const makeStyles = (theme: Theme) =>
       marginBottom: scaler(16),
     },
     formContainer: {
-      width: '100%',
+      width: "100%",
       marginBottom: scaler(24),
     },
     inputContainer: {
       marginBottom: scaler(20),
     },
     iconContainer: {
-      position: 'absolute',
+      position: "absolute",
       left: scaler(12),
       top: scaler(15),
       zIndex: 1,
@@ -146,7 +146,7 @@ const makeStyles = (theme: Theme) =>
       color: theme.colors.error.main,
     },
     forgotPasswordContainer: {
-      alignSelf: 'flex-end',
+      alignSelf: "flex-end",
       marginBottom: scaler(24),
     },
     forgotPasswordText: {
@@ -157,8 +157,8 @@ const makeStyles = (theme: Theme) =>
       backgroundColor: theme.colors.primary.main,
       height: scaler(56),
       borderRadius: scaler(28),
-      justifyContent: 'center',
-      alignItems: 'center',
+      justifyContent: "center",
+      alignItems: "center",
       shadowColor: theme.colors.primary.main,
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.25,
@@ -168,11 +168,11 @@ const makeStyles = (theme: Theme) =>
     signInButtonText: {
       color: theme.colors.primary.contrast,
       fontSize: scaler(18),
-      fontWeight: '600',
+      fontWeight: "600",
     },
     signUpContainer: {
-      flexDirection: 'row',
-      justifyContent: 'center',
+      flexDirection: "row",
+      justifyContent: "center",
       marginTop: scaler(24),
     },
     signUpText: {
@@ -182,6 +182,6 @@ const makeStyles = (theme: Theme) =>
     signUpLinkText: {
       color: theme.colors.primary.main,
       fontSize: scaler(16),
-      fontWeight: '600',
+      fontWeight: "600",
     },
   });

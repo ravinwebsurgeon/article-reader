@@ -1,5 +1,5 @@
-import { createSelector } from '@reduxjs/toolkit';
-import { RootState } from './store';
+import { createSelector } from "@reduxjs/toolkit";
+import { RootState } from "./store";
 
 // Types
 interface LoadingState {
@@ -25,8 +25,8 @@ export const selectSystemPrefersDark = (state: RootState) => state.theme.systemP
 export const selectActiveTheme = createSelector(
   [selectThemeMode, selectSystemPrefersDark],
   (mode, systemPrefersDark) => {
-    if (mode === 'system') {
-      return systemPrefersDark ? 'dark' : 'light';
+    if (mode === "system") {
+      return systemPrefersDark ? "dark" : "light";
     }
     return mode;
   },
@@ -40,8 +40,8 @@ export const createLoadingSelector = (actions: string[]) => (state: RootState) =
 
     const [, slice, actionType] = matcher;
     const sliceState = state[slice as keyof RootState];
-    return sliceState && 'loadingState' in sliceState
-      ? (sliceState as SliceWithLoadingState).loadingState?.[actionType] === 'pending'
+    return sliceState && "loadingState" in sliceState
+      ? (sliceState as SliceWithLoadingState).loadingState?.[actionType] === "pending"
       : false;
   });
 };

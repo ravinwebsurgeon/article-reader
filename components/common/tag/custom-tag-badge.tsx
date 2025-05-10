@@ -1,9 +1,9 @@
-import type React from 'react';
-import { TouchableOpacity, View, StyleSheet, type ViewStyle, type TextStyle } from 'react-native';
-import { ThemeText } from '@/components/core';
-import { SvgIcon } from '@/components/SvgIcon';
-import { scaler } from '@/utils';
-import { useTheme } from '@/theme';
+import type React from "react";
+import { TouchableOpacity, View, StyleSheet, type ViewStyle, type TextStyle } from "react-native";
+import { ThemeText } from "@/components/core";
+import { SvgIcon } from "@/components/SvgIcon";
+import { scaler } from "@/utils";
+import { useTheme } from "@/theme";
 
 export interface CustomTagBadgeProps {
   label: string;
@@ -40,9 +40,9 @@ const CustomTagBadge: React.FC<CustomTagBadgeProps> = ({ label, onRemove, style,
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FF8A8A',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FF8A8A",
     paddingHorizontal: scaler(12),
     paddingVertical: scaler(6),
     borderRadius: scaler(16),
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     marginBottom: scaler(8),
   },
   text: {
-    fontWeight: '500',
+    fontWeight: "500",
     fontSize: scaler(14),
   },
   removeButton: {

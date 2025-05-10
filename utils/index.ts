@@ -1,1 +1,1 @@
-export * from './Scaler';
+export * from "./Scaler";

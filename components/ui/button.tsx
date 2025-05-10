@@ -1,12 +1,12 @@
-import { useTheme, type Theme } from '@/theme';
-import React, { useMemo } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { useTheme, type Theme } from "@/theme";
+import React, { useMemo } from "react";
+import { StyleSheet, Text, TouchableOpacity, View, ViewStyle } from "react-native";
 
 interface ButtonProps {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'outline' | 'text';
-  size?: 'small' | 'medium' | 'large';
+  variant?: "primary" | "secondary" | "outline" | "text";
+  size?: "small" | "medium" | "large";
   fullWidth?: boolean;
   disabled?: boolean;
   leftIcon?: React.ReactNode;
@@ -18,8 +18,8 @@ interface ButtonProps {
 export const Button = ({
   title,
   onPress,
-  variant = 'primary',
-  size = 'medium',
+  variant = "primary",
+  size = "medium",
   fullWidth = true,
   disabled = false,
   leftIcon,
@@ -31,11 +31,11 @@ export const Button = ({
 
   const getButtonStyle = () => {
     switch (variant) {
-      case 'secondary':
+      case "secondary":
         return styles.secondaryButton;
-      case 'outline':
+      case "outline":
         return styles.outlineButton;
-      case 'text':
+      case "text":
         return styles.textButton;
       default:
         return styles.primaryButton;
@@ -44,11 +44,11 @@ export const Button = ({
 
   const getButtonTextStyle = () => {
     switch (variant) {
-      case 'secondary':
+      case "secondary":
         return styles.secondaryButtonText;
-      case 'outline':
+      case "outline":
         return styles.outlineButtonText;
-      case 'text':
+      case "text":
         return styles.textButtonText;
       default:
         return styles.primaryButtonText;
@@ -57,9 +57,9 @@ export const Button = ({
 
   const getButtonSize = () => {
     switch (size) {
-      case 'small':
+      case "small":
         return styles.smallButton;
-      case 'large':
+      case "large":
         return styles.largeButton;
       default:
         return styles.mediumButton;
@@ -92,16 +92,16 @@ const makeStyles = (theme: Theme) =>
     // Input styles
     inputWrapper: {
       marginBottom: 16,
-      width: '100%',
+      width: "100%",
     },
     inputLabel: {
       fontSize: 14,
       marginBottom: 8,
-      fontWeight: '500',
+      fontWeight: "500",
     },
     inputContainer: {
-      position: 'relative',
-      width: '100%',
+      position: "relative",
+      width: "100%",
     },
     input: {
       height: 56,
@@ -114,7 +114,7 @@ const makeStyles = (theme: Theme) =>
       height: 120,
       paddingTop: 12,
       paddingBottom: 12,
-      textAlignVertical: 'top',
+      textAlignVertical: "top",
     },
     inputWithIcon: {
       paddingLeft: 44,
@@ -124,16 +124,16 @@ const makeStyles = (theme: Theme) =>
     },
     inputError: {},
     iconContainer: {
-      position: 'absolute',
+      position: "absolute",
       left: 16,
-      top: '50%',
+      top: "50%",
       transform: [{ translateY: -10 }],
       zIndex: 1,
     },
     secureTextToggle: {
-      position: 'absolute',
+      position: "absolute",
       right: 16,
-      top: '50%',
+      top: "50%",
       transform: [{ translateY: -10 }],
       zIndex: 1,
     },
@@ -145,13 +145,13 @@ const makeStyles = (theme: Theme) =>
 
     // Button styles
     button: {
-      flexDirection: 'row',
-      justifyContent: 'center',
-      alignItems: 'center',
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
       borderRadius: 28,
     },
     fullWidth: {
-      width: '100%',
+      width: "100%",
     },
     primaryButton: {
       backgroundColor: theme.colors.primary.main,
@@ -170,12 +170,12 @@ const makeStyles = (theme: Theme) =>
       elevation: 5,
     },
     outlineButton: {
-      backgroundColor: 'transparent',
+      backgroundColor: "transparent",
       borderWidth: 1,
       borderColor: theme.colors.primary.main,
     },
     textButton: {
-      backgroundColor: 'transparent',
+      backgroundColor: "transparent",
     },
     smallButton: {
       height: 40,
@@ -197,22 +197,22 @@ const makeStyles = (theme: Theme) =>
     primaryButtonText: {
       color: theme.colors.primary.contrast,
       fontSize: 16,
-      fontWeight: '600',
+      fontWeight: "600",
     },
     secondaryButtonText: {
       color: theme.colors.warning.contrast,
       fontSize: 16,
-      fontWeight: '600',
+      fontWeight: "600",
     },
     outlineButtonText: {
       color: theme.colors.primary.main,
       fontSize: 16,
-      fontWeight: '600',
+      fontWeight: "600",
     },
     textButtonText: {
       color: theme.colors.primary.main,
       fontSize: 16,
-      fontWeight: '600',
+      fontWeight: "600",
     },
     disabledButtonText: {
       color: theme.colors.text.disabled,

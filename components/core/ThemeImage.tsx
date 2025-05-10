@@ -1,19 +1,19 @@
-import { useTheme } from '@/theme/hooks';
-import React from 'react';
-import { Image, ImageProps, StyleSheet } from 'react-native';
+import { useTheme } from "@/theme/hooks";
+import React from "react";
+import { Image, ImageProps, StyleSheet } from "react-native";
 
-export type ThemeImageProps = Omit<ImageProps, 'source'> & {
+export type ThemeImageProps = Omit<ImageProps, "source"> & {
   source: number | { uri: string };
-  size?: number | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'fill';
-  rounded?: boolean | 'sm' | 'md' | 'lg' | 'full';
+  size?: number | "xs" | "sm" | "md" | "lg" | "xl" | "fill";
+  rounded?: boolean | "sm" | "md" | "lg" | "full";
   circle?: boolean;
-  margin?: boolean | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  margin?: boolean | "xs" | "sm" | "md" | "lg" | "xl";
 };
 
 export const ThemeImage: React.FC<ThemeImageProps> = ({
   style,
   source,
-  size = 'md',
+  size = "md",
   rounded = false,
   circle = false,
   margin = false,
@@ -23,19 +23,19 @@ export const ThemeImage: React.FC<ThemeImageProps> = ({
 
   // Get size value
   const getSize = (): number | undefined => {
-    if (size === 'fill') return undefined;
-    if (typeof size === 'number') return size;
+    if (size === "fill") return undefined;
+    if (typeof size === "number") return size;
 
     switch (size) {
-      case 'xs':
+      case "xs":
         return theme.spacing.lg;
-      case 'sm':
+      case "sm":
         return theme.spacing.xl;
-      case 'md':
+      case "md":
         return theme.spacing.xxl;
-      case 'lg':
+      case "lg":
         return theme.spacing.xxxl;
-      case 'xl':
+      case "xl":
         return 96;
       default:
         return theme.spacing.xxl;
@@ -48,15 +48,15 @@ export const ThemeImage: React.FC<ThemeImageProps> = ({
     if (margin === true) return theme.spacing.md;
 
     switch (margin) {
-      case 'xs':
+      case "xs":
         return theme.spacing.xs;
-      case 'sm':
+      case "sm":
         return theme.spacing.sm;
-      case 'md':
+      case "md":
         return theme.spacing.md;
-      case 'lg':
+      case "lg":
         return theme.spacing.lg;
-      case 'xl':
+      case "xl":
         return theme.spacing.xl;
       default:
         return theme.spacing.md;
@@ -70,13 +70,13 @@ export const ThemeImage: React.FC<ThemeImageProps> = ({
     if (rounded === true) return theme.spacing.sm;
 
     switch (rounded) {
-      case 'sm':
+      case "sm":
         return theme.spacing.xs;
-      case 'md':
+      case "md":
         return theme.spacing.sm;
-      case 'lg':
+      case "lg":
         return theme.spacing.md;
-      case 'full':
+      case "full":
         return 9999;
       default:
         return theme.spacing.sm;
@@ -87,7 +87,7 @@ export const ThemeImage: React.FC<ThemeImageProps> = ({
   const sizeValue = getSize();
   const combinedStyle = [
     sizeValue !== undefined && { width: sizeValue, height: sizeValue },
-    size === 'fill' && styles.fill,
+    size === "fill" && styles.fill,
     getBorderRadius() !== undefined && { borderRadius: getBorderRadius() },
     getMargin() !== undefined && { margin: getMargin() },
     style,
@@ -98,7 +98,7 @@ export const ThemeImage: React.FC<ThemeImageProps> = ({
 
 const styles = StyleSheet.create({
   fill: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
   },
 });

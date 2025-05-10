@@ -1,7 +1,7 @@
-import React, { ReactNode, useEffect } from 'react';
-import NetInfo from '@react-native-community/netinfo';
-import { useDispatch } from 'react-redux';
-import { networkStatusChanged } from '@/redux/slices/networkSlice';
+import React, { ReactNode, useEffect } from "react";
+import NetInfo from "@react-native-community/netinfo";
+import { useDispatch } from "react-redux";
+import { networkStatusChanged } from "@/redux/slices/networkSlice";
 
 interface NetworkProviderProps {
   children: ReactNode;

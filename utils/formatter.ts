@@ -3,10 +3,10 @@
  * @param minutes Time in minutes
  */
 export const formatReadTime = (minutes: number): string => {
-  if (!minutes) return '0 min';
+  if (!minutes) return "0 min";
 
   if (minutes < 1) {
-    return '< 1 min';
+    return "< 1 min";
   }
 
   return `${Math.round(minutes)} min`;
@@ -17,7 +17,7 @@ export const formatReadTime = (minutes: number): string => {
  * @param dateString The ISO date string or Date object
  */
 export const formatRelativeTime = (dateString: string | Date): string => {
-  const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+  const date = typeof dateString === "string" ? new Date(dateString) : dateString;
   const now = new Date();
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
@@ -43,7 +43,7 @@ export const formatRelativeTime = (dateString: string | Date): string => {
     }
   }
 
-  return 'just now';
+  return "just now";
 };
 
 /**
@@ -53,7 +53,7 @@ export const formatRelativeTime = (dateString: string | Date): string => {
  */
 export const truncateText = (text: string, maxLength: number): string => {
   if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength) + '...';
+  return text.slice(0, maxLength) + "...";
 };
 
 /**
@@ -69,33 +69,33 @@ export const formatDate = (dateString: string): string => {
     // Today
     const hours = date.getHours();
     const minutes = date.getMinutes();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const ampm = hours >= 12 ? "PM" : "AM";
     const formattedHours = hours % 12 || 12;
     const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
 
     return `Today at ${formattedHours}:${formattedMinutes} ${ampm}`;
   } else if (diffInDays === 1) {
     // Yesterday
-    return 'Yesterday';
+    return "Yesterday";
   } else if (diffInDays < 7) {
     // Within a week
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     return days[date.getDay()];
   } else if (diffInDays < 365) {
     // Within a year
     const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
     ];
     return `${months[date.getMonth()]} ${date.getDate()}`;
   } else {
@@ -109,9 +109,9 @@ export const formatDate = (dateString: string): string => {
  */
 export const formatReadingTime = (minutes: number): string => {
   if (minutes < 1) {
-    return 'Less than 1 min';
+    return "Less than 1 min";
   } else if (minutes === 1) {
-    return '1 min';
+    return "1 min";
   } else {
     return `${Math.round(minutes)} min`;
   }

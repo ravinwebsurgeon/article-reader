@@ -1,5 +1,5 @@
-import { useTheme } from '@/theme/hooks';
-import React, { useState } from 'react';
+import { useTheme } from "@/theme/hooks";
+import React, { useState } from "react";
 import {
   TextInput,
   TextInputProps,
@@ -8,9 +8,9 @@ import {
   TouchableOpacity,
   ViewStyle,
   StyleProp,
-} from 'react-native';
-import { ThemeText } from './ThemeText';
-import { getInterVariableStyle } from '@/theme';
+} from "react-native";
+import { ThemeText } from "./ThemeText";
+import { getInterVariableStyle } from "@/theme";
 
 export interface ThemeInputProps extends TextInputProps {
   label?: string;
@@ -129,14 +129,14 @@ export const ThemeInput: React.FC<ThemeInputProps> = ({
 const styles = StyleSheet.create({
   container: {
     marginBottom: 16,
-    width: '100%',
+    width: "100%",
   },
   label: {
     marginBottom: 4,
   },
   inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 12,
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    height: '100%',
+    height: "100%",
     padding: 0,
     fontSize: 16,
   },

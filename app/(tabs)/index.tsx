@@ -1,8 +1,8 @@
-import { ThemeText } from '@/components';
-import { ThemedView } from '@/components/ThemedView';
-import { Button } from '@/components/ui/button';
-import { useLogoutMutation } from '@/redux/services/authApi';
-import { StyleSheet } from 'react-native';
+import { ThemeText } from "@/components";
+import { ThemedView } from "@/components/ThemedView";
+import { Button } from "@/components/ui/button";
+import { useLogoutMutation } from "@/redux/services/authApi";
+import { StyleSheet } from "react-native";
 
 export default function HomeScreen() {
   const [logout] = useLogoutMutation();
@@ -11,7 +11,7 @@ export default function HomeScreen() {
     try {
       await logout();
     } catch (err) {
-      console.error('Login failed', err);
+      console.error("Login failed", err);
     }
   };
 
@@ -31,13 +31,13 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   headerImage: {
-    color: '#808080',
+    color: "#808080",
     bottom: -10,
     left: -35,
-    position: 'absolute',
+    position: "absolute",
   },
   titleContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 8,
   },
 });
