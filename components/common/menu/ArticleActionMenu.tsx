@@ -51,7 +51,7 @@ const ArticleActionMenu: React.FC<ArticleActionMenuProps> = ({
       onClose();
 
       // Prepare share content
-      const title = item.title || "Article";
+      const title = item.title ?? "Article";
       const url = item.url;
 
       await Share.share({

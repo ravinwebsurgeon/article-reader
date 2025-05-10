@@ -17,7 +17,18 @@ import { ThemeText } from "@/components/core";
 interface InputProps<T extends FieldValues> {
   control: Control<T>;
   name: Path<T>;
-  rules?: Record<string, any>;
+  rules?: Record<
+    string,
+    {
+      required?: boolean | string;
+      min?: number | { value: number; message: string };
+      max?: number | { value: number; message: string };
+      minLength?: number | { value: number; message: string };
+      maxLength?: number | { value: number; message: string };
+      pattern?: RegExp | { value: RegExp; message: string };
+      validate?: (value: unknown) => boolean | string | Promise<boolean | string>;
+    }
+  >;
   placeholder?: string;
   label?: string;
   secureTextEntry?: boolean;
