@@ -4,7 +4,6 @@ import { ThemeText } from "@/components/core";
 import { SvgIcon } from "@/components/SvgIcon";
 import { useTheme, type Theme } from "@/theme";
 import TagBadge from "./TagBadge";
-import { scaler } from "@/utils";
 import Item from "@/database/models/ItemModel";
 import Tag from "@/database/models/TagModel";
 import { useTagManagement } from "@/utils/hooks";
@@ -158,24 +157,24 @@ const TagSelector: React.FC<TagSelectorProps> = ({
 const makeStyles = (theme: Theme) =>
   StyleSheet.create({
     container: {
-      marginVertical: scaler(8),
+      marginVertical: 8,
     },
     headerContainer: {
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
-      marginBottom: scaler(8),
+      marginBottom: 8,
     },
     title: {
-      fontSize: scaler(16),
+      fontSize: 16,
       fontWeight: "600",
       color: theme.colors.text.primary,
     },
     addButton: {
-      padding: scaler(4),
+      padding: 4,
     },
     loadingContainer: {
-      height: scaler(40),
+      height: 40,
       justifyContent: "center",
       alignItems: "center",
     },
@@ -184,22 +183,22 @@ const makeStyles = (theme: Theme) =>
       flexWrap: "wrap",
     },
     emptyContainer: {
-      height: scaler(40),
+      height: 40,
       justifyContent: "center",
     },
     emptyText: {
-      fontSize: scaler(14),
+      fontSize: 14,
       fontStyle: "italic",
     },
     moreTagsButton: {
-      paddingHorizontal: scaler(12),
-      paddingVertical: scaler(6),
-      borderRadius: scaler(16),
-      marginRight: scaler(8),
-      marginBottom: scaler(8),
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 16,
+      marginRight: 8,
+      marginBottom: 8,
     },
     moreTagsText: {
-      fontSize: scaler(14),
+      fontSize: 14,
       fontWeight: "500",
     },
   });

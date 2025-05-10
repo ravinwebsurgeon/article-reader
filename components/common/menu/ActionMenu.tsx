@@ -3,7 +3,6 @@ import { StyleSheet, Modal, TouchableOpacity, TouchableWithoutFeedback } from "r
 import { useTheme, type Theme } from "@/theme";
 import Item from "@/database/models/ItemModel";
 import { ThemeText, ThemeView } from "@/components/core";
-import { scaler } from "@/utils";
 import { SvgIcon } from "@/components/SvgIcon";
 
 interface ActionMenuProps {
@@ -120,8 +119,8 @@ const makeStyles = (theme: Theme) =>
     },
     menuContainer: {
       width: "80%",
-      borderRadius: scaler(12),
-      padding: scaler(8),
+      borderRadius: 12,
+      padding: 8,
       backgroundColor: theme.colors.background.paper,
       ...theme.shadows[3],
     },
@@ -129,10 +128,10 @@ const makeStyles = (theme: Theme) =>
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
-      padding: scaler(16),
+      padding: 16,
     },
     menuText: {
-      fontSize: scaler(16),
+      fontSize: 16,
       color: theme.colors.text.primary,
     },
   });

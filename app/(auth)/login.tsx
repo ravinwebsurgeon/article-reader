@@ -17,7 +17,6 @@ import { useForm } from "react-hook-form";
 import { useTheme } from "@/theme";
 import { useLoginMutation } from "@/redux/services/authApi";
 import { ThemeText, ThemeView } from "@/components";
-import { scaler } from "@/utils";
 import { Input } from "@/components/ui/TextInput/input";
 import { SvgIcon } from "@/components/SvgIcon";
 import { Button } from "@/components/ui/button";
@@ -86,59 +85,59 @@ function LoginScreen() {
       backgroundColor: theme.colors.background.default,
     },
     logoCircle: {
-      width: scaler(80),
-      height: scaler(80),
-      borderRadius: scaler(40),
+      width: 80,
+      height: 80,
+      borderRadius: 40,
       backgroundColor: theme.colors.primary.main,
       justifyContent: "center",
       alignItems: "center",
-      padding: scaler(15),
+      padding: 15,
     },
     logoHeart: {
-      width: scaler(30),
-      height: scaler(30),
+      width: 30,
+      height: 30,
       backgroundColor: theme.colors.primary.light,
-      borderRadius: scaler(15),
+      borderRadius: 15,
     },
     subtitle: {
-      fontSize: scaler(17),
-      lineHeight: scaler(26),
+      fontSize: 17,
+      lineHeight: 26,
       fontWeight: "400" as const,
       color: theme.colors.text.disabled,
-      marginBottom: scaler(16),
+      marginBottom: 16,
     },
     inputError: {
       borderColor: theme.colors.error.main,
     },
     errorText: {
       color: theme.colors.error.main,
-      fontSize: scaler(12),
-      marginTop: scaler(4),
+      fontSize: 12,
+      marginTop: 4,
     },
     forgotPasswordText: {
       color: theme.colors.primary.main,
-      fontSize: scaler(14),
+      fontSize: 14,
     },
     signInButton: {
       backgroundColor: theme.colors.primary.main,
-      height: scaler(56),
-      borderRadius: scaler(28),
+      height: 56,
+      borderRadius: 28,
       justifyContent: "center",
       alignItems: "center",
       shadowColor: theme.colors.primary.main,
       shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: scaler(0.25),
-      shadowRadius: scaler(4),
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
       elevation: 5,
     },
     signInButtonText: {
       color: theme.colors.white,
-      fontSize: scaler(18),
+      fontSize: 18,
       fontWeight: "600" as const,
     },
     signUpLinkText: {
       color: theme.colors.primary.main,
-      fontSize: scaler(16),
+      fontSize: 16,
       fontWeight: "600" as const,
     },
   };
@@ -231,41 +230,41 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
-    paddingHorizontal: scaler(24),
-    paddingTop: scaler(40),
-    paddingBottom: scaler(24),
+    paddingHorizontal: 24,
+    paddingTop: 40,
+    paddingBottom: 24,
   },
   header: {
     alignItems: "flex-start",
-    marginBottom: scaler(20),
-    marginTop: scaler(20),
+    marginBottom: 20,
+    marginTop: 20,
   },
   logoContainer: {
-    marginBottom: scaler(24),
+    marginBottom: 24,
   },
   title: {
-    fontSize: scaler(28),
+    fontSize: 28,
     fontWeight: "bold",
     textAlign: "left",
-    marginBottom: scaler(8),
+    marginBottom: 8,
   },
   formContainer: {
-    marginTop: scaler(32),
+    marginTop: 32,
   },
   input: {
-    marginBottom: scaler(16),
+    marginBottom: 16,
   },
   forgotPasswordContainer: {
     alignItems: "flex-end",
-    marginBottom: scaler(24),
+    marginBottom: 24,
   },
   signUpContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: scaler(24),
+    marginTop: 24,
   },
   signUpText: {
-    fontSize: scaler(16),
+    fontSize: 16,
   },
 });
 

@@ -5,7 +5,6 @@ import Item from "@/database/models/ItemModel";
 import Tag from "@/database/models/TagModel";
 import { useDarkMode, useTheme, type Theme } from "@/theme";
 import { ThemeText } from "@/components/core";
-import { scaler } from "@/utils";
 import { withObservables } from "@nozbe/watermelondb/react";
 import Svg, { Path, Rect } from "react-native-svg";
 import { SvgIcon } from "@/components/SvgIcon";
@@ -14,7 +13,7 @@ import ArticleActionMenu from "../menu/ArticleActionMenu";
 import { LinearGradient } from "expo-linear-gradient";
 
 // Export a fixed height constant for use in FlatList
-export const ARTICLE_CARD_HEIGHT = scaler(143);
+export const ARTICLE_CARD_HEIGHT = 143;
 
 interface ArticleCardProps {
   item: Item;
@@ -229,9 +228,9 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({ item, onPress, style
 const makeStyles = (theme: Theme, isDarkMode: boolean) =>
   StyleSheet.create({
     container: {
-      paddingVertical: scaler(16),
-      paddingHorizontal: scaler(16),
-      borderBottomWidth: scaler(0.5),
+      paddingVertical: 16,
+      paddingHorizontal: 16,
+      borderBottomWidth: 0.5,
       height: ARTICLE_CARD_HEIGHT,
       borderBottomColor: theme.colors.divider,
     },
@@ -243,29 +242,29 @@ const makeStyles = (theme: Theme, isDarkMode: boolean) =>
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "flex-start",
-      gap: scaler(8),
+      gap: 8,
     },
     cardTopLeft: {
       flex: 1,
     },
     header: {
-      marginBottom: scaler(8),
+      marginBottom: 8,
     },
     titleText: {
-      lineHeight: scaler(22),
+      lineHeight: 22,
     },
     metaContainer: {
       flexDirection: "row",
       alignItems: "center",
-      marginBottom: scaler(8),
+      marginBottom: 8,
     },
     sourceText: {
-      maxWidth: scaler(200),
+      maxWidth: 200,
       color: theme.colors.text.subtle,
     },
     dotText: {
       color: theme.colors.text.subtle,
-      marginHorizontal: scaler(4),
+      marginHorizontal: 4,
     },
     readTimeText: {
       color: theme.colors.text.subtle,
@@ -274,7 +273,7 @@ const makeStyles = (theme: Theme, isDarkMode: boolean) =>
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
-      marginTop: scaler(0),
+      marginTop: 0,
     },
     leftSectionOfTagsAndMenu: {
       flex: 1,
@@ -283,7 +282,7 @@ const makeStyles = (theme: Theme, isDarkMode: boolean) =>
       overflow: "hidden",
     },
     favoriteContainer: {
-      marginRight: scaler(4),
+      marginRight: 4,
     },
     tagsContainerWrapper: {
       position: "relative",
@@ -291,36 +290,36 @@ const makeStyles = (theme: Theme, isDarkMode: boolean) =>
       flexDirection: "row",
       alignItems: "center",
       overflow: "hidden",
-      marginRight: scaler(8),
+      marginRight: 8,
     },
     tagsScrollContent: {
       flexDirection: "row",
       alignItems: "center",
-      paddingRight: scaler(40),
+      paddingRight: 40,
     },
     tagItemContainer: {
       flexDirection: "row",
       alignItems: "center",
       backgroundColor: theme.colors.gray[200],
-      paddingHorizontal: scaler(10),
-      paddingVertical: scaler(2),
-      borderRadius: scaler(8),
-      marginRight: scaler(4),
+      paddingHorizontal: 10,
+      paddingVertical: 2,
+      borderRadius: 8,
+      marginRight: 4,
       minHeight: 24,
     },
     tagIconSvg: {
-      marginRight: scaler(2),
+      marginRight: 2,
     },
     tagText: {
-      marginLeft: scaler(4),
+      marginLeft: 4,
     },
     menuButton: {
-      paddingLeft: scaler(8),
+      paddingLeft: 8,
     },
     thumbnailContainer: {
-      width: scaler(100),
-      height: scaler(75),
-      borderRadius: scaler(4),
+      width: 100,
+      height: 75,
+      borderRadius: 4,
       overflow: "hidden",
     },
     thumbnail: {
@@ -332,7 +331,7 @@ const makeStyles = (theme: Theme, isDarkMode: boolean) =>
       right: 0,
       top: 0,
       bottom: 0,
-      width: scaler(60),
+      width: 60,
       zIndex: 1,
       pointerEvents: "none",
     },

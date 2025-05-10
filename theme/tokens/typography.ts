@@ -1,4 +1,3 @@
-import { scaler } from "@/utils";
 import { Platform, TextStyle } from "react-native";
 
 // Font family definitions
@@ -56,9 +55,9 @@ export const createTextStyle = (
   fontSet: "inter" | "literata" = "inter",
 ): TextStyle => {
   const style: TextStyle = {
-    fontSize: scaler(size),
-    lineHeight: scaler(lineHeight),
-    letterSpacing: scaler(letterSpacing),
+    fontSize: size,
+    lineHeight: lineHeight,
+    letterSpacing: letterSpacing,
     includeFontPadding: false, // For consistency between iOS and Android
   };
 

@@ -3,7 +3,6 @@ import { View, StyleSheet } from "react-native";
 import { useTheme, type Theme } from "@/theme";
 import { ItemFilter } from "@/types/item";
 import { ThemeText } from "@/components/core";
-import { scaler } from "@/utils";
 import Svg, { Path } from "react-native-svg";
 
 interface NoItemsFoundProps {
@@ -140,19 +139,19 @@ const makeStyles = (theme: Theme) =>
       flex: 1,
       justifyContent: "center",
       alignItems: "center",
-      padding: scaler(40),
+      padding: 40,
       backgroundColor: theme.colors.background.default,
     },
     message: {
-      fontSize: scaler(20),
-      lineHeight: scaler(36),
-      marginTop: scaler(16),
+      fontSize: 20,
+      lineHeight: 36,
+      marginTop: 16,
       textAlign: "center",
-      marginBottom: scaler(8),
+      marginBottom: 8,
       color: theme.colors.text.primary,
     },
     subMessage: {
-      lineHeight: scaler(22),
+      lineHeight: 22,
       color: theme.colors.text.secondary,
       textAlign: "center",
     },
