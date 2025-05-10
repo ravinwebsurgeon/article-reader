@@ -104,12 +104,7 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({ item, onPress, style
           <View style={styles.cardTop}>
             <View style={styles.cardTopLeft}>
               <View style={styles.header}>
-                <ThemeText
-                  numberOfLines={2}
-                  variant="h7"
-                  style={styles.titleText}
-                  color={isDarkMode ? theme.colors.text.primary : theme.colors.text.dark}
-                >
+                <ThemeText numberOfLines={2} variant="h6">
                   {item.title}
                 </ThemeText>
               </View>
@@ -251,7 +246,7 @@ const makeStyles = (theme: Theme, isDarkMode: boolean) =>
       marginBottom: 8,
     },
     titleText: {
-      lineHeight: 22,
+      // lineHeight: 22, // Removed to use variant's default lineHeight
     },
     metaContainer: {
       flexDirection: "row",
