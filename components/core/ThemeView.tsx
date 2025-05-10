@@ -1,13 +1,13 @@
-import { useTheme } from '@/theme/hooks';
-import React from 'react';
-import { View, StyleSheet, ViewProps } from 'react-native';
+import { useTheme } from "@/theme/hooks";
+import React from "react";
+import { View, StyleSheet, ViewProps } from "react-native";
 
 export type ThemeViewProps = ViewProps & {
   backgroundColor?: string;
   elevation?: 0 | 1 | 2 | 3 | 4 | 5;
-  padded?: boolean | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-  margin?: boolean | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-  rounded?: boolean | 'sm' | 'md' | 'lg' | 'full';
+  padded?: boolean | "xs" | "sm" | "md" | "lg" | "xl";
+  margin?: boolean | "xs" | "sm" | "md" | "lg" | "xl";
+  rounded?: boolean | "sm" | "md" | "lg" | "full";
   centered?: boolean;
   row?: boolean;
 };
@@ -32,15 +32,15 @@ export const ThemeView: React.FC<ThemeViewProps> = ({
     if (padded === true) return theme.spacing.md;
 
     switch (padded) {
-      case 'xs':
+      case "xs":
         return theme.spacing.xs;
-      case 'sm':
+      case "sm":
         return theme.spacing.sm;
-      case 'md':
+      case "md":
         return theme.spacing.md;
-      case 'lg':
+      case "lg":
         return theme.spacing.lg;
-      case 'xl':
+      case "xl":
         return theme.spacing.xl;
       default:
         return theme.spacing.md;
@@ -53,15 +53,15 @@ export const ThemeView: React.FC<ThemeViewProps> = ({
     if (margin === true) return theme.spacing.md;
 
     switch (margin) {
-      case 'xs':
+      case "xs":
         return theme.spacing.xs;
-      case 'sm':
+      case "sm":
         return theme.spacing.sm;
-      case 'md':
+      case "md":
         return theme.spacing.md;
-      case 'lg':
+      case "lg":
         return theme.spacing.lg;
-      case 'xl':
+      case "xl":
         return theme.spacing.xl;
       default:
         return theme.spacing.md;
@@ -74,13 +74,13 @@ export const ThemeView: React.FC<ThemeViewProps> = ({
     if (rounded === true) return theme.spacing.sm;
 
     switch (rounded) {
-      case 'sm':
+      case "sm":
         return theme.spacing.xs;
-      case 'md':
+      case "md":
         return theme.spacing.sm;
-      case 'lg':
+      case "lg":
         return theme.spacing.md;
-      case 'full':
+      case "full":
         return 9999;
       default:
         return theme.spacing.sm;
@@ -108,10 +108,10 @@ export const ThemeView: React.FC<ThemeViewProps> = ({
 
 const styles = StyleSheet.create({
   centered: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   row: {
-    flexDirection: 'row',
+    flexDirection: "row",
   },
 });

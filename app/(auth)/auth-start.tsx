@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect } from "react";
 import {
   StyleSheet,
   TouchableOpacity,
@@ -7,16 +7,16 @@ import {
   ScrollView,
   Alert,
   SafeAreaView,
-} from 'react-native';
-import { router } from 'expo-router';
-import { resetAuthError } from '@/redux/slices/authSlice';
-import { useAppDispatch, useAppSelector } from '@/redux/hook';
-import { useForm } from 'react-hook-form';
-import { COLORS, lightColors } from '@/theme';
-import { useTheme } from '@/theme';
-import { ThemeButton, ThemeText, ThemeView } from '@/components';
-import { scaler } from '@/utils';
-import { SvgIcon } from '@/components/SvgIcon';
+} from "react-native";
+import { router } from "expo-router";
+import { resetAuthError } from "@/redux/slices/authSlice";
+import { useAppDispatch, useAppSelector } from "@/redux/hook";
+import { useForm } from "react-hook-form";
+import { COLORS, lightColors } from "@/theme";
+import { useTheme } from "@/theme";
+import { ThemeButton, ThemeText, ThemeView } from "@/components";
+import { scaler } from "@/utils";
+import { SvgIcon } from "@/components/SvgIcon";
 
 interface LoginFormData {
   email: string;
@@ -30,27 +30,27 @@ function AuthStart() {
   const { error } = useAppSelector((state) => state.auth);
   const { handleSubmit } = useForm<LoginFormData>({
     defaultValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
     },
   });
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      router.push('/(auth)/login');
+      router.push("/(auth)/login");
     } catch (err) {
-      console.error('Login failed', err);
+      console.error("Login failed", err);
     }
   };
 
   const navigateToSignUp = () => {
-    router.push('/(auth)/signup');
+    router.push("/(auth)/signup");
   };
 
   // Show error alert if needed
   useEffect(() => {
     if (error) {
-      Alert.alert('Login Error', error);
+      Alert.alert("Login Error", error);
       dispatch(resetAuthError());
     }
   }, [error, dispatch]);
@@ -58,7 +58,7 @@ function AuthStart() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background.default }]}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardAvoidingContainer}
       >
         <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     paddingBottom: scaler(24),
   },
   header: {
-    alignItems: 'flex-start',
+    alignItems: "flex-start",
     marginBottom: scaler(40),
     marginTop: scaler(20),
   },
@@ -135,19 +135,19 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: scaler(28),
-    fontWeight: 'bold',
-    textAlign: 'left',
+    fontWeight: "bold",
+    textAlign: "left",
     marginBottom: scaler(8),
   },
   subtitle: {
     fontSize: scaler(17),
     lineHeight: scaler(26),
-    fontWeight: '400',
+    fontWeight: "400",
     color: lightColors.text.disabled,
     marginBottom: scaler(16),
   },
   buttonContainer: {
-    width: '100%',
+    width: "100%",
     marginBottom: scaler(24),
     gap: scaler(16),
   },
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     marginBottom: scaler(20),
   },
   iconContainer: {
-    position: 'absolute',
+    position: "absolute",
     left: scaler(12),
     top: scaler(15),
     zIndex: 1,
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     marginLeft: scaler(12),
   },
   forgotPasswordContainer: {
-    alignSelf: 'flex-end',
+    alignSelf: "flex-end",
     marginBottom: scaler(24),
   },
   forgotPasswordText: {
@@ -181,10 +181,10 @@ const styles = StyleSheet.create({
     fontSize: scaler(14),
   },
   signInButton: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: scaler(28),
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     // shadowColor: COLORS.primary.main,
     // shadowOffset: { width: 0, height: 4 },
     // shadowOpacity: scaler(0.25),
@@ -198,11 +198,11 @@ const styles = StyleSheet.create({
     color: COLORS.primary.main,
     fontSize: scaler(14),
     lineHeight: scaler(18),
-    fontWeight: '700',
+    fontWeight: "700",
   },
   signUpContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginTop: scaler(24),
   },
   signUpText: {
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
   signUpLinkText: {
     color: COLORS.primary.main,
     fontSize: scaler(16),
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
 

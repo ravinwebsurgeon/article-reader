@@ -1,30 +1,29 @@
-import { scaler } from '@/utils';
-import { Platform, TextStyle } from 'react-native';
- 
+import { scaler } from "@/utils";
+import { Platform, TextStyle } from "react-native";
+
 // Font family definitions
 export const fontFamily = {
   inter: {
-    variable: 'InterVariable',
-    variableItalic: 'InterVariable-Italic',
+    variable: "InterVariable",
+    variableItalic: "InterVariable-Italic",
   },
   literata: {
-    variable: 'Literata-VariableFont_opsz,wght',
-    variableItalic: 'Literata-Italic-VariableFont_opsz,wght',
-  }
+    variable: "Literata-VariableFont_opsz,wght",
+    variableItalic: "Literata-Italic-VariableFont_opsz,wght",
+  },
 };
 
-export const getInterVariableStyle = (
-  weight: number = 400,
-  italic: boolean = false
-): TextStyle => {
+export const getInterVariableStyle = (weight: number = 400, italic: boolean = false): TextStyle => {
   return {
     fontFamily: italic ? fontFamily.inter.variableItalic : fontFamily.inter.variable,
-    ...(Platform.OS === 'ios' ? {
-      fontWeight: weight.toString() as TextStyle['fontWeight']
-    } : {
-      fontVariationSettings: `'wght' ${weight}`
-    }),
-    ...(italic && Platform.OS === 'android' ? { fontStyle: 'italic' } : {})
+    ...(Platform.OS === "ios"
+      ? {
+          fontWeight: weight.toString() as TextStyle["fontWeight"],
+        }
+      : {
+          fontVariationSettings: `'wght' ${weight}`,
+        }),
+    ...(italic && Platform.OS === "android" ? { fontStyle: "italic" } : {}),
   };
 };
 
@@ -32,19 +31,21 @@ export const getInterVariableStyle = (
 export const getLiterataVariableStyle = (
   weight: number = 400,
   opticalSize: number = 16, // optical size parameter, typically matches font size
-  italic: boolean = false
+  italic: boolean = false,
 ): TextStyle => {
   return {
     fontFamily: italic ? fontFamily.literata.variableItalic : fontFamily.literata.variable,
-    ...(Platform.OS === 'ios' ? {
-      fontWeight: weight.toString() as TextStyle['fontWeight']
-    } : {
-      fontVariationSettings: `'wght' ${weight}, 'opsz' ${opticalSize}`
-    }),
-    ...(italic && Platform.OS === 'android' ? { fontStyle: 'italic' } : {})
+    ...(Platform.OS === "ios"
+      ? {
+          fontWeight: weight.toString() as TextStyle["fontWeight"],
+        }
+      : {
+          fontVariationSettings: `'wght' ${weight}, 'opsz' ${opticalSize}`,
+        }),
+    ...(italic && Platform.OS === "android" ? { fontStyle: "italic" } : {}),
   };
 };
- 
+
 // Create text style using variable font
 export const createTextStyle = (
   size: number,
@@ -52,7 +53,7 @@ export const createTextStyle = (
   weight: number = 400,
   letterSpacing: number = 0,
   italic: boolean = false,
-  fontSet: 'inter' | 'literata' = 'inter',
+  fontSet: "inter" | "literata" = "inter",
 ): TextStyle => {
   const style: TextStyle = {
     fontSize: scaler(size),
@@ -60,17 +61,17 @@ export const createTextStyle = (
     letterSpacing: scaler(letterSpacing),
     includeFontPadding: false, // For consistency between iOS and Android
   };
-  
+
   // Add variable font styling
-  if (fontSet === 'inter') {
+  if (fontSet === "inter") {
     Object.assign(style, getInterVariableStyle(weight, italic));
   } else {
     Object.assign(style, getLiterataVariableStyle(weight, size, italic));
   }
-  
+
   return style;
 };
- 
+
 // Convenience function for Literata text style
 export const createLiterataStyle = (
   size: number,
@@ -79,9 +80,8 @@ export const createLiterataStyle = (
   letterSpacing: number = 0,
   italic: boolean = false,
 ): TextStyle => {
-  return createTextStyle(size, lineHeight, weight, letterSpacing, italic, 'literata');
+  return createTextStyle(size, lineHeight, weight, letterSpacing, italic, "literata");
 };
-
 
 export const typography = {
   // Headings
@@ -93,13 +93,13 @@ export const typography = {
   h6: createTextStyle(18, 24, 600),
   h7: createTextStyle(16, 24, 600),
   h8: createTextStyle(18, 26, 600),
- 
+
   // Body text
   body1: createTextStyle(16, 24, 400),
   body2: createTextStyle(14, 20, 400),
   body1Bold: createTextStyle(16, 24, 700),
   body2Bold: createTextStyle(14, 20, 700),
- 
+
   // Other text styles
   subtitle1: createTextStyle(16, 24, 500),
   subtitle2: createTextStyle(14, 20, 500),
@@ -107,14 +107,14 @@ export const typography = {
   caption2: createTextStyle(12, 14, 500),
   overline: createTextStyle(10, 14, 500, 1.5),
   tagStyle: createTextStyle(13, 24, 600),
- 
+
   // meta
   meta: createTextStyle(16, 18, 400),
   meta2: createTextStyle(10, 14, 400),
- 
+
   //guide
   guide: createTextStyle(11, 14, 500),
- 
+
   // Button text
   button: createTextStyle(14, 20, 600),
   button_small: createTextStyle(12, 18, 600),
@@ -130,5 +130,5 @@ export const typography = {
     heading3: createLiterataStyle(20, 28, 600),
     caption: createLiterataStyle(14, 20, 400, 0, true),
     quote: createLiterataStyle(18, 28, 400, 0, true),
-  }
+  },
 };

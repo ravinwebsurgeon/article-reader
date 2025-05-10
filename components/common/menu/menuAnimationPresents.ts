@@ -1,4 +1,4 @@
-import { ActionMenuPosition } from './ReusableActionMenu';
+import { ActionMenuPosition } from "./ReusableActionMenu";
 
 /**
  * Animation presets for menu appearance and behavior
@@ -16,7 +16,7 @@ export const menuAnimationPresets = {
     scaleFrom: 0.8,
     translateY: 10,
   },
-  
+
   /**
    * Fast animation preset - for quick interactions
    * - Short duration
@@ -29,7 +29,7 @@ export const menuAnimationPresets = {
     scaleFrom: 0.9,
     translateY: 5,
   },
-  
+
   /**
    * Smooth animation preset - for elegant transitions
    * - Longer duration
@@ -42,7 +42,7 @@ export const menuAnimationPresets = {
     scaleFrom: 0.85,
     translateY: 15,
   },
-  
+
   /**
    * Bouncy animation preset - for playful interactions
    * - Medium duration
@@ -65,48 +65,48 @@ export const menuPositionPresets = {
    * Bottom-right position relative to the anchor
    */
   bottomRight: {
-    position: 'bottom' as const,
-    align: 'end' as const,
+    position: "bottom" as const,
+    align: "end" as const,
   },
-  
+
   /**
    * Bottom-left position relative to the anchor
    */
   bottomLeft: {
-    position: 'bottom' as const,
-    align: 'start' as const,
+    position: "bottom" as const,
+    align: "start" as const,
   },
-  
+
   /**
    * Top-right position relative to the anchor
    */
   topRight: {
-    position: 'top' as const,
-    align: 'end' as const,
+    position: "top" as const,
+    align: "end" as const,
   },
-  
+
   /**
    * Top-left position relative to the anchor
    */
   topLeft: {
-    position: 'top' as const,
-    align: 'start' as const,
+    position: "top" as const,
+    align: "start" as const,
   },
-  
+
   /**
    * Centered below the anchor
    */
   bottomCenter: {
-    position: 'bottom' as const,
-    align: 'center' as const,
+    position: "bottom" as const,
+    align: "center" as const,
   },
-  
+
   /**
    * Centered above the anchor
    */
   topCenter: {
-    position: 'top' as const,
-    align: 'center' as const,
+    position: "top" as const,
+    align: "center" as const,
   },
 };
 
@@ -116,7 +116,7 @@ export const menuPositionPresets = {
  */
 export const createMenuPosition = (
   preset: keyof typeof menuPositionPresets,
-  additionalProps: Partial<ActionMenuPosition> = {}
+  additionalProps: Partial<ActionMenuPosition> = {},
 ): ActionMenuPosition => {
   return {
     ...menuPositionPresets[preset],
