@@ -3,6 +3,8 @@ const { defineConfig } = require("eslint/config");
 const expoConfig = require("eslint-config-expo/flat");
 const typescript = require("@typescript-eslint/eslint-plugin");
 const typescriptParser = require("@typescript-eslint/parser");
+const prettier = require("eslint-plugin-prettier");
+const prettierConfig = require("eslint-config-prettier");
 
 module.exports = defineConfig([
   expoConfig,
@@ -16,6 +18,7 @@ module.exports = defineConfig([
     },
     plugins: {
       "@typescript-eslint": typescript,
+      "prettier": prettier,
     },
     rules: {
       "@typescript-eslint/no-explicit-any": "warn",
@@ -26,8 +29,10 @@ module.exports = defineConfig([
       "@typescript-eslint/prefer-nullish-coalescing": "warn",
       "@typescript-eslint/prefer-optional-chain": "warn",
       "@typescript-eslint/switch-exhaustiveness-check": "warn",
+      "prettier/prettier": "error",
     },
   },
+  prettierConfig,
   {
     ignores: ["dist/*"],
   },
