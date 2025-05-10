@@ -10,20 +10,20 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
+  ViewStyle,
+  TextStyle,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
-import { useAppSelector } from "@/redux/hook";
-import { selectActiveTheme } from "@/redux/utils";
+import { useTheme } from "@/theme";
 import { isValidUrl } from "@/utils/validation";
-import { COLORS, lightColors } from "@/theme";
 import { createItem } from "@/database/hooks/withItems";
 
 export default function AddArticleScreen() {
   const router = useRouter();
-  const activeTheme = useAppSelector(selectActiveTheme);
-  const isDarkMode = activeTheme === "dark";
+  const theme = useTheme();
+  const isDarkMode = theme.mode === "dark";
 
   // State
   const [url, setUrl] = useState("");
@@ -83,46 +83,85 @@ export default function AddArticleScreen() {
     }
   };
 
+  const dynamicStyles: {
+    container: ViewStyle;
+    headerTitle: TextStyle;
+    sectionTitle: TextStyle;
+    input: TextStyle;
+    cancelButton: TextStyle;
+    saveButtonText: TextStyle;
+    infoText: TextStyle;
+  } = {
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background.default,
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontWeight: "600",
+      color: theme.colors.text.primary,
+    },
+    sectionTitle: {
+      fontSize: 16,
+      fontWeight: "600",
+      marginBottom: 12,
+      color: theme.colors.text.primary,
+    },
+    input: {
+      height: 100,
+      borderWidth: 1,
+      borderRadius: 8,
+      padding: 12,
+      fontSize: 16,
+      textAlignVertical: "top",
+      color: theme.colors.text.primary,
+      backgroundColor: theme.colors.inputBackground,
+      borderColor: theme.colors.divider,
+    },
+    cancelButton: {
+      fontSize: 16,
+      color: theme.colors.primary.main,
+      padding: 4,
+    },
+    saveButtonText: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: theme.colors.primary.contrast,
+    },
+    infoText: {
+      fontSize: 14,
+      color: theme.colors.text.secondary,
+      textAlign: "center",
+      marginTop: 24,
+    },
+  };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={[
-        styles.container,
-        { backgroundColor: isDarkMode ? COLORS.darkBackground : lightColors.background.default },
-      ]}
+      style={[styles.container, dynamicStyles.container]}
     >
       <StatusBar style={isDarkMode ? "light" : "dark"} />
 
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { borderBottomColor: theme.colors.divider }]}>
         <TouchableOpacity onPress={handleBack}>
-          <Text style={styles.cancelButton}>Cancel</Text>
+          <Text style={dynamicStyles.cancelButton}>Cancel</Text>
         </TouchableOpacity>
 
-        <Text style={[styles.headerTitle, { color: isDarkMode ? COLORS.white : COLORS.text }]}>
-          Add to Pocket
-        </Text>
+        <Text style={dynamicStyles.headerTitle}>Add to Pocket</Text>
 
         <View style={{ width: 50 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={[styles.sectionTitle, { color: isDarkMode ? COLORS.white : COLORS.text }]}>
-          Add a URL
-        </Text>
+        <Text style={dynamicStyles.sectionTitle}>Add a URL</Text>
 
         <View style={styles.inputContainer}>
           <TextInput
-            style={[
-              styles.input,
-              {
-                color: isDarkMode ? COLORS.white : COLORS.text,
-                backgroundColor: isDarkMode ? COLORS.darkGray : COLORS.white,
-                borderColor: isDarkMode ? COLORS.darkBorder : COLORS.lightBorder,
-              },
-            ]}
+            style={dynamicStyles.input}
             placeholder="https://example.com/article"
-            placeholderTextColor={lightColors.text.disabled}
+            placeholderTextColor={theme.colors.text.disabled}
             value={url}
             onChangeText={setUrl}
             autoCapitalize="none"
@@ -134,26 +173,30 @@ export default function AddArticleScreen() {
 
           {url.length > 0 && (
             <TouchableOpacity style={styles.clearButton} onPress={handleClear}>
-              <Ionicons name="close-circle" size={20} color={COLORS.darkGray} />
+              <Ionicons name="close-circle" size={20} color={theme.colors.text.secondary} />
             </TouchableOpacity>
           )}
         </View>
 
         <TouchableOpacity
-          style={[styles.saveButton, { opacity: url.trim().length === 0 || isLoading ? 0.6 : 1 }]}
+          style={[
+            styles.saveButton,
+            { backgroundColor: theme.colors.primary.main },
+            { opacity: url.trim().length === 0 || isLoading ? 0.6 : 1 },
+          ]}
           onPress={handleSaveArticle}
           disabled={url.trim().length === 0 || isLoading}
         >
           {isLoading ? (
-            <ActivityIndicator color={COLORS.white} size="small" />
+            <ActivityIndicator color={theme.colors.primary.contrast} size="small" />
           ) : (
-            <Text style={styles.saveButtonText}>Save to Pocket</Text>
+            <Text style={dynamicStyles.saveButtonText}>Save to Pocket</Text>
           )}
         </TouchableOpacity>
 
-        <View style={styles.divider} />
+        <View style={[styles.divider, { backgroundColor: theme.colors.divider }]} />
 
-        <Text style={styles.infoText}>
+        <Text style={dynamicStyles.infoText}>
           You can also save content to Pocket using the Share menu from your browser or other apps.
         </Text>
       </ScrollView>
@@ -173,66 +216,29 @@ const styles = StyleSheet.create({
     paddingTop: 48,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.lightBorder,
-  },
-  cancelButton: {
-    fontSize: 16,
-    color: COLORS.primary.main,
-    padding: 4,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
   },
   scrollContent: {
     padding: 20,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 12,
   },
   inputContainer: {
     position: "relative",
     marginBottom: 24,
   },
-  input: {
-    height: 100,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingTop: 12,
-    fontSize: 16,
-    textAlignVertical: "top",
-  },
   clearButton: {
     position: "absolute",
-    top: 12,
     right: 12,
+    top: 12,
     padding: 4,
   },
   saveButton: {
-    backgroundColor: COLORS.primary.main,
-    height: 50,
-    borderRadius: 25,
+    height: 48,
+    borderRadius: 24,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 30,
-  },
-  saveButtonText: {
-    color: COLORS.white,
-    fontSize: 16,
-    fontWeight: "600",
+    marginBottom: 24,
   },
   divider: {
     height: 1,
-    backgroundColor: COLORS.lightBorder,
-    marginBottom: 30,
-  },
-  infoText: {
-    fontSize: 14,
-    color: COLORS.darkGray,
-    textAlign: "center",
-    lineHeight: 20,
+    marginVertical: 24,
   },
 });
