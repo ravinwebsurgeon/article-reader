@@ -1,3 +1,25 @@
+/**
+ * Pocket App Color System
+ *
+ * This file defines the color system for the Pocket app, including:
+ * - ColorScheme type for light/dark mode
+ * - ColorPalette interface defining all available colors
+ * - Base colors shared between themes
+ * - Light and dark theme color palettes
+ *
+ * Usage:
+ * 1. For theme-aware components, use the useTheme() hook:
+ *    const theme = useTheme();
+ *    theme.colors.primary.main
+ *
+ * 2. For direct color access, use the useColors() hook:
+ *    const colors = useColors();
+ *    colors.primary.main
+ *
+ * 3. For specific color needs, use the useThemeColor() hook:
+ *    const color = useThemeColor({ light: '#fff', dark: '#000' }, 'primary');
+ */
+
 export type ColorScheme = "light" | "dark";
 
 export interface ColorPalette {
@@ -200,38 +222,4 @@ export const darkColors: ColorPalette = {
 const tintColorLight = "#ef3e55";
 const tintColorDark = "#fff";
 
-export const COLORS = {
-  ...baseColors,
-  // Core brand colors from new palette
-  accent: "#f5a524", // Buttercup - accent color
-
-  // Background colors
-  darkBackground: "#1E1E1E",
-
-  // Legacy colors kept for compatibility
-  tasksConBorder: "#EAE9E9",
-  text: "#1C1F21",
-
-  // New requested colors
-  lightGray: "#E8E8E8", // Light gray for subtle backgrounds
-  lightBorder: "#DDDDDD", // Light border color
-  darkGray: "#555555", // Dark gray for text and icons
-  darkBorder: "#999999", // Dark border color
-
-  light: {
-    text: "#1C1F21",
-    background: "#fff",
-    tint: tintColorLight,
-    icon: "#687076",
-    tabIconDefault: "#687076",
-    tabIconSelected: tintColorLight,
-  },
-  dark: {
-    text: "#ECEDEE",
-    background: "#151718",
-    tint: tintColorDark,
-    icon: "#9BA1A6",
-    tabIconDefault: "#9BA1A6",
-    tabIconSelected: tintColorDark,
-  },
-};
+export { tintColorLight, tintColorDark };
