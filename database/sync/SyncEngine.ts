@@ -1,14 +1,14 @@
-import { synchronize } from '@nozbe/watermelondb/sync';
-import { Database } from '@nozbe/watermelondb';
-import Constants from 'expo-constants';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { debounce, DebouncedFunc } from 'lodash-es';
-import { Subscription } from 'rxjs';
+import { synchronize } from "@nozbe/watermelondb/sync";
+import { Database } from "@nozbe/watermelondb";
+import Constants from "expo-constants";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { debounce, DebouncedFunc } from "lodash-es";
+import { Subscription } from "rxjs";
 
 // API URL from environment configuration.
-const API_URL = Constants.expoConfig?.extra?.apiUrl || 'https://api.pckt.dev/v4';
+const API_URL = Constants.expoConfig?.extra?.apiUrl || "https://api.pckt.dev/v4";
 
-const LOG_PREFIX = '[SyncEngine]';
+const LOG_PREFIX = "[SyncEngine]";
 
 /**
  * Represents the state of a sync promise operation
@@ -66,13 +66,13 @@ class SyncEngine {
       this.stopWatchForChanges();
     }
 
-    const tables = ['items'];
-    console.log(`${LOG_PREFIX} Setting up watch for changes on tables: ${tables.join(', ')}`);
+    const tables = ["items"];
+    console.log(`${LOG_PREFIX} Setting up watch for changes on tables: ${tables.join(", ")}`);
     this.subscription = this.database.withChangesForTables(tables).subscribe((changes) => {
       if (changes) {
         // Only trigger sync if at least one record has a status other than 'synced'
         // This prevents infinite loops where sync operations trigger more syncs
-        const hasLocalChanges = changes.some((change) => change.record.syncStatus !== 'synced');
+        const hasLocalChanges = changes.some((change) => change.record.syncStatus !== "synced");
 
         if (hasLocalChanges) {
           console.log(`${LOG_PREFIX} Auto sync triggered due to local changes`);
@@ -107,7 +107,7 @@ class SyncEngine {
    */
   async loadToken(): Promise<string | null> {
     try {
-      const token = await AsyncStorage.getItem('auth_token');
+      const token = await AsyncStorage.getItem("auth_token");
       this.token = token; // Update the instance property
       return token;
     } catch (error) {
@@ -191,11 +191,11 @@ class SyncEngine {
       try {
         this.token = await this.loadToken();
         // Ensure token was successfully loaded.
-        if (!this.token) throw new Error('Authentication token could not be loaded');
+        if (!this.token) throw new Error("Authentication token could not be loaded");
       } catch (error) {
         console.error(`${LOG_PREFIX} Failed to load token for sync:`, error);
         // If token loading fails, reject the promise and clean up immediately.
-        this._finalizeSync(new Error('Authentication token not set'));
+        this._finalizeSync(new Error("Authentication token not set"));
         return; // Stop execution; `_finalizeSync` handles cleanup.
       }
     }
@@ -204,7 +204,7 @@ class SyncEngine {
     // Check if database is initialized
     if (!this.database) {
       console.error(`${LOG_PREFIX} Database not initialized`);
-      this._finalizeSync(new Error('Database not initialized'));
+      this._finalizeSync(new Error("Database not initialized"));
       return;
     }
 
@@ -222,17 +222,17 @@ class SyncEngine {
         pullChanges: async ({ lastPulledAt, schemaVersion, migration }) => {
           // Fetch changes from the server since the last pull.
           const params = new URLSearchParams();
-          params.set('last_pulled_at', String(lastPulledAt || 0));
-          params.set('schema_version', String(schemaVersion));
-          params.set('migration', JSON.stringify(migration));
+          params.set("last_pulled_at", String(lastPulledAt || 0));
+          params.set("schema_version", String(schemaVersion));
+          params.set("migration", JSON.stringify(migration));
 
           console.log(`${LOG_PREFIX} Pulling changes...`);
           const pullStartTime = Date.now();
           const response = await fetch(`${API_URL}/sync?${params.toString()}`, {
-            method: 'GET',
+            method: "GET",
             headers: {
-              'Authorization': `Bearer ${this.token}`,
-              'Content-Type': 'application/json',
+              "Authorization": `Bearer ${this.token}`,
+              "Content-Type": "application/json",
             },
           });
 
@@ -259,15 +259,15 @@ class SyncEngine {
         pushChanges: async ({ changes, lastPulledAt }) => {
           // Send local changes to the server.
           const params = new URLSearchParams();
-          params.set('last_pulled_at', String(lastPulledAt));
+          params.set("last_pulled_at", String(lastPulledAt));
 
           console.log(`${LOG_PREFIX} Pushing changes...`);
           const pushStartTime = Date.now();
           const response = await fetch(`${API_URL}/sync?${params.toString()}`, {
-            method: 'POST',
+            method: "POST",
             headers: {
-              'Authorization': `Bearer ${this.token}`,
-              'Content-Type': 'application/json',
+              "Authorization": `Bearer ${this.token}`,
+              "Content-Type": "application/json",
             },
             body: JSON.stringify(changes),
           });

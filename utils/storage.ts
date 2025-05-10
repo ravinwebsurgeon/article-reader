@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 /**
  * Wrapper for AsyncStorage with type safety and error handling
@@ -14,7 +14,7 @@ export const storage = {
       const jsonValue = JSON.stringify(value);
       await AsyncStorage.setItem(key, jsonValue);
     } catch (error) {
-      console.error('AsyncStorage set error:', error);
+      console.error("AsyncStorage set error:", error);
       throw error;
     }
   },
@@ -30,7 +30,7 @@ export const storage = {
       if (jsonValue === null) return defaultValue;
       return JSON.parse(jsonValue) as T;
     } catch (error) {
-      console.error('AsyncStorage get error:', error);
+      console.error("AsyncStorage get error:", error);
       return defaultValue;
     }
   },
@@ -43,7 +43,7 @@ export const storage = {
     try {
       await AsyncStorage.removeItem(key);
     } catch (error) {
-      console.error('AsyncStorage remove error:', error);
+      console.error("AsyncStorage remove error:", error);
       throw error;
     }
   },
@@ -55,7 +55,7 @@ export const storage = {
     try {
       await AsyncStorage.clear();
     } catch (error) {
-      console.error('AsyncStorage clear error:', error);
+      console.error("AsyncStorage clear error:", error);
       throw error;
     }
   },
@@ -68,7 +68,7 @@ export const storage = {
       const keys = await AsyncStorage.getAllKeys();
       return [...keys]; // Convert readonly array to mutable array
     } catch (error) {
-      console.error('AsyncStorage getAllKeys error:', error);
+      console.error("AsyncStorage getAllKeys error:", error);
       return [];
     }
   },
@@ -90,7 +90,7 @@ export const storage = {
         {} as Record<string, T>,
       );
     } catch (error) {
-      console.error('AsyncStorage multiGet error:', error);
+      console.error("AsyncStorage multiGet error:", error);
       return {};
     }
   },

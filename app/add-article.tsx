@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -10,23 +10,23 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { Ionicons } from '@expo/vector-icons';
-import { useAppSelector } from '@/redux/hook';
-import { selectActiveTheme } from '@/redux/utils';
-import { isValidUrl } from '@/utils/validation';
-import { COLORS, lightColors } from '@/theme';
-import { createItem } from '@/database/hooks/withItems';
+} from "react-native";
+import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { Ionicons } from "@expo/vector-icons";
+import { useAppSelector } from "@/redux/hook";
+import { selectActiveTheme } from "@/redux/utils";
+import { isValidUrl } from "@/utils/validation";
+import { COLORS, lightColors } from "@/theme";
+import { createItem } from "@/database/hooks/withItems";
 
 export default function AddArticleScreen() {
   const router = useRouter();
   const activeTheme = useAppSelector(selectActiveTheme);
-  const isDarkMode = activeTheme === 'dark';
+  const isDarkMode = activeTheme === "dark";
 
   // State
-  const [url, setUrl] = useState('');
+  const [url, setUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   // Handle navigation back
@@ -36,25 +36,25 @@ export default function AddArticleScreen() {
 
   // Handle URL input clear
   const handleClear = () => {
-    setUrl('');
+    setUrl("");
   };
 
   // Handle save article
   const handleSaveArticle = async () => {
     // Validate URL
     if (!url.trim()) {
-      Alert.alert('Error', 'Please enter a URL');
+      Alert.alert("Error", "Please enter a URL");
       return;
     }
 
     // Add https if not present
     let formattedUrl = url.trim();
-    if (!formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
+    if (!formattedUrl.startsWith("http://") && !formattedUrl.startsWith("https://")) {
       formattedUrl = `https://${formattedUrl}`;
     }
 
     if (!isValidUrl(formattedUrl)) {
-      Alert.alert('Error', 'Please enter a valid URL');
+      Alert.alert("Error", "Please enter a valid URL");
       return;
     }
 
@@ -64,20 +64,20 @@ export default function AddArticleScreen() {
       await createItem(formattedUrl);
 
       // Show success alert with options
-      Alert.alert('Article Saved', 'The article has been saved to your Pocket.', [
+      Alert.alert("Article Saved", "The article has been saved to your Pocket.", [
         {
-          text: 'Add Another',
-          onPress: () => setUrl(''),
-          style: 'default',
+          text: "Add Another",
+          onPress: () => setUrl(""),
+          style: "default",
         },
         {
-          text: 'View List',
+          text: "View List",
           onPress: handleBack,
-          style: 'default',
+          style: "default",
         },
       ]);
     } catch {
-      Alert.alert('Error', 'There was a problem saving this article. Please try again.');
+      Alert.alert("Error", "There was a problem saving this article. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -85,13 +85,13 @@ export default function AddArticleScreen() {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={[
         styles.container,
         { backgroundColor: isDarkMode ? COLORS.darkBackground : lightColors.background.default },
       ]}
     >
-      <StatusBar style={isDarkMode ? 'light' : 'dark'} />
+      <StatusBar style={isDarkMode ? "light" : "dark"} />
 
       {/* Header */}
       <View style={styles.header}>
@@ -166,9 +166,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingTop: 48,
     paddingBottom: 16,
@@ -182,18 +182,18 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   scrollContent: {
     padding: 20,
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 12,
   },
   inputContainer: {
-    position: 'relative',
+    position: "relative",
     marginBottom: 24,
   },
   input: {
@@ -203,10 +203,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingTop: 12,
     fontSize: 16,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
   },
   clearButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 12,
     right: 12,
     padding: 4,
@@ -215,14 +215,14 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary.main,
     height: 50,
     borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 30,
   },
   saveButtonText: {
     color: COLORS.white,
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   divider: {
     height: 1,
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
   infoText: {
     fontSize: 14,
     color: COLORS.darkGray,
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 20,
   },
 });

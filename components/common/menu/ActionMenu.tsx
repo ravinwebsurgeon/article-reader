@@ -1,10 +1,10 @@
-import React, { useMemo } from 'react';
-import { StyleSheet, Modal, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
-import { useTheme, type Theme } from '@/theme';
-import Item from '@/database/models/ItemModel';
-import { ThemeText, ThemeView } from '@/components/core';
-import { scaler } from '@/utils';
-import { SvgIcon } from '@/components/SvgIcon';
+import React, { useMemo } from "react";
+import { StyleSheet, Modal, TouchableOpacity, TouchableWithoutFeedback } from "react-native";
+import { useTheme, type Theme } from "@/theme";
+import Item from "@/database/models/ItemModel";
+import { ThemeText, ThemeView } from "@/components/core";
+import { scaler } from "@/utils";
+import { SvgIcon } from "@/components/SvgIcon";
 
 interface ActionMenuProps {
   item: Item;
@@ -21,7 +21,7 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ item, onClose }) => {
       await item.toggleFavorite();
       onClose();
     } catch (error) {
-      console.error('Error toggling favorite:', error);
+      console.error("Error toggling favorite:", error);
     }
   };
 
@@ -31,7 +31,7 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ item, onClose }) => {
       await item.toggleArchived();
       onClose();
     } catch (error) {
-      console.error('Error toggling archive:', error);
+      console.error("Error toggling archive:", error);
     }
   };
 
@@ -41,7 +41,7 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ item, onClose }) => {
       await item.markAsDeleted();
       onClose();
     } catch (error) {
-      console.error('Error deleting item:', error);
+      console.error("Error deleting item:", error);
     }
   };
 
@@ -72,10 +72,10 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ item, onClose }) => {
               {/* Favorite */}
               <TouchableOpacity style={styles.menuItem} onPress={handleFavoriteToggle}>
                 <ThemeText style={styles.menuText}>
-                  {item.favorite ? 'Unfavorite' : 'Favorite'}
+                  {item.favorite ? "Unfavorite" : "Favorite"}
                 </ThemeText>
                 <SvgIcon
-                  name={item.favorite ? 'favorite' : 'favorite'}
+                  name={item.favorite ? "favorite" : "favorite"}
                   size={28}
                   color={item.favorite ? theme.colors.favorite : theme.colors.text.primary}
                 />
@@ -90,7 +90,7 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ item, onClose }) => {
               {/* Archive */}
               <TouchableOpacity style={styles.menuItem} onPress={handleArchiveToggle}>
                 <ThemeText style={styles.menuText}>
-                  {item.archived ? 'Unarchive' : 'Archive'}
+                  {item.archived ? "Unarchive" : "Archive"}
                 </ThemeText>
                 <SvgIcon name="archive" size={28} color={theme.colors.text.primary} />
               </TouchableOpacity>
@@ -114,21 +114,21 @@ const makeStyles = (theme: Theme) =>
   StyleSheet.create({
     modalOverlay: {
       flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
+      justifyContent: "center",
+      alignItems: "center",
       backgroundColor: theme.colors.backdrop,
     },
     menuContainer: {
-      width: '80%',
+      width: "80%",
       borderRadius: scaler(12),
       padding: scaler(8),
       backgroundColor: theme.colors.background.paper,
       ...theme.shadows[3],
     },
     menuItem: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
       padding: scaler(16),
     },
     menuText: {

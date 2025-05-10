@@ -1,9 +1,9 @@
-import React, { useCallback, useState } from 'react';
-import Item from '@/database/models/ItemModel';
-import ReusableActionMenu, { ActionMenuItem, ActionMenuPosition } from './ReusableActionMenu';
-import { useTheme } from '@/theme';
-import { Alert, Share } from 'react-native';
-import TagEditor from '@/screens/EditTag';
+import React, { useCallback, useState } from "react";
+import Item from "@/database/models/ItemModel";
+import ReusableActionMenu, { ActionMenuItem, ActionMenuPosition } from "./ReusableActionMenu";
+import { useTheme } from "@/theme";
+import { Alert, Share } from "react-native";
+import TagEditor from "@/screens/EditTag";
 
 interface ArticleActionMenuProps {
   item: Item;
@@ -51,7 +51,7 @@ const ArticleActionMenu: React.FC<ArticleActionMenuProps> = ({
       onClose();
 
       // Prepare share content
-      const title = item.title || 'Article';
+      const title = item.title || "Article";
       const url = item.url;
 
       await Share.share({
@@ -60,7 +60,7 @@ const ArticleActionMenu: React.FC<ArticleActionMenuProps> = ({
         url: url,
       });
     } catch (error) {
-      console.error('Error sharing article:', error);
+      console.error("Error sharing article:", error);
     }
   }, [item, onClose]);
 
@@ -70,7 +70,7 @@ const ArticleActionMenu: React.FC<ArticleActionMenuProps> = ({
       await item.toggleFavorite();
       onClose();
     } catch (error) {
-      console.error('Error toggling favorite:', error);
+      console.error("Error toggling favorite:", error);
     }
   }, [item, onClose]);
 
@@ -80,7 +80,7 @@ const ArticleActionMenu: React.FC<ArticleActionMenuProps> = ({
       await item.toggleArchived();
       onClose();
     } catch (error) {
-      console.error('Error toggling archive:', error);
+      console.error("Error toggling archive:", error);
     }
   }, [item, onClose]);
 
@@ -91,21 +91,21 @@ const ArticleActionMenu: React.FC<ArticleActionMenuProps> = ({
 
     // Show confirmation alert
     Alert.alert(
-      'Delete Article',
-      'Are you sure you want to delete this article? This action cannot be undone.',
+      "Delete Article",
+      "Are you sure you want to delete this article? This action cannot be undone.",
       [
         {
-          text: 'Cancel',
-          style: 'cancel',
+          text: "Cancel",
+          style: "cancel",
         },
         {
-          text: 'Delete',
-          style: 'destructive',
+          text: "Delete",
+          style: "destructive",
           onPress: async () => {
             try {
               await item.markAsDeleted();
             } catch (error) {
-              console.error('Error deleting item:', error);
+              console.error("Error deleting item:", error);
             }
           },
         },
@@ -118,38 +118,38 @@ const ArticleActionMenu: React.FC<ArticleActionMenuProps> = ({
   const getMenuItems = useCallback((): ActionMenuItem[] => {
     return [
       {
-        id: 'share',
-        label: 'Share',
-        icon: 'share',
+        id: "share",
+        label: "Share",
+        icon: "share",
         onPress: shareArticle,
         dividerAfter: true,
       },
       {
-        id: 'favorite',
-        label: item.favorite ? 'Unfavorite' : 'Favorite',
-        icon: item.favorite ? 'favorite' : 'favorite',
+        id: "favorite",
+        label: item.favorite ? "Unfavorite" : "Favorite",
+        icon: item.favorite ? "favorite" : "favorite",
         iconColor: item.favorite ? theme.colors.favorite : undefined,
         onPress: toggleFavorite,
         dividerAfter: true,
       },
       {
-        id: 'tag',
-        label: 'Tag',
-        icon: 'tag',
+        id: "tag",
+        label: "Tag",
+        icon: "tag",
         onPress: openTagEditor,
         dividerAfter: true,
       },
       {
-        id: 'archive',
-        label: item.archived ? 'Unarchive' : 'Archive',
-        icon: 'archive',
+        id: "archive",
+        label: item.archived ? "Unarchive" : "Archive",
+        icon: "archive",
         onPress: toggleArchived,
         dividerAfter: true,
       },
       {
-        id: 'delete',
-        label: 'Delete',
-        icon: 'trash',
+        id: "delete",
+        label: "Delete",
+        icon: "trash",
         destructive: true,
         onPress: confirmDelete,
       },

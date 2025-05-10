@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
-import { TouchableOpacity, Text, StyleSheet, TouchableOpacityProps } from 'react-native';
-import { useTheme, type Theme } from '@/theme';
+import React, { useMemo } from "react";
+import { TouchableOpacity, Text, StyleSheet, TouchableOpacityProps } from "react-native";
+import { useTheme, type Theme } from "@/theme";
 
 interface TagProps extends TouchableOpacityProps {
   label: string;
@@ -36,8 +36,8 @@ export const Tag: React.FC<TagProps> = ({ label, active = false, onClose, style,
 const makeStyles = (theme: Theme) =>
   StyleSheet.create({
     container: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       paddingVertical: theme.spacing.xs,
       paddingHorizontal: theme.spacing.sm,
       borderRadius: 16,
@@ -60,7 +60,7 @@ const makeStyles = (theme: Theme) =>
     },
     closeIcon: {
       ...theme.typography.caption,
-      fontWeight: 'bold',
+      fontWeight: "bold",
       color: theme.colors.icon,
     },
   });

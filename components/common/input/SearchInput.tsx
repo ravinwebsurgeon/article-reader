@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   TextInput,
@@ -6,9 +6,9 @@ import {
   TouchableOpacity,
   TextInputProps,
   ViewStyle,
-} from 'react-native';
-import { useTheme } from '@/theme';
-import { SearchIcon, CloseIcon } from '../Icons';
+} from "react-native";
+import { useTheme } from "@/theme";
+import { SearchIcon, CloseIcon } from "../Icons";
 
 interface SearchInputProps extends TextInputProps {
   containerStyle?: ViewStyle;
@@ -17,7 +17,7 @@ interface SearchInputProps extends TextInputProps {
 }
 
 export const SearchInput: React.FC<SearchInputProps> = ({
-  placeholder = 'Search...',
+  placeholder = "Search...",
   containerStyle,
   onClear,
   onSearch,
@@ -25,7 +25,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   onChangeText,
   ...rest
 }) => {
-  const [text, setText] = useState(value || '');
+  const [text, setText] = useState(value || "");
   const theme = useTheme();
 
   const handleChangeText = (newText: string) => {
@@ -34,9 +34,9 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   };
 
   const handleClear = () => {
-    setText('');
+    setText("");
     onClear?.();
-    onChangeText?.('');
+    onChangeText?.("");
   };
 
   const handleSubmit = () => {
@@ -76,8 +76,8 @@ export const SearchInput: React.FC<SearchInputProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     height: 44,
     borderRadius: 22,
     paddingHorizontal: 16,
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    height: '100%',
+    height: "100%",
     padding: 0,
   },
   clearButton: {

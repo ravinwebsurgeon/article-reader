@@ -54,7 +54,7 @@ The `ThemeProvider` component provides theme context to the app:
 
 ```tsx
 // Example usage
-import { ThemeProvider } from '@/theme';
+import { ThemeProvider } from "@/theme";
 
 export default function App() {
   return (
@@ -78,7 +78,7 @@ Custom hooks for accessing theme values:
 
 ```tsx
 // Example usage
-import { useTheme, useColors } from '@/theme';
+import { useTheme, useColors } from "@/theme";
 
 function MyComponent() {
   const theme = useTheme();
@@ -112,7 +112,7 @@ Base components with theme integration:
 
 ```tsx
 // Example usage
-import { ThemeView, ThemeText } from '@/components/core';
+import { ThemeView, ThemeText } from "@/components/core";
 
 function MyComponent() {
   return (
@@ -137,7 +137,7 @@ Specialized components for specific UI patterns:
 
 ```tsx
 // Example usage
-import { Card, Tag, SearchInput } from '@/components/ui';
+import { Card, Tag, SearchInput } from "@/components/ui";
 
 function MyComponent() {
   return (
@@ -159,9 +159,9 @@ A themed replacement for the standard View component.
 <ThemeView
   backgroundColor="string" // Optional custom background color
   elevation={0 - 5} // Optional shadow elevation (0-5)
-  padded={true | 'xs' | 'sm' | 'md' | 'lg' | 'xl'} // Optional padding
-  margin={true | 'xs' | 'sm' | 'md' | 'lg' | 'xl'} // Optional margin
-  rounded={true | 'sm' | 'md' | 'lg' | 'full'} // Optional border radius
+  padded={true | "xs" | "sm" | "md" | "lg" | "xl"} // Optional padding
+  margin={true | "xs" | "sm" | "md" | "lg" | "xl"} // Optional margin
+  rounded={true | "sm" | "md" | "lg" | "full"} // Optional border radius
   centered={true | false} // Center children (both axes)
   row={true | false} // Use row direction
   style={StyleProp} // Optional additional styles
@@ -228,15 +228,15 @@ A configurable button component with various styles.
 <ArticleCard
   item={{
     id: 1,
-    title: 'Article Title',
-    source: 'Source Name',
+    title: "Article Title",
+    source: "Source Name",
     readTime: 5,
-    thumbnail: 'https://example.com/image.jpg',
+    thumbnail: "https://example.com/image.jpg",
     favorite: true,
-    tags: ['Technology', 'Science'],
+    tags: ["Technology", "Science"],
   }}
-  onPress={() => console.log('Article pressed')}
-  onMenuPress={() => console.log('Menu pressed')}
+  onPress={() => console.log("Article pressed")}
+  onMenuPress={() => console.log("Menu pressed")}
 />
 ```
 
@@ -245,11 +245,11 @@ A configurable button component with various styles.
 ```tsx
 <FilterTabs
   currentFilter="all"
-  onFilterChange={(filter) => console.log('Filter changed:', filter)}
+  onFilterChange={(filter) => console.log("Filter changed:", filter)}
   options={[
-    { id: 'all', label: 'All', icon: 'list-outline' },
-    { id: 'favorites', label: 'Favorites', icon: 'star-outline' },
-    { id: 'tagged', label: 'Tagged', icon: 'pricetag-outline' },
+    { id: "all", label: "All", icon: "list-outline" },
+    { id: "favorites", label: "Favorites", icon: "star-outline" },
+    { id: "tagged", label: "Tagged", icon: "pricetag-outline" },
   ]}
 />
 ```

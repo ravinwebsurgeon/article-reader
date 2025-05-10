@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, memo } from 'react';
+import React, { useState, useCallback, useMemo, memo } from "react";
 import {
   View,
   FlatList,
@@ -7,24 +7,24 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Image,
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { ItemFilter } from '@/types/item';
-import { Images } from '@/assets';
-import { useAppSelector } from '@/redux/hook';
-import ArticleCard, { ARTICLE_CARD_HEIGHT } from '@/components/common/card/ArticleCard';
-import FilterTabs from '@/components/common/tabBar/FilterTabs';
-import ActionMenu from '@/components/common/menu/ActionMenu';
-import NoItemsFound from '@/components/common/emptyState/NoUIFound';
-import { scaler } from '@/utils';
-import { useTheme } from '@/theme';
-import { syncEngine } from '@/database/sync/SyncEngine';
-import { useItems, withItems } from '@/database/hooks/withItems';
-import Item from '@/database/models/ItemModel';
-import Svg, { Path } from 'react-native-svg';
-import { SortOption } from '@/components/common/menu/SortMenu';
-import { ThemeText } from '@/components';
+} from "react-native";
+import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { ItemFilter } from "@/types/item";
+import { Images } from "@/assets";
+import { useAppSelector } from "@/redux/hook";
+import ArticleCard, { ARTICLE_CARD_HEIGHT } from "@/components/common/card/ArticleCard";
+import FilterTabs from "@/components/common/tabBar/FilterTabs";
+import ActionMenu from "@/components/common/menu/ActionMenu";
+import NoItemsFound from "@/components/common/emptyState/NoUIFound";
+import { scaler } from "@/utils";
+import { useTheme } from "@/theme";
+import { syncEngine } from "@/database/sync/SyncEngine";
+import { useItems, withItems } from "@/database/hooks/withItems";
+import Item from "@/database/models/ItemModel";
+import Svg, { Path } from "react-native-svg";
+import { SortOption } from "@/components/common/menu/SortMenu";
+import { ThemeText } from "@/components";
 
 // Use the exported fixed height from ArticleCard component
 const ITEM_HEIGHT = ARTICLE_CARD_HEIGHT;
@@ -34,17 +34,17 @@ const Header = memo(() => {
   const theme = useTheme();
 
   const navigateToSearch = useCallback(() => {
-    router.push('/search');
+    router.push("/search");
   }, [router]);
 
   const navigateToAddArticle = useCallback(() => {
-    router.push('/add-article');
+    router.push("/add-article");
   }, [router]);
 
   return (
     <View style={styles.header}>
       <View style={styles.logoContainer}>
-        {theme.mode === 'dark' ? (
+        {theme.mode === "dark" ? (
           <Image style={styles.logoIcon} source={Images.pa_dark_logo} />
         ) : (
           <Image style={styles.logoIcon} source={Images.pa_logo} />
@@ -76,7 +76,7 @@ const Header = memo(() => {
   );
 });
 
-Header.displayName = 'Header';
+Header.displayName = "Header";
 
 // Memoized FilterTabs component
 const MemoizedFilterTabs = memo(
@@ -98,13 +98,13 @@ const MemoizedFilterTabs = memo(
         currentSort={currentSort}
         onFilterChange={onFilterChange}
         onSortChange={onSortChange}
-        isDarkMode={theme.mode === 'dark'}
+        isDarkMode={theme.mode === "dark"}
       />
     );
   },
 );
 
-MemoizedFilterTabs.displayName = 'MemoizedFilterTabs';
+MemoizedFilterTabs.displayName = "MemoizedFilterTabs";
 // The base ItemsList component that only re-renders when items change
 const ItemsList = memo(({ items, filter }: { items: Item[]; filter: ItemFilter }) => {
   const router = useRouter();
@@ -117,10 +117,10 @@ const ItemsList = memo(({ items, filter }: { items: Item[]; filter: ItemFilter }
   const handleRefresh = useCallback(async () => {
     try {
       setIsSyncing(true);
-      console.log('Performing refresh sync');
+      console.log("Performing refresh sync");
       await syncEngine.sync();
     } catch (error) {
-      console.error('Sync failed:', error);
+      console.error("Sync failed:", error);
     } finally {
       setIsSyncing(false);
     }
@@ -130,7 +130,7 @@ const ItemsList = memo(({ items, filter }: { items: Item[]; filter: ItemFilter }
   const navigateToArticle = useCallback(
     (item: Item) => {
       router.push({
-        pathname: '/reader/[id]',
+        pathname: "/reader/[id]",
         params: { id: item.id },
       });
     },
@@ -211,7 +211,7 @@ const ItemsList = memo(({ items, filter }: { items: Item[]; filter: ItemFilter }
   );
 });
 
-ItemsList.displayName = 'ItemsList';
+ItemsList.displayName = "ItemsList";
 // Create the enhanced ItemsList with data from withItems HOC
 const EnhancedItemsList = ({ filter, sorted }: { filter: ItemFilter; sorted: SortOption }) => {
   // Use the HOC to get items based on the filter
@@ -226,13 +226,13 @@ const EnhancedItemsList = ({ filter, sorted }: { filter: ItemFilter; sorted: Sor
 
 // Main HomeScreen component that manages filter state
 const HomeScreenWithFilter = () => {
-  const [filter, setFilter] = useState<ItemFilter>('all');
-  const [sorted, setSorted] = useState<SortOption>('newest');
+  const [filter, setFilter] = useState<ItemFilter>("all");
+  const [sorted, setSorted] = useState<SortOption>("newest");
   const theme = useTheme();
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background.default }]}>
-      <StatusBar style={theme.mode === 'dark' ? 'light' : 'dark'} />
+      <StatusBar style={theme.mode === "dark" ? "light" : "dark"} />
 
       {/* These components will not re-render when the filter changes */}
       <Header />
@@ -263,25 +263,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: scaler(16),
     paddingTop: scaler(48),
     paddingBottom: scaler(12),
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   logoContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     width: scaler(50),
     height: scaler(30),
   },
   logoIcon: {
     width: scaler(120),
     height: scaler(30),
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   iconButton: {
     marginLeft: scaler(20),
@@ -289,28 +289,28 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: scaler(40),
   },
   message: {
     fontSize: scaler(20),
     lineHeight: scaler(36),
     marginTop: scaler(16),
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: scaler(8),
   },
   subMessage: {
     lineHeight: scaler(22),
-    textAlign: 'center',
+    textAlign: "center",
   },
   listContent: {
     paddingBottom: scaler(20),
   },
   emptyList: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 
