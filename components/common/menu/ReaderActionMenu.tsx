@@ -1,8 +1,9 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 import Item from '@/database/models/ItemModel';
 import ReusableActionMenu, { ActionMenuItem, ActionMenuPosition } from './ReusableActionMenu';
 import { Linking } from 'react-native';
 import TagEditor from '@/screens/EditTag';
+import { useTheme } from '@/theme';
 
 interface ReaderActionMenuProps {
   item: Item;
@@ -23,6 +24,7 @@ const ReaderActionMenu: React.FC<ReaderActionMenuProps> = ({
   onClose,
   animationDuration,
 }) => {
+  const theme = useTheme();
   const [tagEditorVisible, setTagEditorVisible] = useState(false);
 
   // Open tag editor
@@ -81,7 +83,7 @@ const ReaderActionMenu: React.FC<ReaderActionMenuProps> = ({
         id: 'favorite',
         label: item.favorite ? 'Unfavorite' : 'Favorite',
         icon: item.favorite ? 'favorite' : 'favorite',
-        iconColor: item.favorite ? '#F8E61B' : undefined, // Yellow for favorited items
+        iconColor: item.favorite ? theme.colors.favorite : undefined,
         onPress: async () => {
           try {
             await item.toggleFavorite();
@@ -132,7 +134,7 @@ const ReaderActionMenu: React.FC<ReaderActionMenuProps> = ({
         },
       },
     ];
-  }, [item, openTagEditor, handleOpenInBrowser]);
+  }, [item, openTagEditor, handleOpenInBrowser, theme.colors.favorite]);
 
   return (
     <>

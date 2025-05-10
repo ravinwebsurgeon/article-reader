@@ -11,12 +11,11 @@ import {
   ScrollView,
   Animated,
   Easing,
+  ViewStyle,
 } from 'react-native';
-import { COLORS, darkColors, lightColors, useTheme } from '@/theme';
-import { ThemeText, ThemeView } from '@/components/core';
+import { useTheme, useDarkMode, type Theme } from '@/theme';
+import { ThemeText } from '@/components/core';
 import { scaler } from '@/utils';
-import { useAppSelector } from '@/redux/hook';
-import { selectActiveTheme } from '@/redux/utils';
 import { SvgIcon, SvgIconName } from '@/components/SvgIcon';
 import Svg, { Path } from 'react-native-svg';
 import { menuAnimationPresets } from './menuAnimationPresents';
@@ -56,6 +55,8 @@ export interface ActionMenuPosition {
   align?: 'start' | 'center' | 'end';
 }
 
+export type AnimationPresetName = keyof typeof menuAnimationPresets;
+
 export interface ActionMenuProps {
   // Visible state
   visible: boolean;
@@ -78,7 +79,7 @@ export interface ActionMenuProps {
   // Optional footer component
   footerComponent?: React.ReactNode;
   animationDuration?: number;
-  animationPreset?: string; // Default to bouncy animation
+  animationPreset?: AnimationPresetName; // Typed preset name
 }
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -101,11 +102,11 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
   headerComponent,
   footerComponent,
   animationDuration = DEFAULT_ANIMATION_DURATION,
-  animationPreset = 'bouncy', // Default to bouncy animation
+  animationPreset = 'bouncy',
 }) => {
-  const activeTheme = useAppSelector(selectActiveTheme);
-  const isDarkMode = activeTheme === 'dark';
   const theme = useTheme();
+  const isDarkMode = useDarkMode();
+  const styles = useMemo(() => makeStyles(theme, isDarkMode), [theme, isDarkMode]);
 
   // Refs for measuring
   const menuRef = useRef<View>(null);
@@ -115,7 +116,10 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
   const [modalVisible, setModalVisible] = useState(false);
 
   // State for menu dimensions and positioning
-  const [menuDimensions, setMenuDimensions] = useState({ height: 0, width: typeof width === 'number' ? scaler(width) : DEFAULT_MENU_WIDTH });
+  const [menuDimensions, setMenuDimensions] = useState({
+    height: 0,
+    width: typeof width === 'number' ? scaler(width) : DEFAULT_MENU_WIDTH,
+  });
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const [isPositioned, setIsPositioned] = useState(false);
   const [isScrollable, setIsScrollable] = useState(false);
@@ -134,7 +138,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
       scaleAnim.setValue(0);
 
       // Get animation preset
-      const presetName = animationPreset || 'bouncy';
+      const presetName: AnimationPresetName = animationPreset || 'bouncy';
       const preset = menuAnimationPresets[presetName] || menuAnimationPresets.bouncy;
 
       // Start animation
@@ -146,7 +150,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
       }).start();
     } else if (!visible && modalVisible) {
       // Get animation preset
-      const presetName = animationPreset || 'bouncy';
+      const presetName: AnimationPresetName = animationPreset || 'bouncy';
       const preset = menuAnimationPresets[presetName] || menuAnimationPresets.bouncy;
 
       // Animate out
@@ -168,7 +172,10 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
     if (!modalVisible && !visible) {
       // Clean up state only after modal is fully hidden
       setMenuPosition({ top: 0, left: 0 });
-      setMenuDimensions({ height: 0, width: typeof width === 'number' ? scaler(width) : DEFAULT_MENU_WIDTH });
+      setMenuDimensions({
+        height: 0,
+        width: typeof width === 'number' ? scaler(width) : DEFAULT_MENU_WIDTH,
+      });
       setIsScrollable(false);
     }
   }, [modalVisible, visible, width]);
@@ -233,10 +240,10 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
       } else if (top + menuHeight + SAFE_AREA_PADDING > SCREEN_HEIGHT) {
         const shouldScroll = true;
         const availableHeight = SCREEN_HEIGHT - SAFE_AREA_PADDING * 2;
-        
+
         // Create a new function for this update to avoid state batching issues
         setIsScrollable(shouldScroll);
-        setMenuDimensions(prev => ({ ...prev, height: Math.min(availableHeight, maxHeight) }));
+        setMenuDimensions((prev) => ({ ...prev, height: Math.min(availableHeight, maxHeight) }));
         top = SAFE_AREA_PADDING;
       }
 
@@ -251,22 +258,22 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
   const onMenuLayout = useCallback(
     (event: LayoutChangeEvent) => {
       const { height, width } = event.nativeEvent.layout;
-      
+
       // Skip redundant updates if dimensions haven't changed significantly
       const hasHeightChanged = Math.abs(height - menuDimensions.height) > 1;
       const hasWidthChanged = Math.abs(width - menuDimensions.width) > 1;
-      
+
       if (!isPositioned && visible) {
         // Batch dimension updates together
         const newHeight = height > maxHeight ? maxHeight : height;
         const newWidth = typeof width === 'number' ? width : menuDimensions.width;
-        
+
         // Update dimensions first
         setMenuDimensions({ height: newHeight, width: newWidth });
-        
+
         // Then calculate position based on these dimensions
         calculateMenuPosition(newHeight, newWidth);
-        
+
         // Update scrollable state if needed
         if (height > maxHeight) {
           setIsScrollable(true);
@@ -275,7 +282,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
         // Only update dimensions if position hasn't been calculated yet
         const updatedDimensions = {
           height: hasHeightChanged ? height : menuDimensions.height,
-          width: hasWidthChanged ? width : menuDimensions.width
+          width: hasWidthChanged ? width : menuDimensions.width,
         };
         setMenuDimensions(updatedDimensions);
       }
@@ -292,12 +299,12 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
   const renderMenuItem = useCallback(
     (item: ActionMenuItem, index: number) => {
       const textColor = item.destructive
-        ? COLORS.error.main
-        : item.textColor || (isDarkMode ? lightColors.gray[200] : theme.colors.text.dark);
+        ? theme.colors.error.main
+        : item.textColor || theme.colors.text.primary;
 
       const iconColor = item.destructive
-        ? COLORS.error.main
-        : item.iconColor || (isDarkMode ? lightColors.gray[200] : theme.colors.text.dark);
+        ? theme.colors.error.main
+        : item.iconColor || theme.colors.text.primary;
 
       return (
         <React.Fragment key={item.id || index}>
@@ -318,7 +325,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
                 <Svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                   <Path
                     d="M6.29004 15.4692C5.84733 15.4692 5.47103 15.2783 5.16113 14.8965L0.861328 9.60059C0.739583 9.45671 0.651042 9.31559 0.595703 9.17725C0.545898 9.0389 0.520996 8.89502 0.520996 8.74561C0.520996 8.41357 0.631673 8.13965 0.853027 7.92383C1.07438 7.70801 1.35384 7.6001 1.69141 7.6001C2.07324 7.6001 2.39421 7.76335 2.6543 8.08984L6.25684 12.6553L13.2876 1.51562C13.4315 1.29427 13.5809 1.13932 13.7358 1.05078C13.8908 0.956706 14.0845 0.909668 14.3169 0.909668C14.6545 0.909668 14.9312 1.01481 15.147 1.2251C15.3628 1.43538 15.4707 1.70378 15.4707 2.03027C15.4707 2.16309 15.4486 2.2959 15.4043 2.42871C15.36 2.56152 15.2909 2.69987 15.1968 2.84375L7.42725 14.8633C7.16162 15.2673 6.78255 15.4692 6.29004 15.4692Z"
-                    fill={isDarkMode ? '#ffffff' : '#1C1F21'}
+                    fill={theme.colors.primary.main}
                   />
                 </Svg>
               </View>
@@ -337,7 +344,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
             {item.icon && (
               <View style={styles.iconContainer}>
                 {typeof item.icon === 'string' ? (
-                  <SvgIcon name={item.icon} size={24} color={iconColor} />
+                  <SvgIcon name={item.icon as SvgIconName} size={24} color={iconColor} />
                 ) : (
                   item.icon
                 )}
@@ -346,18 +353,11 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
           </TouchableOpacity>
 
           {/* Optional divider */}
-          {item.dividerAfter && (
-            <View
-              style={[
-                styles.divider,
-                { backgroundColor: isDarkMode ? darkColors.divider : lightColors.divider },
-              ]}
-            />
-          )}
+          {item.dividerAfter && <View style={[styles.divider]} />}
         </React.Fragment>
       );
     },
-    [isDarkMode, theme.colors.text.dark, handleClose],
+    [isDarkMode, theme.colors, handleClose, styles],
   );
 
   // Animation styles
@@ -421,6 +421,14 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
     return null;
   }
 
+  // Prepare container style for Animated.View, ensuring width is number or valid percentage string
+  const menuContainerDynamicStyle: any = {
+    top: menuPosition.top,
+    left: menuPosition.left,
+    width: typeof width === 'string' ? width : menuDimensions.width, // Keep as is, assume valid string (e.g., "80%") or number
+    maxHeight: isScrollable ? maxHeight : undefined,
+  };
+
   return (
     <Modal
       transparent
@@ -434,20 +442,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
           <TouchableWithoutFeedback>
             <Animated.View
               ref={menuRef}
-              style={[
-                styles.menuContainer,
-                {
-                  backgroundColor: isDarkMode
-                    ? darkColors.background.paper
-                    : lightColors.background.paper,
-                  top: menuPosition.top,
-                  left: menuPosition.left,
-                  width: typeof width === 'string' ? width : menuDimensions.width,
-                  maxHeight: isScrollable ? maxHeight : undefined,
-                },
-                theme.shadows[3],
-                animatedStyle,
-              ]}
+              style={[styles.menuContainer, menuContainerDynamicStyle, animatedStyle]}
               onLayout={onMenuLayout}
             >
               {/* Optional title */}
@@ -457,7 +452,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
                     <ThemeText
                       variant="subtitle2"
                       style={styles.menuTitle}
-                      color={isDarkMode ? lightColors.gray[200] : darkColors.text.secondary}
+                      color={theme.colors.text.secondary}
                     >
                       {title}
                     </ThemeText>
@@ -488,77 +483,83 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  menuContainer: {
-    position: 'absolute',
-    borderRadius: scaler(12),
-    paddingHorizontal: MENU_PADDING,
-    elevation: scaler(5),
-    overflow: 'hidden',
-    backfaceVisibility: 'hidden',
-    ...Platform.select({
-      ios: {
-        shadowColor: 'rgba(0, 0, 0, 0.3)',
-        shadowOffset: { width: 0, height: scaler(3) },
-        shadowOpacity: 0.6,
-        shadowRadius: scaler(8),
-      },
-    }),
-  },
-  menuHeader: {
-    paddingHorizontal: scaler(8),
-    paddingVertical: scaler(8),
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: COLORS.lightBorder,
-  },
-  menuTitle: {
-    fontWeight: '600',
-  },
-  scrollContent: {
-    paddingBottom: scaler(4),
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: scaler(8),
-    paddingHorizontal: scaler(8),
-    minHeight: scaler(48),
-  },
-  disabledItem: {
-    opacity: 0.5,
-  },
-  disabledText: {
-    opacity: 0.7,
-  },
-  iconContainer: {
-    width: scaler(24),
-    height: scaler(24),
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  menuText: {
-    fontSize: scaler(16),
-    flex: 1,
-  },
-  selectedIndicator: {
-    marginRight: scaler(1),
-    width: scaler(14),
-    height: scaler(14),
-  },
-  divider: {
-    height: StyleSheet.hairlineWidth,
-  },
-  menuFooter: {
-    paddingHorizontal: scaler(8),
-    paddingVertical: scaler(8),
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: COLORS.lightBorder,
-  },
-});
+const makeStyles = (theme: Theme, isDarkMode: boolean) =>
+  StyleSheet.create({
+    modalOverlay: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: theme.colors.backdrop,
+    },
+    menuContainer: {
+      position: 'absolute',
+      borderRadius: scaler(12),
+      paddingHorizontal: MENU_PADDING,
+      elevation: scaler(5),
+      overflow: 'hidden',
+      backfaceVisibility: 'hidden',
+      ...Platform.select({
+        ios: {
+          shadowColor: 'rgba(0, 0, 0, 0.3)',
+          shadowOffset: { width: 0, height: scaler(3) },
+          shadowOpacity: 0.6,
+          shadowRadius: scaler(8),
+        },
+      }),
+    },
+    menuHeader: {
+      paddingHorizontal: scaler(8),
+      paddingVertical: scaler(8),
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: theme.colors.divider,
+    },
+    menuTitle: {
+      fontWeight: '600',
+    },
+    scrollContent: {
+      paddingBottom: scaler(4),
+    },
+    menuItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: scaler(8),
+      paddingHorizontal: scaler(8),
+      minHeight: scaler(48),
+    },
+    disabledItem: {
+      opacity: 0.5,
+    },
+    disabledText: {
+      opacity: 0.7,
+    },
+    iconContainer: {
+      width: scaler(24),
+      height: scaler(24),
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    menuText: {
+      fontSize: scaler(16),
+      flex: 1,
+    },
+    selectedIndicator: {
+      marginRight: scaler(12),
+      width: scaler(14),
+      height: scaler(14),
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    divider: {
+      height: StyleSheet.hairlineWidth,
+      backgroundColor: theme.colors.divider,
+      marginVertical: scaler(4),
+    },
+    menuFooter: {
+      paddingHorizontal: scaler(8),
+      paddingVertical: scaler(8),
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: theme.colors.divider,
+    },
+  });
 
 export default ReusableActionMenu;

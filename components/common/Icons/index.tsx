@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, ViewStyle } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
+import { useTheme } from '@/theme';
 
 /**
  * Props for icon components
@@ -18,22 +19,24 @@ interface IconProps {
  * Helper function to create icon components
  * @param renderPaths - Function that renders the SVG paths
  * @param defaultSize - Default size of the icon
- * @param defaultColor - Default color of the icon
  * @param displayName - Display name of the icon
  */
 const createIcon = (
   renderPaths: (props: { size: number; color: string }) => React.ReactNode,
   defaultSize = 24,
-  defaultColor = '#000',
   displayName: string,
 ) => {
-  const Icon = ({ size = defaultSize, color = defaultColor, style }: IconProps) => (
-    <View style={[{ width: size, height: size }, style]}>
-      <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-        {renderPaths({ size, color })}
-      </Svg>
-    </View>
-  );
+  const Icon: React.FC<IconProps> = ({ size = defaultSize, color, style }) => {
+    const theme = useTheme();
+    const iconColor = color || theme.colors.icon;
+    return (
+      <View style={[{ width: size, height: size }, style]}>
+        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          {renderPaths({ size, color: iconColor })}
+        </Svg>
+      </View>
+    );
+  };
   Icon.displayName = displayName;
   return Icon;
 };
@@ -52,7 +55,6 @@ export const BackIcon = createIcon(
     />
   ),
   24,
-  '#000',
   'BackIcon',
 );
 
@@ -70,7 +72,6 @@ export const SearchIcon = createIcon(
     />
   ),
   24,
-  '#000',
   'SearchIcon',
 );
 
@@ -86,7 +87,6 @@ export const MoreIcon = createIcon(
     </>
   ),
   24,
-  '#000',
   'MoreIcon',
 );
 
@@ -104,6 +104,5 @@ export const CloseIcon = createIcon(
     />
   ),
   24,
-  '#000',
   'CloseIcon',
 );

@@ -2,6 +2,7 @@ import { useContext } from 'react';
 import { ThemeContext } from './ThemeProvider';
 import { useAppSelector } from '@/redux/hook';
 import { selectActiveTheme } from '@/redux/utils';
+import { ColorPalette } from './tokens/colors';
 
 // Hook to access the entire theme
 export const useTheme = () => {
@@ -20,7 +21,7 @@ export const useDarkMode = () => {
 
 // Hook to get text color based on theme
 export const useTextColor = (
-  variant: 'primary' | 'secondary' | 'disabled' | 'hint' = 'primary',
+  variant: 'primary' | 'secondary' | 'disabled' | 'hint' | 'subtle' = 'primary',
 ) => {
   const theme = useTheme();
   return theme.colors.text[variant];
@@ -61,3 +62,21 @@ export const useShadows = () => {
 export const useActiveThemeMode = (): 'light' | 'dark' => {
   return useAppSelector(selectActiveTheme);
 };
+
+// Props type for useThemeColor
+export type UseThemeColorProps = { light?: string; dark?: string };
+
+/**
+ * A hook to get a specific color from the theme, with an option to override via props.
+ * Useful for components that need a specific color that might also be customizable.
+ */
+export function useThemeColor(props: UseThemeColorProps, colorName: keyof ColorPalette): string {
+  const theme = useTheme();
+  const colorFromProps = props[theme.mode as keyof UseThemeColorProps];
+
+  if (colorFromProps) {
+    return colorFromProps;
+  }
+  // Type assertion needed as colorName is keyof ColorPalette, and theme.colors is ColorPalette
+  return theme.colors[colorName as keyof typeof theme.colors] as string;
+}
