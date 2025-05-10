@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { View, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { ThemeText } from '@/components/core';
 import { SvgIcon } from '@/components/SvgIcon';
 import { useTheme, type Theme } from '@/theme';

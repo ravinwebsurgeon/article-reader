@@ -11,7 +11,6 @@ import {
   ScrollView,
   Animated,
   Easing,
-  ViewStyle,
 } from 'react-native';
 import { useTheme, useDarkMode, type Theme } from '@/theme';
 import { ThemeText } from '@/components/core';
@@ -251,7 +250,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
       setMenuPosition({ top, left });
       setIsPositioned(true);
     },
-    [position, maxHeight],
+    [position, maxHeight, setIsPositioned],
   );
 
   // Handle menu layout measurements
@@ -357,7 +356,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
         </React.Fragment>
       );
     },
-    [isDarkMode, theme.colors, handleClose, styles],
+    [theme.colors, handleClose, styles],
   );
 
   // Animation styles
