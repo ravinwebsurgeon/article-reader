@@ -1,18 +1,9 @@
 import React, { useState, useCallback, useMemo, memo } from "react";
-import {
-  View,
-  FlatList,
-  StyleSheet,
-  RefreshControl,
-  TouchableOpacity,
-  ActivityIndicator,
-  Image,
-} from "react-native";
+import { View, FlatList, StyleSheet, RefreshControl, TouchableOpacity, Image } from "react-native";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ItemFilter } from "@/types/item";
 import { Images } from "@/assets";
-import { useAppSelector } from "@/redux/hook";
 import ArticleCard, { ARTICLE_CARD_HEIGHT } from "@/components/common/card/ArticleCard";
 import FilterTabs from "@/components/common/tabBar/FilterTabs";
 import ActionMenu from "@/components/common/menu/ActionMenu";
@@ -20,7 +11,7 @@ import NoItemsFound from "@/components/common/emptyState/NoUIFound";
 import { scaler } from "@/utils";
 import { useTheme } from "@/theme";
 import { syncEngine } from "@/database/sync/SyncEngine";
-import { useItems, withItems } from "@/database/hooks/withItems";
+import { withItems } from "@/database/hooks/withItems";
 import Item from "@/database/models/ItemModel";
 import Svg, { Path } from "react-native-svg";
 import { SortOption } from "@/components/common/menu/SortMenu";

@@ -7,12 +7,13 @@ import {
   ScrollView,
   Alert,
   SafeAreaView,
+  ViewStyle,
+  TextStyle,
 } from "react-native";
 import { router } from "expo-router";
 import { resetAuthError } from "@/redux/slices/authSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/hook";
 import { useForm } from "react-hook-form";
-import { COLORS, lightColors } from "@/theme";
 import { useTheme } from "@/theme";
 import { ThemeButton, ThemeText, ThemeView } from "@/components";
 import { scaler } from "@/utils";
@@ -55,8 +56,47 @@ function AuthStart() {
     }
   }, [error, dispatch]);
 
+  const dynamicStyles: {
+    container: ViewStyle;
+    subtitle: TextStyle;
+    signInButton: ViewStyle;
+    signInButtonText: TextStyle;
+    signUpLinkText: TextStyle;
+  } = {
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background.default,
+    },
+    subtitle: {
+      fontSize: scaler(17),
+      lineHeight: scaler(26),
+      fontWeight: "400" as const,
+      color: theme.colors.text.disabled,
+      marginBottom: scaler(16),
+    },
+    signInButton: {
+      backgroundColor: theme.colors.white,
+      borderRadius: scaler(28),
+      justifyContent: "center",
+      alignItems: "center",
+      paddingVertical: scaler(14),
+      borderWidth: scaler(1),
+      borderColor: theme.colors.primary.main,
+    },
+    signInButtonText: {
+      color: theme.colors.primary.main,
+      fontSize: scaler(14),
+      lineHeight: scaler(18),
+    },
+    signUpLinkText: {
+      color: theme.colors.primary.main,
+      fontSize: scaler(16),
+      fontWeight: "600" as const,
+    },
+  };
+
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background.default }]}>
+    <SafeAreaView style={[styles.container, dynamicStyles.container]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardAvoidingContainer}
@@ -69,32 +109,30 @@ function AuthStart() {
             <ThemeText variant="h2" style={styles.title}>
               How would you like to sign in?
             </ThemeText>
-            <ThemeText style={styles.subtitle}>Choose a method to get started.</ThemeText>
+            <ThemeText style={dynamicStyles.subtitle}>Choose a method to get started.</ThemeText>
           </ThemeView>
 
           <ThemeView style={styles.buttonContainer}>
             <ThemeButton
               title="Sign in with Google"
-              //   onPress={handleSubmit(onSubmit)}
-              style={styles.signInButton}
-              textStyle={styles.signInButtonText}
-              leftIcon={<SvgIcon name="google" size={24} color={COLORS.primary.main} />}
+              style={dynamicStyles.signInButton}
+              textStyle={dynamicStyles.signInButtonText}
+              leftIcon={<SvgIcon name="google" size={24} color={theme.colors.primary.main} />}
               rightIcon={null}
             />
             <ThemeButton
               title="Sign in with Apple"
-              //   onPress={handleSubmit(onSubmit)}
-              style={styles.signInButton}
-              textStyle={styles.signInButtonText}
-              leftIcon={<SvgIcon name="apple" size={24} color={COLORS.primary.main} />}
+              style={dynamicStyles.signInButton}
+              textStyle={dynamicStyles.signInButtonText}
+              leftIcon={<SvgIcon name="apple" size={24} color={theme.colors.primary.main} />}
               rightIcon={null}
             />
             <ThemeButton
               title="Sign in with Email"
               onPress={handleSubmit(onSubmit)}
-              style={styles.signInButton}
-              textStyle={styles.signInButtonText}
-              leftIcon={<SvgIcon name="envelope" size={24} color={COLORS.primary.main} />}
+              style={dynamicStyles.signInButton}
+              textStyle={dynamicStyles.signInButtonText}
+              leftIcon={<SvgIcon name="envelope" size={24} color={theme.colors.primary.main} />}
               rightIcon={null}
             />
           </ThemeView>
@@ -102,7 +140,7 @@ function AuthStart() {
           <ThemeView style={styles.signUpContainer}>
             <ThemeText style={styles.signUpText}>New Here? </ThemeText>
             <TouchableOpacity onPress={navigateToSignUp}>
-              <ThemeText style={styles.signUpLinkText}>Create and account</ThemeText>
+              <ThemeText style={dynamicStyles.signUpLinkText}>Create and account</ThemeText>
             </TouchableOpacity>
           </ThemeView>
         </ScrollView>
@@ -114,7 +152,6 @@ function AuthStart() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: lightColors.background.default,
   },
   keyboardAvoidingContainer: {
     flex: 1,
@@ -139,66 +176,10 @@ const styles = StyleSheet.create({
     textAlign: "left",
     marginBottom: scaler(8),
   },
-  subtitle: {
-    fontSize: scaler(17),
-    lineHeight: scaler(26),
-    fontWeight: "400",
-    color: lightColors.text.disabled,
-    marginBottom: scaler(16),
-  },
   buttonContainer: {
     width: "100%",
     marginBottom: scaler(24),
     gap: scaler(16),
-  },
-  inputContainer: {
-    marginBottom: scaler(20),
-  },
-  iconContainer: {
-    position: "absolute",
-    left: scaler(12),
-    top: scaler(15),
-    zIndex: 1,
-  },
-  input: {
-    marginBottom: scaler(16),
-  },
-  inputError: {
-    borderColor: COLORS.error.main,
-  },
-  errorText: {
-    color: COLORS.error.main,
-    fontSize: scaler(12),
-    marginTop: scaler(4),
-    marginLeft: scaler(12),
-  },
-  forgotPasswordContainer: {
-    alignSelf: "flex-end",
-    marginBottom: scaler(24),
-  },
-  forgotPasswordText: {
-    color: COLORS.primary.main,
-    fontSize: scaler(14),
-  },
-  signInButton: {
-    backgroundColor: "#fff",
-    borderRadius: scaler(28),
-    justifyContent: "center",
-    alignItems: "center",
-    // shadowColor: COLORS.primary.main,
-    // shadowOffset: { width: 0, height: 4 },
-    // shadowOpacity: scaler(0.25),
-    // shadowRadius: scaler(4),
-    // elevation: scaler(5),
-    paddingVertical: scaler(14),
-    borderWidth: scaler(1),
-    borderColor: COLORS.primary.main,
-  },
-  signInButtonText: {
-    color: COLORS.primary.main,
-    fontSize: scaler(14),
-    lineHeight: scaler(18),
-    fontWeight: "700",
   },
   signUpContainer: {
     flexDirection: "row",
@@ -207,11 +188,6 @@ const styles = StyleSheet.create({
   },
   signUpText: {
     fontSize: scaler(16),
-  },
-  signUpLinkText: {
-    color: COLORS.primary.main,
-    fontSize: scaler(16),
-    fontWeight: "600",
   },
 });
 
