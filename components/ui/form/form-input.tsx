@@ -2,8 +2,7 @@ import React, { useMemo } from "react";
 import { View, TextInput, StyleSheet, KeyboardTypeOptions } from "react-native";
 import { Control, Controller, FieldValues, Path, RegisterOptions } from "react-hook-form";
 import { useTheme, type Theme } from "@/theme";
-import { ThemeText } from "@/components/core";
-import { ThemedView } from "@/components/ThemedView";
+import { ThemeText, ThemeView } from "@/components/core";
 import { scaler } from "@/utils";
 
 interface FormInputProps<T extends FieldValues> {
@@ -44,7 +43,7 @@ export const FormInput = <T extends FieldValues>({
       name={name}
       rules={rules}
       render={({ field: { value, onChange, onBlur }, fieldState: { error } }) => (
-        <ThemedView style={styles.inputContainer}>
+        <ThemeView style={styles.inputContainer}>
           {icon && <View style={styles.iconContainer}>{icon}</View>}
           <TextInput
             value={value}
@@ -60,7 +59,7 @@ export const FormInput = <T extends FieldValues>({
             spellCheck={spellCheck}
           />
           {error && <ThemeText style={styles.errorText}>{error.message}</ThemeText>}
-        </ThemedView>
+        </ThemeView>
       )}
     />
   );
