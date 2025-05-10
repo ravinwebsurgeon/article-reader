@@ -112,7 +112,7 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
               Welcome to Pocket
             </ThemeText>
             <ThemeText style={dynamicStyles.subtitle}>
-              Log in or sign up to start saving articles you'll actually get back to.
+              Log in or sign up to start saving articles you&apos;ll actually get back to.
             </ThemeText>
           </ThemeView>
 
