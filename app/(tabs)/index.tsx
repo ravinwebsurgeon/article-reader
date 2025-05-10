@@ -1,5 +1,4 @@
-import { ThemeText } from "@/components";
-import { ThemedView } from "@/components/ThemedView";
+import { ThemeText, ThemeView } from "@/components";
 import { Button } from "@/components/ui/button";
 import { useLogoutMutation } from "@/redux/services/authApi";
 import { StyleSheet } from "react-native";
@@ -16,7 +15,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <ThemedView style={styles.titleContainer}>
+    <ThemeView style={styles.titleContainer}>
       <ThemeText variant="h2">Explore</ThemeText>
       <Button
         title="Sign out"
@@ -25,7 +24,7 @@ export default function HomeScreen() {
         rightIcon={null}
         style={styles.titleContainer}
       />
-    </ThemedView>
+    </ThemeView>
   );
 }
 
