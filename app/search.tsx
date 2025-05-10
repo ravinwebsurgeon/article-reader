@@ -166,7 +166,9 @@ const SearchScreenComponent = ({
       {!shouldShowResults ? (
         // Initial Empty search state
         <View style={styles.emptyStateContainer}>
-          <Text style={dynamicStyles.emptyStateText}>"Let's find that thing you saved"</Text>
+          <Text style={dynamicStyles.emptyStateText}>
+            &ldquo;Let&apos;s find that thing you saved&rdquo;
+          </Text>
 
           <View style={styles.logoContainer}>
             <View style={[styles.logoIcon, { backgroundColor: theme.colors.primary.main }]}>
@@ -178,7 +180,9 @@ const SearchScreenComponent = ({
       ) : items && items.length === 0 ? (
         // No results state (only shown if shouldShowResults is true)
         <View style={styles.noResultsContainer}>
-          <Text style={dynamicStyles.noResultsText}>No results found for "{searchQuery}"</Text>
+          <Text style={dynamicStyles.noResultsText}>
+            No results found for &ldquo;{searchQuery}&rdquo;
+          </Text>
           <Text style={dynamicStyles.noResultsSubtext}>
             Try a different search term or check your spelling
           </Text>
