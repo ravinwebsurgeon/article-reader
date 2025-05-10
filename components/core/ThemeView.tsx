@@ -1,7 +1,7 @@
 import { useTheme } from '@/theme/hooks';
 import React from 'react';
-import { ViewProps, StyleSheet, TouchableOpacity, View } from 'react-native';
- 
+import { View, StyleSheet, ViewProps } from 'react-native';
+
 export type ThemeViewProps = ViewProps & {
   backgroundColor?: string;
   elevation?: 0 | 1 | 2 | 3 | 4 | 5;
@@ -11,7 +11,7 @@ export type ThemeViewProps = ViewProps & {
   centered?: boolean;
   row?: boolean;
 };
- 
+
 export const ThemeView: React.FC<ThemeViewProps> = ({
   style,
   backgroundColor,
@@ -25,12 +25,12 @@ export const ThemeView: React.FC<ThemeViewProps> = ({
   ...otherProps
 }) => {
   const theme = useTheme();
- 
+
   // Get padding value
   const getPadding = () => {
     if (padded === false) return undefined;
     if (padded === true) return theme.spacing.md;
- 
+
     switch (padded) {
       case 'xs':
         return theme.spacing.xs;
@@ -46,12 +46,12 @@ export const ThemeView: React.FC<ThemeViewProps> = ({
         return theme.spacing.md;
     }
   };
- 
+
   // Get margin value
   const getMargin = () => {
     if (margin === false) return undefined;
     if (margin === true) return theme.spacing.md;
- 
+
     switch (margin) {
       case 'xs':
         return theme.spacing.xs;
@@ -67,12 +67,12 @@ export const ThemeView: React.FC<ThemeViewProps> = ({
         return theme.spacing.md;
     }
   };
- 
+
   // Get border radius value
   const getBorderRadius = () => {
     if (rounded === false) return undefined;
     if (rounded === true) return theme.spacing.sm;
- 
+
     switch (rounded) {
       case 'sm':
         return theme.spacing.xs;
@@ -86,7 +86,7 @@ export const ThemeView: React.FC<ThemeViewProps> = ({
         return theme.spacing.sm;
     }
   };
- 
+
   // Combine styles
   const combinedStyle = [
     backgroundColor && { backgroundColor },
@@ -98,14 +98,14 @@ export const ThemeView: React.FC<ThemeViewProps> = ({
     row && styles.row,
     style,
   ];
- 
+
   return (
     <View style={combinedStyle} {...otherProps}>
       {children}
     </View>
   );
 };
- 
+
 const styles = StyleSheet.create({
   centered: {
     justifyContent: 'center',

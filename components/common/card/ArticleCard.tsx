@@ -1,13 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  StyleSheet,
-  TouchableOpacity,
-  ViewStyle,
-  StyleProp,
-  View,
-  ScrollView,
-  Text, // Import Text for debugging if needed
-} from 'react-native';
+import { StyleSheet, TouchableOpacity, ViewStyle, StyleProp, View, ScrollView } from 'react-native';
 import { Image } from 'expo-image';
 import Item from '@/database/models/ItemModel';
 import Tag from '@/database/models/TagModel';
@@ -36,7 +28,7 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({ item, onPress, style
   const styles = useMemo(() => makeStyles(theme, isDarkMode), [theme, isDarkMode]);
 
   const [itemLocalTags, setItemLocalTags] = useState<Tag[]>([]);
-  const menuButtonRef = useRef<TouchableOpacity>(null);
+  const menuButtonRef = useRef<View>(null);
   const [menuVisible, setMenuVisible] = useState(false);
   const [menuPosition, setMenuPosition] = useState({});
 

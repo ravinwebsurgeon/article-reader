@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useMemo } from 'react';
+import React, { useCallback, useState } from 'react';
 import Item from '@/database/models/ItemModel';
 import ReusableActionMenu, { ActionMenuItem, ActionMenuPosition } from './ReusableActionMenu';
 import { Linking } from 'react-native';
@@ -41,13 +41,6 @@ const ReaderActionMenu: React.FC<ReaderActionMenuProps> = ({
   const closeTagEditor = useCallback(() => {
     setTagEditorVisible(false);
   }, []);
-
-  // Handle edit tags
-  const handleEditTags = useCallback(() => {
-    // Implement edit tags functionality
-    console.log('Edit tags for item:', item.id);
-    onClose();
-  }, [item, onClose]);
 
   // Handle open in browser
   const handleOpenInBrowser = useCallback(async () => {
