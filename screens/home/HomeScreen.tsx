@@ -106,129 +106,110 @@ const MemoizedFilterTabs = memo(
 
 MemoizedFilterTabs.displayName = 'MemoizedFilterTabs';
 // The base ItemsList component that only re-renders when items change
-const ItemsList = memo(
-  ({ items, filter, loading }: { items: Item[]; filter: ItemFilter; loading: boolean }) => {
-    const router = useRouter();
-    const theme = useTheme();
-    const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-    const [showActionMenu, setShowActionMenu] = useState(false);
-    const [isSyncing, setIsSyncing] = useState(false);
+const ItemsList = memo(({ items, filter }: { items: Item[]; filter: ItemFilter }) => {
+  const router = useRouter();
+  const theme = useTheme();
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [showActionMenu, setShowActionMenu] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
-    // Handle pull-to-refresh - sync with server
-    const handleRefresh = useCallback(async () => {
-      try {
-        setIsSyncing(true);
-        console.log('Performing refresh sync');
-        await syncEngine.sync();
-      } catch (error) {
-        console.error('Sync failed:', error);
-      } finally {
-        setIsSyncing(false);
-      }
-    }, []);
+  // Handle pull-to-refresh - sync with server
+  const handleRefresh = useCallback(async () => {
+    try {
+      setIsSyncing(true);
+      console.log('Performing refresh sync');
+      await syncEngine.sync();
+    } catch (error) {
+      console.error('Sync failed:', error);
+    } finally {
+      setIsSyncing(false);
+    }
+  }, []);
 
-    // Navigate to article detail
-    const navigateToArticle = useCallback(
-      (item: Item) => {
-        router.push({
-          pathname: '/reader/[id]',
-          params: { id: item.id },
-        });
-      },
-      [router],
-    );
+  // Navigate to article detail
+  const navigateToArticle = useCallback(
+    (item: Item) => {
+      router.push({
+        pathname: '/reader/[id]',
+        params: { id: item.id },
+      });
+    },
+    [router],
+  );
 
-    // Open action menu for an item
-    const openActionMenu = useCallback((id: string) => {
-      setSelectedItemId(id);
-      setShowActionMenu(true);
-    }, []);
+  // Open action menu for an item
+  const openActionMenu = useCallback((id: string) => {
+    setSelectedItemId(id);
+    setShowActionMenu(true);
+  }, []);
 
-    // Close action menu
-    const closeActionMenu = useCallback(() => {
-      setShowActionMenu(false);
-      setSelectedItemId(null);
-    }, []);
+  // Close action menu
+  const closeActionMenu = useCallback(() => {
+    setShowActionMenu(false);
+    setSelectedItemId(null);
+  }, []);
 
-    // Render the article item - wrapped in useCallback to prevent recreating on each render
-    const renderItem = useCallback(
-      ({ item }: { item: Item }) => (
-        <ArticleCard
-          item={item}
-          onPress={() => navigateToArticle(item)}
-          onMenuPress={() => openActionMenu(item.id)}
+  // Render the article item - wrapped in useCallback to prevent recreating on each render
+  const renderItem = useCallback(
+    ({ item }: { item: Item }) => (
+      <ArticleCard
+        item={item}
+        onPress={() => navigateToArticle(item)}
+        onMenuPress={() => openActionMenu(item.id)}
+      />
+    ),
+    [navigateToArticle, openActionMenu],
+  );
+
+  // Memoize keyExtractor to prevent recreation on each render
+  const keyExtractor = useCallback((item: Item) => item.id, []);
+
+  // Implement getItemLayout for fixed height items
+  // This allows FlatList to know item dimensions without measuring them
+  const getItemLayout = useCallback(
+    (_data: any, index: number) => ({
+      length: ITEM_HEIGHT,
+      offset: ITEM_HEIGHT * index,
+      index,
+    }),
+    [],
+  );
+
+  return (
+    <>
+      <FlatList
+        data={items}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        contentContainerStyle={[styles.listContent, items?.length === 0 && styles.emptyList]}
+        ListEmptyComponent={<NoItemsFound filter={filter} />}
+        refreshControl={
+          <RefreshControl
+            refreshing={isSyncing}
+            onRefresh={handleRefresh}
+            colors={[theme.colors.primary.main]}
+            tintColor={theme.colors.primary.main}
+          />
+        }
+        // Performance optimizations for FlatList
+        removeClippedSubviews={true}
+        maxToRenderPerBatch={10}
+        windowSize={10}
+        initialNumToRender={10}
+        updateCellsBatchingPeriod={50}
+        getItemLayout={getItemLayout}
+      />
+
+      {/* Action Menu Modal */}
+      {showActionMenu && selectedItemId && (
+        <ActionMenu
+          item={items.find((item) => item.id === selectedItemId)!}
+          onClose={closeActionMenu}
         />
-      ),
-      [navigateToArticle, openActionMenu],
-    );
-
-    // Memoize keyExtractor to prevent recreation on each render
-    const keyExtractor = useCallback((item: Item) => item.id, []);
-
-    // Implement getItemLayout for fixed height items
-    // This allows FlatList to know item dimensions without measuring them
-    const getItemLayout = useCallback(
-      (_data: any, index: number) => ({
-        length: ITEM_HEIGHT,
-        offset: ITEM_HEIGHT * index,
-        index,
-      }),
-      [],
-    );
-
-    console.log(loading, 'check the loading state');
-
-    return (
-      <>
-        {loading ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={theme.colors.activityIndicator} />
-            <ThemeText variant="h3" style={styles.message}>
-              Restoring Your Saves
-            </ThemeText>
-            <ThemeText
-              variant="body2"
-              style={[styles.subMessage, { color: theme.colors.text.subtle }]}
-            >
-              Your saved pages are on the way.
-            </ThemeText>
-          </View>
-        ) : (
-          <FlatList
-            data={items}
-            renderItem={renderItem}
-            keyExtractor={keyExtractor}
-            contentContainerStyle={[styles.listContent, items?.length === 0 && styles.emptyList]}
-            ListEmptyComponent={<NoItemsFound filter={filter} />}
-            refreshControl={
-              <RefreshControl
-                refreshing={isSyncing}
-                onRefresh={handleRefresh}
-                colors={[theme.colors.primary.main]}
-                tintColor={theme.colors.primary.main}
-              />
-            }
-            // Performance optimizations for FlatList
-            removeClippedSubviews={true}
-            maxToRenderPerBatch={10}
-            windowSize={10}
-            initialNumToRender={10}
-            updateCellsBatchingPeriod={50}
-            getItemLayout={getItemLayout}
-          />
-        )}
-
-        {/* Action Menu Modal */}
-        {showActionMenu && selectedItemId && (
-          <ActionMenu
-            item={items.find((item) => item.id === selectedItemId)!}
-            onClose={closeActionMenu}
-          />
-        )}
-      </>
-    );
-  },
-);
+      )}
+    </>
+  );
+});
 
 ItemsList.displayName = 'ItemsList';
 // Create the enhanced ItemsList with data from withItems HOC
@@ -248,8 +229,6 @@ const HomeScreenWithFilter = () => {
   const [filter, setFilter] = useState<ItemFilter>('all');
   const [sorted, setSorted] = useState<SortOption>('newest');
   const theme = useTheme();
-  const { items, loading } = useItems({ filter, sorted });
-  console.log(loading, 'is this component rendered?');
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background.default }]}>
@@ -270,8 +249,7 @@ const HomeScreenWithFilter = () => {
 
       {/* This component will only re-render when necessary */}
       <View style={{ flex: 1 }}>
-        {/* <EnhancedItemsList filter={filter} sorted={sorted} /> */}
-        <ItemsList items={items} filter={filter} loading={loading} />
+        <EnhancedItemsList filter={filter} sorted={sorted} />
       </View>
     </View>
   );

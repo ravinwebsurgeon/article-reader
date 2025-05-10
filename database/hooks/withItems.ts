@@ -64,7 +64,7 @@ interface WithItemsProps {
  */
 export const withItems = ({ filter = 'all', sorted = 'newest' }: WithItemsProps = {}) => {
   const sort = sorted === 'newest' ? Q.desc : Q.asc;
-  
+
   return withObservables(['filter'], () => {
     let query;
 
@@ -107,97 +107,6 @@ export const withItems = ({ filter = 'all', sorted = 'newest' }: WithItemsProps 
     };
   });
 };
-
-export function useItems({
-  filter = 'all',
-  sorted = 'newest',
-}: {
-  filter: ItemFilter;
-  sorted: SortOption;
-}) {
-  const [items, setItems] = useState<Item[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setLoading(true);
-    const sortOrder = sorted === 'newest' ? Q.desc : Q.asc;
-    let query = database.collections
-      .get<Item>('items')
-      .query(Q.where('archived', false), Q.sortBy('created_at', sortOrder));
-
-    // apply the extra filter clauses
-    switch (filter) {
-      case 'favorites':
-        query = database.collections
-          .get<Item>('items')
-          .query(
-            Q.where('favorite', true),
-            Q.where('archived', false),
-            Q.sortBy('created_at', sortOrder),
-          );
-        break;
-
-      case 'archived':
-        query = database.collections
-          .get<Item>('items')
-          .query(Q.where('archived', true), Q.sortBy('created_at', sortOrder));
-        break;
-
-      case 'tagged':
-        query = database.collections
-          .get<Item>('items')
-          .query(
-            Q.where('archived', false),
-            Q.experimentalJoinTables(['item_tags']),
-            Q.on('item_tags', Q.where('tag_id', Q.notEq(null))),
-            Q.sortBy('created_at', sortOrder),
-          );
-        break;
-
-      case 'short':
-        query = database.collections
-          .get<Item>('items')
-          .query(
-            Q.where('word_count', Q.lte(1040)),
-            Q.where('archived', false),
-            Q.sortBy('created_at', sortOrder),
-          );
-        break;
-
-      case 'long':
-        query = database.collections
-          .get<Item>('items')
-          .query(
-            Q.where('word_count', Q.gte(2600)),
-            Q.where('archived', false),
-            Q.sortBy('created_at', sortOrder),
-          );
-        break;
-
-      case 'all':
-      default:
-        // already defaulted above
-        break;
-    }
-
-    console.time('Items.observe()');
-    const subscription: Subscription = query.observe().subscribe((freshItems) => {
-      console.timeEnd('Items.observe()');
-      console.log('[useItems] got items:', freshItems);
-      setItems(freshItems);
-      setLoading(false);
-
-    });
-
-    // cleanup on unmount / deps change
-    return () => {
-      subscription.unsubscribe();
-      setLoading(false);
-    };
-  }, [filter, sorted]);
-
-  return {items, loading};
-}
 
 interface WithSearchProps {
   query?: string;
