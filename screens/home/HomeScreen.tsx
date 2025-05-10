@@ -14,6 +14,7 @@ import { withItems } from "@/database/hooks/withItems";
 import Item from "@/database/models/ItemModel";
 import Svg, { Path } from "react-native-svg";
 import { SortOption } from "@/components/common/menu/SortMenu";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 // Use the exported fixed height from ArticleCard component
 const ITEM_HEIGHT = ARTICLE_CARD_HEIGHT;
@@ -219,7 +220,7 @@ const HomeScreenWithFilter = () => {
   const theme = useTheme();
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background.default }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background.default }]}>
       <StatusBar style={theme.mode === "dark" ? "light" : "dark"} />
 
       {/* These components will not re-render when the filter changes */}
@@ -239,7 +240,7 @@ const HomeScreenWithFilter = () => {
       <View style={{ flex: 1 }}>
         <EnhancedItemsList filter={filter} sorted={sorted} />
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -249,7 +250,7 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 16,
-    paddingTop: 48,
+    paddingTop: 12,
     paddingBottom: 12,
     flexDirection: "row",
     alignItems: "center",
