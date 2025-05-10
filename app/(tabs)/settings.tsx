@@ -1,12 +1,11 @@
 import { StyleSheet } from "react-native";
-import { ThemedView } from "@/components/ThemedView";
-import { ThemeText } from "@/components";
+import { ThemeText, ThemeView } from "@/components";
 
 export default function Settings() {
   return (
-    <ThemedView style={styles.titleContainer}>
+    <ThemeView style={styles.titleContainer}>
       <ThemeText variant="h2">Explore</ThemeText>
-    </ThemedView>
+    </ThemeView>
   );
 }
 

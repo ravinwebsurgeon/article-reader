@@ -103,16 +103,3 @@ export const formatDate = (dateString: string): string => {
     return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
   }
 };
-
-/**
- * Formats a reading time in minutes
- */
-export const formatReadingTime = (minutes: number): string => {
-  if (minutes < 1) {
-    return "Less than 1 min";
-  } else if (minutes === 1) {
-    return "1 min";
-  } else {
-    return `${Math.round(minutes)} min`;
-  }
-};
