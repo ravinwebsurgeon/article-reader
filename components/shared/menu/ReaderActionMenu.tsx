@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import Item from "@/database/models/ItemModel";
 import ReusableActionMenu, { ActionMenuItem, ActionMenuPosition } from "./ReusableActionMenu";
 import { Linking } from "react-native";
-import TagEditor from "@/components/features/tag/EditTag";
+import TagEditor from "@/features/tag/EditTag";
 import { useTheme } from "@/theme";
 import { useTranslation } from "react-i18next";
 
