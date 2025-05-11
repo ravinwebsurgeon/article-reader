@@ -4,6 +4,7 @@ import { useTheme, type Theme } from "@/theme";
 import Item from "@/database/models/ItemModel";
 import { ThemeText, ThemeView } from "@/components/core";
 import { SvgIcon } from "@/components/SvgIcon";
+import { useTranslation } from "react-i18next";
 
 interface ActionMenuProps {
   item: Item;
@@ -12,6 +13,7 @@ interface ActionMenuProps {
 
 const ActionMenu: React.FC<ActionMenuProps> = ({ item, onClose }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const styles = useMemo(() => makeStyles(theme), [theme]);
 
   // Handle favorite toggle
@@ -64,14 +66,14 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ item, onClose }) => {
             <ThemeView style={styles.menuContainer}>
               {/* Share */}
               <TouchableOpacity style={styles.menuItem} onPress={handleShare}>
-                <ThemeText style={styles.menuText}>Share</ThemeText>
+                <ThemeText style={styles.menuText}>{t("menu.share")}</ThemeText>
                 <SvgIcon name="share" size={28} color={theme.colors.text.primary} />
               </TouchableOpacity>
 
               {/* Favorite */}
               <TouchableOpacity style={styles.menuItem} onPress={handleFavoriteToggle}>
                 <ThemeText style={styles.menuText}>
-                  {item.favorite ? "Unfavorite" : "Favorite"}
+                  {item.favorite ? t("menu.unfavorite") : t("menu.favorite")}
                 </ThemeText>
                 <SvgIcon
                   name={item.favorite ? "favorite" : "favorite"}
@@ -82,14 +84,14 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ item, onClose }) => {
 
               {/* Tag */}
               <TouchableOpacity style={styles.menuItem} onPress={handleAddTag}>
-                <ThemeText style={styles.menuText}>Tag</ThemeText>
+                <ThemeText style={styles.menuText}>{t("menu.addTags")}</ThemeText>
                 <SvgIcon name="tag" size={28} color={theme.colors.text.primary} />
               </TouchableOpacity>
 
               {/* Archive */}
               <TouchableOpacity style={styles.menuItem} onPress={handleArchiveToggle}>
                 <ThemeText style={styles.menuText}>
-                  {item.archived ? "Unarchive" : "Archive"}
+                  {item.archived ? t("menu.unarchive") : t("menu.archive")}
                 </ThemeText>
                 <SvgIcon name="archive" size={28} color={theme.colors.text.primary} />
               </TouchableOpacity>
@@ -97,7 +99,7 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ item, onClose }) => {
               {/* Delete - red text */}
               <TouchableOpacity style={styles.menuItem} onPress={handleDelete}>
                 <ThemeText style={[styles.menuText, { color: theme.colors.error.main }]}>
-                  Delete
+                  {t("menu.delete")}
                 </ThemeText>
                 <SvgIcon name="trash" size={28} color={theme.colors.error.main} />
               </TouchableOpacity>

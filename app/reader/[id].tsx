@@ -36,6 +36,7 @@ import { SvgIcon } from "@/components/SvgIcon";
 import { ActionMenuPosition } from "@/components/common/menu/ReusableActionMenu";
 import ReaderActionMenu from "@/components/common/menu/ReaderActionMenu";
 import { getLiterataVariableStyle } from "@/theme";
+import { useTranslation } from "react-i18next";
 
 // Get window width for content sizing
 const { width } = Dimensions.get("window");
@@ -54,6 +55,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
   const router = useRouter();
   const theme = useTheme();
   const isDarkMode = useDarkMode();
+  const { t } = useTranslation();
 
   // Refs
   const scrollViewRef = useRef<ScrollView>(null);
@@ -280,7 +282,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
                 color={theme.colors.text.secondary}
                 style={styles.afterReadingText}
               >
-                After Reading
+                {t("reader.afterReading")}
               </ThemeText>
             </ThemeView>
           </ThemeView>
@@ -296,7 +298,9 @@ const ReaderComponent = ({ item }: { item: Item }) => {
                 color={theme.colors.text.primary}
                 style={styles.footerIcon}
               />
-              <ThemeText variant="body2">{item.favorite ? "Favorited" : "Favorite"}</ThemeText>
+              <ThemeText variant="body2">
+                {item.favorite ? t("reader.favorited") : t("reader.favorite")}
+              </ThemeText>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -313,7 +317,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
                 style={styles.footerIcon}
               />
 
-              <ThemeText variant="body2">Archive</ThemeText>
+              <ThemeText variant="body2">{t("reader.archive")}</ThemeText>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -326,7 +330,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
                 color={theme.colors.text.primary}
                 style={styles.footerIcon}
               />
-              <ThemeText variant="body2">Share</ThemeText>
+              <ThemeText variant="body2">{t("menu.share")}</ThemeText>
             </TouchableOpacity>
           </ThemeView>
         </ThemeView>
@@ -342,7 +346,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
               color={theme.colors.text.secondary}
               style={styles.upNextText}
             >
-              Up Next
+              {t("reader.upNext")}
             </ThemeText>
           </ThemeView>
           <RecommendedArticles currentItem={item} />
@@ -375,11 +379,12 @@ const EnhancedReader = withObservables(["id"], ({ id, database }: EnhancedReader
 export default function ReaderScreen() {
   const { id } = useLocalSearchParams();
   const database = useDatabase();
+  const { t } = useTranslation();
 
   if (!id) {
     return (
       <ThemeView style={{ flex: 1 }} centered>
-        <ThemeText>No article ID provided</ThemeText>
+        <ThemeText>{t("reader.noArticleId")}</ThemeText>
       </ThemeView>
     );
   }

@@ -1,32 +1,57 @@
-import { StyleSheet, Pressable } from "react-native";
+import { StyleSheet, Pressable, SafeAreaView } from "react-native";
 import { ThemeText, ThemeView } from "@/components";
 import { Ionicons } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useLogoutMutation } from "@/redux/services/authApi";
+import { useTranslation } from "react-i18next";
 
-export default function Settings() {
-  const [logout] = useLogoutMutation();
-
-  const handleSignOut = async () => {
-    try {
-      await logout();
-    } catch (err) {
-      console.error("Logout failed", err);
-    }
-  };
+export default function SettingsScreen() {
+  const { t } = useTranslation();
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ThemeView style={styles.container} padded="lg">
         <ThemeText variant="h2" style={styles.header}>
-          Settings
+          {t("settings.title")}
         </ThemeText>
 
         <ThemeView style={styles.section} rounded="md">
-          <Pressable style={styles.settingItem} onPress={handleSignOut}>
+          <Pressable style={styles.settingItem}>
             <ThemeView style={styles.settingContent}>
-              <Ionicons name="log-out-outline" size={24} color="#FF3B30" />
-              <ThemeText style={styles.settingText}>Sign Out</ThemeText>
+              <Ionicons name="person-outline" size={24} color="#007AFF" />
+              <ThemeText style={styles.settingText}>{t("settings.account")}</ThemeText>
+            </ThemeView>
+            <Ionicons name="chevron-forward" size={20} color="#8E8E93" />
+          </Pressable>
+
+          <Pressable style={styles.settingItem}>
+            <ThemeView style={styles.settingContent}>
+              <Ionicons name="notifications-outline" size={24} color="#007AFF" />
+              <ThemeText style={styles.settingText}>{t("settings.notifications")}</ThemeText>
+            </ThemeView>
+            <Ionicons name="chevron-forward" size={20} color="#8E8E93" />
+          </Pressable>
+
+          <Pressable style={styles.settingItem}>
+            <ThemeView style={styles.settingContent}>
+              <Ionicons name="moon-outline" size={24} color="#007AFF" />
+              <ThemeText style={styles.settingText}>{t("settings.appearance")}</ThemeText>
+            </ThemeView>
+            <Ionicons name="chevron-forward" size={20} color="#8E8E93" />
+          </Pressable>
+        </ThemeView>
+
+        <ThemeView style={styles.section} rounded="md">
+          <Pressable style={styles.settingItem}>
+            <ThemeView style={styles.settingContent}>
+              <Ionicons name="help-circle-outline" size={24} color="#007AFF" />
+              <ThemeText style={styles.settingText}>{t("settings.help")}</ThemeText>
+            </ThemeView>
+            <Ionicons name="chevron-forward" size={20} color="#8E8E93" />
+          </Pressable>
+
+          <Pressable style={styles.settingItem}>
+            <ThemeView style={styles.settingContent}>
+              <Ionicons name="information-circle-outline" size={24} color="#007AFF" />
+              <ThemeText style={styles.settingText}>{t("settings.about")}</ThemeText>
             </ThemeView>
             <Ionicons name="chevron-forward" size={20} color="#8E8E93" />
           </Pressable>
@@ -65,6 +90,6 @@ const styles = StyleSheet.create({
   },
   settingText: {
     fontSize: 16,
-    color: "#FF3B30",
+    color: "#007AFF",
   },
 });

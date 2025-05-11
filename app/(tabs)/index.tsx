@@ -1,21 +1,23 @@
-import { StyleSheet, Pressable } from "react-native";
+import { StyleSheet, Pressable, SafeAreaView } from "react-native";
 import { ThemeText, ThemeView } from "@/components";
 import { Ionicons } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
 
 export default function HomeScreen() {
+  const { t } = useTranslation();
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ThemeView style={styles.container} padded="lg">
         <ThemeText variant="h2" style={styles.header}>
-          Explore
+          {t("home.explore")}
         </ThemeText>
 
         <ThemeView style={styles.section} rounded="md">
           <Pressable style={styles.settingItem}>
             <ThemeView style={styles.settingContent}>
               <Ionicons name="compass-outline" size={24} color="#007AFF" />
-              <ThemeText style={styles.settingText}>Discover</ThemeText>
+              <ThemeText style={styles.settingText}>{t("home.discover")}</ThemeText>
             </ThemeView>
             <Ionicons name="chevron-forward" size={20} color="#8E8E93" />
           </Pressable>

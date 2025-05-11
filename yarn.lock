@@ -1076,6 +1076,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/runtime@npm:^7.26.10":
+  version: 7.27.1
+  resolution: "@babel/runtime@npm:7.27.1"
+  checksum: 11339838a54783e5b14e04d94d7a4d032e9965c5823f3f687e41556fa40344ae7aeb57c535720b7a74ab3e8217def7834a6f1a665ee55bbb3befede141419913
+  languageName: node
+  linkType: hard
+
 "@babel/template@npm:^7.25.0, @babel/template@npm:^7.25.9, @babel/template@npm:^7.26.9, @babel/template@npm:^7.27.0, @babel/template@npm:^7.3.3":
   version: 7.27.0
   resolution: "@babel/template@npm:7.27.0"
@@ -3776,13 +3783,6 @@ __metadata:
   version: 1.6.52
   resolution: "big-integer@npm:1.6.52"
   checksum: 6e86885787a20fed96521958ae9086960e4e4b5e74d04f3ef7513d4d0ad631a9f3bde2730fc8aaa4b00419fc865f6ec573e5320234531ef37505da7da192c40b
-  languageName: node
-  linkType: hard
-
-"bignumber.js@npm:*":
-  version: 9.3.0
-  resolution: "bignumber.js@npm:9.3.0"
-  checksum: 580d783d60246e758e527fa879ae0d282d8f250f555dd0fcee1227d680186ceba49ed7964c6d14e2e8d8eac7a2f4dd6ef1b7925dc52f5fc28a5a87639dd2dbd1
   languageName: node
   linkType: hard
 
@@ -6564,6 +6564,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"html-parse-stringify@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "html-parse-stringify@npm:3.0.1"
+  dependencies:
+    void-elements: 3.1.0
+  checksum: 334fdebd4b5c355dba8e95284cead6f62bf865a2359da2759b039db58c805646350016d2017875718bc3c4b9bf81a0d11be5ee0cf4774a3a5a7b97cde21cfd67
+  languageName: node
+  linkType: hard
+
 "htmlparser2@npm:^7.1.2":
   version: 7.2.0
   resolution: "htmlparser2@npm:7.2.0"
@@ -6651,14 +6660,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"i18n-js@npm:^4.5.1":
-  version: 4.5.1
-  resolution: "i18n-js@npm:4.5.1"
+"i18next@npm:^25.1.2":
+  version: 25.1.2
+  resolution: "i18next@npm:25.1.2"
   dependencies:
-    bignumber.js: "*"
-    lodash: "*"
-    make-plural: "*"
-  checksum: 1cac75ffe65e116414784251daf306f6a60cd75a68c0b9c9b746a1dd76b31a2a027f0af2c93056611c9845659bcee7ebf6eea601a250009d934bdb7adb65be5e
+    "@babel/runtime": ^7.26.10
+  peerDependencies:
+    typescript: ^5
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 7cb120bcee5e7ed9f8c20a7be8d75805ed9aeec0a879ed333e59c0ffd88d6cccfbb31253ce2e6b4c30183c54457096014efd71c1345f59b566ea024c67904f75
   languageName: node
   linkType: hard
 
@@ -8154,7 +8166,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:*, lodash@npm:^4.17.19":
+"lodash@npm:^4.17.19":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7
@@ -8229,13 +8241,6 @@ __metadata:
     promise-retry: ^2.0.1
     ssri: ^12.0.0
   checksum: 6fb2fee6da3d98f1953b03d315826b5c5a4ea1f908481afc113782d8027e19f080c85ae998454de4e5f27a681d3ec58d57278f0868d4e0b736f51d396b661691
-  languageName: node
-  linkType: hard
-
-"make-plural@npm:*":
-  version: 7.4.0
-  resolution: "make-plural@npm:7.4.0"
-  checksum: f2e58b6efd3e099ebc076d6c6b60854740886006a7af9cfcb1d4478409efbdd41f6ae14921b8eef4f1cbc0702ff7a29f159199d7ac0831784d0bbfcfded39558
   languageName: node
   linkType: hard
 
@@ -9421,7 +9426,7 @@ __metadata:
     expo-symbols: ~0.4.4
     expo-system-ui: ~5.0.7
     expo-web-browser: ~14.1.6
-    i18n-js: ^4.5.1
+    i18next: ^25.1.2
     jest: ^29.2.1
     jest-expo: ~53.0.5
     lodash-es: ^4.17.21
@@ -9430,13 +9435,14 @@ __metadata:
     react: 19.0.0
     react-dom: 19.0.0
     react-hook-form: ^7.55.0
+    react-i18next: ^15.5.1
     react-native: 0.79.2
     react-native-gesture-handler: ~2.24.0
     react-native-get-random-values: ^1.11.0
     react-native-performance: ^5.1.2
     react-native-reanimated: ^3.17.5
     react-native-render-html: ^6.3.4
-    react-native-safe-area-context: 5.4.0
+    react-native-safe-area-context: ^5.4.0
     react-native-screens: ~4.10.0
     react-native-size-matters: ^0.4.2
     react-native-svg: 15.11.2
@@ -9760,6 +9766,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-i18next@npm:^15.5.1":
+  version: 15.5.1
+  resolution: "react-i18next@npm:15.5.1"
+  dependencies:
+    "@babel/runtime": ^7.25.0
+    html-parse-stringify: ^3.0.1
+  peerDependencies:
+    i18next: ">= 23.2.3"
+    react: ">= 16.8.0"
+    typescript: ^5
+  peerDependenciesMeta:
+    react-dom:
+      optional: true
+    react-native:
+      optional: true
+    typescript:
+      optional: true
+  checksum: 5f9526caa6d68a64f2a4c1ec0745923a699d3899e3d94e773e1f00a4b39f8a3c72a60cdb2dbb7cd42907143430a5ebdb42ea8c25a37894acf721a09e1d0a6ec1
+  languageName: node
+  linkType: hard
+
 "react-is@npm:^16.12.0 || ^17.0.0 || ^18.0.0, react-is@npm:^18.0.0, react-is@npm:^18.2.0, react-is@npm:^18.3.1":
   version: 18.3.1
   resolution: "react-is@npm:18.3.1"
@@ -9879,7 +9906,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-safe-area-context@npm:5.4.0":
+"react-native-safe-area-context@npm:^5.4.0":
   version: 5.4.0
   resolution: "react-native-safe-area-context@npm:5.4.0"
   peerDependencies:
@@ -11934,6 +11961,13 @@ __metadata:
   version: 1.0.1
   resolution: "vlq@npm:1.0.1"
   checksum: 67ab6dd35c787eaa02c0ff1a869dd07a230db08722fb6014adaaf432634808ddb070765f70958b47997e438c331790cfcf20902411b0d6453f1a2a5923522f55
+  languageName: node
+  linkType: hard
+
+"void-elements@npm:3.1.0":
+  version: 3.1.0
+  resolution: "void-elements@npm:3.1.0"
+  checksum: 0390f818107fa8fce55bb0a5c3f661056001c1d5a2a48c28d582d4d847347c2ab5b7f8272314cac58acf62345126b6b09bea623a185935f6b1c3bbce0dfd7f7f
   languageName: node
   linkType: hard
 
