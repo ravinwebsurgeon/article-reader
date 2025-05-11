@@ -65,7 +65,8 @@
       ],
       "expo-font",
       "expo-web-browser",
-      "expo-localization"
+      "expo-localization",
+      "./plugins/withLargeHeap"
     ],
     "experiments": {
       "typedRoutes": true
