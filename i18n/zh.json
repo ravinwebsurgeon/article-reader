@@ -190,9 +190,6 @@
       "confirm": "删除"
     }
   },
-  "database": {
-    "initializing": "正在初始化数据库..."
-  },
   "filters": {
     "all": "全部",
     "favorites": "收藏",

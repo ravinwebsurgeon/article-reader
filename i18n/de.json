@@ -197,9 +197,6 @@
       "confirm": "Löschen"
     }
   },
-  "database": {
-    "initializing": "Datenbank wird initialisiert..."
-  },
   "filters": {
     "all": "Alle",
     "favorites": "Favoriten",

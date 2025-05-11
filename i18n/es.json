@@ -197,9 +197,6 @@
       "confirm": "Eliminar"
     }
   },
-  "database": {
-    "initializing": "Inicializando base de datos..."
-  },
   "filters": {
     "all": "Todos",
     "favorites": "Favoritos",

@@ -197,9 +197,6 @@
       "confirm": "Delete"
     }
   },
-  "database": {
-    "initializing": "Initializing database..."
-  },
   "filters": {
     "all": "All",
     "favorites": "Favorites",
