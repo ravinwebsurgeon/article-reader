@@ -100,11 +100,13 @@ const ReaderComponent = ({ item }: { item: Item }) => {
 
   // Handle navigation back
   const handleBack = async () => {
-    // Save reading progress before navigating back
-    console.log("Saving progress:", progress);
-    await item
-      .setProgress(progress)
-      .catch((error) => console.error("Error saving progress:", error));
+    // Only save if progress has changed from initial value
+    if (progress !== item.progress) {
+      console.log("Saving progress:", progress);
+      await item
+        .setProgress(progress)
+        .catch((error) => console.error("Error saving progress:", error));
+    }
     router.back();
   };
 
