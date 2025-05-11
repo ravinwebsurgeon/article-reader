@@ -101,12 +101,12 @@ export default class Item extends Model {
       .fetch();
 
     if (itemTag.length > 0) {
-      await itemTag[0].destroyPermanently();
+      await itemTag[0].markAsDeleted();
     }
   }
 
   @writer async removeAllTags() {
     const itemTags = await this.itemTags.fetch();
-    await Promise.all(itemTags.map((tag) => tag.destroyPermanently()));
+    await Promise.all(itemTags.map((tag) => tag.markAsDeleted()));
   }
 }
