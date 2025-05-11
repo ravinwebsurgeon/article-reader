@@ -3,7 +3,7 @@ import Item from "@/database/models/ItemModel";
 import ReusableActionMenu, { ActionMenuItem, ActionMenuPosition } from "./ReusableActionMenu";
 import { useTheme } from "@/theme";
 import { Alert, Share } from "react-native";
-import TagEditor from "@/components/features/tag/EditTag";
+import TagEditor from "@/features/tag/EditTag";
 import { useTranslation } from "react-i18next";
 
 interface ArticleActionMenuProps {
