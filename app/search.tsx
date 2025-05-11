@@ -16,7 +16,6 @@ import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/theme";
 import ArticleCard from "@/components/common/card/ArticleCard";
-import ActionMenu from "@/components/common/menu/ActionMenu";
 import ItemModel from "@/database/models/ItemModel";
 import { withSearch } from "@/database/hooks/withItems";
 import { useTranslation } from "react-i18next";
@@ -37,9 +36,6 @@ const SearchScreenComponent = ({
   const isDarkMode = theme.mode === "dark";
 
   // State
-  const [selectedItem, setSelectedItem] = useState<ItemModel | null>(null);
-  const [showActionMenu, setShowActionMenu] = useState(false);
-
   // Determine if we should show results or empty/no-results state
   const shouldShowResults = searchQuery.trim().length > 0;
 
@@ -62,25 +58,9 @@ const SearchScreenComponent = ({
     });
   };
 
-  // Open action menu for an item
-  const openActionMenu = (item: ItemModel) => {
-    setSelectedItem(item);
-    setShowActionMenu(true);
-  };
-
-  // Close action menu
-  const closeActionMenu = () => {
-    setShowActionMenu(false);
-    setSelectedItem(null);
-  };
-
   // Render article item
   const renderItem = ({ item }: { item: ItemModel }) => (
-    <ArticleCard
-      item={item}
-      onPress={() => navigateToArticle(item)}
-      onMenuPress={() => openActionMenu(item)}
-    />
+    <ArticleCard item={item} onPress={() => navigateToArticle(item)} />
   );
 
   const dynamicStyles: {
@@ -194,11 +174,6 @@ const SearchScreenComponent = ({
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContainer}
         />
-      )}
-
-      {/* Action Menu Modal */}
-      {showActionMenu && selectedItem && (
-        <ActionMenu item={selectedItem} onClose={closeActionMenu} />
       )}
     </SafeAreaView>
   );
