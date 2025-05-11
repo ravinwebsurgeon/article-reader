@@ -364,32 +364,21 @@ const ReaderComponent = ({ item }: { item: Item }) => {
   );
 };
 
-// Enhanced component that observes the item from the database
-interface EnhancedReaderProps {
-  id: string;
-  database: Database;
-}
-
-// Enhanced component that observes the item from the database
-const EnhancedReader = withObservables(["id"], ({ id, database }: EnhancedReaderProps) => ({
-  item: database.collections.get<Item>("items").findAndObserve(id),
-}))(ReaderComponent);
-
 // Wrapper component that provides the database context
 export default function ReaderScreen() {
-  const { id } = useLocalSearchParams();
-  const database = useDatabase();
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { database } = useDatabase();
   const { t } = useTranslation();
 
   if (!id) {
-    return (
-      <ThemeView style={{ flex: 1 }} centered>
-        <ThemeText>{t("reader.noArticleId")}</ThemeText>
-      </ThemeView>
-    );
+    return null;
   }
 
-  return <EnhancedReader id={id.toString()} database={database} />;
+  const EnhancedReader = withObservables(["id"], ({ id }: { id: string }) => ({
+    item: database.collections.get<Item>("items").findAndObserve(id),
+  }))(ReaderComponent);
+
+  return <EnhancedReader id={id} />;
 }
 
 const styles = StyleSheet.create({
