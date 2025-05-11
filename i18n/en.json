@@ -3,6 +3,13 @@
     "name": "Pocket",
     "tagline": "Save. Read. Grow."
   },
+  "navigation": {
+    "tabs": {
+      "discover": "Discover",
+      "saves": "Saves",
+      "settings": "Settings"
+    }
+  },
   "common": {
     "ok": "OK",
     "cancel": "Cancel",
@@ -60,7 +67,8 @@
     "archive": "Archive",
     "unarchive": "Unarchive",
     "markAsRead": "Mark as Read",
-    "markAsUnread": "Mark as Unread"
+    "markAsUnread": "Mark as Unread",
+    "upNext": "Up Next"
   },
   "errors": {
     "network": "Network error. Please check your connection.",

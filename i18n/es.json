@@ -3,6 +3,13 @@
     "name": "Pocket",
     "tagline": "Guarda. Lee. Crece."
   },
+  "navigation": {
+    "tabs": {
+      "discover": "Descubrir",
+      "saves": "Guardados",
+      "settings": "Ajustes"
+    }
+  },
   "common": {
     "ok": "Aceptar",
     "cancel": "Cancelar",
@@ -60,7 +67,8 @@
     "archive": "Archivar",
     "unarchive": "Desarchivar",
     "markAsRead": "Marcar como leído",
-    "markAsUnread": "Marcar como no leído"
+    "markAsUnread": "Marcar como no leído",
+    "upNext": "Siguiente"
   },
   "errors": {
     "network": "Error de red. Por favor, verifica tu conexión.",

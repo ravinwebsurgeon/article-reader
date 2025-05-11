@@ -3,6 +3,13 @@
     "name": "Pocket",
     "tagline": "Sauvegardez. Lisez. Grandissez."
   },
+  "navigation": {
+    "tabs": {
+      "discover": "Découvrir",
+      "saves": "Sauvegardes",
+      "settings": "Paramètres"
+    }
+  },
   "common": {
     "ok": "OK",
     "cancel": "Annuler",
@@ -60,7 +67,8 @@
     "archive": "Archiver",
     "unarchive": "Désarchiver",
     "markAsRead": "Marquer comme lu",
-    "markAsUnread": "Marquer comme non lu"
+    "markAsUnread": "Marquer comme non lu",
+    "upNext": "À suivre"
   },
   "errors": {
     "network": "Erreur réseau. Veuillez vérifier votre connexion.",
