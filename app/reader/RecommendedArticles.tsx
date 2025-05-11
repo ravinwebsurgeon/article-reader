@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import { withRecommendedItems } from "@/database/hooks/withRecommendedItems";
 import Item from "@/database/models/ItemModel";
 import { useTheme } from "@/theme/hooks";
-import ArticleCard from "@/components/shared/card/ArticleCard";
+import ItemCard from "@/components/item/ItemCard";
 
 // Base component for the Recommended Articles section
 const RecommendedArticlesBase = ({
@@ -27,11 +27,11 @@ const RecommendedArticlesBase = ({
 
   // Render a single recommended article
   const renderItem = ({ item }: { item: Item }) => (
-    <ArticleCard
+    <ItemCard
       item={item}
       onPress={() => navigateToArticle(item)}
       style={{ paddingHorizontal: -16 }}
-      //   onMenuPress={() => openActionMenu(item.id)}
+      itemTags={[]}
     />
   );
 
