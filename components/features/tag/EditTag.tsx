@@ -12,13 +12,13 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { useTheme, useColors, useTypography } from "@/theme/hooks";
-import { ThemeText, ThemeView } from "@/components/core";
+import { ThemeText, ThemeView } from "@/components/primitives";
 import Tag from "@/database/models/TagModel";
 import Item from "@/database/models/ItemModel";
 import ItemTag from "@/database/models/ItemTagModel";
 import { SvgIcon } from "@/components/SvgIcon";
 import { useTagManagement } from "@/utils/hooks";
-import { TagBadge, TagList } from "@/components/common/tag";
+import { TagBadge, TagList } from "@/components/shared/tag";
 import database from "@/database/database";
 import { Q } from "@nozbe/watermelondb";
 import { useTranslation } from "react-i18next";

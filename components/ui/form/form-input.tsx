@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { View, TextInput, StyleSheet, KeyboardTypeOptions } from "react-native";
 import { Control, Controller, FieldValues, Path, RegisterOptions } from "react-hook-form";
 import { useTheme, type Theme } from "@/theme";
-import { ThemeText, ThemeView } from "@/components/core";
+import { ThemeText, ThemeView } from "@/components/primitives";
 import { useTranslation } from "react-i18next";
 
 interface FormInputProps<T extends FieldValues> {

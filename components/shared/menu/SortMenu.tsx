@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { useTheme, Theme } from "@/theme";
-import { ThemeText } from "@/components/core";
+import { ThemeText } from "@/components/primitives";
 import { useTranslation } from "react-i18next";
 import ReusableActionMenu, { ActionMenuItem, ActionMenuPosition } from "./ReusableActionMenu";
 

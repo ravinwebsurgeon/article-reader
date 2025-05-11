@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { useTheme, type Theme } from "@/theme";
 import { ItemFilter } from "@/types/item";
-import { ThemeText } from "@/components/core";
+import { ThemeText } from "@/components/primitives";
 import Svg, { Path } from "react-native-svg";
 import { useTranslation } from "react-i18next";
 

@@ -4,7 +4,7 @@ import { map } from "rxjs/operators";
 import Item from "../models/ItemModel";
 import database from "../database";
 import { ItemFilter } from "@/types/item";
-import { SortOption } from "@/components/common/menu/SortMenu";
+import { SortOption } from "@/components/shared/menu/SortMenu";
 import { useState, useEffect } from "react";
 import { Subscription } from "rxjs";
 

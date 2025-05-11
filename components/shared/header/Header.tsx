@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 
 // Import themed components and hooks
-import { ThemeView, ThemeText, ThemeTouchable } from "@/components/core";
+import { ThemeView, ThemeText, ThemeTouchable } from "@/components/primitives";
 import { useTheme, useDarkMode } from "@/theme/hooks";
 
 interface HeaderProps {
