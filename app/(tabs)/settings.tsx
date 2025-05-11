@@ -2,58 +2,84 @@ import { StyleSheet, Pressable, SafeAreaView } from "react-native";
 import { ThemeText, ThemeView } from "@/components";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "@/theme";
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
+  const theme = useTheme();
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background.default }]}>
       <ThemeView style={styles.container} padded="lg">
         <ThemeText variant="h2" style={styles.header}>
           {t("settings.title")}
         </ThemeText>
 
-        <ThemeView style={styles.section} rounded="md">
-          <Pressable style={styles.settingItem}>
+        <ThemeView
+          style={[styles.section, { backgroundColor: theme.colors.background.paper }]}
+          rounded="md"
+        >
+          <Pressable style={[styles.settingItem, { borderBottomColor: theme.colors.divider }]}>
             <ThemeView style={styles.settingContent}>
-              <Ionicons name="person-outline" size={24} color="#007AFF" />
-              <ThemeText style={styles.settingText}>{t("settings.account")}</ThemeText>
+              <Ionicons name="person-outline" size={24} color={theme.colors.primary.main} />
+              <ThemeText style={[styles.settingText, { color: theme.colors.text.primary }]}>
+                {t("settings.account")}
+              </ThemeText>
             </ThemeView>
-            <Ionicons name="chevron-forward" size={20} color="#8E8E93" />
+            <Ionicons name="chevron-forward" size={20} color={theme.colors.text.secondary} />
           </Pressable>
 
-          <Pressable style={styles.settingItem}>
+          <Pressable style={[styles.settingItem, { borderBottomColor: theme.colors.divider }]}>
             <ThemeView style={styles.settingContent}>
-              <Ionicons name="notifications-outline" size={24} color="#007AFF" />
-              <ThemeText style={styles.settingText}>{t("settings.notifications")}</ThemeText>
+              <Ionicons name="notifications-outline" size={24} color={theme.colors.primary.main} />
+              <ThemeText style={[styles.settingText, { color: theme.colors.text.primary }]}>
+                {t("settings.notifications")}
+              </ThemeText>
             </ThemeView>
-            <Ionicons name="chevron-forward" size={20} color="#8E8E93" />
+            <Ionicons name="chevron-forward" size={20} color={theme.colors.text.secondary} />
           </Pressable>
 
-          <Pressable style={styles.settingItem}>
+          <Pressable style={[styles.settingItem, { borderBottomColor: theme.colors.divider }]}>
             <ThemeView style={styles.settingContent}>
-              <Ionicons name="moon-outline" size={24} color="#007AFF" />
-              <ThemeText style={styles.settingText}>{t("settings.appearance")}</ThemeText>
+              <Ionicons name="moon-outline" size={24} color={theme.colors.primary.main} />
+              <ThemeText style={[styles.settingText, { color: theme.colors.text.primary }]}>
+                {t("settings.appearance")}
+              </ThemeText>
             </ThemeView>
-            <Ionicons name="chevron-forward" size={20} color="#8E8E93" />
+            <Ionicons name="chevron-forward" size={20} color={theme.colors.text.secondary} />
           </Pressable>
         </ThemeView>
 
-        <ThemeView style={styles.section} rounded="md">
-          <Pressable style={styles.settingItem}>
+        <ThemeView
+          style={[
+            styles.section,
+            styles.secondSection,
+            { backgroundColor: theme.colors.background.paper },
+          ]}
+          rounded="md"
+        >
+          <Pressable style={[styles.settingItem, { borderBottomColor: theme.colors.divider }]}>
             <ThemeView style={styles.settingContent}>
-              <Ionicons name="help-circle-outline" size={24} color="#007AFF" />
-              <ThemeText style={styles.settingText}>{t("settings.help")}</ThemeText>
+              <Ionicons name="help-circle-outline" size={24} color={theme.colors.primary.main} />
+              <ThemeText style={[styles.settingText, { color: theme.colors.text.primary }]}>
+                {t("settings.help")}
+              </ThemeText>
             </ThemeView>
-            <Ionicons name="chevron-forward" size={20} color="#8E8E93" />
+            <Ionicons name="chevron-forward" size={20} color={theme.colors.text.secondary} />
           </Pressable>
 
-          <Pressable style={styles.settingItem}>
+          <Pressable style={[styles.settingItem, { borderBottomColor: theme.colors.divider }]}>
             <ThemeView style={styles.settingContent}>
-              <Ionicons name="information-circle-outline" size={24} color="#007AFF" />
-              <ThemeText style={styles.settingText}>{t("settings.about")}</ThemeText>
+              <Ionicons
+                name="information-circle-outline"
+                size={24}
+                color={theme.colors.primary.main}
+              />
+              <ThemeText style={[styles.settingText, { color: theme.colors.text.primary }]}>
+                {t("settings.about")}
+              </ThemeText>
             </ThemeView>
-            <Ionicons name="chevron-forward" size={20} color="#8E8E93" />
+            <Ionicons name="chevron-forward" size={20} color={theme.colors.text.secondary} />
           </Pressable>
         </ThemeView>
       </ThemeView>
@@ -72,8 +98,10 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   section: {
-    backgroundColor: "#FFFFFF",
     overflow: "hidden",
+  },
+  secondSection: {
+    marginTop: 16,
   },
   settingItem: {
     flexDirection: "row",
@@ -81,7 +109,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 16,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#C6C6C8",
   },
   settingContent: {
     flexDirection: "row",
@@ -90,6 +117,5 @@ const styles = StyleSheet.create({
   },
   settingText: {
     fontSize: 16,
-    color: "#007AFF",
   },
 });
