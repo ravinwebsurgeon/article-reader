@@ -9442,7 +9442,7 @@ __metadata:
     react-native-performance: ^5.1.2
     react-native-reanimated: ^3.17.5
     react-native-render-html: ^6.3.4
-    react-native-safe-area-context: 5.4.0
+    react-native-safe-area-context: ^5.4.0
     react-native-screens: ~4.10.0
     react-native-size-matters: ^0.4.2
     react-native-svg: 15.11.2
@@ -9906,7 +9906,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-safe-area-context@npm:5.4.0":
+"react-native-safe-area-context@npm:^5.4.0":
   version: 5.4.0
   resolution: "react-native-safe-area-context@npm:5.4.0"
   peerDependencies:
