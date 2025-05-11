@@ -21,6 +21,7 @@ import { useTagManagement } from "@/utils/hooks";
 import { TagBadge, TagList } from "@/components/common/tag";
 import database from "@/database/database";
 import { Q } from "@nozbe/watermelondb";
+import { useTranslation } from "react-i18next";
 
 /**
  * TagEditor component allows users to manage tags for an article
@@ -39,6 +40,7 @@ export interface TagEditorProps {
 }
 
 const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const colors = useColors();
   const typography = useTypography();
@@ -364,10 +366,10 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
               <View style={styles.topBarIndicator} />
             </View>
             <View style={styles.header}>
-              <ThemeText style={[styles.title, typography.h6]}>Edit Tags</ThemeText>
+              <ThemeText style={[styles.title, typography.h6]}>{t("tags.editTags")}</ThemeText>
               <TouchableOpacity onPress={onClose} style={styles.closeButton}>
                 <ThemeText style={[styles.closeText, { color: colors.primary.main }]}>
-                  Done
+                  {t("tags.done")}
                 </ThemeText>
               </TouchableOpacity>
             </View>
@@ -377,7 +379,7 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
               <SvgIcon name="tag" size={24} color={colors.gray[500]} style={styles.searchIcon} />
               <TextInput
                 style={[styles.input, typography.body2, { color: colors.text.primary }]}
-                placeholder="Enter a Tag Name"
+                placeholder={t("tags.enterTagName")}
                 placeholderTextColor={colors.gray[400]}
                 value={tagText}
                 onChangeText={handleTextChange}
@@ -413,7 +415,7 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
               {/* Show loading indicator when loading */}
               {isLoading ? (
                 <View style={styles.loadingContainer}>
-                  <ThemeText>Loading tags...</ThemeText>
+                  <ThemeText>{t("tags.loadingTags")}</ThemeText>
                 </View>
               ) : (
                 <>
@@ -423,8 +425,8 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
                       tags={searchResults}
                       selectedTagIds={selectedTagIds}
                       onTagPress={toggleTag}
-                      title="Search Results"
-                      emptyMessage="No matching tags found"
+                      title={t("tags.searchResults")}
+                      emptyMessage={t("tags.noMatchingTags")}
                     />
                   ) : (
                     <>
@@ -434,8 +436,8 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
                           tags={displayedRecentTags}
                           selectedTagIds={selectedTagIds}
                           onTagPress={toggleTag}
-                          title="Recent Tags"
-                          emptyMessage="No recent tags found"
+                          title={t("tags.recentTags")}
+                          emptyMessage={t("tags.noRecentTags")}
                         />
                       )}
 
@@ -445,8 +447,8 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
                           tags={displayedOtherTags}
                           selectedTagIds={selectedTagIds}
                           onTagPress={toggleTag}
-                          title="Other Tags"
-                          emptyMessage="No other tags found"
+                          title={t("tags.otherTags")}
+                          emptyMessage={t("tags.noOtherTags")}
                           maxHeight={300}
                         />
                       )}

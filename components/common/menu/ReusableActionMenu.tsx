@@ -18,6 +18,7 @@ import { ThemeText } from "@/components/core";
 import { SvgIcon, SvgIconName } from "@/components/SvgIcon";
 import Svg, { Path } from "react-native-svg";
 import { menuAnimationPresets } from "./menuAnimationPresents";
+import { useTranslation } from "react-i18next";
 
 export interface ActionMenuItem {
   id: string;
@@ -105,6 +106,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
 }) => {
   const theme = useTheme();
   const isDarkMode = useDarkMode();
+  const { t } = useTranslation();
   const styles = useMemo(() => makeStyles(theme, isDarkMode), [theme, isDarkMode]);
 
   // Refs for measuring
@@ -336,7 +338,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
               color={textColor}
               variant="body1"
             >
-              {item.label}
+              {t(item.label)}
             </ThemeText>
 
             {/* Icon part */}
@@ -356,7 +358,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
         </React.Fragment>
       );
     },
-    [theme.colors, handleClose, styles],
+    [theme.colors, handleClose, styles, t],
   );
 
   // Animation styles
@@ -435,7 +437,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
     <Modal
       transparent
       visible={modalVisible}
-      animationType="none"
+      animationType={animationType}
       onRequestClose={handleClose}
       statusBarTranslucent
     >
@@ -456,7 +458,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
                       style={styles.menuTitle}
                       color={theme.colors.text.secondary}
                     >
-                      {title ?? ""}
+                      {t(title ?? "")}
                     </ThemeText>
                   )}
                 </View>

@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "Pocket",
-    "tagline": "Your personal pocket companion"
+    "tagline": "Save. Read. Grow."
   },
   "common": {
     "ok": "OK",
@@ -10,26 +10,194 @@
     "no": "No",
     "save": "Save",
     "delete": "Delete",
-    "edit": "Edit"
+    "edit": "Edit",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
   },
   "auth": {
     "login": {
-      "title": "Log In",
-      "email": "Email address",
+      "title": "Welcome Back",
+      "subtitle": "Log in to your account",
+      "email": "Email",
       "password": "Password",
-      "button": "Sign in"
+      "forgotPassword": "Forgot Password?",
+      "button": "Log In",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign Up"
     },
     "signup": {
-      "title": "Create an account",
-      "button": "Sign up"
+      "title": "Welcome to Pocket",
+      "subtitle": "Create your account",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "button": "Create Account",
+      "hasAccount": "Already have an account?",
+      "logIn": "Log In"
+    },
+    "authStart": {
+      "title": "How would you like to sign in?",
+      "subtitle": "Choose a method to get started.",
+      "googleSignIn": "Continue with Google",
+      "emailSignIn": "Continue with Email",
+      "newHere": "New Here?",
+      "button": "Create an account"
     }
   },
-  "home": {
-    "welcome": "Welcome back, {{name}}!",
-    "subtitle": "Here's what's new"
+  "search": {
+    "placeholder": "Search your saves...",
+    "emptyState": "Let's find that thing you saved",
+    "noResults": "No results found",
+    "tryDifferentQuery": "Try a different search term",
+    "loading": "Searching..."
+  },
+  "reader": {
+    "noArticleId": "No article ID provided",
+    "afterReading": "After Reading",
+    "favorited": "Favorited",
+    "favorite": "Favorite",
+    "archive": "Archive",
+    "unarchive": "Unarchive",
+    "markAsRead": "Mark as Read",
+    "markAsUnread": "Mark as Unread"
   },
   "errors": {
-    "network": "Network error. Please try again.",
-    "unauthorized": "You must be logged in to do that."
+    "network": "Network error. Please check your connection.",
+    "invalidEmail": "Please enter a valid email address",
+    "invalidPassword": "Password must be at least 8 characters",
+    "passwordsDontMatch": "Passwords don't match",
+    "required": "This field is required",
+    "unknown": "An unknown error occurred",
+    "passwordMatch": "Passwords do not match",
+    "invalidCredentials": "Invalid email or password",
+    "networkError": "Network error. Please try again.",
+    "unknownError": "An unexpected error occurred",
+    "validation": {
+      "required": "This field is required",
+      "minLength": "Must be at least {{count}} characters",
+      "maxLength": "Must be at most {{count}} characters",
+      "email": "Please enter a valid email address",
+      "password": "Password must be at least 8 characters",
+      "passwordMatch": "Passwords do not match"
+    }
+  },
+  "notFound": {
+    "title": "Oops!",
+    "message": "This screen doesn't exist.",
+    "goHome": "Go to home screen!"
+  },
+  "home": {
+    "explore": "Explore",
+    "discover": "Discover"
+  },
+  "settings": {
+    "title": "Settings",
+    "account": "Account",
+    "notifications": "Notifications",
+    "appearance": "Appearance",
+    "help": "Help & Support",
+    "about": "About"
+  },
+  "addArticle": {
+    "title": "Add to Pocket",
+    "sectionTitle": "Add a URL",
+    "urlPlaceholder": "Enter a URL to save",
+    "saveButton": "Save to Pocket",
+    "infoText": "Save articles, videos, and more to Pocket. Your list syncs across devices so you can view it anywhere."
+  },
+  "emptyStates": {
+    "favorites": {
+      "message": "No Favorites Just Yet",
+      "subMessage": "Use the star to favorite pages you want saved to keep handy."
+    },
+    "tagged": {
+      "message": "Sort Things Your Way",
+      "subMessage": "Use tags like travel or gift ideas to organize your saves."
+    },
+    "archived": {
+      "message": "Nothing Archived",
+      "subMessage": "When you're done with a save, move it here to keep things tidy."
+    },
+    "short": {
+      "message": "No Short Reads Yet",
+      "subMessage": "When you save something quick to read, it'll show up here."
+    },
+    "long": {
+      "message": "No Long Reads Yet",
+      "subMessage": "When you save something quick to read, it'll show up here."
+    },
+    "default": {
+      "message": "Ready to Start Saving?",
+      "subMessage": "Add pages you want to come back to. They'll appear here when you're ready."
+    },
+    "all": {
+      "message": "Ready to Start Saving?",
+      "subMessage": "Add pages you want to come back to. They'll appear here when you're ready."
+    },
+    "restoring": {
+      "message": "Restoring Your Saves",
+      "subMessage": "Your saved pages are on the way."
+    },
+    "sort": {
+      "message": "Sort Things Your Way",
+      "subMessage": "Use tags list, filter or gift ideas to keep handy."
+    }
+  },
+  "tags": {
+    "editTags": "Edit Tags",
+    "done": "Done",
+    "enterTagName": "Enter a Tag Name",
+    "loadingTags": "Loading tags...",
+    "searchResults": "Search Results",
+    "noMatchingTags": "No matching tags found",
+    "recentTags": "Recent Tags",
+    "noRecentTags": "No recent tags found",
+    "otherTags": "Other Tags",
+    "noOtherTags": "No other tags found"
+  },
+  "sort": {
+    "title": "Sort By",
+    "newest": "Newest First",
+    "oldest": "Oldest First",
+    "titleAZ": "Title (A-Z)",
+    "titleZA": "Title (Z-A)",
+    "shortest": "Shortest First",
+    "longest": "Longest First"
+  },
+  "menu": {
+    "close": "Close",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "share": "Share",
+    "favorite": "Favorite",
+    "unfavorite": "Unfavorite",
+    "archive": "Archive",
+    "unarchive": "Unarchive",
+    "addTags": "Add Tags",
+    "removeTags": "Remove Tags",
+    "markAsRead": "Mark as Read",
+    "markAsUnread": "Mark as Unread",
+    "editTags": "Edit Tags",
+    "openInBrowser": "Open in Browser",
+    "deleteConfirmation": {
+      "title": "Delete Article",
+      "message": "Are you sure you want to delete this article? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    }
+  },
+  "database": {
+    "initializing": "Initializing database..."
+  },
+  "filters": {
+    "all": "All",
+    "favorites": "Favorites",
+    "tagged": "Tagged",
+    "shortReads": "Short Reads",
+    "longReads": "Long Reads",
+    "archived": "Archived"
   }
-} 
+}
