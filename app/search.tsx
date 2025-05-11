@@ -15,7 +15,7 @@ import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/theme";
-import ArticleCard from "@/components/shared/card/ArticleCard";
+import ItemCard from "@/components/item/ItemCard";
 import ItemModel from "@/database/models/ItemModel";
 import { withSearch } from "@/database/hooks/withItems";
 import { useTranslation } from "react-i18next";
@@ -60,7 +60,7 @@ const SearchScreenComponent = ({
 
   // Render article item
   const renderItem = ({ item }: { item: ItemModel }) => (
-    <ArticleCard item={item} onPress={() => navigateToArticle(item)} />
+    <ItemCard item={item} onPress={() => navigateToArticle(item)} />
   );
 
   const dynamicStyles: {

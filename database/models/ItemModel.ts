@@ -11,6 +11,7 @@ import {
 import ItemTag from "./ItemTagModel";
 import Tag from "./TagModel";
 import { Q } from "@nozbe/watermelondb";
+import { Relation } from "@nozbe/watermelondb";
 
 export default class Item extends Model {
   static table = "items";
@@ -86,9 +87,10 @@ export default class Item extends Model {
 
   // Tag methods
   @writer async addTag(tag: Tag) {
-    await this.collections.get<ItemTag>("item_tags").create((itemTag) => {
-      itemTag.item = this;
-      itemTag.tag = tag;
+    const itemTagsCollection = this.collections.get<ItemTag>("item_tags");
+    await itemTagsCollection.create((itemTag) => {
+      itemTag.item.set(this);
+      itemTag.tag.set(tag);
     });
   }
 
@@ -99,12 +101,12 @@ export default class Item extends Model {
       .fetch();
 
     if (itemTag.length > 0) {
-      await itemTag[0].destroyPermanently();
+      await itemTag[0].markAsDeleted();
     }
   }
 
   @writer async removeAllTags() {
     const itemTags = await this.itemTags.fetch();
-    await Promise.all(itemTags.map((tag) => tag.destroyPermanently()));
+    await Promise.all(itemTags.map((tag) => tag.markAsDeleted()));
   }
 }
