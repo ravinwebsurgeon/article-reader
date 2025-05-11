@@ -1,5 +1,5 @@
 import ListScreen from "@/screens/home/HomeScreen";
 
-export default function TabTwoScreen() {
+export default function SavesScreen() {
   return <ListScreen />;
 }
