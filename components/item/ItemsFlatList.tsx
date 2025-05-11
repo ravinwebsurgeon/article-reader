@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useState } from "react";
 import { FlatList, StyleSheet, RefreshControl } from "react-native";
 import { useRouter } from "expo-router";
-import ArticleCard from "@/components/shared/card/ArticleCard";
+import ArticleCard, { ARTICLE_CARD_HEIGHT } from "@/components/shared/card/ArticleCard";
 import NoUIFound from "@/components/shared/emptyState/NoUIFound";
 import Item from "@/database/models/ItemModel";
 import { ItemFilter } from "@/types/item";
@@ -44,6 +44,15 @@ const ItemsFlatList = memo(({ items, filter }: ItemsFlatListProps) => {
     [navigateToArticle],
   );
 
+  const getItemLayout = useCallback(
+    (_: any, index: number) => ({
+      length: ARTICLE_CARD_HEIGHT,
+      offset: ARTICLE_CARD_HEIGHT * index,
+      index,
+    }),
+    [],
+  );
+
   return (
     <FlatList
       data={items}
@@ -52,6 +61,12 @@ const ItemsFlatList = memo(({ items, filter }: ItemsFlatListProps) => {
       contentContainerStyle={styles.listContainer}
       refreshControl={<RefreshControl refreshing={isSyncing} onRefresh={handleRefresh} />}
       ListEmptyComponent={<NoUIFound filter={filter} />}
+      windowSize={5}
+      maxToRenderPerBatch={10}
+      initialNumToRender={10}
+      removeClippedSubviews={true}
+      getItemLayout={getItemLayout}
+      updateCellsBatchingPeriod={50}
     />
   );
 });
@@ -62,10 +77,6 @@ const styles = StyleSheet.create({
   listContainer: {
     paddingBottom: 20,
   },
-  // Note: Other styles like emptyList, title, subtitle, description, footer
-  // were in the original file but not directly used by ItemsList.
-  // They might be related to NoUIFound or were for other parts.
-  // For now, only listContainer is included as it was directly used.
 });
 
 export default ItemsFlatList;
