@@ -1,13 +1,6 @@
 import React, { useState, useCallback, useMemo, memo, useEffect } from "react";
-import {
-  View,
-  FlatList,
-  StyleSheet,
-  RefreshControl,
-  TouchableOpacity,
-  Image,
-  SafeAreaView,
-} from "react-native";
+import { View, FlatList, StyleSheet, RefreshControl, TouchableOpacity, Image } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ItemFilter } from "@/types/item";

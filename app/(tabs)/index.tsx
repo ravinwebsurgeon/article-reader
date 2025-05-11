@@ -1,4 +1,5 @@
-import { StyleSheet, Pressable, SafeAreaView } from "react-native";
+import { StyleSheet, Pressable } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemeText, ThemeView } from "@/components";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
