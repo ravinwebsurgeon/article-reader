@@ -1,5 +1,6 @@
 import React from "react";
-import { StyleSheet, StatusBar, SafeAreaView } from "react-native";
+import { StyleSheet, StatusBar } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 
 // Import themed components and hooks
