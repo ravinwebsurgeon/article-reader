@@ -13,7 +13,7 @@ import {
   ViewStyle,
 } from "react-native";
 import { useTheme, useDarkMode, type Theme } from "@/theme";
-import { ThemeText } from "@/components/core";
+import { ThemeText } from "@/components/primitives";
 import { SvgIcon, SvgIconName } from "@/components/SvgIcon";
 import Svg, { Path } from "react-native-svg";
 import { menuAnimationPresets } from "./menuAnimationPresents";

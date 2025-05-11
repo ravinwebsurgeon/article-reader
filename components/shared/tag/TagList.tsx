@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import { View, StyleSheet, FlatList, TouchableOpacity } from "react-native";
 import { SvgIcon } from "@/components/SvgIcon";
-import { ThemeText } from "@/components/core";
+import { ThemeText } from "@/components/primitives";
 import { useTheme, type Theme } from "@/theme";
 import Tag from "@/database/models/TagModel";
 

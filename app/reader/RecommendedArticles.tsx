@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import { withRecommendedItems } from "@/database/hooks/withRecommendedItems";
 import Item from "@/database/models/ItemModel";
 import { useTheme } from "@/theme/hooks";
-import ArticleCard from "@/components/common/card/ArticleCard";
+import ArticleCard from "@/components/shared/card/ArticleCard";
 
 // Base component for the Recommended Articles section
 const RecommendedArticlesBase = ({

@@ -1,13 +1,13 @@
 import React, { useState, useCallback, useEffect, useMemo } from "react";
 import { View, StyleSheet, TouchableOpacity, ActivityIndicator, ViewStyle } from "react-native";
-import { ThemeText } from "@/components/core";
+import { ThemeText } from "@/components/primitives";
 import { SvgIcon } from "@/components/SvgIcon";
 import { useTheme, type Theme } from "@/theme";
 import TagBadge from "./TagBadge";
 import Item from "@/database/models/ItemModel";
 import Tag from "@/database/models/TagModel";
 import { useTagManagement } from "@/utils/hooks";
-import TagEditor from "@/screens/EditTag";
+import TagEditor from "@/components/features/tag/EditTag";
 import { useTranslation } from "react-i18next";
 
 export interface TagSelectorProps {
