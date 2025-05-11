@@ -4,7 +4,7 @@ import { Image } from "expo-image";
 import Item from "@/database/models/ItemModel";
 import Tag from "@/database/models/TagModel";
 import { useDarkMode, useTheme, type Theme } from "@/theme";
-import { ThemeText } from "@/components/core";
+import { ThemeText } from "@/components/primitives";
 import { withObservables } from "@nozbe/watermelondb/react";
 import Svg, { Path, Rect } from "react-native-svg";
 import { SvgIcon } from "@/components/SvgIcon";

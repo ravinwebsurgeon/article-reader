@@ -16,10 +16,10 @@ import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { marked } from "marked";
 import { RenderHTML } from "react-native-render-html";
-import { createMenuPosition } from "@/components/common/menu/menuAnimationPresents";
+import { createMenuPosition } from "@/components/shared/menu/menuAnimationPresents";
 
 // Import themed components
-import { ThemeView, ThemeText } from "@/components/core";
+import { ThemeView, ThemeText } from "@/components/primitives";
 import { useTheme, useDarkMode } from "@/theme/hooks";
 
 // Import WatermelonDB components
@@ -28,8 +28,8 @@ import { useDatabase } from "@/database/provider/DatabaseProvider";
 import Item from "@/database/models/ItemModel";
 import RecommendedArticles from "./RecommendedArticles";
 import { SvgIcon } from "@/components/SvgIcon";
-import { ActionMenuPosition } from "@/components/common/menu/ReusableActionMenu";
-import ReaderActionMenu from "@/components/common/menu/ReaderActionMenu";
+import { ActionMenuPosition } from "@/components/shared/menu/ReusableActionMenu";
+import ReaderActionMenu from "@/components/shared/menu/ReaderActionMenu";
 import { getLiterataVariableStyle } from "@/theme";
 import { useTranslation } from "react-i18next";
 

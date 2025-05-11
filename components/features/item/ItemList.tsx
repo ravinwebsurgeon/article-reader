@@ -5,15 +5,15 @@ import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ItemFilter } from "@/types/item";
 import { Images } from "@/assets";
-import ArticleCard, { ARTICLE_CARD_HEIGHT } from "@/components/common/card/ArticleCard";
-import FilterTabs from "@/components/common/tabBar/FilterTabs";
-import NoUIFound from "@/components/common/emptyState/NoUIFound";
+import ArticleCard, { ARTICLE_CARD_HEIGHT } from "@/components/shared/card/ArticleCard";
+import FilterTabs from "@/components/shared/tabBar/FilterTabs";
+import NoUIFound from "@/components/shared/emptyState/NoUIFound";
 import { useTheme } from "@/theme";
 import { syncEngine } from "@/database/sync/SyncEngine";
 import { withItems } from "@/database/hooks/withItems";
 import Item from "@/database/models/ItemModel";
 import Svg, { Path } from "react-native-svg";
-import { SortOption } from "@/components/common/menu/SortMenu";
+import { SortOption } from "@/components/shared/menu/SortMenu";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Use the exported fixed height from ArticleCard component

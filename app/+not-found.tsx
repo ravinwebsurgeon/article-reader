@@ -1,8 +1,8 @@
 import React from "react";
 import { Link, Stack } from "expo-router";
 import { StyleSheet } from "react-native";
-import { ThemeText } from "@/components/core/ThemeText";
-import { ThemeView } from "@/components/core/ThemeView";
+import { ThemeText } from "@/components/primitives/ThemeText";
+import { ThemeView } from "@/components/primitives/ThemeView";
 import { useTranslation } from "react-i18next";
 
 export default function NotFoundScreen() {
