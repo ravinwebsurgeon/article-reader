@@ -50,6 +50,12 @@ const STACK_CONFIG = {
     { name: "(tabs)", redirect: (isAuthenticated: boolean) => !isAuthenticated },
     { name: "reader/[id]" },
     { name: "+not-found", options: { presentation: "modal" as const } },
+    {
+      name: "edit-tags",
+      options: {
+        presentation: "modal" as const,
+      },
+    },
   ],
 };
 

@@ -45,7 +45,7 @@ const ItemsFlatList = memo(({ items, filter }: ItemsFlatListProps) => {
   );
 
   const getItemLayout = useCallback(
-    (_: any, index: number) => ({
+    (_data: ArrayLike<Item> | null | undefined, index: number) => ({
       length: ARTICLE_CARD_HEIGHT,
       offset: ARTICLE_CARD_HEIGHT * index,
       index,
