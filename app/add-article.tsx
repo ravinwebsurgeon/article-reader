@@ -19,10 +19,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/theme";
 import { isValidUrl } from "@/utils/validation";
 import { createItem } from "@/database/hooks/withItems";
+import { useTranslation } from "react-i18next";
 
 export default function AddArticleScreen() {
   const router = useRouter();
   const theme = useTheme();
+  const { t } = useTranslation();
   const isDarkMode = theme.mode === "dark";
 
   // State
@@ -146,21 +148,21 @@ export default function AddArticleScreen() {
       {/* Header */}
       <View style={[styles.header, { borderBottomColor: theme.colors.divider }]}>
         <TouchableOpacity onPress={handleBack}>
-          <Text style={dynamicStyles.cancelButton}>Cancel</Text>
+          <Text style={dynamicStyles.cancelButton}>{t("common.cancel")}</Text>
         </TouchableOpacity>
 
-        <Text style={dynamicStyles.headerTitle}>Add to Pocket</Text>
+        <Text style={dynamicStyles.headerTitle}>{t("addArticle.title")}</Text>
 
         <View style={{ width: 50 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={dynamicStyles.sectionTitle}>Add a URL</Text>
+        <Text style={dynamicStyles.sectionTitle}>{t("addArticle.sectionTitle")}</Text>
 
         <View style={styles.inputContainer}>
           <TextInput
             style={dynamicStyles.input}
-            placeholder="https://example.com/article"
+            placeholder={t("addArticle.urlPlaceholder")}
             placeholderTextColor={theme.colors.text.disabled}
             value={url}
             onChangeText={setUrl}
@@ -190,15 +192,13 @@ export default function AddArticleScreen() {
           {isLoading ? (
             <ActivityIndicator color={theme.colors.primary.contrast} size="small" />
           ) : (
-            <Text style={dynamicStyles.saveButtonText}>Save to Pocket</Text>
+            <Text style={dynamicStyles.saveButtonText}>{t("addArticle.saveButton")}</Text>
           )}
         </TouchableOpacity>
 
         <View style={[styles.divider, { backgroundColor: theme.colors.divider }]} />
 
-        <Text style={dynamicStyles.infoText}>
-          You can also save content to Pocket using the Share menu from your browser or other apps.
-        </Text>
+        <Text style={dynamicStyles.infoText}>{t("addArticle.infoText")}</Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );

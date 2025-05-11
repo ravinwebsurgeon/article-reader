@@ -17,6 +17,7 @@ import { useForm } from "react-hook-form";
 import { useTheme } from "@/theme";
 import { ThemeButton, ThemeText, ThemeView } from "@/components";
 import { SvgIcon } from "@/components/SvgIcon";
+import { useTranslation } from "react-i18next";
 
 interface LoginFormData {
   email: string;
@@ -26,6 +27,7 @@ interface LoginFormData {
 function AuthStart() {
   const dispatch = useAppDispatch();
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const { error } = useAppSelector((state) => state.auth);
   const { handleSubmit } = useForm<LoginFormData>({
@@ -106,28 +108,28 @@ function AuthStart() {
               <SvgIcon name="pocket-pink" size={48} color={theme.colors.primary.main} />
             </ThemeView>
             <ThemeText variant="h2" style={styles.title}>
-              How would you like to sign in?
+              {t("auth.authStart.title")}
             </ThemeText>
-            <ThemeText style={dynamicStyles.subtitle}>Choose a method to get started.</ThemeText>
+            <ThemeText style={dynamicStyles.subtitle}>{t("auth.authStart.subtitle")}</ThemeText>
           </ThemeView>
 
           <ThemeView style={styles.buttonContainer}>
             <ThemeButton
-              title="Sign in with Google"
+              title={t("auth.authStart.googleSignIn")}
               style={dynamicStyles.signInButton}
               textStyle={dynamicStyles.signInButtonText}
               leftIcon={<SvgIcon name="google" size={24} color={theme.colors.primary.main} />}
               rightIcon={null}
             />
             <ThemeButton
-              title="Sign in with Apple"
+              title={t("auth.authStart.appleSignIn")}
               style={dynamicStyles.signInButton}
               textStyle={dynamicStyles.signInButtonText}
               leftIcon={<SvgIcon name="apple" size={24} color={theme.colors.primary.main} />}
               rightIcon={null}
             />
             <ThemeButton
-              title="Sign in with Email"
+              title={t("auth.authStart.emailSignIn")}
               onPress={handleSubmit(onSubmit)}
               style={dynamicStyles.signInButton}
               textStyle={dynamicStyles.signInButtonText}
@@ -137,9 +139,9 @@ function AuthStart() {
           </ThemeView>
 
           <ThemeView style={styles.signUpContainer}>
-            <ThemeText style={styles.signUpText}>New Here? </ThemeText>
+            <ThemeText style={styles.signUpText}>{t("auth.signup.newHere")} </ThemeText>
             <TouchableOpacity onPress={navigateToSignUp}>
-              <ThemeText style={dynamicStyles.signUpLinkText}>Create and account</ThemeText>
+              <ThemeText style={dynamicStyles.signUpLinkText}>{t("auth.signup.button")}</ThemeText>
             </TouchableOpacity>
           </ThemeView>
         </ScrollView>

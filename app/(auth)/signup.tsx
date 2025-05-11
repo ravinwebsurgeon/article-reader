@@ -18,6 +18,7 @@ import { useRegisterMutation } from "@/redux/services/authApi";
 import { useTheme } from "@/theme";
 import { ThemeText, ThemeView } from "@/components";
 import { SvgIcon } from "@/components/SvgIcon";
+import { useTranslation } from "react-i18next";
 
 interface SignUpFormData {
   username: string;
@@ -36,6 +37,7 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
   const [loader, setLoader] = useState(false);
   const [register] = useRegisterMutation();
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const { control, handleSubmit, watch } = useForm<SignUpFormData>({
     defaultValues: {
@@ -117,11 +119,9 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
               <SvgIcon name="pocket-pink" size={48} color={theme.colors.primary.main} />
             </ThemeView>
             <ThemeText variant="h2" style={styles.title}>
-              Welcome to Pocket
+              {t("auth.signup.welcome")}
             </ThemeText>
-            <ThemeText style={dynamicStyles.subtitle}>
-              Log in or sign up to start saving articles you&apos;ll actually get back to.
-            </ThemeText>
+            <ThemeText style={dynamicStyles.subtitle}>{t("auth.signup.subtitle")}</ThemeText>
           </ThemeView>
 
           <View style={styles.formContainer}>
@@ -129,13 +129,13 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
               control={control}
               name="email"
               rules={{
-                required: "Email is required",
+                required: t("errors.validation.email.required"),
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: "Invalid email address",
+                  message: t("errors.validation.email.invalid"),
                 },
               }}
-              placeholder="Email"
+              placeholder={t("auth.signup.email")}
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
@@ -148,18 +148,17 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
               control={control}
               name="password"
               rules={{
-                required: "Password is required",
+                required: t("errors.validation.password.required"),
                 minLength: {
                   value: 8,
-                  message: "Password must be at least 8 characters",
+                  message: t("errors.validation.password.minLength"),
                 },
                 pattern: {
                   value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                  message:
-                    "Password must contain uppercase, lowercase, number and special character",
+                  message: t("errors.validation.password.complexity"),
                 },
               }}
-              placeholder="Password"
+              placeholder={t("auth.signup.password")}
               secureTextEntry
               icon={<SvgIcon name="key" size={24} color={theme.colors.primary.main} />}
               style={styles.input}
@@ -169,10 +168,11 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
               control={control}
               name="confirmPassword"
               rules={{
-                required: "Please confirm your password",
-                validate: (value: string) => value === password || "Passwords do not match",
+                required: t("errors.validation.confirmPassword.required"),
+                validate: (value: string) =>
+                  value === password || t("errors.validation.confirmPassword.mismatch"),
               }}
-              placeholder="Confirm Password"
+              placeholder={t("auth.signup.confirmPassword")}
               secureTextEntry
               icon={<SvgIcon name="key-renter" size={24} color={theme.colors.primary.main} />}
               style={styles.input}
