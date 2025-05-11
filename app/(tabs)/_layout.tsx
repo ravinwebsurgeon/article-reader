@@ -33,17 +33,17 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
-        options={{
-          title: t("navigation.tabs.discover"),
-          tabBarIcon: ({ color }) => <SvgIcon name="discover" color={color} size={24} />,
-        }}
-      />
-      <Tabs.Screen
         name="saves"
         options={{
           title: t("navigation.tabs.saves"),
           tabBarIcon: ({ color }) => <SvgIcon name="saves" color={color} size={24} />,
+        }}
+      />
+      <Tabs.Screen
+        name="discover"
+        options={{
+          title: t("navigation.tabs.discover"),
+          tabBarIcon: ({ color }) => <SvgIcon name="discover" color={color} size={24} />,
         }}
       />
       <Tabs.Screen
@@ -54,6 +54,5 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
-    // <BottomNavigation {...bottomNavigationExample} />
   );
 }

@@ -5,7 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/theme";
 
-export default function HomeScreen() {
+export default function DiscoverScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
 
@@ -13,7 +13,7 @@ export default function HomeScreen() {
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background.default }]}>
       <ThemeView style={styles.container} padded="lg">
         <ThemeText variant="h2" style={styles.header}>
-          {t("home.explore")}
+          {t("home.discover")}
         </ThemeText>
 
         <ThemeView
