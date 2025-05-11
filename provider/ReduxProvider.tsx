@@ -5,7 +5,7 @@ import { View, ActivityIndicator } from "react-native";
 import { store, persistor } from "@/redux/store";
 import { useColorScheme } from "react-native";
 import { setSystemPrefersDark } from "@/redux/slices/themeSlice";
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context";
 import { I18nextProvider } from "react-i18next";
 import i18n from "@/i18n";
 
@@ -31,7 +31,7 @@ export function ReduxProvider({ children }: { children: React.ReactNode }) {
     <Provider store={store}>
       <PersistGate loading={renderLoading()} persistor={persistor}>
         <I18nextProvider i18n={i18n}>
-          <SafeAreaProvider>{children}</SafeAreaProvider>
+          <SafeAreaProvider initialMetrics={initialWindowMetrics}>{children}</SafeAreaProvider>
         </I18nextProvider>
       </PersistGate>
     </Provider>
