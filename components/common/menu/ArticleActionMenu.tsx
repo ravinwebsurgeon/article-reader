@@ -4,6 +4,7 @@ import ReusableActionMenu, { ActionMenuItem, ActionMenuPosition } from "./Reusab
 import { useTheme } from "@/theme";
 import { Alert, Share } from "react-native";
 import TagEditor from "@/screens/EditTag";
+import { useTranslation } from "react-i18next";
 
 interface ArticleActionMenuProps {
   item: Item;
@@ -25,6 +26,7 @@ const ArticleActionMenu: React.FC<ArticleActionMenuProps> = ({
   onClose,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   // State for tag editor
   const [tagEditorVisible, setTagEditorVisible] = useState(false);
@@ -91,15 +93,15 @@ const ArticleActionMenu: React.FC<ArticleActionMenuProps> = ({
 
     // Show confirmation alert
     Alert.alert(
-      "Delete Article",
-      "Are you sure you want to delete this article? This action cannot be undone.",
+      t("menu.deleteConfirmation.title"),
+      t("menu.deleteConfirmation.message"),
       [
         {
-          text: "Cancel",
+          text: t("menu.deleteConfirmation.cancel"),
           style: "cancel",
         },
         {
-          text: "Delete",
+          text: t("menu.deleteConfirmation.confirm"),
           style: "destructive",
           onPress: async () => {
             try {
@@ -112,21 +114,21 @@ const ArticleActionMenu: React.FC<ArticleActionMenuProps> = ({
       ],
       { cancelable: true },
     );
-  }, [item, onClose]);
+  }, [item, onClose, t]);
 
   // Generate menu items based on the item state
   const getMenuItems = useCallback((): ActionMenuItem[] => {
     return [
       {
         id: "share",
-        label: "Share",
+        label: t("menu.share"),
         icon: "share",
         onPress: shareArticle,
         dividerAfter: true,
       },
       {
         id: "favorite",
-        label: item.favorite ? "Unfavorite" : "Favorite",
+        label: item.favorite ? t("menu.unfavorite") : t("menu.favorite"),
         icon: item.favorite ? "favorite" : "favorite",
         iconColor: item.favorite ? theme.colors.favorite : undefined,
         onPress: toggleFavorite,
@@ -134,21 +136,21 @@ const ArticleActionMenu: React.FC<ArticleActionMenuProps> = ({
       },
       {
         id: "tag",
-        label: "Tag",
+        label: t("menu.editTags"),
         icon: "tag",
         onPress: openTagEditor,
         dividerAfter: true,
       },
       {
         id: "archive",
-        label: item.archived ? "Unarchive" : "Archive",
+        label: item.archived ? t("menu.unarchive") : t("menu.archive"),
         icon: "archive",
         onPress: toggleArchived,
         dividerAfter: true,
       },
       {
         id: "delete",
-        label: "Delete",
+        label: t("menu.delete"),
         icon: "trash",
         destructive: true,
         onPress: confirmDelete,
@@ -162,6 +164,7 @@ const ArticleActionMenu: React.FC<ArticleActionMenuProps> = ({
     openTagEditor,
     toggleArchived,
     confirmDelete,
+    t,
   ]);
 
   return (

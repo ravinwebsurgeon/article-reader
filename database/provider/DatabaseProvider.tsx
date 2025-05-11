@@ -6,6 +6,7 @@ import { ActivityIndicator } from "react-native";
 import { ThemeView, ThemeText } from "@/components/core";
 import { useTheme } from "@/theme/hooks";
 import database from "../database";
+import { useTranslation } from "react-i18next";
 
 // Set the database instance in the sync engine
 syncEngine.database = database;
@@ -21,6 +22,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [error, setError] = useState<Error | null>(null);
   const token = useAppSelector(selectAuthToken);
   const theme = useTheme();
+  const { t } = useTranslation();
 
   // Initialize database and sync
   useEffect(() => {
@@ -55,7 +57,7 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return (
       <ThemeView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color={theme.colors.primary.main} />
-        <ThemeText style={{ marginTop: 16 }}>Initializing database...</ThemeText>
+        <ThemeText style={{ marginTop: 16 }}>{t("database.initializing")}</ThemeText>
       </ThemeView>
     );
   }

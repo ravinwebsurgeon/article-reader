@@ -1,0 +1,211 @@
+{
+  "app": {
+    "name": "Pocket",
+    "tagline": "Guarda. Lee. Crece."
+  },
+  "navigation": {
+    "tabs": {
+      "discover": "Descubrir",
+      "saves": "Guardados",
+      "settings": "Ajustes"
+    }
+  },
+  "common": {
+    "ok": "Aceptar",
+    "cancel": "Cancelar",
+    "yes": "Sí",
+    "no": "No",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito"
+  },
+  "auth": {
+    "login": {
+      "title": "Bienvenido de nuevo",
+      "subtitle": "Inicia sesión en tu cuenta",
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "button": "Iniciar sesión",
+      "noAccount": "¿No tienes una cuenta?",
+      "signUp": "Regístrate"
+    },
+    "signup": {
+      "title": "Bienvenido a Pocket",
+      "subtitle": "Crea tu cuenta",
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "confirmPassword": "Confirmar contraseña",
+      "button": "Crear cuenta",
+      "hasAccount": "¿Ya tienes una cuenta?",
+      "logIn": "Iniciar sesión"
+    },
+    "authStart": {
+      "title": "¿Cómo quieres iniciar sesión?",
+      "subtitle": "Elige un método para comenzar.",
+      "googleSignIn": "Continuar con Google",
+      "emailSignIn": "Continuar con correo electrónico",
+      "newHere": "¿Eres nuevo?",
+      "button": "Crear una cuenta"
+    }
+  },
+  "search": {
+    "placeholder": "Busca tus guardados...",
+    "emptyState": "Encontremos eso que guardaste",
+    "noResults": "No se encontraron resultados",
+    "tryDifferentQuery": "Prueba con otro término de búsqueda",
+    "loading": "Buscando..."
+  },
+  "reader": {
+    "noArticleId": "No se proporcionó ID del artículo",
+    "afterReading": "Después de leer",
+    "favorited": "Favorito",
+    "favorite": "Favorito",
+    "archive": "Archivar",
+    "unarchive": "Desarchivar",
+    "markAsRead": "Marcar como leído",
+    "markAsUnread": "Marcar como no leído",
+    "upNext": "Siguiente"
+  },
+  "errors": {
+    "network": "Error de red. Por favor, verifica tu conexión.",
+    "invalidEmail": "Por favor, introduce un correo electrónico válido",
+    "invalidPassword": "La contraseña debe tener al menos 8 caracteres",
+    "passwordsDontMatch": "Las contraseñas no coinciden",
+    "required": "Este campo es obligatorio",
+    "unknown": "Ocurrió un error desconocido",
+    "passwordMatch": "Las contraseñas no coinciden",
+    "invalidCredentials": "Correo electrónico o contraseña inválidos",
+    "networkError": "Error de red. Por favor, inténtalo de nuevo.",
+    "unknownError": "Ocurrió un error inesperado",
+    "validation": {
+      "required": "Este campo es obligatorio",
+      "minLength": "Debe tener al menos {{count}} caracteres",
+      "maxLength": "Debe tener como máximo {{count}} caracteres",
+      "email": "Por favor, introduce un correo electrónico válido",
+      "password": "La contraseña debe tener al menos 8 caracteres",
+      "passwordMatch": "Las contraseñas no coinciden"
+    }
+  },
+  "notFound": {
+    "title": "¡Ups!",
+    "message": "Esta pantalla no existe.",
+    "goHome": "¡Ir a la pantalla principal!"
+  },
+  "home": {
+    "explore": "Explorar",
+    "discover": "Descubrir"
+  },
+  "settings": {
+    "title": "Ajustes",
+    "account": "Cuenta",
+    "notifications": "Notificaciones",
+    "appearance": "Apariencia",
+    "help": "Ayuda y soporte",
+    "about": "Acerca de"
+  },
+  "addArticle": {
+    "title": "Añadir a Pocket",
+    "sectionTitle": "Añadir una URL",
+    "urlPlaceholder": "Introduce una URL para guardar",
+    "saveButton": "Guardar en Pocket",
+    "infoText": "Guarda artículos, videos y más en Pocket. Tu lista se sincroniza entre dispositivos para que puedas verla en cualquier lugar."
+  },
+  "emptyStates": {
+    "favorites": {
+      "message": "Aún no hay favoritos",
+      "subMessage": "Usa la estrella para marcar como favoritas las páginas que quieras tener a mano."
+    },
+    "tagged": {
+      "message": "Organiza las cosas a tu manera",
+      "subMessage": "Usa etiquetas como viajes o ideas de regalos para organizar tus guardados."
+    },
+    "archived": {
+      "message": "Nada archivado",
+      "subMessage": "Cuando termines con un guardado, muévelo aquí para mantener todo ordenado."
+    },
+    "short": {
+      "message": "Aún no hay lecturas cortas",
+      "subMessage": "Cuando guardes algo rápido de leer, aparecerá aquí."
+    },
+    "long": {
+      "message": "Aún no hay lecturas largas",
+      "subMessage": "Cuando guardes algo largo de leer, aparecerá aquí."
+    },
+    "default": {
+      "message": "¿Listo para empezar a guardar?",
+      "subMessage": "Añade páginas a las que quieras volver. Aparecerán aquí cuando estés listo."
+    },
+    "all": {
+      "message": "¿Listo para empezar a guardar?",
+      "subMessage": "Añade páginas a las que quieras volver. Aparecerán aquí cuando estés listo."
+    },
+    "restoring": {
+      "message": "Restaurando tus guardados",
+      "subMessage": "Tus páginas guardadas están en camino."
+    },
+    "sort": {
+      "message": "Organiza las cosas a tu manera",
+      "subMessage": "Usa la lista de etiquetas, filtros o ideas de regalos para tener todo a mano."
+    }
+  },
+  "tags": {
+    "editTags": "Editar etiquetas",
+    "done": "Hecho",
+    "enterTagName": "Introduce un nombre de etiqueta",
+    "loadingTags": "Cargando etiquetas...",
+    "searchResults": "Resultados de búsqueda",
+    "noMatchingTags": "No se encontraron etiquetas coincidentes",
+    "recentTags": "Etiquetas recientes",
+    "noRecentTags": "No se encontraron etiquetas recientes",
+    "otherTags": "Otras etiquetas",
+    "noOtherTags": "No se encontraron otras etiquetas"
+  },
+  "sort": {
+    "title": "Ordenar por",
+    "newest": "Más recientes primero",
+    "oldest": "Más antiguos primero",
+    "titleAZ": "Título (A-Z)",
+    "titleZA": "Título (Z-A)",
+    "shortest": "Más cortos primero",
+    "longest": "Más largos primero"
+  },
+  "menu": {
+    "close": "Cerrar",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "share": "Compartir",
+    "favorite": "Favorito",
+    "unfavorite": "Quitar de favoritos",
+    "archive": "Archivar",
+    "unarchive": "Desarchivar",
+    "addTags": "Añadir etiquetas",
+    "removeTags": "Eliminar etiquetas",
+    "markAsRead": "Marcar como leído",
+    "markAsUnread": "Marcar como no leído",
+    "editTags": "Editar etiquetas",
+    "openInBrowser": "Abrir en el navegador",
+    "deleteConfirmation": {
+      "title": "Eliminar artículo",
+      "message": "¿Estás seguro de que quieres eliminar este artículo? Esta acción no se puede deshacer.",
+      "cancel": "Cancelar",
+      "confirm": "Eliminar"
+    }
+  },
+  "database": {
+    "initializing": "Inicializando base de datos..."
+  },
+  "filters": {
+    "all": "Todos",
+    "favorites": "Favoritos",
+    "tagged": "Etiquetados",
+    "shortReads": "Lecturas cortas",
+    "longReads": "Lecturas largas",
+    "archived": "Archivados"
+  }
+}

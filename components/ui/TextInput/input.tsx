@@ -12,6 +12,7 @@ import { Controller, Control, FieldValues, Path, RegisterOptions } from "react-h
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme, type Theme } from "@/theme";
 import { ThemeText } from "@/components/core";
+import { useTranslation } from "react-i18next";
 
 interface InputProps<T extends FieldValues> {
   control: Control<T>;
@@ -49,6 +50,7 @@ export const Input = <T extends FieldValues>({
 }: InputProps<T>) => {
   const [isSecureTextVisible, setIsSecureTextVisible] = useState(false);
   const theme = useTheme();
+  const { t } = useTranslation();
   const styles = useMemo(() => makeStyles(theme), [theme]);
 
   return (
@@ -58,14 +60,14 @@ export const Input = <T extends FieldValues>({
       rules={rules}
       render={({ field: { value, onChange, onBlur }, fieldState: { error } }) => (
         <View style={[styles.inputWrapper, style]}>
-          {label && <ThemeText style={styles.inputLabel}>{label}</ThemeText>}
+          {label && <ThemeText style={styles.inputLabel}>{t(label)}</ThemeText>}
           <View style={styles.inputContainer}>
             {icon && <View style={styles.iconContainer}>{icon}</View>}
             <TextInput
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
-              placeholder={placeholder}
+              placeholder={placeholder ? t(placeholder) : undefined}
               secureTextEntry={secureTextEntry && !isSecureTextVisible}
               style={[
                 styles.input,
@@ -96,7 +98,7 @@ export const Input = <T extends FieldValues>({
               </TouchableOpacity>
             )}
           </View>
-          {error && <Text style={styles.errorText}>{error.message}</Text>}
+          {error && <Text style={styles.errorText}>{t(`errors.${error.message}`)}</Text>}
         </View>
       )}
     />

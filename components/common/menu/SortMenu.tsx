@@ -1,4 +1,8 @@
-import React from "react";
+import React, { useMemo } from "react";
+import { View, StyleSheet } from "react-native";
+import { useTheme, Theme } from "@/theme";
+import { ThemeText } from "@/components/core";
+import { useTranslation } from "react-i18next";
 import ReusableActionMenu, { ActionMenuItem, ActionMenuPosition } from "./ReusableActionMenu";
 
 export type SortOption = "newest" | "oldest" | "shortest" | "longest" | "alphabetical";
@@ -22,12 +26,16 @@ const SortMenu: React.FC<SortMenuProps> = ({
   onSortChange,
   onClose,
 }) => {
+  const theme = useTheme();
+  const { t } = useTranslation();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
+
   // Generate menu items based on current sort
   const getSortItems = (): ActionMenuItem[] => {
     return [
       {
         id: "newest",
-        label: "Newest First",
+        label: t("sort.newest"),
         icon: "sort-ascending",
         selected: currentSort === "newest",
         onPress: () => onSortChange("newest"),
@@ -35,7 +43,7 @@ const SortMenu: React.FC<SortMenuProps> = ({
       },
       {
         id: "oldest",
-        label: "Oldest First",
+        label: t("sort.oldest"),
         icon: "sort-descending",
         selected: currentSort === "oldest",
         onPress: () => onSortChange("oldest"),
@@ -44,15 +52,31 @@ const SortMenu: React.FC<SortMenuProps> = ({
   };
 
   return (
-    <ReusableActionMenu
-      visible={visible}
-      items={getSortItems()}
-      onClose={onClose}
-      position={position}
-      title="Sort By"
-      width={240}
-    />
+    <View style={styles.container}>
+      <ThemeText variant="h3" style={styles.title}>
+        {t("sort.title")}
+      </ThemeText>
+      <ReusableActionMenu
+        visible={visible}
+        items={getSortItems()}
+        onClose={onClose}
+        position={position}
+        title="Sort By"
+        width={240}
+      />
+    </View>
   );
 };
+
+const makeStyles = (theme: Theme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: theme.spacing.md,
+    },
+    title: {
+      marginBottom: theme.spacing.md,
+    },
+  });
 
 export default SortMenu;

@@ -3,6 +3,7 @@ import { View, TextInput, StyleSheet, KeyboardTypeOptions } from "react-native";
 import { Control, Controller, FieldValues, Path, RegisterOptions } from "react-hook-form";
 import { useTheme, type Theme } from "@/theme";
 import { ThemeText, ThemeView } from "@/components/core";
+import { useTranslation } from "react-i18next";
 
 interface FormInputProps<T extends FieldValues> {
   control: Control<T>;
@@ -34,6 +35,7 @@ export const FormInput = <T extends FieldValues>({
   spellCheck = false,
 }: FormInputProps<T>) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const styles = useMemo(() => makeStyles(theme), [theme]);
 
   return (
@@ -57,7 +59,7 @@ export const FormInput = <T extends FieldValues>({
             autoCorrect={autoCorrect}
             spellCheck={spellCheck}
           />
-          {error && <ThemeText style={styles.errorText}>{error.message}</ThemeText>}
+          {error && <ThemeText style={styles.errorText}>{t(`errors.${error.message}`)}</ThemeText>}
         </ThemeView>
       )}
     />

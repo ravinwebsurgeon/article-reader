@@ -9,6 +9,7 @@ import {
   Keyboard,
   ViewStyle,
   TextStyle,
+  SafeAreaView,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -18,6 +19,7 @@ import ArticleCard from "@/components/common/card/ArticleCard";
 import ActionMenu from "@/components/common/menu/ActionMenu";
 import ItemModel from "@/database/models/ItemModel";
 import { withSearch } from "@/database/hooks/withItems";
+import { useTranslation } from "react-i18next";
 
 // Base component without database connection
 const SearchScreenComponent = ({
@@ -31,6 +33,7 @@ const SearchScreenComponent = ({
 }) => {
   const router = useRouter();
   const theme = useTheme();
+  const { t } = useTranslation();
   const isDarkMode = theme.mode === "dark";
 
   // State
@@ -127,7 +130,7 @@ const SearchScreenComponent = ({
   };
 
   return (
-    <View style={[styles.container, dynamicStyles.container]}>
+    <SafeAreaView style={[styles.container, dynamicStyles.container]}>
       <StatusBar style={isDarkMode ? "light" : "dark"} />
 
       {/* Search Header */}
@@ -142,7 +145,7 @@ const SearchScreenComponent = ({
 
           <TextInput
             style={dynamicStyles.searchInput}
-            placeholder="Search your Saves"
+            placeholder={t("search.placeholder")}
             placeholderTextColor={theme.colors.text.disabled}
             value={searchQuery}
             onChangeText={onSearchQueryChange}
@@ -158,7 +161,7 @@ const SearchScreenComponent = ({
         </View>
 
         <TouchableOpacity style={styles.cancelButton} onPress={handleBack}>
-          <Text style={dynamicStyles.cancelText}>Cancel</Text>
+          <Text style={dynamicStyles.cancelText}>{t("common.cancel")}</Text>
         </TouchableOpacity>
       </View>
 
@@ -166,26 +169,22 @@ const SearchScreenComponent = ({
       {!shouldShowResults ? (
         // Initial Empty search state
         <View style={styles.emptyStateContainer}>
-          <Text style={dynamicStyles.emptyStateText}>
-            &ldquo;Let&apos;s find that thing you saved&rdquo;
-          </Text>
+          <Text style={dynamicStyles.emptyStateText}>{t("search.emptyState")}</Text>
 
           <View style={styles.logoContainer}>
             <View style={[styles.logoIcon, { backgroundColor: theme.colors.primary.main }]}>
               <View style={styles.logoHeart} />
             </View>
-            <Text style={dynamicStyles.logoText}>pocket</Text>
+            <Text style={dynamicStyles.logoText}>{t("app.name")}</Text>
           </View>
         </View>
       ) : items && items.length === 0 ? (
         // No results state (only shown if shouldShowResults is true)
         <View style={styles.noResultsContainer}>
           <Text style={dynamicStyles.noResultsText}>
-            No results found for &ldquo;{searchQuery}&rdquo;
+            {t("search.noResults.title", { query: searchQuery })}
           </Text>
-          <Text style={dynamicStyles.noResultsSubtext}>
-            Try a different search term or check your spelling
-          </Text>
+          <Text style={dynamicStyles.noResultsSubtext}>{t("search.noResults.subtitle")}</Text>
         </View>
       ) : (
         // Results list (only shown if shouldShowResults is true and items exist)
@@ -201,7 +200,7 @@ const SearchScreenComponent = ({
       {showActionMenu && selectedItem && (
         <ActionMenu item={selectedItem} onClose={closeActionMenu} />
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
