@@ -66,7 +66,7 @@ class SyncEngine {
       this.stopWatchForChanges();
     }
 
-    const tables = ["items"];
+    const tables = ["items", "tags", "item_tags"];
     console.log(`${LOG_PREFIX} Setting up watch for changes on tables: ${tables.join(", ")}`);
     this.subscription = this.database.withChangesForTables(tables).subscribe((changes) => {
       if (changes) {

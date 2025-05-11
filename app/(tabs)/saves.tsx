@@ -1,5 +1,42 @@
-import ListScreen from "@/components/features/item/ItemList";
+import React, { useState } from "react";
+import { View, StyleSheet, SafeAreaView } from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { useTheme } from "@/theme";
+import { ItemFilter } from "@/types/item";
+import { SortOption } from "@/components/shared/menu/SortMenu";
+import ItemListHeader from "@/components/item/ItemListHeader";
+import ItemFilterTabs from "@/components/item/ItemFilterTabs";
+import ItemsListWithInitialSync from "@/features/item/ItemsListWithInitialSync";
 
 export default function SavesScreen() {
-  return <ListScreen />;
+  const [filter, setFilter] = useState<ItemFilter>("all");
+  const [sorted, setSorted] = useState<SortOption>("newest");
+  const theme = useTheme();
+
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background.default }]}>
+      <StatusBar style={theme.mode === "dark" ? "light" : "dark"} />
+
+      <ItemListHeader />
+
+      <View>
+        <ItemFilterTabs
+          currentFilter={filter}
+          onFilterChange={setFilter}
+          onSortChange={setSorted}
+          currentSort={sorted}
+        />
+      </View>
+
+      <View style={{ flex: 1 }}>
+        <ItemsListWithInitialSync filter={filter} sorted={sorted} />
+      </View>
+    </SafeAreaView>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});

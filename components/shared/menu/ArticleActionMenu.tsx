@@ -1,10 +1,10 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import Item from "@/database/models/ItemModel";
 import ReusableActionMenu, { ActionMenuItem, ActionMenuPosition } from "./ReusableActionMenu";
 import { useTheme } from "@/theme";
 import { Alert, Share } from "react-native";
-import TagEditor from "@/components/features/tag/EditTag";
 import { useTranslation } from "react-i18next";
+import { useRouter } from "expo-router";
 
 interface ArticleActionMenuProps {
   item: Item;
@@ -25,24 +25,16 @@ const ArticleActionMenu: React.FC<ArticleActionMenuProps> = ({
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
-
-  // State for tag editor
-  const [tagEditorVisible, setTagEditorVisible] = useState(false);
+  const router = useRouter();
 
   // Open tag editor
-  const openTagEditor = useCallback(() => {
-    // Close action menu first
+  const handleEditTags = useCallback(() => {
     onClose();
-    // Then open tag editor
-    setTimeout(() => {
-      setTagEditorVisible(true);
-    }, 300); // Small delay for better UX
-  }, [onClose]);
-
-  // Close tag editor
-  const closeTagEditor = useCallback(() => {
-    setTagEditorVisible(false);
-  }, []);
+    router.push({
+      pathname: "/edit-tags",
+      params: { itemId: item.id },
+    });
+  }, [onClose, router, item]);
 
   // Share article
   const shareArticle = useCallback(async () => {
@@ -136,7 +128,7 @@ const ArticleActionMenu: React.FC<ArticleActionMenuProps> = ({
         id: "tag",
         label: t("menu.editTags"),
         icon: "tag",
-        onPress: openTagEditor,
+        onPress: handleEditTags,
         dividerAfter: true,
       },
       {
@@ -159,26 +151,20 @@ const ArticleActionMenu: React.FC<ArticleActionMenuProps> = ({
     theme.colors.favorite,
     shareArticle,
     toggleFavorite,
-    openTagEditor,
+    handleEditTags,
     toggleArchived,
     confirmDelete,
     t,
   ]);
 
   return (
-    <>
-      <ReusableActionMenu
-        visible={visible}
-        items={getMenuItems()}
-        onClose={onClose}
-        position={position}
-        width={240}
-      />
-      {tagEditorVisible && (
-        <TagEditor visible={tagEditorVisible} onClose={closeTagEditor} item={item} />
-      )}
-      {/* <EditTagsModal visible={tagEditorVisible} onClose={closeTagEditor} item={item} /> */}
-    </>
+    <ReusableActionMenu
+      visible={visible}
+      items={getMenuItems()}
+      onClose={onClose}
+      position={position}
+      width={240}
+    />
   );
 };
 

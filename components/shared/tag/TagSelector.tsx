@@ -1,22 +1,22 @@
-import React, { useState, useCallback, useEffect, useMemo } from "react";
-import { View, StyleSheet, TouchableOpacity, ActivityIndicator, ViewStyle } from "react-native";
+import React, { useCallback, useMemo } from "react";
+import { View, StyleSheet, TouchableOpacity, ViewStyle } from "react-native";
 import { ThemeText } from "@/components/primitives";
 import { SvgIcon } from "@/components/SvgIcon";
 import { useTheme, type Theme } from "@/theme";
 import TagBadge from "./TagBadge";
 import Item from "@/database/models/ItemModel";
 import Tag from "@/database/models/TagModel";
-import { useTagManagement } from "@/utils/hooks";
-import TagEditor from "@/components/features/tag/EditTag";
+import { withItemTags, removeTagFromItem } from "@/database/hooks/withTags";
 import { useTranslation } from "react-i18next";
+import { useRouter } from "expo-router";
 
 export interface TagSelectorProps {
   item: Item;
-  onTagsChanged?: () => void;
   containerStyle?: ViewStyle;
   title?: string;
   maxTags?: number;
   showAddButton?: boolean;
+  itemTags: Tag[];
 }
 
 /**
@@ -28,82 +28,42 @@ export interface TagSelectorProps {
  * - Opens TagEditor for adding/managing tags
  * - Optional limit on number of tags displayed
  */
-const TagSelector: React.FC<TagSelectorProps> = ({
+const TagSelectorInner: React.FC<TagSelectorProps> = ({
   item,
-  onTagsChanged,
   containerStyle,
   title = "Tags",
   maxTags,
   showAddButton = true,
+  itemTags,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
   const styles = useMemo(() => makeStyles(theme), [theme]);
-
-  // Tag state
-  const [tags, setTags] = useState<Tag[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [tagEditorVisible, setTagEditorVisible] = useState(false);
-
-  // Use tag management hook
-  const { getItemTags } = useTagManagement(item);
-
-  // Load tags for the item
-  const loadTags = useCallback(async () => {
-    try {
-      setLoading(true);
-      const itemTags = await getItemTags(item);
-      setTags(itemTags as Tag[]);
-    } catch (error) {
-      console.error("Error loading tags:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [item, getItemTags]);
-
-  // Load tags when component mounts or item changes
-  useEffect(() => {
-    loadTags();
-  }, [loadTags, item.id]);
+  const router = useRouter();
 
   // Open tag editor
   const openTagEditor = useCallback(() => {
-    setTagEditorVisible(true);
-  }, []);
-
-  // Close tag editor and refresh tags
-  const closeTagEditor = useCallback(() => {
-    setTagEditorVisible(false);
-    loadTags();
-    onTagsChanged?.();
-  }, [loadTags, onTagsChanged]);
+    router.push({
+      pathname: "/edit-tags",
+      params: { itemId: item.id },
+    });
+  }, [router, item]);
 
   // Remove a tag from the item
-  const removeTag = useCallback(
-    async (tag: Tag) => {
+  const handleRemoveTag = useCallback(
+    async (tagToRemove: Tag) => {
       try {
-        await item.removeTag(tag);
-        // Update local state for immediate UI feedback
-        setTags((prev) => prev.filter((t) => t.id !== tag.id));
-        onTagsChanged?.();
+        await removeTagFromItem(item, tagToRemove);
       } catch (error) {
         console.error("Error removing tag:", error);
       }
     },
-    [item, onTagsChanged],
+    [item],
   );
 
   // Render tags or loading state
   const renderContent = () => {
-    if (loading) {
-      return (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="small" color={theme.colors.activityIndicator} />
-        </View>
-      );
-    }
-
-    if (tags.length === 0) {
+    if (!itemTags || itemTags.length === 0) {
       return (
         <View style={styles.emptyContainer}>
           <ThemeText style={styles.emptyText}>{t("tags.noTagsYet")}</ThemeText>
@@ -112,19 +72,25 @@ const TagSelector: React.FC<TagSelectorProps> = ({
     }
 
     // Limit tags if maxTags is specified
-    const displayTags = maxTags && tags.length > maxTags ? tags.slice(0, maxTags) : tags;
+    const displayTags =
+      maxTags && itemTags.length > maxTags ? itemTags.slice(0, maxTags) : itemTags;
 
     return (
       <View style={styles.tagsContainer}>
         {displayTags.map((tag) => (
-          <TagBadge key={tag.id} label={tag.name} onRemove={() => removeTag(tag)} size="medium" />
+          <TagBadge
+            key={tag.id}
+            label={tag.name}
+            onRemove={() => handleRemoveTag(tag)}
+            size="medium"
+          />
         ))}
 
         {/* Show count of hidden tags if maxTags is specified */}
-        {maxTags && tags.length > maxTags && (
+        {maxTags && itemTags.length > maxTags && (
           <TouchableOpacity style={styles.moreTagsButton} onPress={openTagEditor}>
             <ThemeText style={styles.moreTagsText}>
-              {t("tags.moreTags", { count: tags.length - maxTags })}
+              {t("tags.moreTags", { count: itemTags.length - maxTags })}
             </ThemeText>
           </TouchableOpacity>
         )}
@@ -152,8 +118,8 @@ const TagSelector: React.FC<TagSelectorProps> = ({
         {renderContent()}
       </View>
 
-      {/* Tag Editor Modal */}
-      <TagEditor visible={tagEditorVisible} onClose={closeTagEditor} item={item} />
+      {/* Tag Editor Modal - No longer rendered here */}
+      {/* <TagEditor visible={tagEditorVisible} onClose={closeTagEditor} item={item} /> */}
     </>
   );
 };
@@ -206,5 +172,8 @@ const makeStyles = (theme: Theme) =>
       fontWeight: "500",
     },
   });
+
+// Enhance TagSelectorInner with withItemTags HOC
+const TagSelector = withItemTags()(TagSelectorInner);
 
 export default TagSelector;
