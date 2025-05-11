@@ -8,6 +8,7 @@ import Item from "@/database/models/ItemModel";
 import Tag from "@/database/models/TagModel";
 import { useTagManagement } from "@/utils/hooks";
 import TagEditor from "@/screens/EditTag";
+import { useTranslation } from "react-i18next";
 
 export interface TagSelectorProps {
   item: Item;
@@ -36,6 +37,7 @@ const TagSelector: React.FC<TagSelectorProps> = ({
   showAddButton = true,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const styles = useMemo(() => makeStyles(theme), [theme]);
 
   // Tag state
@@ -104,7 +106,7 @@ const TagSelector: React.FC<TagSelectorProps> = ({
     if (tags.length === 0) {
       return (
         <View style={styles.emptyContainer}>
-          <ThemeText style={styles.emptyText}>No tags yet</ThemeText>
+          <ThemeText style={styles.emptyText}>{t("tags.noTagsYet")}</ThemeText>
         </View>
       );
     }
@@ -121,7 +123,9 @@ const TagSelector: React.FC<TagSelectorProps> = ({
         {/* Show count of hidden tags if maxTags is specified */}
         {maxTags && tags.length > maxTags && (
           <TouchableOpacity style={styles.moreTagsButton} onPress={openTagEditor}>
-            <ThemeText style={styles.moreTagsText}>+{tags.length - maxTags} more</ThemeText>
+            <ThemeText style={styles.moreTagsText}>
+              {t("tags.moreTags", { count: tags.length - maxTags })}
+            </ThemeText>
           </TouchableOpacity>
         )}
       </View>

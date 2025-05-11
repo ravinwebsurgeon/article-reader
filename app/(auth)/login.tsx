@@ -20,6 +20,7 @@ import { ThemeText, ThemeView } from "@/components";
 import { Input } from "@/components/ui/TextInput/input";
 import { SvgIcon } from "@/components/SvgIcon";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 
 interface LoginFormData {
   email: string;
@@ -29,6 +30,7 @@ interface LoginFormData {
 function LoginScreen() {
   const dispatch = useAppDispatch();
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const { error } = useAppSelector((state) => state.auth);
   const [login] = useLoginMutation();
@@ -154,9 +156,9 @@ function LoginScreen() {
               <SvgIcon name="pocket-pink" size={48} color={theme.colors.primary.main} />
             </ThemeView>
             <ThemeText variant="h2" style={styles.title}>
-              Welcome Back
+              {t("auth.login.welcome")}
             </ThemeText>
-            <ThemeText style={dynamicStyles.subtitle}>Pick up where you left off.</ThemeText>
+            <ThemeText style={dynamicStyles.subtitle}>{t("auth.login.subtitle")}</ThemeText>
           </ThemeView>
 
           <ThemeView style={styles.formContainer}>
@@ -164,13 +166,13 @@ function LoginScreen() {
               control={control}
               name="email"
               rules={{
-                required: "Email is required",
+                required: t("errors.validation.email.required"),
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: "Invalid email address",
+                  message: t("errors.validation.email.invalid"),
                 },
               }}
-              placeholder="Email"
+              placeholder={t("auth.login.email")}
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
@@ -182,13 +184,13 @@ function LoginScreen() {
               control={control}
               name="password"
               rules={{
-                required: "Password is required",
+                required: t("errors.validation.password.required"),
                 minLength: {
                   value: 8,
-                  message: "Password must be at least 8 characters",
+                  message: t("errors.validation.password.minLength"),
                 },
               }}
-              placeholder="Password"
+              placeholder={t("auth.login.password")}
               secureTextEntry
               icon={<SvgIcon name="key" size={24} color={theme.colors.primary.main} />}
               style={styles.input}
@@ -198,11 +200,13 @@ function LoginScreen() {
               style={styles.forgotPasswordContainer}
               onPress={navigateToForgotPassword}
             >
-              {/* <ThemeText style={dynamicStyles.forgotPasswordText}>Forgot password?</ThemeText> */}
+              <ThemeText style={dynamicStyles.forgotPasswordText}>
+                {t("auth.login.forgotPassword")}
+              </ThemeText>
             </TouchableOpacity>
 
             <Button
-              title="Log In"
+              title={t("auth.login.button")}
               onPress={handleSubmit(onSubmit)}
               style={dynamicStyles.signInButton}
               rightIcon={null}
@@ -210,9 +214,9 @@ function LoginScreen() {
           </ThemeView>
 
           <ThemeView style={styles.signUpContainer}>
-            <ThemeText style={styles.signUpText}>New Here? </ThemeText>
+            <ThemeText style={styles.signUpText}>{t("auth.signup.newHere")} </ThemeText>
             <TouchableOpacity onPress={navigateToSignUp}>
-              <ThemeText style={dynamicStyles.signUpLinkText}>Create and account</ThemeText>
+              <ThemeText style={dynamicStyles.signUpLinkText}>{t("auth.signup.button")}</ThemeText>
             </TouchableOpacity>
           </ThemeView>
         </ScrollView>

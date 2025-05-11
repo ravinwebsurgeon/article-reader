@@ -5,6 +5,7 @@ import { ItemFilter } from "@/types/item";
 import SortMenu, { SortOption } from "../menu/SortMenu";
 import { ActionMenuPosition } from "../menu/ReusableActionMenu";
 import { SvgIcon } from "@/components/SvgIcon";
+import { useTranslation } from "react-i18next";
 
 interface FilterTabsProps {
   currentFilter: ItemFilter;
@@ -19,39 +20,6 @@ interface FilterOptionType {
   icon?: (color: string) => React.ReactNode;
 }
 
-const filterOptions: FilterOptionType[] = [
-  {
-    id: "sorting",
-    icon: (color: string) => <SvgIcon name="sort-descending" size={24} color={color} />,
-  },
-  { id: "all", label: "All" },
-  {
-    id: "favorites",
-    label: "Favorites",
-    icon: (color: string) => <SvgIcon name="favorite" size={24} color={color} />,
-  },
-  {
-    id: "tagged",
-    label: "Tagged",
-    icon: (color: string) => <SvgIcon name="tag" size={24} color={color} />,
-  },
-  {
-    id: "short",
-    label: "Short Reads",
-    icon: (color: string) => <SvgIcon name="time-short" size={24} color={color} />,
-  },
-  {
-    id: "long",
-    label: "Long Reads",
-    icon: (color: string) => <SvgIcon name="time-long" size={24} color={color} />,
-  },
-  {
-    id: "archived",
-    label: "Archived",
-    icon: (color: string) => <SvgIcon name="archive" size={24} color={color} />,
-  },
-];
-
 const FilterTabs: React.FC<FilterTabsProps> = ({
   currentFilter,
   onFilterChange,
@@ -60,12 +28,46 @@ const FilterTabs: React.FC<FilterTabsProps> = ({
 }) => {
   const theme = useTheme();
   const isDarkMode = useDarkMode();
+  const { t } = useTranslation();
   const styles = useMemo(() => makeStyles(theme, isDarkMode), [theme, isDarkMode]);
 
   const tabRefs = useRef<{ [key: string]: View | null }>({});
   const sortButtonRef = useRef<View>(null);
   const [sortMenuVisible, setSortMenuVisible] = useState(false);
   const [sortMenuPosition, setSortMenuPosition] = useState<ActionMenuPosition>({});
+
+  const filterOptions: FilterOptionType[] = [
+    {
+      id: "sorting",
+      icon: (color: string) => <SvgIcon name="sort-descending" size={24} color={color} />,
+    },
+    { id: "all", label: t("filters.all") },
+    {
+      id: "favorites",
+      label: t("filters.favorites"),
+      icon: (color: string) => <SvgIcon name="favorite" size={24} color={color} />,
+    },
+    {
+      id: "tagged",
+      label: t("filters.tagged"),
+      icon: (color: string) => <SvgIcon name="tag" size={24} color={color} />,
+    },
+    {
+      id: "short",
+      label: t("filters.shortReads"),
+      icon: (color: string) => <SvgIcon name="time-short" size={24} color={color} />,
+    },
+    {
+      id: "long",
+      label: t("filters.longReads"),
+      icon: (color: string) => <SvgIcon name="time-long" size={24} color={color} />,
+    },
+    {
+      id: "archived",
+      label: t("filters.archived"),
+      icon: (color: string) => <SvgIcon name="archive" size={24} color={color} />,
+    },
+  ];
 
   const handleTabPress = (filterId: ItemFilter | "sorting") => {
     if (filterId === "sorting") {

@@ -15,6 +15,7 @@ import { selectActiveTheme } from "@/redux/utils";
 import { ThemeProvider } from "@/theme";
 import { DatabaseProvider } from "@/database/provider/DatabaseProvider";
 import { NetworkProvider } from "@/provider/NetworkProvider";
+import "@/i18n"; // Import i18n configuration
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
