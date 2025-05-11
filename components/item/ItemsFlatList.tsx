@@ -1,11 +1,11 @@
 import React, { memo, useCallback, useState } from "react";
 import { FlatList, StyleSheet, RefreshControl } from "react-native";
 import { useRouter } from "expo-router";
-import ArticleCard, { ARTICLE_CARD_HEIGHT } from "@/components/shared/card/ArticleCard";
 import NoUIFound from "@/components/shared/emptyState/NoUIFound";
 import Item from "@/database/models/ItemModel";
 import { ItemFilter } from "@/types/item";
 import { syncEngine } from "@/database/sync/SyncEngine";
+import ItemCard, { ITEM_CARD_HEIGHT } from "@/components/item/ItemCard";
 
 interface ItemsFlatListProps {
   items: Item[];
@@ -38,16 +38,14 @@ const ItemsFlatList = memo(({ items, filter }: ItemsFlatListProps) => {
   );
 
   const renderItem = useCallback(
-    ({ item }: { item: Item }) => (
-      <ArticleCard item={item} onPress={() => navigateToArticle(item)} />
-    ),
+    ({ item }: { item: Item }) => <ItemCard item={item} onPress={() => navigateToArticle(item)} />,
     [navigateToArticle],
   );
 
   const getItemLayout = useCallback(
     (_data: ArrayLike<Item> | null | undefined, index: number) => ({
-      length: ARTICLE_CARD_HEIGHT,
-      offset: ARTICLE_CARD_HEIGHT * index,
+      length: ITEM_CARD_HEIGHT,
+      offset: ITEM_CARD_HEIGHT * index,
       index,
     }),
     [],
