@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useMemo } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -12,15 +12,13 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { useTheme, useColors, useTypography } from "@/theme/hooks";
-import { ThemeText, ThemeView } from "@/components/primitives";
+import { ThemeText } from "@/components/primitives";
 import Tag from "@/database/models/TagModel";
 import Item from "@/database/models/ItemModel";
 import ItemTag from "@/database/models/ItemTagModel";
 import { SvgIcon } from "@/components/SvgIcon";
-import { useTagManagement } from "@/utils/hooks";
 import { TagBadge, TagList } from "@/components/shared/tag";
 import database from "@/database/database";
-import { Q } from "@nozbe/watermelondb";
 import { useTranslation } from "react-i18next";
 
 /**
@@ -56,27 +54,6 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
   const [otherTags, setOtherTags] = useState<Tag[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // const {
-  //   allTags,
-  //   recentTags,
-  //   otherTags,
-  //   selectedTagIds,
-  //   isLoading,
-  //   loadData,
-  //   toggleTag,
-  //   createTag,
-  //   searchTags
-  // } = useTagManagement(item);
-
-  console.log(
-    "allTags Tags: in edit tags",
-    allTags,
-    recentTags,
-    otherTags,
-    selectedTagIds,
-    isLoading,
-  );
-
   // Reference to the tags collection
   const tagsCollection = database.collections.get<Tag>("tags");
 
@@ -101,15 +78,15 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
         const tagId = itemTag.tag.id;
         const usageTime = itemTag.createdAt.getTime();
 
-        if (!tagLastUsedMap.has(tagId) || usageTime > tagLastUsedMap.get(tagId)!) {
+        if (!tagLastUsedMap.has(tagId) || usageTime > (tagLastUsedMap.get(tagId) ?? 0)) {
           tagLastUsedMap.set(tagId, usageTime);
         }
       }
 
       // Sort tags by last usage time (most recent first)
       const sortedTags = [...tags].sort((a, b) => {
-        const aLastUsed = tagLastUsedMap.get(a.id) || a.createdAt.getTime();
-        const bLastUsed = tagLastUsedMap.get(b.id) || b.createdAt.getTime();
+        const aLastUsed = tagLastUsedMap.get(a.id) ?? a.createdAt.getTime();
+        const bLastUsed = tagLastUsedMap.get(b.id) ?? b.createdAt.getTime();
         return bLastUsed - aLastUsed; // Descending order (newest first)
       });
 
@@ -126,7 +103,7 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
       const tagIds = await Promise.all(
         itemTags.map(async (itemTag) => {
           // Use the proper relation method to get the tag
-          const tag = await itemTag.tag;
+          const tag = itemTag.tag;
           return tag.id;
         }),
       );
@@ -138,6 +115,7 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
       setIsLoading(false);
     }
   }, [item, tagsCollection]);
+
   // Load data when component mounts and is visible
   useEffect(() => {
     if (visible) {
@@ -167,13 +145,14 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
           newSelectedTagIds.delete(tag.id);
           await database.write(async () => {
             const itemTagsRelation = await item.itemTags.fetch();
-            const itemTagToDelete = await Promise.all(
-              itemTagsRelation.map(async (it) => {
-                // Use the proper relation method to get the tag
-                const tagObj = await it.tag;
-                return tagObj.id === tag.id ? it : null;
-              }),
-            ).then((results) => results.find((result) => result !== null));
+            const itemTagToDelete = (
+              await Promise.all(
+                itemTagsRelation.map(async (it) => {
+                  const tagObj = it.tag;
+                  return tagObj.id === tag.id ? it : null;
+                }),
+              )
+            ).find((result) => result !== null);
 
             if (itemTagToDelete) {
               await itemTagToDelete.destroyPermanently();
@@ -184,7 +163,6 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
           await database.write(async () => {
             const itemTagsCollection = database.collections.get<ItemTag>("item_tags");
             await itemTagsCollection.create((itemTag) => {
-              // Use the proper relation setters
               itemTag.item = item;
               itemTag.tag = tag;
             });
@@ -194,11 +172,10 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
         setSelectedTagIds(newSelectedTagIds);
       } catch (error) {
         console.error("Error toggling tag:", error);
-        // Reload data in case of error to ensure UI reflects actual database state
         loadData();
       }
     },
-    [selectedTagIds, item, loadData, database],
+    [selectedTagIds, item, loadData],
   );
 
   // Create a new tag
@@ -250,7 +227,7 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
         return null;
       }
     },
-    [allTags, toggleTag, selectedTagIds, tagsCollection, item, database],
+    [allTags, toggleTag, selectedTagIds, tagsCollection, item],
   );
 
   // Handle text input changes
@@ -290,68 +267,21 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
   }, [tagText, createTag]);
 
   // Get selected tags
-  const selectedTags = useMemo(
+  const selectedTags = useCallback(
     () => allTags.filter((tag) => selectedTagIds.has(tag.id)),
     [allTags, selectedTagIds],
   );
 
   // Filter displayed tags based on search state
-  const displayedRecentTags = useMemo(
+  const displayedRecentTags = useCallback(
     () => (tagText.trim() ? [] : recentTags),
     [tagText, recentTags],
   );
 
-  const displayedOtherTags = useMemo(() => (tagText.trim() ? [] : otherTags), [tagText, otherTags]);
-  // </new>
-  //old
-
-  // Update search results when input changes
-  // useEffect(() => {
-  //   if (tagText.trim()) {
-  //     setSearchResults(searchTags(tagText));
-  //   } else {
-  //     setSearchResults([]);
-  //   }
-  // }, [tagText, searchTags]);
-
-  // // Handle tag creation
-  // const handleCreateTag = useCallback(async () => {
-  //   if (!tagText.trim()) return;
-
-  //   await createTag(tagText, true);
-  //   setTagText(''); // Clear input field
-  // }, [tagText, createTag]);
-
-  // // Simple handlers
-  // const handleTextChange = useCallback((text: string) => {
-  //   setTagText(text);/////
-  // }, []);
-
-  // const handleSubmit = useCallback(() => {
-  //   handleCreateTag();
-  // }, [handleCreateTag]);
-
-  // // Filter displayed tags based on search state
-  // const displayedRecentTags = useMemo(() =>
-  //   tagText.trim() ? [] : recentTags,
-  // [tagText, recentTags]);
-
-  // const displayedOtherTags = useMemo(() =>
-  //   tagText.trim() ? [] : otherTags,
-  // [tagText, otherTags]);
-
-  // // Button state for add button
-  // const isAddButtonEnabled = useMemo(() =>
-  //   tagText.trim().length > 0,
-  // [tagText]);
-
-  // // Get selected tags
-  // const selectedTags = useMemo(() =>
-  //   allTags.filter(tag => selectedTagIds.has(tag.id)),
-  // [allTags, selectedTagIds]);
-
-  // console.log('Selected Tags: in edit tags', selectedTags);
-  // console.log('display other tags: in edit tags', displayedOtherTags);
+  const displayedOtherTags = useCallback(
+    () => (tagText.trim() ? [] : otherTags),
+    [tagText, otherTags],
+  );
 
   return (
     <Modal transparent={true} visible={visible} animationType="slide" onRequestClose={onClose}>
@@ -390,10 +320,10 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
             </View>
 
             {/* Selected Tags */}
-            {selectedTags.length > 0 && (
+            {selectedTags().length > 0 && (
               <View style={styles.selectedTagsContainer}>
                 <FlatList
-                  data={selectedTags}
+                  data={selectedTags()}
                   renderItem={({ item }) => (
                     <TagBadge
                       key={item.id}
@@ -431,9 +361,9 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
                   ) : (
                     <>
                       {/* Recent Tags */}
-                      {displayedRecentTags.length > 0 && (
+                      {displayedRecentTags().length > 0 && (
                         <TagList
-                          tags={displayedRecentTags}
+                          tags={displayedRecentTags()}
                           selectedTagIds={selectedTagIds}
                           onTagPress={toggleTag}
                           title={t("tags.recentTags")}
@@ -442,9 +372,9 @@ const TagEditor: React.FC<TagEditorProps> = ({ visible, onClose, item }) => {
                       )}
 
                       {/* Other Tags */}
-                      {displayedOtherTags.length > 0 && (
+                      {displayedOtherTags().length > 0 && (
                         <TagList
-                          tags={displayedOtherTags}
+                          tags={displayedOtherTags()}
                           selectedTagIds={selectedTagIds}
                           onTagPress={toggleTag}
                           title={t("tags.otherTags")}

@@ -5,7 +5,7 @@ import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ItemFilter } from "@/types/item";
 import { Images } from "@/assets";
-import ArticleCard, { ARTICLE_CARD_HEIGHT } from "@/components/shared/card/ArticleCard";
+import ArticleCard from "@/components/shared/card/ArticleCard";
 import FilterTabs from "@/components/shared/tabBar/FilterTabs";
 import NoUIFound from "@/components/shared/emptyState/NoUIFound";
 import { useTheme } from "@/theme";
@@ -15,9 +15,6 @@ import Item from "@/database/models/ItemModel";
 import Svg, { Path } from "react-native-svg";
 import { SortOption } from "@/components/shared/menu/SortMenu";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-// Use the exported fixed height from ArticleCard component
-const ITEM_HEIGHT = ARTICLE_CARD_HEIGHT;
 
 const Header = memo(() => {
   const router = useRouter();
@@ -81,7 +78,6 @@ const MemoizedFilterTabs = memo(
     onFilterChange: (filter: ItemFilter) => void;
     onSortChange: (sort: SortOption) => void;
   }) => {
-    const theme = useTheme();
     return (
       <FilterTabs
         currentFilter={currentFilter}
@@ -95,6 +91,30 @@ const MemoizedFilterTabs = memo(
 
 MemoizedFilterTabs.displayName = "MemoizedFilterTabs";
 
+// Create a separate component for the items list with useEffect
+const ItemsListWithReady = ({
+  items,
+  filter,
+  isReady,
+  setIsReady,
+}: {
+  items: Item[];
+  filter: ItemFilter;
+  isReady: boolean;
+  setIsReady: (ready: boolean) => void;
+}) => {
+  useEffect(() => {
+    if (items && !isReady) {
+      setTimeout(() => {
+        setIsReady(true);
+      }, 0);
+    }
+  }, [items, isReady, setIsReady]);
+
+  if (!isReady) return null;
+  return <ItemsList items={items} filter={filter} />;
+};
+
 /**
  * EnhancedItemsList handles the complex loading and sync states for the items list.
  * It manages:
@@ -104,42 +124,30 @@ MemoizedFilterTabs.displayName = "MemoizedFilterTabs";
  * 4. Proper state transitions between sync and data loading
  */
 const EnhancedItemsList = ({ filter, sorted }: { filter: ItemFilter; sorted: SortOption }) => {
-  // Track if this is the first sync for the user
   const [isInitialSync, setIsInitialSync] = useState(false);
-  // Control when we should start fetching items from the database
   const [shouldFetchItems, setShouldFetchItems] = useState(false);
-  // Track if we're still checking the initial sync state
   const [isCheckingSync, setIsCheckingSync] = useState(true);
-  // Track if we've received and are ready to display items
   const [isReady, setIsReady] = useState(false);
 
-  // Initialize sync and determine if this is first-time or returning user
   useEffect(() => {
     let isMounted = true;
-
     const checkFirstSync = async () => {
       try {
-        // Check if this user has synced before
         const isFirstSync = await AsyncStorage.getItem("already_synced");
         if (isMounted) {
           setIsInitialSync(!isFirstSync);
-
           if (!isFirstSync) {
-            // First-time user: Wait for initial sync to complete before showing items
             await syncEngine.sync(true);
             await AsyncStorage.setItem("already_synced", "true");
             if (isMounted) {
               setShouldFetchItems(true);
             }
           } else {
-            // Returning user: Show items immediately and sync in background
-            // Use setTimeout to ensure state updates are processed in the correct order
             setTimeout(() => {
               if (isMounted) {
                 setShouldFetchItems(true);
               }
             }, 0);
-            // Start background sync
             syncEngine.sync(false).catch((error) => {
               console.error("Background sync failed:", error);
             });
@@ -147,7 +155,6 @@ const EnhancedItemsList = ({ filter, sorted }: { filter: ItemFilter; sorted: Sor
         }
       } catch (error) {
         console.error("Sync failed:", error);
-        // Even if sync fails, we should still show items
         if (isMounted) {
           setTimeout(() => {
             if (isMounted) {
@@ -162,9 +169,7 @@ const EnhancedItemsList = ({ filter, sorted }: { filter: ItemFilter; sorted: Sor
         }
       }
     };
-
     checkFirstSync();
-
     return () => {
       isMounted = false;
     };
@@ -172,37 +177,19 @@ const EnhancedItemsList = ({ filter, sorted }: { filter: ItemFilter; sorted: Sor
 
   // Create a memoized component that fetches items based on filter and sort
   const WithItemsComponent = useMemo(() => {
-    return withItems({ filter, sorted })(({ items }) => {
-      // Mark as ready when we receive items
-      useEffect(() => {
-        if (items && !isReady) {
-          // Use setTimeout to ensure state updates are processed in the correct order
-          setTimeout(() => {
-            setIsReady(true);
-          }, 0);
-        }
-      }, [items, isReady]);
-
-      // Don't render anything until we're ready to show items
-      if (!isReady) {
-        return null;
-      }
-
-      return <ItemsList items={items} filter={filter} />;
-    });
+    return withItems({ filter, sorted })(({ items }) => (
+      <ItemsListWithReady items={items} filter={filter} isReady={isReady} setIsReady={setIsReady} />
+    ));
   }, [filter, sorted, isReady]);
 
-  // Show initial sync state while checking or performing first sync
   if (isCheckingSync || isInitialSync) {
     return <NoUIFound filter="initialSync" />;
   }
 
-  // Don't render anything until we're ready to fetch items
   if (!shouldFetchItems) {
     return null;
   }
 
-  // Render the items list component
   return <WithItemsComponent />;
 };
 
@@ -215,8 +202,6 @@ const EnhancedItemsList = ({ filter, sorted }: { filter: ItemFilter; sorted: Sor
  */
 const ItemsList = memo(({ items, filter }: { items: Item[]; filter: ItemFilter }) => {
   const router = useRouter();
-  const theme = useTheme();
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
 
   // Handle pull-to-refresh sync
@@ -245,11 +230,7 @@ const ItemsList = memo(({ items, filter }: { items: Item[]; filter: ItemFilter }
   // Render article item
   const renderItem = useCallback(
     ({ item }: { item: Item }) => (
-      <ArticleCard
-        item={item}
-        onPress={() => navigateToArticle(item)}
-        onMenuPress={() => setSelectedItemId(item.id)}
-      />
+      <ArticleCard item={item} onPress={() => navigateToArticle(item)} />
     ),
     [navigateToArticle],
   );
