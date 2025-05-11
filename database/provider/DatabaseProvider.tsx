@@ -2,11 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useAppSelector } from "@/redux/hook";
 import { selectAuthToken } from "@/redux/utils";
 import { syncEngine } from "../sync/SyncEngine";
-import { ActivityIndicator } from "react-native";
-import { ThemeView, ThemeText } from "@/components/core";
-import { useTheme } from "@/theme/hooks";
 import database from "../database";
-import { useTranslation } from "react-i18next";
 
 // Set the database instance in the sync engine
 syncEngine.database = database;
@@ -15,14 +11,15 @@ syncEngine.database = database;
 syncEngine.watchForChanges();
 
 // Create a context for database access
-export const DatabaseContext = React.createContext(database);
+export const DatabaseContext = React.createContext<{
+  database: typeof database;
+  isReady: boolean;
+}>({ database, isReady: false });
 
 export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const token = useAppSelector(selectAuthToken);
-  const theme = useTheme();
-  const { t } = useTranslation();
 
   // Initialize database and sync
   useEffect(() => {
@@ -53,27 +50,20 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     syncEngine.setToken(token);
   }, [token]);
 
-  if (!isReady) {
-    return (
-      <ThemeView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color={theme.colors.primary.main} />
-        <ThemeText style={{ marginTop: 16 }}>{t("database.initializing")}</ThemeText>
-      </ThemeView>
-    );
-  }
-
   if (error) {
     console.warn("Database initialized with errors, continuing in offline mode");
   }
 
-  return <DatabaseContext.Provider value={database}>{children}</DatabaseContext.Provider>;
+  return (
+    <DatabaseContext.Provider value={{ database, isReady }}>{children}</DatabaseContext.Provider>
+  );
 };
 
 // Hook to access the database
 export const useDatabase = () => {
-  const database = React.useContext(DatabaseContext);
-  if (!database) {
+  const context = React.useContext(DatabaseContext);
+  if (!context) {
     throw new Error("useDatabase must be used within a DatabaseProvider");
   }
-  return database;
+  return context;
 };
