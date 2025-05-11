@@ -15,7 +15,7 @@ import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/theme";
-import ArticleCard from "@/components/common/card/ArticleCard";
+import ArticleCard from "@/components/shared/card/ArticleCard";
 import ItemModel from "@/database/models/ItemModel";
 import { withSearch } from "@/database/hooks/withItems";
 import { useTranslation } from "react-i18next";

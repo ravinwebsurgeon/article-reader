@@ -2,7 +2,7 @@
 import type React from "react";
 import { Modal } from "react-native";
 import type Item from "@/database/models/ItemModel";
-import EditTagsScreen from "@/screens/EditTag";
+import EditTagsScreen from "@/components/features/tag/EditTag";
 
 interface EditTagsModalProps {
   visible: boolean;

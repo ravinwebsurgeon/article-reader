@@ -1,6 +1,6 @@
 import type React from "react";
 import { TouchableOpacity, View, StyleSheet, type ViewStyle, type TextStyle } from "react-native";
-import { ThemeText } from "@/components/core";
+import { ThemeText } from "@/components/primitives";
 import { SvgIcon } from "@/components/SvgIcon";
 import { useTheme } from "@/theme";
 
