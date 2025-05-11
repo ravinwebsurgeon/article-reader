@@ -21,19 +21,14 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [error, setError] = useState<Error | null>(null);
   const token = useAppSelector(selectAuthToken);
 
-  // Initialize database and sync
+  // Initialize database
   useEffect(() => {
     const initialize = async () => {
       try {
         // Set token in sync engine if available
         if (token) {
           syncEngine.setToken(token);
-
-          // Perform initial sync
-          console.log("Performing initial sync");
-          await syncEngine.sync();
         }
-
         setIsReady(true);
       } catch (err) {
         console.error("Database initialization error:", err);

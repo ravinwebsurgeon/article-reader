@@ -7,7 +7,7 @@ import Svg, { Path } from "react-native-svg";
 import { useTranslation } from "react-i18next";
 
 interface NoItemsFoundProps {
-  filter: ItemFilter;
+  filter: ItemFilter | "initialSync";
 }
 
 const getIcon = (filter: string, theme: Theme): JSX.Element => {
@@ -15,6 +15,21 @@ const getIcon = (filter: string, theme: Theme): JSX.Element => {
   const mediumFill = theme.colors.gray[500];
 
   switch (filter) {
+    case "initialSync":
+      return (
+        <Svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <Path
+            d="M24 4C12.954 4 4 12.954 4 24C4 35.046 12.954 44 24 44C35.046 44 44 35.046 44 24C44 12.954 35.046 4 24 4ZM24 8C32.837 8 40 15.163 40 24C40 32.837 32.837 40 24 40C15.163 40 8 32.837 8 24C8 15.163 15.163 8 24 8Z"
+            fill={subtleFill}
+            fillOpacity={0.16}
+          />
+          <Path
+            d="M24 12C17.373 12 12 17.373 12 24C12 30.627 17.373 36 24 36C30.627 36 36 30.627 36 24C36 17.373 30.627 12 24 12ZM24 16C28.418 16 32 19.582 32 24C32 28.418 28.418 32 24 32C19.582 32 16 28.418 16 24C16 19.582 19.582 16 24 16Z"
+            fill={mediumFill}
+            fillOpacity={0.55}
+          />
+        </Svg>
+      );
     case "favorites":
       return (
         <Svg width="48" height="48" viewBox="0 0 48 48" fill="none">
