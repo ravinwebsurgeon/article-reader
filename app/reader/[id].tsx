@@ -26,7 +26,8 @@ import { useTheme, useDarkMode } from "@/theme/hooks";
 import { withObservables } from "@nozbe/watermelondb/react";
 import { useDatabase } from "@/database/provider/DatabaseProvider";
 import Item from "@/database/models/ItemModel";
-import RecommendedArticles from "./RecommendedArticles";
+import RecommendedItems from "@/components/item/RecommendedItems";
+import { withRecommendedItems } from "@/database/hooks/withRecommendedItems";
 import { SvgIcon } from "@/components/SvgIcon";
 import { ActionMenuPosition } from "@/components/shared/menu/ReusableActionMenu";
 import ReaderActionMenu from "@/components/shared/menu/ReaderActionMenu";
@@ -63,6 +64,15 @@ const ReaderComponent = ({ item }: { item: Item }) => {
   const [contentHeight, setContentHeight] = useState(0);
   const [scrollViewHeight, setScrollViewHeight] = useState(0);
   const [hasRestoredPosition, setHasRestoredPosition] = useState(false);
+
+  // Memoize the EnhancedRecommendedItems component
+  const EnhancedRecommendedItems = useMemo(
+    () =>
+      withRecommendedItems({ currentItem: item })(({ recommendedItems }) => (
+        <RecommendedItems items={recommendedItems} />
+      )),
+    [item], // Include the entire item object in dependencies
+  );
 
   // Restore scroll position when component mounts
   useEffect(() => {
@@ -346,7 +356,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
               {t("reader.upNext")}
             </ThemeText>
           </ThemeView>
-          <RecommendedArticles currentItem={item} />
+          <EnhancedRecommendedItems />
         </ThemeView>
       </ScrollView>
       {/* Reader Action Menu */}
