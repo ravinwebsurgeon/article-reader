@@ -6,10 +6,10 @@ import {
   Platform,
   ScrollView,
   Alert,
-  SafeAreaView,
   ViewStyle,
   TextStyle,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { resetAuthError } from "@/redux/slices/authSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/hook";
