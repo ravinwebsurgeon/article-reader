@@ -1,42 +1,107 @@
 import { Q } from "@nozbe/watermelondb";
 import { withObservables } from "@nozbe/watermelondb/react";
 import Item from "../models/ItemModel";
+import { switchMap, map } from "rxjs/operators";
+import { combineLatest, of as of$ } from "rxjs";
+
+interface RecommendedItemsProps {
+  currentItem: Item;
+  limit?: number;
+}
 
 /**
  * Creates a reactive subscription to recommended articles (Up Next) based on the current item
+ * Uses a multi-factor scoring system to find the most relevant items:
+ * 1. Same domain (site) - highest priority
+ * 2. Tagged with the same tags - second priority
+ * 3. Not archived and not the current item
  *
- * @param currentItem - The current item being viewed
- * @param limit - Maximum number of items to fetch (default: 3)
+ * @param props - The props containing the current item and optional limit
  * @returns A function that provides the recommended items as props to components
  */
-export const withRecommendedItems = (currentItem: Item, limit: number = 3) => {
+export const withRecommendedItems = ({ currentItem, limit = 3 }: RecommendedItemsProps) => {
   return withObservables(["currentItem"], () => {
     const itemsCollection = currentItem.database.collections.get<Item>("items");
 
-    // Strategy to find related items based on various signals
-    // 1. Same domain (site) - highest priority
-    // 2. Tagged with the same tags - second priority
-    // 3. Not archived and not the current item
+    // Get the current item's domain
+    const currentDomain = currentItem.domain;
 
-    // Get the current item's tags
-    const currentItemTags = currentItem.tags;
+    // Build the base query conditions
+    const baseConditions = [Q.where("id", Q.notEq(currentItem.id)), Q.where("archived", false)];
 
-    // Query for similar items
-    const query = itemsCollection.query(
-      // Not the current item
-      Q.where("id", Q.notEq(currentItem.id)),
-      // Not archived
-      Q.where("archived", false),
-      // Sort by relevance priority
-      Q.sortBy("site_name", Q.desc), // Same site first
-      Q.sortBy("published_at", Q.desc), // Then by recency
-      Q.sortBy("id", Q.desc), // Finally by ID (newest first)
-      // Limit results
-      Q.take(limit),
+    // Add domain condition if available
+    if (currentDomain) {
+      baseConditions.push(Q.where("domain", Q.eq(currentDomain)));
+    }
+
+    // Get items with similar tags
+    const similarTagItems = currentItem.itemTags.observe().pipe(
+      switchMap(async (itemTags) => {
+        if (!itemTags || itemTags.length === 0) {
+          return [];
+        }
+
+        // Get the tag IDs from the current item's tags
+        const tagIds = await Promise.all(
+          itemTags.map(async (itemTag) => {
+            const tag = await itemTag.tag.fetch();
+            return tag.id;
+          }),
+        );
+
+        // Query for items with any of these tags
+        return itemsCollection
+          .query(
+            ...baseConditions,
+            Q.experimentalJoinTables(["item_tags"]),
+            Q.on("item_tags", "tag_id", Q.oneOf(tagIds)),
+            Q.sortBy("published_at", Q.desc),
+            Q.take(limit),
+          )
+          .fetch();
+      }),
+    );
+
+    // Get items from the same domain
+    const sameDomainItems = currentDomain
+      ? itemsCollection
+          .query(
+            ...baseConditions,
+            Q.where("domain", Q.eq(currentDomain)),
+            Q.sortBy("published_at", Q.desc),
+            Q.take(limit),
+          )
+          .observe()
+      : of$([]);
+
+    // Combine both queries and deduplicate results
+    const recommendedItems = combineLatest([sameDomainItems, similarTagItems]).pipe(
+      map(([domainItems, tagItems]) => {
+        const seen = new Set();
+        const results = [];
+
+        // Add domain items first (higher priority)
+        for (const item of domainItems) {
+          if (!seen.has(item.id)) {
+            seen.add(item.id);
+            results.push(item);
+          }
+        }
+
+        // Add tag items if we haven't reached the limit
+        for (const item of tagItems) {
+          if (!seen.has(item.id) && results.length < limit) {
+            seen.add(item.id);
+            results.push(item);
+          }
+        }
+
+        return results;
+      }),
     );
 
     return {
-      recommendedItems: query.observe(),
+      recommendedItems,
     };
   });
 };

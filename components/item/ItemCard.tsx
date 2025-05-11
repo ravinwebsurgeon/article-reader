@@ -133,6 +133,7 @@ const makeStyles = (theme: Theme, isDarkMode: boolean) =>
       height: 75,
       borderRadius: 4,
       overflow: "hidden",
+      backgroundColor: theme.colors.background.default,
     },
     thumbnail: {
       width: "100%",
@@ -318,9 +319,11 @@ const ItemCardComponent = ({ item, itemTags, onPress, style }: ItemCardProps) =>
                 <Image
                   source={{ uri: item.imageUrl }}
                   style={styles.thumbnail}
-                  placeholder={{ thumbhash: thumbhashForPlaceholder }}
                   contentFit="cover"
-                  transition={100}
+                  transition={200}
+                  cachePolicy="memory-disk"
+                  placeholder={thumbhashForPlaceholder}
+                  recyclingKey={item.id}
                 />
               </View>
             )}
