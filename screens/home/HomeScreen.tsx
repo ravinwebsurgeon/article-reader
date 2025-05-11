@@ -14,7 +14,6 @@ import { ItemFilter } from "@/types/item";
 import { Images } from "@/assets";
 import ArticleCard, { ARTICLE_CARD_HEIGHT } from "@/components/common/card/ArticleCard";
 import FilterTabs from "@/components/common/tabBar/FilterTabs";
-import ActionMenu from "@/components/common/menu/ActionMenu";
 import NoUIFound from "@/components/common/emptyState/NoUIFound";
 import { useTheme } from "@/theme";
 import { syncEngine } from "@/database/sync/SyncEngine";
@@ -219,14 +218,12 @@ const EnhancedItemsList = ({ filter, sorted }: { filter: ItemFilter; sorted: Sor
  * It handles:
  * 1. Rendering individual article cards
  * 2. Pull-to-refresh sync
- * 3. Action menu for items
- * 4. Empty state when no items are found
+ * 3. Empty state when no items are found
  */
 const ItemsList = memo(({ items, filter }: { items: Item[]; filter: ItemFilter }) => {
   const router = useRouter();
   const theme = useTheme();
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const [showActionMenu, setShowActionMenu] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
   // Handle pull-to-refresh sync
@@ -252,76 +249,27 @@ const ItemsList = memo(({ items, filter }: { items: Item[]; filter: ItemFilter }
     [router],
   );
 
-  // Open action menu for an item
-  const openActionMenu = useCallback((id: string) => {
-    setSelectedItemId(id);
-    setShowActionMenu(true);
-  }, []);
-
-  // Close action menu
-  const closeActionMenu = useCallback(() => {
-    setShowActionMenu(false);
-    setSelectedItemId(null);
-  }, []);
-
-  // Render individual article card
+  // Render article item
   const renderItem = useCallback(
     ({ item }: { item: Item }) => (
       <ArticleCard
         item={item}
         onPress={() => navigateToArticle(item)}
-        onMenuPress={() => openActionMenu(item.id)}
+        onMenuPress={() => setSelectedItemId(item.id)}
       />
     ),
-    [navigateToArticle, openActionMenu],
-  );
-
-  // Extract unique key for each item
-  const keyExtractor = useCallback((item: Item) => item.id, []);
-
-  // Optimize FlatList performance with fixed height items
-  const getItemLayout = useCallback(
-    (_data: ArrayLike<Item> | null | undefined, index: number) => ({
-      length: ITEM_HEIGHT,
-      offset: ITEM_HEIGHT * index,
-      index,
-    }),
-    [],
+    [navigateToArticle],
   );
 
   return (
-    <>
-      <FlatList
-        data={items}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        contentContainerStyle={[styles.listContent, items?.length === 0 && styles.emptyList]}
-        ListEmptyComponent={<NoUIFound filter={filter} />}
-        refreshControl={
-          <RefreshControl
-            refreshing={isSyncing}
-            onRefresh={handleRefresh}
-            colors={[theme.colors.primary.main]}
-            tintColor={theme.colors.primary.main}
-          />
-        }
-        // Performance optimizations for FlatList
-        removeClippedSubviews={true}
-        maxToRenderPerBatch={10}
-        windowSize={10}
-        initialNumToRender={10}
-        updateCellsBatchingPeriod={50}
-        getItemLayout={getItemLayout}
-      />
-
-      {/* Action Menu Modal */}
-      {showActionMenu && selectedItemId && (
-        <ActionMenu
-          item={items.find((item) => item.id === selectedItemId) ?? items[0]}
-          onClose={closeActionMenu}
-        />
-      )}
-    </>
+    <FlatList
+      data={items}
+      renderItem={renderItem}
+      keyExtractor={(item) => item.id}
+      contentContainerStyle={styles.listContainer}
+      refreshControl={<RefreshControl refreshing={isSyncing} onRefresh={handleRefresh} />}
+      ListEmptyComponent={<NoUIFound filter={filter} />}
+    />
   );
 });
 
@@ -427,6 +375,9 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   footer: {
+    paddingBottom: 20,
+  },
+  listContainer: {
     paddingBottom: 20,
   },
 });

@@ -8,7 +8,7 @@ import { ThemeText } from "@/components/core";
 import { withObservables } from "@nozbe/watermelondb/react";
 import Svg, { Path, Rect } from "react-native-svg";
 import { SvgIcon } from "@/components/SvgIcon";
-import { createMenuPosition, menuAnimationPresets } from "../menu/menuAnimationPresents";
+import { createMenuPosition } from "../menu/menuAnimationPresents";
 import ArticleActionMenu from "../menu/ArticleActionMenu";
 import { LinearGradient } from "expo-linear-gradient";
 
@@ -210,13 +210,14 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({ item, onPress, style
           </View>
         </View>
       </TouchableOpacity>
-      <ArticleActionMenu
-        item={item}
-        visible={menuVisible}
-        position={menuPosition}
-        onClose={() => setMenuVisible(false)}
-        animationDuration={menuAnimationPresets.bouncy.duration}
-      />
+      {menuVisible && (
+        <ArticleActionMenu
+          item={item}
+          visible={menuVisible}
+          position={menuPosition}
+          onClose={() => setMenuVisible(false)}
+        />
+      )}
     </>
   );
 };

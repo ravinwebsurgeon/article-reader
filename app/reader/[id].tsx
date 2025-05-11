@@ -1,4 +1,3 @@
-// src/screens/ReaderScreen.tsx
 import React, { useState, useRef, useMemo, useEffect } from "react";
 import {
   ScrollView,
@@ -17,10 +16,7 @@ import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { marked } from "marked";
 import { RenderHTML } from "react-native-render-html";
-import {
-  menuAnimationPresets,
-  createMenuPosition,
-} from "@/components/common/menu/menuAnimationPresents";
+import { createMenuPosition } from "@/components/common/menu/menuAnimationPresents";
 
 // Import themed components
 import { ThemeView, ThemeText } from "@/components/core";
@@ -28,7 +24,6 @@ import { useTheme, useDarkMode } from "@/theme/hooks";
 
 // Import WatermelonDB components
 import { withObservables } from "@nozbe/watermelondb/react";
-import { Database } from "@nozbe/watermelondb";
 import { useDatabase } from "@/database/provider/DatabaseProvider";
 import Item from "@/database/models/ItemModel";
 import RecommendedArticles from "./RecommendedArticles";
@@ -358,7 +353,6 @@ const ReaderComponent = ({ item }: { item: Item }) => {
         visible={menuVisible}
         position={menuPosition}
         onClose={() => setMenuVisible(false)}
-        animationDuration={menuAnimationPresets.bouncy.duration}
       />
     </ThemeView>
   );
@@ -368,7 +362,6 @@ const ReaderComponent = ({ item }: { item: Item }) => {
 export default function ReaderScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { database } = useDatabase();
-  const { t } = useTranslation();
 
   if (!id) {
     return null;

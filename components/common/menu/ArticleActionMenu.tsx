@@ -10,7 +10,6 @@ interface ArticleActionMenuProps {
   item: Item;
   position?: ActionMenuPosition;
   visible?: boolean;
-  animationDuration?: number;
   onClose: () => void;
 }
 
@@ -22,7 +21,6 @@ const ArticleActionMenu: React.FC<ArticleActionMenuProps> = ({
   item,
   position = {},
   visible = false,
-  animationDuration,
   onClose,
 }) => {
   const theme = useTheme();
@@ -175,7 +173,6 @@ const ArticleActionMenu: React.FC<ArticleActionMenuProps> = ({
         onClose={onClose}
         position={position}
         width={240}
-        animationPreset="bouncy"
       />
       {tagEditorVisible && (
         <TagEditor visible={tagEditorVisible} onClose={closeTagEditor} item={item} />
