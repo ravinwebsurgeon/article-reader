@@ -49,11 +49,11 @@ export const menuAnimationPresets = {
    * - Prominent bounce effect
    */
   bouncy: {
-    duration: 220,
-    closeDelay: 180,
-    bounceIntensity: 2.0,
-    scaleFrom: 0.7,
-    translateY: 20,
+    duration: 300,
+    closeDelay: 200,
+    bounceIntensity: 1.2,
+    scaleFrom: 0.8,
+    translateY: 10,
   },
 };
 

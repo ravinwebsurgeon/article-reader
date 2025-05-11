@@ -7,7 +7,6 @@ import {
   TouchableWithoutFeedback,
   LayoutChangeEvent,
   Dimensions,
-  Platform,
   ScrollView,
   Animated,
   Easing,
@@ -88,7 +87,6 @@ const DEFAULT_MENU_WIDTH = 240;
 const DEFAULT_MAX_HEIGHT = 400;
 const MENU_PADDING = 8;
 const SAFE_AREA_PADDING = 16;
-const DEFAULT_ANIMATION_DURATION = 200;
 
 const ReusableActionMenu: React.FC<ActionMenuProps> = ({
   visible,
@@ -98,10 +96,10 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
   title,
   width = DEFAULT_MENU_WIDTH,
   maxHeight = DEFAULT_MAX_HEIGHT,
-  animationType = "fade",
+  animationType = "none",
   headerComponent,
   footerComponent,
-  animationDuration = DEFAULT_ANIMATION_DURATION,
+  animationDuration = 300,
   animationPreset = "bouncy",
 }) => {
   const theme = useTheme();
@@ -129,8 +127,19 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
   useEffect(() => {
     if (visible) {
       setModalVisible(true);
+    } else {
+      // When visible becomes false, start the close animation
+      Animated.timing(scaleAnim, {
+        toValue: 0,
+        duration: animationDuration * 0.85,
+        easing: Easing.bezier(0.4, 0, 1, 1),
+        useNativeDriver: true,
+      }).start(() => {
+        setModalVisible(false);
+        setIsPositioned(false);
+      });
     }
-  }, [visible]);
+  }, [visible, scaleAnim, animationDuration]);
 
   // Handle animation based on visibility
   useEffect(() => {
@@ -138,35 +147,15 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
       // Only animate after we have a position
       scaleAnim.setValue(0);
 
-      // Get animation preset
-      const presetName: AnimationPresetName = animationPreset || "bouncy";
-      const preset = menuAnimationPresets[presetName] || menuAnimationPresets.bouncy;
-
       // Start animation
       Animated.timing(scaleAnim, {
         toValue: 1,
         duration: animationDuration,
-        easing: Easing.out(Easing.back(preset.bounceIntensity)),
+        easing: Easing.out(Easing.back(1.1)),
         useNativeDriver: true,
       }).start();
-    } else if (!visible && modalVisible) {
-      // Get animation preset
-      const presetName: AnimationPresetName = animationPreset || "bouncy";
-      const preset = menuAnimationPresets[presetName] || menuAnimationPresets.bouncy;
-
-      // Animate out
-      Animated.timing(scaleAnim, {
-        toValue: 0,
-        duration: preset.closeDelay,
-        easing: Easing.in(Easing.ease),
-        useNativeDriver: true,
-      }).start(() => {
-        setModalVisible(false);
-        // Reset positioning state after animation completes
-        setIsPositioned(false);
-      });
     }
-  }, [visible, isPositioned, modalVisible, scaleAnim, animationDuration, animationPreset]);
+  }, [visible, isPositioned, scaleAnim, animationDuration]);
 
   // Reset state when menu closes completely
   useEffect(() => {
@@ -437,12 +426,12 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
     <Modal
       transparent
       visible={modalVisible}
-      animationType={animationType}
+      animationType="none"
       onRequestClose={handleClose}
       statusBarTranslucent
     >
       <TouchableWithoutFeedback onPress={handleClose}>
-        <Animated.View style={[styles.modalOverlay, { opacity: scaleAnim }]}>
+        <View style={styles.modalOverlay}>
           <TouchableWithoutFeedback>
             <Animated.View
               ref={menuRef}
@@ -481,7 +470,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
               {footerComponent && <View style={styles.menuFooter}>{footerComponent}</View>}
             </Animated.View>
           </TouchableWithoutFeedback>
-        </Animated.View>
+        </View>
       </TouchableWithoutFeedback>
     </Modal>
   );
@@ -493,23 +482,18 @@ const makeStyles = (theme: Theme, isDarkMode: boolean) =>
       flex: 1,
       justifyContent: "center",
       alignItems: "center",
-      backgroundColor: theme.colors.backdrop,
     },
     menuContainer: {
       position: "absolute",
       borderRadius: 12,
       paddingHorizontal: MENU_PADDING,
-      elevation: 5,
-      overflow: "hidden",
+      elevation: 8,
       backfaceVisibility: "hidden",
-      ...Platform.select({
-        ios: {
-          shadowColor: "rgba(0, 0, 0, 0.3)",
-          shadowOffset: { width: 0, height: 3 },
-          shadowOpacity: 0.6,
-          shadowRadius: 8,
-        },
-      }),
+      backgroundColor: theme.colors.background.paper,
+      shadowColor: "rgba(0, 0, 0, 0.4)",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.4,
+      shadowRadius: 16,
     },
     menuHeader: {
       paddingHorizontal: 8,

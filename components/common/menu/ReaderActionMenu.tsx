@@ -11,7 +11,6 @@ interface ReaderActionMenuProps {
   position?: ActionMenuPosition;
   visible?: boolean;
   onClose: () => void;
-  animationDuration?: number;
 }
 
 /**
@@ -23,7 +22,6 @@ const ReaderActionMenu: React.FC<ReaderActionMenuProps> = ({
   position = {},
   visible = false,
   onClose,
-  animationDuration,
 }) => {
   const theme = useTheme();
   const [tagEditorVisible, setTagEditorVisible] = useState(false);
@@ -139,7 +137,6 @@ const ReaderActionMenu: React.FC<ReaderActionMenuProps> = ({
         onClose={onClose}
         position={position}
         width={240}
-        animationDuration={animationDuration}
       />
       {tagEditorVisible && (
         <TagEditor visible={tagEditorVisible} onClose={closeTagEditor} item={item} />
