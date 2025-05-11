@@ -115,6 +115,10 @@
     "infoText": "Save articles, videos, and more to Pocket. Your list syncs across devices so you can view it anywhere."
   },
   "emptyStates": {
+    "initialSync": {
+      "message": "Setting up your Pocket",
+      "subMessage": "We're syncing your saved articles. This might take a moment."
+    },
     "favorites": {
       "message": "No Favorites Just Yet",
       "subMessage": "Use the star to favorite pages you want saved to keep handy."
