@@ -7,7 +7,7 @@ import TagBadge from "./TagBadge";
 import Item from "@/database/models/ItemModel";
 import Tag from "@/database/models/TagModel";
 import { useTagManagement } from "@/utils/hooks";
-import TagEditor from "@/components/features/tag/EditTag";
+import TagEditor from "@/features/tag/EditTag";
 import { useTranslation } from "react-i18next";
 
 export interface TagSelectorProps {
