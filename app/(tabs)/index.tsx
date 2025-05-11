@@ -1,7 +1,6 @@
-import { StyleSheet, Pressable } from "react-native";
+import { StyleSheet, Pressable, SafeAreaView } from "react-native";
 import { ThemeText, ThemeView } from "@/components";
 import { Ionicons } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 
 export default function HomeScreen() {

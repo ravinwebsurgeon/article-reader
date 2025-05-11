@@ -1,5 +1,13 @@
 import React, { useState, useCallback, useMemo, memo } from "react";
-import { View, FlatList, StyleSheet, RefreshControl, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  FlatList,
+  StyleSheet,
+  RefreshControl,
+  TouchableOpacity,
+  Image,
+  SafeAreaView,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ItemFilter } from "@/types/item";
@@ -14,7 +22,6 @@ import { withItems } from "@/database/hooks/withItems";
 import Item from "@/database/models/ItemModel";
 import Svg, { Path } from "react-native-svg";
 import { SortOption } from "@/components/common/menu/SortMenu";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 // Use the exported fixed height from ArticleCard component
 const ITEM_HEIGHT = ARTICLE_CARD_HEIGHT;

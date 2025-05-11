@@ -60,7 +60,8 @@
     "archive": "归档",
     "unarchive": "取消归档",
     "markAsRead": "标记为已读",
-    "markAsUnread": "标记为未读"
+    "markAsUnread": "标记为未读",
+    "upNext": "接下来"
   },
   "errors": {
     "network": "网络错误。请检查您的连接。",
@@ -199,5 +200,12 @@
     "shortReads": "短阅读",
     "longReads": "长阅读",
     "archived": "已归档"
+  },
+  "navigation": {
+    "tabs": {
+      "discover": "发现",
+      "saves": "已保存",
+      "settings": "设置"
+    }
   }
 }

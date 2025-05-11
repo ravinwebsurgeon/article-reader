@@ -9,7 +9,7 @@ import {
   Keyboard,
   ViewStyle,
   TextStyle,
-  ActivityIndicator,
+  SafeAreaView,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -20,7 +20,6 @@ import ActionMenu from "@/components/common/menu/ActionMenu";
 import ItemModel from "@/database/models/ItemModel";
 import { withSearch } from "@/database/hooks/withItems";
 import { useTranslation } from "react-i18next";
-import { ThemeText } from "@/components/core";
 
 // Base component without database connection
 const SearchScreenComponent = ({
@@ -131,7 +130,7 @@ const SearchScreenComponent = ({
   };
 
   return (
-    <View style={[styles.container, dynamicStyles.container]}>
+    <SafeAreaView style={[styles.container, dynamicStyles.container]}>
       <StatusBar style={isDarkMode ? "light" : "dark"} />
 
       {/* Search Header */}
@@ -201,7 +200,7 @@ const SearchScreenComponent = ({
       {showActionMenu && selectedItem && (
         <ActionMenu item={selectedItem} onClose={closeActionMenu} />
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
