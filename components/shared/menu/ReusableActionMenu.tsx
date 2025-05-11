@@ -63,6 +63,8 @@ export interface ActionMenuProps {
   items: ActionMenuItem[];
   // Close handler
   onClose: () => void;
+  // Callback fired when the modal is dismissed
+  onDismiss?: () => void;
   // Position config
   position?: ActionMenuPosition;
   // Optional title for the menu
@@ -92,6 +94,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
   visible,
   items,
   onClose,
+  onDismiss,
   position = {},
   title,
   width = DEFAULT_MENU_WIDTH,
@@ -144,18 +147,20 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
   // Handle animation based on visibility
   useEffect(() => {
     if (visible && isPositioned) {
-      // Only animate after we have a position
-      scaleAnim.setValue(0);
-
-      // Start animation
-      Animated.timing(scaleAnim, {
-        toValue: 1,
-        duration: animationDuration,
-        easing: Easing.out(Easing.back(1.1)),
-        useNativeDriver: true,
-      }).start();
+      // Only animate after we have a position and modal is truly visible
+      // A timeout of 0 can help break the synchronous chain of updates
+      const timerId = setTimeout(() => {
+        scaleAnim.setValue(0); // Reset before animation
+        Animated.timing(scaleAnim, {
+          toValue: 1,
+          duration: animationDuration,
+          easing: Easing.out(Easing.back(1.1)), // Or your chosen preset easing
+          useNativeDriver: true,
+        }).start();
+      }, 0);
+      return () => clearTimeout(timerId);
     }
-  }, [visible, isPositioned, scaleAnim, animationDuration]);
+  }, [visible, isPositioned, scaleAnim, animationDuration, animationPreset]); // Added animationPreset to deps if easing depends on it
 
   // Reset state when menu closes completely
   useEffect(() => {
@@ -428,6 +433,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
       visible={modalVisible}
       animationType="none"
       onRequestClose={handleClose}
+      onDismiss={onDismiss}
       statusBarTranslucent
     >
       <TouchableWithoutFeedback onPress={handleClose}>
