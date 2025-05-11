@@ -60,13 +60,6 @@ const EditTagsView: React.FC<EditTagsViewProps> = ({
   const [recentTags, setRecentTags] = useState<Tag[]>([]);
   const [otherTags, setOtherTags] = useState<Tag[]>([]);
 
-  // Log props from HOC
-  useEffect(() => {
-    console.log("[EditTagsView] Props update. Item ID:", item?.id);
-    console.log("[EditTagsView] allTagsFromDB:", allTagsFromDB?.length);
-    console.log("[EditTagsView] selectedTagsFromDB:", selectedTagsFromDB?.length);
-  }, [item, allTagsFromDB, selectedTagsFromDB]);
-
   useEffect(() => {
     setAllTags(allTagsFromDB);
     const sortedByUpdate = [...allTagsFromDB].sort(

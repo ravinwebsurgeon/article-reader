@@ -12,63 +12,26 @@ import { createMenuPosition } from "../menu/menuAnimationPresents";
 import ArticleActionMenu from "../menu/ArticleActionMenu";
 import { LinearGradient } from "expo-linear-gradient";
 import { hexToRgba } from "@/utils/colors";
+import { withItemTags } from "@/database/hooks/withTags";
 
 // Export a fixed height constant for use in FlatList
 export const ARTICLE_CARD_HEIGHT = 143;
 
 interface ArticleCardProps {
   item: Item;
+  itemTags: Tag[];
   style?: StyleProp<ViewStyle>;
   onPress: () => void;
 }
 
-interface ItemTag {
-  tag:
-    | {
-        fetch: () => Promise<Tag>;
-      }
-    | Tag;
-}
-
-const ArticleCardComponent: React.FC<ArticleCardProps> = ({ item, onPress, style }) => {
+const ArticleCardComponent: React.FC<ArticleCardProps> = ({ item, itemTags, onPress, style }) => {
   const theme = useTheme();
   const isDarkMode = useDarkMode();
   const styles = useMemo(() => makeStyles(theme, isDarkMode), [theme, isDarkMode]);
 
-  const [itemLocalTags, setItemLocalTags] = useState<Tag[]>([]);
   const menuButtonRef = useRef<View>(null);
   const [menuVisible, setMenuVisible] = useState(false);
   const [menuPosition, setMenuPosition] = useState({});
-
-  useEffect(() => {
-    const loadTags = async () => {
-      if (!item?.itemTags) {
-        setItemLocalTags([]);
-        return;
-      }
-      try {
-        // It is assumed that item.itemTags is a Relation<ItemTag[]>
-        const fetchedItemTags = await item.itemTags.fetch();
-        const tagPromises = fetchedItemTags.map(async (itemTag: ItemTag) => {
-          // Assuming itemTag.tag is a Relation<Tag>
-          if ("fetch" in itemTag.tag) {
-            return await itemTag.tag.fetch();
-          }
-          // If itemTag.tag is already a Tag instance (e.g., due to pre-fetching)
-          if (itemTag.tag instanceof Tag) {
-            return itemTag.tag;
-          }
-          return null; // Or handle as an error/missing tag
-        });
-        const tagObjects = (await Promise.all(tagPromises)).filter(Boolean) as Tag[];
-        setItemLocalTags(tagObjects);
-      } catch (error) {
-        console.error("Failed to load tags for article card:", item.id, error);
-        setItemLocalTags([]);
-      }
-    };
-    loadTags();
-  }, [item]);
 
   const formatReadTime = (minutes: number) => {
     return `${minutes} min`;
@@ -150,7 +113,7 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({ item, onPress, style
                 </View>
               )}
 
-              {itemLocalTags.length > 0 && (
+              {itemTags.length > 0 && (
                 <View style={styles.tagsContainerWrapper}>
                   <ScrollView
                     horizontal
@@ -158,7 +121,7 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({ item, onPress, style
                     contentContainerStyle={styles.tagsScrollContent}
                     scrollEventThrottle={16}
                   >
-                    {itemLocalTags.map((tag: Tag, index: number) => (
+                    {itemTags.map((tag: Tag, index: number) => (
                       <View key={index} style={styles.tagItemContainer}>
                         <Svg
                           width="16"
@@ -342,4 +305,4 @@ const enhance = withObservables(["item"], ({ item }: { item: Item }) => ({
   item: item.observe(),
 }));
 
-export default enhance(ArticleCardComponent);
+export default enhance(withItemTags()(ArticleCardComponent));
