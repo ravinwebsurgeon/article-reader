@@ -3,6 +3,13 @@
     "name": "Pocket",
     "tagline": "Speichern. Lesen. Wachsen."
   },
+  "navigation": {
+    "tabs": {
+      "discover": "Entdecken",
+      "saves": "Speicherungen",
+      "settings": "Einstellungen"
+    }
+  },
   "common": {
     "ok": "OK",
     "cancel": "Abbrechen",
@@ -60,7 +67,8 @@
     "archive": "Archivieren",
     "unarchive": "Aus dem Archiv entfernen",
     "markAsRead": "Als gelesen markieren",
-    "markAsUnread": "Als ungelesen markieren"
+    "markAsUnread": "Als ungelesen markieren",
+    "upNext": "Als nächstes"
   },
   "errors": {
     "network": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung.",

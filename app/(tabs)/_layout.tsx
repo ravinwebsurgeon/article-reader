@@ -4,9 +4,11 @@ import { Platform } from "react-native";
 import { SvgIcon } from "@/components/SvgIcon";
 import { useTheme } from "@/theme";
 import TabBarBackground from "@/components/ui/TabBarBackground";
+import { useTranslation } from "react-i18next";
 
 export default function TabLayout() {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <Tabs
@@ -33,21 +35,21 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Discover",
+          title: t("navigation.tabs.discover"),
           tabBarIcon: ({ color }) => <SvgIcon name="discover" color={color} size={24} />,
         }}
       />
       <Tabs.Screen
         name="saves"
         options={{
-          title: "Saves",
+          title: t("navigation.tabs.saves"),
           tabBarIcon: ({ color }) => <SvgIcon name="saves" color={color} size={24} />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          title: "Settings",
+          title: t("navigation.tabs.settings"),
           tabBarIcon: ({ color }) => <SvgIcon name="settings" color={color} size={24} />,
         }}
       />
