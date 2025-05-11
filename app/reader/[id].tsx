@@ -354,7 +354,9 @@ const ReaderComponent = ({ item }: { item: Item }) => {
         item={item}
         visible={menuVisible}
         position={menuPosition}
-        onClose={() => setMenuVisible(false)}
+        onClose={() => {
+          setMenuVisible(false);
+        }}
       />
     </ThemeView>
   );
