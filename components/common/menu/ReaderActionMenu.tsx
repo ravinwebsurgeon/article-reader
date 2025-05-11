@@ -4,6 +4,7 @@ import ReusableActionMenu, { ActionMenuItem, ActionMenuPosition } from "./Reusab
 import { Linking } from "react-native";
 import TagEditor from "@/screens/EditTag";
 import { useTheme } from "@/theme";
+import { useTranslation } from "react-i18next";
 
 interface ReaderActionMenuProps {
   item: Item;
@@ -26,6 +27,7 @@ const ReaderActionMenu: React.FC<ReaderActionMenuProps> = ({
 }) => {
   const theme = useTheme();
   const [tagEditorVisible, setTagEditorVisible] = useState(false);
+  const { t } = useTranslation();
 
   // Open tag editor
   const openTagEditor = useCallback(() => {
@@ -64,7 +66,7 @@ const ReaderActionMenu: React.FC<ReaderActionMenuProps> = ({
     return [
       {
         id: "share",
-        label: "Share",
+        label: t("menu.share"),
         icon: "share",
         onPress: () => {
           // Implement share functionality
@@ -74,7 +76,7 @@ const ReaderActionMenu: React.FC<ReaderActionMenuProps> = ({
       },
       {
         id: "favorite",
-        label: item.favorite ? "Unfavorite" : "Favorite",
+        label: item.favorite ? t("menu.unfavorite") : t("menu.favorite"),
         icon: item.favorite ? "favorite" : "favorite",
         iconColor: item.favorite ? theme.colors.favorite : undefined,
         onPress: async () => {
@@ -88,21 +90,21 @@ const ReaderActionMenu: React.FC<ReaderActionMenuProps> = ({
       },
       {
         id: "edit-tags",
-        label: "Edit Tags",
+        label: t("menu.editTags"),
         icon: "tag",
         onPress: openTagEditor,
         dividerAfter: true,
       },
       {
         id: "open-browser",
-        label: "Open in Browser",
+        label: t("menu.openInBrowser"),
         icon: "compass",
         onPress: handleOpenInBrowser,
         dividerAfter: true,
       },
       {
         id: "archive",
-        label: item.archived ? "Unarchive" : "Archive",
+        label: item.archived ? t("menu.unarchive") : t("menu.archive"),
         icon: "archive",
         onPress: async () => {
           try {
@@ -115,7 +117,7 @@ const ReaderActionMenu: React.FC<ReaderActionMenuProps> = ({
       },
       {
         id: "delete",
-        label: "Delete",
+        label: t("menu.delete"),
         icon: "trash",
         destructive: true,
         onPress: async () => {
@@ -127,7 +129,7 @@ const ReaderActionMenu: React.FC<ReaderActionMenuProps> = ({
         },
       },
     ];
-  }, [item, openTagEditor, handleOpenInBrowser, theme.colors.favorite]);
+  }, [item, openTagEditor, handleOpenInBrowser, theme.colors.favorite, t]);
 
   return (
     <>

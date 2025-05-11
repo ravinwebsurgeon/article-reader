@@ -4,49 +4,11 @@ import { useTheme, type Theme } from "@/theme";
 import { ItemFilter } from "@/types/item";
 import { ThemeText } from "@/components/core";
 import Svg, { Path } from "react-native-svg";
+import { useTranslation } from "react-i18next";
 
 interface NoItemsFoundProps {
   filter: ItemFilter;
 }
-
-const EMPTY_STATES = {
-  favorites: {
-    message: "No Favorites Just Yet",
-    subMessage: "Use the star to favorite pages you want saved to keep handy.",
-  },
-  tagged: {
-    message: "Sort Things Your Way",
-    subMessage: "Use tags like travel or gift ideas to organize your saves.",
-  },
-  archived: {
-    message: "Nothing Archived",
-    subMessage: "When you're done with a save, move it here to keep things tidy.",
-  },
-  short: {
-    message: "No Short Reads Yet",
-    subMessage: "When you save something quick to read, it'll show up here.",
-  },
-  long: {
-    message: "No Long Reads Yet",
-    subMessage: "When you save something quick to read, it'll show up here.",
-  },
-  default: {
-    message: "Ready to Start Saving?",
-    subMessage: "Add pages you want to come back to. They'll appear here when you're ready.",
-  },
-  all: {
-    message: "Ready to Start Saving?",
-    subMessage: "Add pages you want to come back to. They'll appear here when you're ready.",
-  },
-  restoring: {
-    message: "Restoring Your Saves",
-    subMessage: "Your saved pages are on the way.",
-  },
-  sort: {
-    message: "Sort Things Your Way",
-    subMessage: "Use tags list, filter or gift ideas to keep handy.",
-  },
-};
 
 const getIcon = (filter: string, theme: Theme): JSX.Element => {
   const subtleFill = theme.colors.gray[300];
@@ -117,17 +79,17 @@ const getIcon = (filter: string, theme: Theme): JSX.Element => {
 
 const NoItemsFound: React.FC<NoItemsFoundProps> = ({ filter }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const styles = useMemo(() => makeStyles(theme), [theme]);
-  const emptyState = EMPTY_STATES[filter] || EMPTY_STATES.default;
 
   return (
     <View style={styles.container}>
       {getIcon(filter, theme)}
       <ThemeText variant="h3" style={styles.message}>
-        {emptyState.message}
+        {t(`emptyStates.${filter}.message`)}
       </ThemeText>
       <ThemeText variant="body2" style={styles.subMessage}>
-        {emptyState.subMessage}
+        {t(`emptyStates.${filter}.subMessage`)}
       </ThemeText>
     </View>
   );
