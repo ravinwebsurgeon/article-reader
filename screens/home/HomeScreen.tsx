@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, memo } from "react";
+import React, { useState, useCallback, useMemo, memo, useEffect } from "react";
 import {
   View,
   FlatList,
@@ -15,13 +15,14 @@ import { Images } from "@/assets";
 import ArticleCard, { ARTICLE_CARD_HEIGHT } from "@/components/common/card/ArticleCard";
 import FilterTabs from "@/components/common/tabBar/FilterTabs";
 import ActionMenu from "@/components/common/menu/ActionMenu";
-import NoItemsFound from "@/components/common/emptyState/NoUIFound";
+import NoUIFound from "@/components/common/emptyState/NoUIFound";
 import { useTheme } from "@/theme";
 import { syncEngine } from "@/database/sync/SyncEngine";
 import { withItems } from "@/database/hooks/withItems";
 import Item from "@/database/models/ItemModel";
 import Svg, { Path } from "react-native-svg";
 import { SortOption } from "@/components/common/menu/SortMenu";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Use the exported fixed height from ArticleCard component
 const ITEM_HEIGHT = ARTICLE_CARD_HEIGHT;
@@ -101,7 +102,126 @@ const MemoizedFilterTabs = memo(
 );
 
 MemoizedFilterTabs.displayName = "MemoizedFilterTabs";
-// The base ItemsList component that only re-renders when items change
+
+/**
+ * EnhancedItemsList handles the complex loading and sync states for the items list.
+ * It manages:
+ * 1. Initial sync for first-time users
+ * 2. Background sync for returning users
+ * 3. Loading states to prevent UI flashing
+ * 4. Proper state transitions between sync and data loading
+ */
+const EnhancedItemsList = ({ filter, sorted }: { filter: ItemFilter; sorted: SortOption }) => {
+  // Track if this is the first sync for the user
+  const [isInitialSync, setIsInitialSync] = useState(false);
+  // Control when we should start fetching items from the database
+  const [shouldFetchItems, setShouldFetchItems] = useState(false);
+  // Track if we're still checking the initial sync state
+  const [isCheckingSync, setIsCheckingSync] = useState(true);
+  // Track if we've received and are ready to display items
+  const [isReady, setIsReady] = useState(false);
+
+  // Initialize sync and determine if this is first-time or returning user
+  useEffect(() => {
+    let isMounted = true;
+
+    const checkFirstSync = async () => {
+      try {
+        // Check if this user has synced before
+        const isFirstSync = await AsyncStorage.getItem("already_synced");
+        if (isMounted) {
+          setIsInitialSync(!isFirstSync);
+
+          if (!isFirstSync) {
+            // First-time user: Wait for initial sync to complete before showing items
+            await syncEngine.sync(true);
+            await AsyncStorage.setItem("already_synced", "true");
+            if (isMounted) {
+              setShouldFetchItems(true);
+            }
+          } else {
+            // Returning user: Show items immediately and sync in background
+            // Use setTimeout to ensure state updates are processed in the correct order
+            setTimeout(() => {
+              if (isMounted) {
+                setShouldFetchItems(true);
+              }
+            }, 0);
+            // Start background sync
+            syncEngine.sync(false).catch((error) => {
+              console.error("Background sync failed:", error);
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Sync failed:", error);
+        // Even if sync fails, we should still show items
+        if (isMounted) {
+          setTimeout(() => {
+            if (isMounted) {
+              setShouldFetchItems(true);
+            }
+          }, 0);
+        }
+      } finally {
+        if (isMounted) {
+          setIsInitialSync(false);
+          setIsCheckingSync(false);
+        }
+      }
+    };
+
+    checkFirstSync();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Create a memoized component that fetches items based on filter and sort
+  const WithItemsComponent = useMemo(() => {
+    return withItems({ filter, sorted })(({ items }) => {
+      // Mark as ready when we receive items
+      useEffect(() => {
+        if (items && !isReady) {
+          // Use setTimeout to ensure state updates are processed in the correct order
+          setTimeout(() => {
+            setIsReady(true);
+          }, 0);
+        }
+      }, [items, isReady]);
+
+      // Don't render anything until we're ready to show items
+      if (!isReady) {
+        return null;
+      }
+
+      return <ItemsList items={items} filter={filter} />;
+    });
+  }, [filter, sorted, isReady]);
+
+  // Show initial sync state while checking or performing first sync
+  if (isCheckingSync || isInitialSync) {
+    return <NoUIFound filter="initialSync" />;
+  }
+
+  // Don't render anything until we're ready to fetch items
+  if (!shouldFetchItems) {
+    return null;
+  }
+
+  // Render the items list component
+  return <WithItemsComponent />;
+};
+
+/**
+ * ItemsList is a memoized component that renders the list of items.
+ * It handles:
+ * 1. Rendering individual article cards
+ * 2. Pull-to-refresh sync
+ * 3. Action menu for items
+ * 4. Empty state when no items are found
+ */
 const ItemsList = memo(({ items, filter }: { items: Item[]; filter: ItemFilter }) => {
   const router = useRouter();
   const theme = useTheme();
@@ -109,11 +229,10 @@ const ItemsList = memo(({ items, filter }: { items: Item[]; filter: ItemFilter }
   const [showActionMenu, setShowActionMenu] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  // Handle pull-to-refresh - sync with server
+  // Handle pull-to-refresh sync
   const handleRefresh = useCallback(async () => {
     try {
       setIsSyncing(true);
-      console.log("Performing refresh sync");
       await syncEngine.sync();
     } catch (error) {
       console.error("Sync failed:", error);
@@ -145,7 +264,7 @@ const ItemsList = memo(({ items, filter }: { items: Item[]; filter: ItemFilter }
     setSelectedItemId(null);
   }, []);
 
-  // Render the article item - wrapped in useCallback to prevent recreating on each render
+  // Render individual article card
   const renderItem = useCallback(
     ({ item }: { item: Item }) => (
       <ArticleCard
@@ -157,13 +276,12 @@ const ItemsList = memo(({ items, filter }: { items: Item[]; filter: ItemFilter }
     [navigateToArticle, openActionMenu],
   );
 
-  // Memoize keyExtractor to prevent recreation on each render
+  // Extract unique key for each item
   const keyExtractor = useCallback((item: Item) => item.id, []);
 
-  // Implement getItemLayout for fixed height items
-  // This allows FlatList to know item dimensions without measuring them
+  // Optimize FlatList performance with fixed height items
   const getItemLayout = useCallback(
-    (_data: any, index: number) => ({
+    (_data: ArrayLike<Item> | null | undefined, index: number) => ({
       length: ITEM_HEIGHT,
       offset: ITEM_HEIGHT * index,
       index,
@@ -178,7 +296,7 @@ const ItemsList = memo(({ items, filter }: { items: Item[]; filter: ItemFilter }
         renderItem={renderItem}
         keyExtractor={keyExtractor}
         contentContainerStyle={[styles.listContent, items?.length === 0 && styles.emptyList]}
-        ListEmptyComponent={<NoItemsFound filter={filter} />}
+        ListEmptyComponent={<NoUIFound filter={filter} />}
         refreshControl={
           <RefreshControl
             refreshing={isSyncing}
@@ -199,7 +317,7 @@ const ItemsList = memo(({ items, filter }: { items: Item[]; filter: ItemFilter }
       {/* Action Menu Modal */}
       {showActionMenu && selectedItemId && (
         <ActionMenu
-          item={items.find((item) => item.id === selectedItemId)!}
+          item={items.find((item) => item.id === selectedItemId) ?? items[0]}
           onClose={closeActionMenu}
         />
       )}
@@ -208,17 +326,6 @@ const ItemsList = memo(({ items, filter }: { items: Item[]; filter: ItemFilter }
 });
 
 ItemsList.displayName = "ItemsList";
-// Create the enhanced ItemsList with data from withItems HOC
-const EnhancedItemsList = ({ filter, sorted }: { filter: ItemFilter; sorted: SortOption }) => {
-  // Use the HOC to get items based on the filter
-  const WithItemsComponent = useMemo(() => {
-    return withItems({ filter, sorted })(({ items }) => (
-      <ItemsList items={items} filter={filter} />
-    ));
-  }, [filter, sorted]);
-
-  return <WithItemsComponent />;
-};
 
 // Main HomeScreen component that manages filter state
 const HomeScreenWithFilter = () => {
