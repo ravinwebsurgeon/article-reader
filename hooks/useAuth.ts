@@ -57,7 +57,7 @@ export function useAuth() {
       setIsAuthenticated(true);
 
       // Navigate to the home screen
-      router.replace("/(tabs)");
+      router.replace("/saves");
       return { success: true };
     } catch (error) {
       console.error("Login failed:", error);
