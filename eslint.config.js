@@ -30,6 +30,7 @@ module.exports = defineConfig([
       "@typescript-eslint/prefer-optional-chain": "warn",
       "@typescript-eslint/switch-exhaustiveness-check": "warn",
       "prettier/prettier": "error",
+      "import/no-named-as-default": "off",
     },
   },
   prettierConfig,
