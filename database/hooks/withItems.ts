@@ -5,8 +5,6 @@ import Item from "../models/ItemModel";
 import database from "../database";
 import { ItemFilter } from "@/types/item";
 import { SortOption } from "@/components/shared/menu/SortMenu";
-import { useState, useEffect } from "react";
-import { Subscription } from "rxjs";
 
 /**
  * Access to the items collection in the WatermelonDB database
@@ -65,7 +63,7 @@ interface WithItemsProps {
 export const withItems = ({ filter = "all", sorted = "newest" }: WithItemsProps = {}) => {
   const sort = sorted === "newest" ? Q.desc : Q.asc;
 
-  return withObservables(["filter"], () => {
+  return withObservables(["filter", "sorted"], () => {
     let query;
 
     if (filter === "favorites") {
