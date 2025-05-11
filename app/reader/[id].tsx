@@ -346,7 +346,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
               color={theme.colors.text.secondary}
               style={styles.upNextText}
             >
-              Up Next
+              {t("reader.upNext")}
             </ThemeText>
           </ThemeView>
           <RecommendedArticles currentItem={item} />

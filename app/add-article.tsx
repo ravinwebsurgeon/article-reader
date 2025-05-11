@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
   ViewStyle,
   TextStyle,
+  SafeAreaView,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -139,68 +140,70 @@ export default function AddArticleScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={[styles.container, dynamicStyles.container]}
-    >
-      <StatusBar style={isDarkMode ? "light" : "dark"} />
+    <SafeAreaView style={[styles.container, dynamicStyles.container]}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
+        <StatusBar style={isDarkMode ? "light" : "dark"} />
 
-      {/* Header */}
-      <View style={[styles.header, { borderBottomColor: theme.colors.divider }]}>
-        <TouchableOpacity onPress={handleBack}>
-          <Text style={dynamicStyles.cancelButton}>{t("common.cancel")}</Text>
-        </TouchableOpacity>
+        {/* Header */}
+        <View style={[styles.header, { borderBottomColor: theme.colors.divider }]}>
+          <TouchableOpacity onPress={handleBack}>
+            <Text style={dynamicStyles.cancelButton}>{t("common.cancel")}</Text>
+          </TouchableOpacity>
 
-        <Text style={dynamicStyles.headerTitle}>{t("addArticle.title")}</Text>
+          <Text style={dynamicStyles.headerTitle}>{t("addArticle.title")}</Text>
 
-        <View style={{ width: 50 }} />
-      </View>
-
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={dynamicStyles.sectionTitle}>{t("addArticle.sectionTitle")}</Text>
-
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={dynamicStyles.input}
-            placeholder={t("addArticle.urlPlaceholder")}
-            placeholderTextColor={theme.colors.text.disabled}
-            value={url}
-            onChangeText={setUrl}
-            autoCapitalize="none"
-            autoCorrect={false}
-            autoFocus
-            returnKeyType="go"
-            onSubmitEditing={handleSaveArticle}
-          />
-
-          {url.length > 0 && (
-            <TouchableOpacity style={styles.clearButton} onPress={handleClear}>
-              <Ionicons name="close-circle" size={20} color={theme.colors.text.secondary} />
-            </TouchableOpacity>
-          )}
+          <View style={{ width: 50 }} />
         </View>
 
-        <TouchableOpacity
-          style={[
-            styles.saveButton,
-            { backgroundColor: theme.colors.primary.main },
-            { opacity: url.trim().length === 0 || isLoading ? 0.6 : 1 },
-          ]}
-          onPress={handleSaveArticle}
-          disabled={url.trim().length === 0 || isLoading}
-        >
-          {isLoading ? (
-            <ActivityIndicator color={theme.colors.primary.contrast} size="small" />
-          ) : (
-            <Text style={dynamicStyles.saveButtonText}>{t("addArticle.saveButton")}</Text>
-          )}
-        </TouchableOpacity>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <Text style={dynamicStyles.sectionTitle}>{t("addArticle.sectionTitle")}</Text>
 
-        <View style={[styles.divider, { backgroundColor: theme.colors.divider }]} />
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={dynamicStyles.input}
+              placeholder={t("addArticle.urlPlaceholder")}
+              placeholderTextColor={theme.colors.text.disabled}
+              value={url}
+              onChangeText={setUrl}
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoFocus
+              returnKeyType="go"
+              onSubmitEditing={handleSaveArticle}
+            />
 
-        <Text style={dynamicStyles.infoText}>{t("addArticle.infoText")}</Text>
-      </ScrollView>
-    </KeyboardAvoidingView>
+            {url.length > 0 && (
+              <TouchableOpacity style={styles.clearButton} onPress={handleClear}>
+                <Ionicons name="close-circle" size={20} color={theme.colors.text.secondary} />
+              </TouchableOpacity>
+            )}
+          </View>
+
+          <TouchableOpacity
+            style={[
+              styles.saveButton,
+              { backgroundColor: theme.colors.primary.main },
+              { opacity: url.trim().length === 0 || isLoading ? 0.6 : 1 },
+            ]}
+            onPress={handleSaveArticle}
+            disabled={url.trim().length === 0 || isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color={theme.colors.primary.contrast} size="small" />
+            ) : (
+              <Text style={dynamicStyles.saveButtonText}>{t("addArticle.saveButton")}</Text>
+            )}
+          </TouchableOpacity>
+
+          <View style={[styles.divider, { backgroundColor: theme.colors.divider }]} />
+
+          <Text style={dynamicStyles.infoText}>{t("addArticle.infoText")}</Text>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -213,8 +216,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    paddingTop: 48,
-    paddingBottom: 16,
+    paddingVertical: 16,
     borderBottomWidth: 1,
   },
   scrollContent: {
