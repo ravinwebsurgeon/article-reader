@@ -11,6 +11,7 @@ import { SvgIcon } from "@/components/SvgIcon";
 import { createMenuPosition } from "../menu/menuAnimationPresents";
 import ArticleActionMenu from "../menu/ArticleActionMenu";
 import { LinearGradient } from "expo-linear-gradient";
+import { hexToRgba } from "@/utils/colors";
 
 // Export a fixed height constant for use in FlatList
 export const ARTICLE_CARD_HEIGHT = 143;
@@ -191,7 +192,10 @@ const ArticleCardComponent: React.FC<ArticleCardProps> = ({ item, onPress, style
                     ))}
                   </ScrollView>
                   <LinearGradient
-                    colors={["rgba(255, 255, 255, 0)", theme.colors.background.default]}
+                    colors={[
+                      hexToRgba(theme.colors.background.default, 0),
+                      theme.colors.background.default,
+                    ]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
                     style={[styles.tagsGradient, { width: 24 }]}
