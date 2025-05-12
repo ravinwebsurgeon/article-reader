@@ -43,7 +43,13 @@ export type { UseThemeColorProps } from "./hooks";
 export * from "./tokens";
 
 // Export individual core components for convenience
-export { getInterVariableStyle } from "./tokens/typography";
+export {
+  typography,
+  createTextStyle,
+  createLiterataStyle,
+  getInterStyle,
+  getLiterataStyle,
+} from "./tokens/typography";
 
 /**
  * Usage Guide

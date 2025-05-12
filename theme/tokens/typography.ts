@@ -3,74 +3,79 @@ import { Platform, TextStyle } from "react-native";
 // Font family definitions
 export const fontFamily = {
   inter: {
-    variable: "InterVariable",
-    variableItalic: "InterVariable-Italic",
+    regular: "Inter-Regular",
+    italic: "Inter-Italic",
+    medium: "Inter-Medium",
+    mediumItalic: "Inter-MediumItalic",
+    semiBold: "Inter-SemiBold",
+    semiBoldItalic: "Inter-SemiBoldItalic",
+    bold: "Inter-Bold",
+    boldItalic: "Inter-BoldItalic",
   },
   literata: {
-    variable: "Literata-VariableFont_opsz,wght",
-    variableItalic: "Literata-Italic-VariableFont_opsz,wght",
+    regular: "Literata-Regular",
+    italic: "Literata-Italic",
+    semiBold: "Literata-SemiBold",
+    semiBoldItalic: "Literata-SemiBoldItalic",
+    bold: "Literata-Bold",
+    boldItalic: "Literata-BoldItalic",
+    extraBold: "Literata-ExtraBold",
+    extraBoldItalic: "Literata-ExtraBoldItalic",
   },
 };
 
 // Font weight type for better type safety
 export type FontWeight = 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
 
-// Extended TextStyle to include font variation settings
-interface ExtendedTextStyle extends TextStyle {
-  fontVariationSettings?: string;
-}
+// Extended TextStyle (kept for potential future use, though fontVariationSettings is removed)
+interface ExtendedTextStyle extends TextStyle {}
 
-// Shared utility for handling font weights across platforms
-const getFontWeightStyle = (weight: FontWeight): Partial<ExtendedTextStyle> => {
-  if (Platform.OS === "ios") {
-    return { fontWeight: weight };
-  }
-  return { fontVariationSettings: `'wght' ${weight}` };
-};
-
-export const getInterVariableStyle = (
+export const getInterStyle = (
   weight: FontWeight = 400,
   italic: boolean = false,
 ): ExtendedTextStyle => {
-  let computedFontFamily = italic ? fontFamily.inter.variableItalic : fontFamily.inter.variable;
-  // Experiment for iOS: Use a more generic family name for variable fonts
-  // as iOS might select weights better with this approach.
-  if (Platform.OS === "ios") {
-    computedFontFamily = italic ? "InterVariable-Italic" : "Inter"; // Assuming "InterVariable-Italic" is the specific name for the italic variant if needed, or it could be "Inter-Italic"
+  let ff: string;
+  if (italic) {
+    if (weight === 700) ff = fontFamily.inter.boldItalic;
+    else if (weight === 600) ff = fontFamily.inter.semiBoldItalic;
+    else if (weight === 500) ff = fontFamily.inter.mediumItalic;
+    else ff = fontFamily.inter.italic; // Default to regular italic (400)
+  } else {
+    if (weight === 700) ff = fontFamily.inter.bold;
+    else if (weight === 600) ff = fontFamily.inter.semiBold;
+    else if (weight === 500) ff = fontFamily.inter.medium;
+    else ff = fontFamily.inter.regular; // Default to regular (400)
   }
-
   return {
-    fontFamily: computedFontFamily,
-    ...getFontWeightStyle(weight),
-    ...(italic && Platform.OS === "android" ? { fontStyle: "italic" as const } : {}),
+    fontFamily: ff,
+    fontWeight: weight,
   };
 };
 
-// Helper for Literata variable font with optical size parameter
-export const getLiterataVariableStyle = (
+// Helper for Literata static font
+export const getLiterataStyle = (
   weight: FontWeight = 400,
-  opticalSize: number = 16,
   italic: boolean = false,
 ): ExtendedTextStyle => {
-  const baseStyle: ExtendedTextStyle = {
-    fontFamily: italic ? fontFamily.literata.variableItalic : fontFamily.literata.variable,
-    ...(italic && Platform.OS === "android" ? { fontStyle: "italic" as const } : {}),
-  };
-
-  if (Platform.OS === "ios") {
-    return {
-      ...baseStyle,
-      fontWeight: weight,
-    };
+  let ff: string;
+  if (italic) {
+    if (weight === 800) ff = fontFamily.literata.extraBoldItalic;
+    else if (weight === 700) ff = fontFamily.literata.boldItalic;
+    else if (weight === 600) ff = fontFamily.literata.semiBoldItalic;
+    else ff = fontFamily.literata.italic; // Default to regular italic (400)
+  } else {
+    if (weight === 800) ff = fontFamily.literata.extraBold;
+    else if (weight === 700) ff = fontFamily.literata.bold;
+    else if (weight === 600) ff = fontFamily.literata.semiBold;
+    else ff = fontFamily.literata.regular; // Default to regular (400)
   }
-
   return {
-    ...baseStyle,
-    fontVariationSettings: `'wght' ${weight}, 'opsz' ${opticalSize}`,
+    fontFamily: ff,
+    fontWeight: weight,
   };
 };
 
-// Create text style using variable font
+// Create text style using static font
 export const createTextStyle = (
   size: number,
   lineHeight: number,
@@ -86,11 +91,10 @@ export const createTextStyle = (
     includeFontPadding: false, // For consistency between iOS and Android
   };
 
-  // Add variable font styling
   if (fontSet === "inter") {
-    Object.assign(style, getInterVariableStyle(weight, italic));
+    Object.assign(style, getInterStyle(weight, italic));
   } else {
-    Object.assign(style, getLiterataVariableStyle(weight, size, italic));
+    Object.assign(style, getLiterataStyle(weight, italic)); // Removed opticalSize (size) argument
   }
 
   return style;
@@ -149,6 +153,7 @@ export const typography = {
   reader: {
     body: createLiterataStyle(18, 28, 400 as FontWeight),
     bodyItalic: createLiterataStyle(18, 28, 400 as FontWeight, 0, true),
+    title: createLiterataStyle(32, 40, 800 as FontWeight),
     heading1: createLiterataStyle(24, 32, 700 as FontWeight),
     heading2: createLiterataStyle(22, 30, 700 as FontWeight),
     heading3: createLiterataStyle(20, 28, 600 as FontWeight),
