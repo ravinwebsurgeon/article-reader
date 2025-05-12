@@ -17,6 +17,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { marked } from "marked";
 import { RenderHTML } from "react-native-render-html";
 import { createMenuPosition } from "@/components/shared/menu/menuAnimationPresents";
+import * as WebBrowser from "expo-web-browser";
+import { WebView } from "react-native-webview";
 
 // Import themed components
 import { ThemeView, ThemeText } from "@/components/primitives";
@@ -33,6 +35,7 @@ import { ActionMenuPosition } from "@/components/shared/menu/ReusableActionMenu"
 import ReaderActionMenu from "@/components/shared/menu/ReaderActionMenu";
 import { getLiterataStyle } from "@/theme";
 import { useTranslation } from "react-i18next";
+import { renderWebViewLoading } from "@/components/shared/loader";
 
 // Get window width for content sizing
 const { width } = Dimensions.get("window");
@@ -64,6 +67,10 @@ const ReaderComponent = ({ item }: { item: Item }) => {
   const [contentHeight, setContentHeight] = useState(0);
   const [scrollViewHeight, setScrollViewHeight] = useState(0);
   const [hasRestoredPosition, setHasRestoredPosition] = useState(false);
+  //browser state
+  const [browserMode, setBrowserMode] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [isLoadingComplete, setIsLoadingComplete] = useState(false);
 
   // Memoize the EnhancedRecommendedItems component
   const EnhancedRecommendedItems = useMemo(
@@ -168,6 +175,27 @@ const ReaderComponent = ({ item }: { item: Item }) => {
     }
   };
 
+  // Handle opening the in-app browser
+  const handleOpenBrowser = async () => {
+    if (item.url) {
+      try {
+        await WebBrowser.openBrowserAsync(item.url);
+      } catch (error) {
+        console.error("Error opening browser:", error);
+      }
+    }
+  };
+
+  // Handle toggling between reader and browser views
+  const handleToggleView = () => {
+    setBrowserMode(!browserMode);
+    // Reset loading states when toggling
+    if (!browserMode) {
+      setLoadingProgress(0);
+      setIsLoadingComplete(false);
+    }
+  };
+
   // Handle opening the action menu
   const handleOpenMenu = () => {
     if (menuButtonRef.current) {
@@ -188,6 +216,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
             ...createMenuPosition("bottomRight"),
           });
           setMenuVisible(true);
+          console.log("Menu true or not ", menuVisible);
         },
       );
     }
@@ -211,8 +240,12 @@ const ReaderComponent = ({ item }: { item: Item }) => {
             <SvgIcon name="listen" size={24} color={theme.colors.text.primary} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.headerIconButton}>
-            <SvgIcon name="compass" size={24} color={theme.colors.text.primary} />
+          <TouchableOpacity onPress={handleToggleView} style={styles.headerIconButton}>
+            <SvgIcon
+              name={browserMode ? "reader" : "compass"}
+              size={24}
+              color={theme.colors.text.primary}
+            />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -232,134 +265,177 @@ const ReaderComponent = ({ item }: { item: Item }) => {
       <StatusBar style={isDarkMode ? "light" : "dark"} />
       {renderCustomHeader()}
 
-      {/* Article content */}
-      <ScrollView
-        ref={scrollViewRef}
-        style={styles.scrollView}
-        contentContainerStyle={styles.contentContainer}
-        onScroll={handleScroll}
-        scrollEventThrottle={400}
-        onContentSizeChange={(width, height) => {
-          setContentHeight(height);
-        }}
-        onLayout={(event) => {
-          const { height } = event.nativeEvent.layout;
-          setScrollViewHeight(height);
-        }}
-      >
-        <ThemeText variant="reader.title" style={styles.title}>
-          {item.title}
-        </ThemeText>
-
-        <ThemeView style={styles.metaContainer}>
-          {item.source && (
-            <ThemeText variant="meta" color={theme.colors.text.secondary} style={styles.metaText}>
-              {item.source}
-            </ThemeText>
+      {browserMode && item.url ? (
+        <View style={styles.browserContainer}>
+          {/* Progress bar */}
+          {!isLoadingComplete && (
+            <View style={styles.progressBarContainer}>
+              <View style={[styles.progressBar, { width: `${loadingProgress * 100}%` }]} />
+            </View>
           )}
 
-          {/* Markdown content rendering */}
-          <RenderHTML
-            source={{ html: processedContent }}
-            contentWidth={width - 40}
-            baseStyle={{
-              color: theme.colors.text.primary,
-              fontSize: 18,
-              lineHeight: 27,
-              ...omitCursor(getLiterataStyle(400, false)),
+          <WebView
+            source={{ uri: item.url }}
+            style={styles.webView}
+            // startInLoadingState={true}
+            // renderLoading={renderWebViewLoading}
+            pullToRefreshEnabled={true}
+            allowsBackForwardNavigationGestures={true}
+            onLoadProgress={({ nativeEvent }) => {
+              console.log("Loading progress:", nativeEvent.progress);
+              setLoadingProgress(nativeEvent.progress);
             }}
-            tagsStyles={{
-              p: {
-                marginBottom: 16,
-              },
+            onLoadEnd={() => {
+              setIsLoadingComplete(true);
+            }}
+            onLoadStart={() => {
+              setIsLoadingComplete(false);
             }}
           />
-        </ThemeView>
-        <ThemeView style={styles.afterReadingSection}>
-          <ThemeView style={styles.afterReadingSec} backgroundColor={theme.colors.background.paper}>
-            <ThemeView
-              style={styles.afterReading}
-              backgroundColor={theme.colors.background.paper}
-              row
-            >
-              <SvgIcon name="goto" size={18} color={theme.colors.text.secondary} />
-
-              <ThemeText
-                variant="guide"
-                color={theme.colors.text.secondary}
-                style={styles.afterReadingText}
-              >
-                {t("reader.afterReading")}
-              </ThemeText>
-            </ThemeView>
-          </ThemeView>
-
-          <ThemeView style={styles.footerActions} row centered>
-            <TouchableOpacity
-              style={[styles.footerButton, { backgroundColor: theme.colors.background.default }]}
-              onPress={handleFavoriteToggle}
-            >
-              <SvgIcon
-                name={item.favorite ? "favorite" : "favorite"}
-                size={22}
-                color={theme.colors.text.primary}
-                style={styles.footerIcon}
-              />
-              <ThemeText variant="body2">
-                {item.favorite ? t("reader.favorited") : t("reader.favorite")}
-              </ThemeText>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.footerButton,
-                { backgroundColor: theme.colors.background.default, alignItems: "center" },
-              ]}
-              onPress={handleArchiveToggle}
-            >
-              <SvgIcon
-                name="archive"
-                size={22}
-                color={theme.colors.text.primary}
-                style={styles.footerIcon}
-              />
-
-              <ThemeText variant="body2">{t("reader.archive")}</ThemeText>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.footerButton, { backgroundColor: theme.colors.background.default }]}
-              onPress={handleShare}
-            >
-              <SvgIcon
-                name="share"
-                size={22}
-                color={theme.colors.text.primary}
-                style={styles.footerIcon}
-              />
-              <ThemeText variant="body2">{t("menu.share")}</ThemeText>
-            </TouchableOpacity>
-          </ThemeView>
-        </ThemeView>
-        <ThemeView style={styles.upNextSection} backgroundColor={theme.colors.background.paper}>
-          <ThemeView
-            style={styles.upNextHeader}
-            backgroundColor={theme.colors.background.paper}
-            row
+        </View>
+      ) : (
+        <>
+          <ScrollView
+            ref={scrollViewRef}
+            style={styles.scrollView}
+            contentContainerStyle={styles.contentContainer}
+            onScroll={handleScroll}
+            scrollEventThrottle={400}
+            onContentSizeChange={(width, height) => {
+              setContentHeight(height);
+            }}
+            onLayout={(event) => {
+              const { height } = event.nativeEvent.layout;
+              setScrollViewHeight(height);
+            }}
           >
-            <SvgIcon name="up-next" size={18} color={theme.colors.text.secondary} />
-            <ThemeText
-              variant="guide"
-              color={theme.colors.text.secondary}
-              style={styles.upNextText}
-            >
-              {t("reader.upNext")}
+            <ThemeText variant="reader.title" style={styles.title}>
+              {item.title}
             </ThemeText>
-          </ThemeView>
-          <EnhancedRecommendedItems />
-        </ThemeView>
-      </ScrollView>
-      {/* Reader Action Menu */}
+
+            <ThemeView style={styles.metaContainer}>
+              {item.source && (
+                <ThemeText
+                  variant="meta"
+                  color={theme.colors.text.secondary}
+                  style={styles.metaText}
+                >
+                  {item.source}
+                </ThemeText>
+              )}
+
+              {/* Markdown content rendering */}
+              <RenderHTML
+                source={{ html: processedContent }}
+                contentWidth={width - 40}
+                baseStyle={{
+                  color: theme.colors.text.primary,
+                  fontSize: 18,
+                  lineHeight: 27,
+                  ...omitCursor(getLiterataStyle(400, false)),
+                }}
+                tagsStyles={{
+                  p: {
+                    marginBottom: 16,
+                  },
+                }}
+              />
+            </ThemeView>
+            <ThemeView style={styles.afterReadingSection}>
+              <ThemeView
+                style={styles.afterReadingSec}
+                backgroundColor={theme.colors.background.paper}
+              >
+                <ThemeView
+                  style={styles.afterReading}
+                  backgroundColor={theme.colors.background.paper}
+                  row
+                >
+                  <SvgIcon name="goto" size={18} color={theme.colors.text.secondary} />
+
+                  <ThemeText
+                    variant="guide"
+                    color={theme.colors.text.secondary}
+                    style={styles.afterReadingText}
+                  >
+                    {t("reader.afterReading")}
+                  </ThemeText>
+                </ThemeView>
+              </ThemeView>
+
+              <ThemeView style={styles.footerActions} row centered>
+                <TouchableOpacity
+                  style={[
+                    styles.footerButton,
+                    { backgroundColor: theme.colors.background.default },
+                  ]}
+                  onPress={handleFavoriteToggle}
+                >
+                  <SvgIcon
+                    name={item.favorite ? "favorite" : "favorite"}
+                    size={22}
+                    color={theme.colors.text.primary}
+                    style={styles.footerIcon}
+                  />
+                  <ThemeText variant="body2">
+                    {item.favorite ? t("reader.favorited") : t("reader.favorite")}
+                  </ThemeText>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.footerButton,
+                    { backgroundColor: theme.colors.background.default, alignItems: "center" },
+                  ]}
+                  onPress={handleArchiveToggle}
+                >
+                  <SvgIcon
+                    name="archive"
+                    size={22}
+                    color={theme.colors.text.primary}
+                    style={styles.footerIcon}
+                  />
+
+                  <ThemeText variant="body2">{t("reader.archive")}</ThemeText>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.footerButton,
+                    { backgroundColor: theme.colors.background.default },
+                  ]}
+                  onPress={handleShare}
+                >
+                  <SvgIcon
+                    name="share"
+                    size={22}
+                    color={theme.colors.text.primary}
+                    style={styles.footerIcon}
+                  />
+                  <ThemeText variant="body2">{t("menu.share")}</ThemeText>
+                </TouchableOpacity>
+              </ThemeView>
+            </ThemeView>
+            <ThemeView style={styles.upNextSection} backgroundColor={theme.colors.background.paper}>
+              <ThemeView
+                style={styles.upNextHeader}
+                backgroundColor={theme.colors.background.paper}
+                row
+              >
+                <SvgIcon name="up-next" size={18} color={theme.colors.text.secondary} />
+                <ThemeText
+                  variant="guide"
+                  color={theme.colors.text.secondary}
+                  style={styles.upNextText}
+                >
+                  {t("reader.upNext")}
+                </ThemeText>
+              </ThemeView>
+              <EnhancedRecommendedItems />
+            </ThemeView>
+          </ScrollView>
+        </>
+      )}
       <ReaderActionMenu
         item={item}
         visible={menuVisible}
@@ -390,6 +466,9 @@ export default function ReaderScreen() {
 
 const styles = StyleSheet.create({
   scrollView: {
+    flex: 1,
+  },
+  webView: {
     flex: 1,
   },
   customHeader: {
@@ -519,5 +598,22 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     position: "absolute",
     top: -12,
+  },
+  browserContainer: {
+    flex: 1,
+    position: "relative",
+  },
+  progressBarContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 3,
+    backgroundColor: "rgba(0, 0, 0, 0.1)",
+    zIndex: 10,
+  },
+  progressBar: {
+    height: "100%",
+    backgroundColor: "#2196F3", // You can use theme colors
   },
 });
