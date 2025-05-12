@@ -1,4 +1,4 @@
-import { useTheme } from "@/theme/hooks";
+import { useTheme, getInterStyle } from "@/theme";
 import React, { useState } from "react";
 import {
   TextInput,
@@ -12,7 +12,7 @@ import {
   TextInputFocusEventData,
 } from "react-native";
 import { ThemeText } from "./ThemeText";
-import { getInterVariableStyle } from "@/theme";
+// import { SystemUITextInput } from "./SystemUITextInput"; // Commented out as file is not found
 
 export interface ThemeInputProps extends TextInputProps {
   label?: string;
@@ -90,7 +90,7 @@ export const ThemeInput: React.FC<ThemeInputProps> = ({
             styles.input,
             {
               color: theme.colors.text.primary,
-              ...getInterVariableStyle(400, false),
+              ...getInterStyle(400, false),
             },
             style,
           ]}
