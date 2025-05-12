@@ -25,13 +25,25 @@ SplashScreen.preventAutoHideAsync();
  * Defines all custom fonts used throughout the app.
  */
 const FONTS = {
-  // Inter variable fonts
-  "InterVariable": require("../assets/fonts/InterVariable.ttf"),
-  "InterVariable-Italic": require("../assets/fonts/InterVariable-Italic.ttf"),
+  // Inter static fonts
+  "Inter-Regular": require("../assets/fonts/Inter/Inter_18pt-Regular.ttf"),
+  "Inter-Italic": require("../assets/fonts/Inter/Inter_18pt-Italic.ttf"),
+  "Inter-Medium": require("../assets/fonts/Inter/Inter_18pt-Medium.ttf"),
+  "Inter-MediumItalic": require("../assets/fonts/Inter/Inter_18pt-MediumItalic.ttf"),
+  "Inter-SemiBold": require("../assets/fonts/Inter/Inter_18pt-SemiBold.ttf"),
+  "Inter-SemiBoldItalic": require("../assets/fonts/Inter/Inter_18pt-SemiBoldItalic.ttf"),
+  "Inter-Bold": require("../assets/fonts/Inter/Inter_18pt-Bold.ttf"),
+  "Inter-BoldItalic": require("../assets/fonts/Inter/Inter_18pt-BoldItalic.ttf"),
 
-  // Literata variable fonts
-  "Literata-VariableFont_opsz,wght": require("../assets/fonts/Literata-VariableFont_opsz,wght.ttf"),
-  "Literata-Italic-VariableFont_opsz,wght": require("../assets/fonts/Literata-Italic-VariableFont_opsz,wght.ttf"),
+  // Literata static fonts
+  "Literata-Regular": require("../assets/fonts/Literata/Literata-Regular.ttf"),
+  "Literata-Italic": require("../assets/fonts/Literata/Literata-Italic.ttf"),
+  "Literata-SemiBold": require("../assets/fonts/Literata/Literata-SemiBold.ttf"),
+  "Literata-SemiBoldItalic": require("../assets/fonts/Literata/Literata-SemiBoldItalic.ttf"),
+  "Literata-Bold": require("../assets/fonts/Literata/Literata-Bold.ttf"),
+  "Literata-BoldItalic": require("../assets/fonts/Literata/Literata-BoldItalic.ttf"),
+  "Literata-ExtraBold": require("../assets/fonts/Literata/Literata-ExtraBold.ttf"),
+  "Literata-ExtraBoldItalic": require("../assets/fonts/Literata/Literata-ExtraBoldItalic.ttf"),
 };
 
 /**

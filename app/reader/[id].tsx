@@ -31,7 +31,7 @@ import { withRecommendedItems } from "@/database/hooks/withRecommendedItems";
 import { SvgIcon } from "@/components/SvgIcon";
 import { ActionMenuPosition } from "@/components/shared/menu/ReusableActionMenu";
 import ReaderActionMenu from "@/components/shared/menu/ReaderActionMenu";
-import { getLiterataVariableStyle } from "@/theme";
+import { getLiterataStyle } from "@/theme";
 import { useTranslation } from "react-i18next";
 
 // Get window width for content sizing
@@ -247,7 +247,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
           setScrollViewHeight(height);
         }}
       >
-        <ThemeText variant="h2" style={styles.title}>
+        <ThemeText variant="reader.title" style={styles.title}>
           {item.title}
         </ThemeText>
 
@@ -266,7 +266,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
               color: theme.colors.text.primary,
               fontSize: 18,
               lineHeight: 27,
-              ...omitCursor(getLiterataVariableStyle(400, 18, false)),
+              ...omitCursor(getLiterataStyle(400, false)),
             }}
             tagsStyles={{
               p: {

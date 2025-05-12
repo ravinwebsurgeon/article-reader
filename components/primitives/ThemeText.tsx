@@ -25,7 +25,15 @@ export type TextVariant =
   | "button"
   | "guide"
   | "meta"
-  | "meta2";
+  | "meta2"
+  | "reader.title"
+  | "reader.body"
+  | "reader.bodyItalic"
+  | "reader.heading1"
+  | "reader.heading2"
+  | "reader.heading3"
+  | "reader.caption"
+  | "reader.quote";
 
 export type ThemeTextProps = TextProps & {
   variant?: TextVariant;
@@ -59,7 +67,16 @@ export const ThemeText: React.FC<ThemeTextProps> = ({
 
   // Get font style based on variant
   const getVariantStyle = () => {
-    return theme.typography[variant] || theme.typography.body1;
+    if (variant.startsWith("reader.")) {
+      const readerKey = variant.substring("reader.".length) as keyof typeof theme.typography.reader;
+      const readerStyle = theme.typography.reader[readerKey];
+      return readerStyle || theme.typography.body1;
+    } else {
+      // Ensure variant is a valid key for the top-level typography styles
+      const topLevelKey = variant as keyof Omit<typeof theme.typography, "reader">;
+      const topLevelStyle = theme.typography[topLevelKey];
+      return topLevelStyle || theme.typography.body1;
+    }
   };
 
   // Transform text if needed
