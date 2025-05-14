@@ -2,7 +2,6 @@ import React, { useState, useRef, useMemo, useEffect } from "react";
 import {
   ScrollView,
   TouchableOpacity,
-  Dimensions,
   Share,
   NativeSyntheticEvent,
   NativeScrollEvent,
@@ -16,7 +15,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { marked } from "marked";
-import { RenderHTML } from "react-native-render-html";
+// import { RenderHTML } from "react-native-render-html";
 import { createMenuPosition } from "@/components/shared/menu/menuAnimationPresents";
 import * as WebBrowser from "expo-web-browser";
 import { WebView } from "react-native-webview";
@@ -34,54 +33,13 @@ import { withRecommendedItems } from "@/database/hooks/withRecommendedItems";
 import { SvgIcon } from "@/components/SvgIcon";
 import { ActionMenuPosition } from "@/components/shared/menu/ReusableActionMenu";
 import ReaderActionMenu from "@/components/shared/menu/ReaderActionMenu";
-import { getLiterataStyle } from "@/theme";
+// import { getLiterataStyle } from "@/theme";
 import { useTranslation } from "react-i18next";
-import { renderWebViewLoading } from "@/components/shared/loader";
 import InteractiveHtmlViewer from "@/components/InteractiveHTMLviewer";
-import { TextInput } from "react-native";
-import HTML, { CustomTextualRenderer } from "react-native-render-html";
 
-const fSize = 30;
-var p = {
-  lineHeight: fSize * 1.7,
-  fontSize: fSize,
-  color: "white",
-  paddingBottom: 5,
-  textAlign: "left",
-};
 
-var classes = {
-  paddingLeft: fSize * 0.9,
-  paddingRight: fSize * 0.95,
-  backgroundColor: "black",
-  minWidth: Dimensions.get("window").width,
-  minHeight: Dimensions.get("window").height,
-  maxWidth: "99%",
-  overflow: "hidden",
-  flex: 1,
-};
 
-const DivRenderer: CustomTextualRenderer = function DivRenderer({ TDefaultRenderer, ...props }) {
-  var txt = "";
-  Array.from(props.tnode.domNode?.children ?? []).forEach((x) => {
-    if (x.data) txt = x.data;
-  });
 
-  return (
-    <SelectableText
-      textComponentProps={{ multiline: true }}
-      menuItems={["Replace", "Cancel"]}
-      onSelection={console.log}
-      highlightColor={"red"}
-      highlights={[{ start: 0, end: 10, id: "test" }]}
-      style={p}
-      value={txt}
-    />
-  );
-};
-
-// Get window width for content sizing
-const { width } = Dimensions.get("window");
 
 interface Highlight {
   id: string;
@@ -272,15 +230,15 @@ const ReaderComponent = ({ item }: { item: Item }) => {
   };
 
   // Handle opening the in-app browser
-  const handleOpenBrowser = async () => {
-    if (item.url) {
-      try {
-        await WebBrowser.openBrowserAsync(item.url);
-      } catch (error) {
-        console.error("Error opening browser:", error);
-      }
-    }
-  };
+  // const handleOpenBrowser = async () => {
+  //   if (item.url) {
+  //     try {
+  //       await WebBrowser.openBrowserAsync(item.url);
+  //     } catch (error) {
+  //       console.error("Error opening browser:", error);
+  //     }
+  //   }
+  // };
 
   // Handle toggling between reader and browser views
   const handleToggleView = () => {

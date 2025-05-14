@@ -1,8 +1,8 @@
 import { ThemeView } from "@/components/primitives";
 import { useTheme } from "@/theme";
-import { ActivityIndicator, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 
-export const renderWebViewLoading = () => {
+export const RenderWebViewLoading = () => {
   const theme = useTheme();
   return (
     <ThemeView
