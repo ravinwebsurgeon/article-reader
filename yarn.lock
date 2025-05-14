@@ -2194,6 +2194,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-clipboard/clipboard@npm:^1.16.2":
+  version: 1.16.2
+  resolution: "@react-native-clipboard/clipboard@npm:1.16.2"
+  peerDependencies:
+    react: ">= 16.9.0"
+    react-native: ">= 0.61.5"
+    react-native-macos: ">= 0.61.0"
+    react-native-windows: ">= 0.61.0"
+  peerDependenciesMeta:
+    react-native-macos:
+      optional: true
+    react-native-windows:
+      optional: true
+  checksum: 4b5b2d9cdd3f1540af6cd8d1596a2e4acc85cb6bcad5778dd1b1eeb78265e326aec1f624efc8e1113cf36293902a84c5c6afa155a1e1434916c79eef6d09da3d
+  languageName: node
+  linkType: hard
+
 "@react-native-community/netinfo@npm:^11.4.1":
   version: 11.4.1
   resolution: "@react-native-community/netinfo@npm:11.4.1"
@@ -5862,6 +5879,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fast-memoize@npm:^2.5.2":
+  version: 2.5.2
+  resolution: "fast-memoize@npm:2.5.2"
+  checksum: 79fa759719ba4eac7e8c22fb3b0eb3f18f4a31e218c00b1eb4a5b53c5781921133a6b84472d59ec5a6ea8f26ad57b43cd99a350c0547ccce51489bc9a5f0b28d
+  languageName: node
+  linkType: hard
+
 "fast-uri@npm:^3.0.1":
   version: 3.0.6
   resolution: "fast-uri@npm:3.0.6"
@@ -9282,6 +9306,7 @@ __metadata:
     "@lovesworking/watermelondb-expo-plugin-sdk-52-plus": ^1.0.2
     "@nozbe/watermelondb": ^0.28.0
     "@react-native-async-storage/async-storage": ^2.1.2
+    "@react-native-clipboard/clipboard": ^1.16.2
     "@react-native-community/netinfo": ^11.4.1
     "@react-native-menu/menu": ^1.2.3
     "@react-navigation/bottom-tabs": ^7.2.0
@@ -9314,6 +9339,7 @@ __metadata:
     expo-symbols: ~0.4.4
     expo-system-ui: ~5.0.7
     expo-web-browser: ~14.1.6
+    fast-memoize: ^2.5.2
     i18next: ^25.1.2
     jest: ^29.2.1
     jest-expo: ~53.0.5

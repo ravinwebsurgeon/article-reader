@@ -10,6 +10,7 @@ import {
   Platform,
   View,
   TextStyle,
+  Text,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -36,9 +37,63 @@ import ReaderActionMenu from "@/components/shared/menu/ReaderActionMenu";
 import { getLiterataStyle } from "@/theme";
 import { useTranslation } from "react-i18next";
 import { renderWebViewLoading } from "@/components/shared/loader";
+import InteractiveHtmlViewer from "@/components/InteractiveHTMLviewer";
+import { TextInput } from "react-native";
+import HTML, { CustomTextualRenderer } from "react-native-render-html";
+
+const fSize = 30;
+var p = {
+  lineHeight: fSize * 1.7,
+  fontSize: fSize,
+  color: "white",
+  paddingBottom: 5,
+  textAlign: "left",
+};
+
+var classes = {
+  paddingLeft: fSize * 0.9,
+  paddingRight: fSize * 0.95,
+  backgroundColor: "black",
+  minWidth: Dimensions.get("window").width,
+  minHeight: Dimensions.get("window").height,
+  maxWidth: "99%",
+  overflow: "hidden",
+  flex: 1,
+};
+
+const DivRenderer: CustomTextualRenderer = function DivRenderer({ TDefaultRenderer, ...props }) {
+  var txt = "";
+  Array.from(props.tnode.domNode?.children ?? []).forEach((x) => {
+    if (x.data) txt = x.data;
+  });
+
+  return (
+    <SelectableText
+      textComponentProps={{ multiline: true }}
+      menuItems={["Replace", "Cancel"]}
+      onSelection={console.log}
+      highlightColor={"red"}
+      highlights={[{ start: 0, end: 10, id: "test" }]}
+      style={p}
+      value={txt}
+    />
+  );
+};
 
 // Get window width for content sizing
 const { width } = Dimensions.get("window");
+
+interface Highlight {
+  id: string;
+  text: string;
+  range: {
+    startContainer: string; // xpath
+    startOffset: number;
+    endContainer: string; // xpath
+    endOffset: number;
+  };
+  color?: string;
+}
 
 function omitCursor(style: TextStyle | undefined) {
   if (!style) return style;
@@ -71,6 +126,47 @@ const ReaderComponent = ({ item }: { item: Item }) => {
   const [browserMode, setBrowserMode] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isLoadingComplete, setIsLoadingComplete] = useState(false);
+  const [highlights, setHighlights] = useState<Highlight[]>([]);
+  const [selectedText, setSelectedText] = useState<string>("");
+
+  const sampleHtml = `
+    <h1>Interactive HTML Viewer</h1>
+    <p>This is a paragraph that can be selected or tapped. You can select text within this paragraph to highlight specific phrases.</p>
+    <p>This is another paragraph. Try tapping on this entire paragraph to highlight it at once.</p>
+    <p>You can also remove highlights by tapping on them.</p>
+    <ul>
+      <li>This is a list item that can be selected</li>
+      <li>Another list item that supports highlighting</li>
+    </ul>
+    <p>The component supports the following interactions:</p>
+    <ol>
+      <li>Standard native text selection</li>
+      <li>Adding highlights to selected text</li>
+      <li>Removing highlights by tapping on them</li>
+      <li>Tapping on paragraphs to highlight the entire paragraph</li>
+    </ol>
+    <p>Try these features by interacting with the text in this example!</p>
+  `;
+
+  const handleTextSelect = (text: string) => {
+    setSelectedText(text);
+  };
+
+  const handleHighlightAdd = (highlight: Highlight) => {
+    setHighlights((prev) => [...prev, highlight]);
+  };
+
+  const handleHighlightRemove = (highlightId: string) => {
+    setHighlights((prev) => prev.filter((h) => h.id !== highlightId));
+  };
+
+  const handleParagraphTap = (paragraphIndex: number, text: string) => {
+    console.log(`Paragraph ${paragraphIndex} tapped: ${text.substring(0, 30)}...`);
+  };
+
+  const clearAllHighlights = () => {
+    setHighlights([]);
+  };
 
   // Memoize the EnhancedRecommendedItems component
   const EnhancedRecommendedItems = useMemo(
@@ -324,8 +420,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
                 </ThemeText>
               )}
 
-              {/* Markdown content rendering */}
-              <RenderHTML
+              {/* <RenderHTML
                 source={{ html: processedContent }}
                 contentWidth={width - 40}
                 baseStyle={{
@@ -339,7 +434,38 @@ const ReaderComponent = ({ item }: { item: Item }) => {
                     marginBottom: 16,
                   },
                 }}
-              />
+              /> */}
+
+              <View style={styles.heacder}>
+                <Text style={styles.title}>Article Reader</Text>
+                {highlights.length > 0 && (
+                  <TouchableOpacity onPress={clearAllHighlights} style={styles.clearButton}>
+                    <Text style={styles.clearButtonText}>Clear All</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              <View style={styles.statsContainer}>
+                <Text style={styles.statsText}>Highlights: {highlights.length}</Text>
+                {selectedText ? (
+                  <Text style={styles.statsText} numberOfLines={1}>
+                    Selected: {selectedText.substring(0, 30)}
+                    {selectedText.length > 30 ? "..." : ""}
+                  </Text>
+                ) : null}
+              </View>
+
+              <View style={styles.viewerContainer}>
+                <InteractiveHtmlViewer
+                  html={processedContent}
+                  highlights={highlights}
+                  onTextSelect={handleTextSelect}
+                  onHighlightAdd={handleHighlightAdd}
+                  onHighlightRemove={handleHighlightRemove}
+                  onParagraphTap={handleParagraphTap}
+                  highlightColor="rgba(255, 230, 0, 0.4)"
+                />
+              </View>
             </ThemeView>
             <ThemeView style={styles.afterReadingSection}>
               <ThemeView
@@ -615,5 +741,44 @@ const styles = StyleSheet.create({
   progressBar: {
     height: "100%",
     backgroundColor: "#2196F3", // You can use theme colors
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 8,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  clearButton: {
+    backgroundColor: "#ff3b30",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 4,
+  },
+  clearButtonText: {
+    color: "white",
+    fontWeight: "600",
+    fontSize: 14,
+  },
+  statsContainer: {
+    flexDirection: "column",
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e1e1e1",
+  },
+  statsText: {
+    fontSize: 14,
+    color: "#666",
+    marginVertical: 2,
+  },
+  viewerContainer: {
+    flex: 1,
+    height: 1000,
   },
 });
