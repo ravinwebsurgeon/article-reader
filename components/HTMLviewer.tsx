@@ -1,10 +1,9 @@
 import React, { useRef, useState, useCallback } from "react";
-import { View, StyleSheet, TouchableOpacity, Text, SafeAreaView, Platform } from "react-native";
+import { View, StyleSheet, TouchableOpacity, Text, Platform } from "react-native";
 import WebView from "react-native-webview";
 import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
 import { ThemeView } from "./primitives";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 interface HTMLViewerProps {
   html: string;
@@ -48,6 +47,8 @@ const HTMLViewer: React.FC<HTMLViewerProps> = ({
   const [highlights, setHighlights] = useState<HighlightData[]>([]);
   const [showToolbar, setShowToolbar] = useState<boolean>(false);
   const [selectedHighlightId, setSelectedHighlightId] = useState<string | null>(null);
+
+  console.log("HTMLViewer props:", highlights);
 
   const getInjectedJavaScript = () => `
     (function() {
@@ -261,206 +262,6 @@ window.removeHighlight = function(highlightId) {
     })();
   `;
 
-  // Inject JavaScript for text selection and highlighting
-  const injectedJavaScript = `
-    (function() {
-    // Add Literata font support
-      const style = document.createElement('style');
-      style.textContent = \`
-        @font-face {
-          font-family: 'Literata';
-          src: url('https://fonts.gstatic.com/s/literata/v30/or3PQ6P12-iJxAIgLa78DkrbXsDgk0oVDaDPYLanFLHpPf2TbBG_J_zWTFUPx1j.woff2') format('woff2');
-          font-weight: normal;
-          font-style: normal;
-        }
-        @font-face {
-          font-family: 'Literata';
-          src: url('https://fonts.gstatic.com/s/literata/v30/or3PQ6P12-iJxAIgLa78DkrbXsDgk0oVDaDPYLanFLHpPf2TbBG_J__WTFUPx1j.woff2') format('woff2');
-          font-weight: bold;
-          font-style: normal;
-        }
-        @font-face {
-          font-family: 'Literata';
-          src: url('https://fonts.gstatic.com/s/literata/v30/or3NQ6P12-iJxAIgLYT1PLs1Zd0nfUwAbeGVKoRYzNiCp1OUedn8f7XWSUKTt8iVow.woff2') format('woff2');
-          font-weight: normal;
-          font-style: italic;
-        }
-        body {
-          font-family: 'Literata', serif;
-          font-size: 18px;
-          line-height: 1.8;
-          padding: 20px;
-          color: #333;
-          margin: 0;
-          -webkit-text-size-adjust: 100%;
-          overflow-wrap: break-word;
-        }
-        h1, h2, h3, h4, h5, h6 {
-          font-family: 'Literata', serif;
-          font-weight: 700;
-          line-height: 1.3;
-        }
-        p {
-          margin-bottom: 1em;
-        }
-        .text-highlight {
-          background-color: rgba(255, 255, 0, 0.4);
-          border-radius: 3px;
-          padding: 0 2px;
-          margin: 0 -2px;
-          box-decoration-break: clone;
-          -webkit-box-decoration-break: clone;
-          cursor: pointer;
-          position: relative;
-        }
-        .text-highlight:active {
-          opacity: 0.8;
-        }
-        @media (prefers-color-scheme: dark) {
-          body {
-            background-color: #121212;
-            color: #e0e0e0;
-          }
-          .text-highlight {
-            background-color: rgba(255, 255, 0, 0.25);
-          }
-        }
-      \`;
-      document.head.appendChild(style);
-      // Tracking selection
-      document.addEventListener('selectionchange', function() {
-        const selection = window.getSelection();
-        const selectedText = selection.toString();
-        if (selectedText) {
-          const range = selection.getRangeAt(0);
-          const rect = range.getBoundingClientRect();
-          window.ReactNativeWebView.postMessage(JSON.stringify({
-            type: 'selection',
-            text: selectedText,
-            position: {
-              top: rect.top,
-              left: rect.left,
-              width: rect.width,
-              height: rect.height
-            }
-          }));
-        } else {
-          window.ReactNativeWebView.postMessage(JSON.stringify({
-            type: 'selection-cleared'
-          }));
-        }
-      });
-
-      // Function to highlight text
-      window.highlightSelection = function(color) {
-        const selection = window.getSelection();
-        if (!selection.toString()) return null;
-        
-        const range = selection.getRangeAt(0);
-        const highlightId = 'highlight-' + Date.now();
-        
-        const highlightEl = document.createElement('span');
-        highlightEl.id = highlightId;
-        highlightEl.className = 'text-highlight';
-        highlightEl.style.backgroundColor = color;
-        
-        try {
-          range.surroundContents(highlightEl);
-          window.ReactNativeWebView.postMessage(JSON.stringify({
-            type: 'highlight-added',
-            id: highlightId,
-            text: highlightEl.textContent,
-            color: color
-          }));
-          return highlightId;
-        } catch (e) {
-          console.error('Error highlighting:', e);
-          return null;
-        }
-      };
-
-      // Function to remove highlight
-      window.removeHighlight = function(highlightId) {
-        const highlightEl = document.getElementById(highlightId);
-        if (!highlightEl) return false;
-        
-        const text = highlightEl.textContent;
-        const parent = highlightEl.parentNode;
-        
-        // Replace the highlight element with its text content
-        if (parent) {
-          parent.replaceChild(document.createTextNode(text), highlightEl);
-          parent.normalize(); // Normalize to combine adjacent text nodes
-          window.ReactNativeWebView.postMessage(JSON.stringify({
-            type: 'highlight-removed',
-            id: highlightId
-          }));
-          return true;
-        }
-        return false;
-      };
-
-      // Function to select all text
-      window.selectAllText = function() {
-        const allText = document.body;
-        const range = document.createRange();
-        range.selectNodeContents(allText);
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(range);
-        window.ReactNativeWebView.postMessage(JSON.stringify({
-          type: 'selection',
-          text: selection.toString(),
-          isSelectAll: true
-        }));
-      };
-
-      // Add event listener for clicking on highlights
-      document.body.addEventListener('click', function(e) {
-        if (e.target.className === 'text-highlight') {
-          window.ReactNativeWebView.postMessage(JSON.stringify({
-            type: 'highlight-clicked',
-            id: e.target.id,
-            text: e.target.textContent
-          }));
-        }
-      });
-
-       // Create a meta viewport tag to ensure proper scaling
-    //   if (!document.querySelector('meta[name="viewport"]')) {
-    //     const meta = document.createElement('meta');
-    //     meta.name = 'viewport';
-    //     meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
-    //     document.head.appendChild(meta);
-    //   }
-      
-    //   // Add touch feedback for highlights
-    //   const touchStyle = document.createElement('style');
-    //   touchStyle.textContent = '
-    //     .text-highlight:active {
-    //       opacity: 0.7;
-    //     }
-    //   ';
-    //   document.head.appendChild(touchStyle);
-
-      // Add accessibility to all highlights
-      const setHighlightAccessibility = function() {
-        const highlights = document.querySelectorAll('.text-highlight');
-        highlights.forEach(highlight => {
-          highlight.setAttribute('role', 'mark');
-          highlight.setAttribute('aria-label', 'Highlighted text: ' + highlight.textContent);
-        });
-      };
-      
-      // Call initially and when content changes
-      setHighlightAccessibility();
-      const observer = new MutationObserver(setHighlightAccessibility);
-      observer.observe(document.body, { childList: true, subtree: true });
-      
-      true;
-    })();
-  `;
-
   // Handle messages from WebView
   const handleMessage = useCallback(
     (event) => {
@@ -503,7 +304,7 @@ window.removeHighlight = function(highlightId) {
 
           case "highlight-clicked":
             // Handle highlight click - for example, show options to remove
-            setSelectedHighlightId(data.id);
+            // setSelectedHighlightId(data.id);
             setShowToolbar(true);
             // showHighlightOptions(data.id);
             break;
@@ -543,21 +344,21 @@ window.removeHighlight = function(highlightId) {
   }, []);
 
   // Show options when a highlight is clicked
-  const showHighlightOptions = useCallback(
-    (highlightId) => {
-      // In a real app, you might show a modal or ActionSheet here
-      // For simplicity, we'll just remove the highlight
-      if (Platform.OS === "web") {
-        if (confirm("Remove this highlight?")) {
-          removeHighlight(highlightId);
-        }
-      } else {
-        // On native, you would typically show an ActionSheet or custom modal
-        removeHighlight(highlightId);
-      }
-    },
-    [removeHighlight],
-  );
+  //   const showHighlightOptions = useCallback(
+  //     (highlightId) => {
+  //       // In a real app, you might show a modal or ActionSheet here
+  //       // For simplicity, we'll just remove the highlight
+  //       if (Platform.OS === "web") {
+  //         if (confirm("Remove this highlight?")) {
+  //           removeHighlight(highlightId);
+  //         }
+  //       } else {
+  //         // On native, you would typically show an ActionSheet or custom modal
+  //         removeHighlight(highlightId);
+  //       }
+  //     },
+  //     [removeHighlight],
+  //   );
 
   // Copy selected text to clipboard
   const copySelectedText = useCallback(() => {
@@ -610,7 +411,7 @@ window.removeHighlight = function(highlightId) {
             setSelectedHighlightId(null);
             // setSelectedText("");
             // webViewRef.current?.injectJavaScript(`window.getSelection().removeAllRanges();`);
-          }else {
+          } else {
             // fallback: try removing based on selection (if it's a highlight)
             webViewRef.current?.injectJavaScript(`
               (function() {
