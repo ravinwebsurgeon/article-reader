@@ -8,16 +8,12 @@ import {
   StyleSheet,
   Platform,
   View,
-  TextStyle,
-  Text,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { marked } from "marked";
-// import { RenderHTML } from "react-native-render-html";
 import { createMenuPosition } from "@/components/shared/menu/menuAnimationPresents";
-import * as WebBrowser from "expo-web-browser";
 import { WebView } from "react-native-webview";
 
 // Import themed components
@@ -33,9 +29,7 @@ import { withRecommendedItems } from "@/database/hooks/withRecommendedItems";
 import { SvgIcon } from "@/components/SvgIcon";
 import { ActionMenuPosition } from "@/components/shared/menu/ReusableActionMenu";
 import ReaderActionMenu from "@/components/shared/menu/ReaderActionMenu";
-// import { getLiterataStyle } from "@/theme";
 import { useTranslation } from "react-i18next";
-import InteractiveHtmlViewer from "@/components/InteractiveHTMLviewer";
 import HTMLViewer from "@/components/HTMLviewer";
 
 interface Highlight {
@@ -48,15 +42,6 @@ interface Highlight {
     endOffset: number;
   };
   color?: string;
-}
-
-function omitCursor(style: TextStyle | undefined) {
-  if (!style) return style;
-  const { cursor, overflow, ...rest } = style;
-  // Only add overflow back if it's not 'scroll'
-  const filtered = overflow === "scroll" ? rest : { ...rest, ...(overflow ? { overflow } : {}) };
-  // Remove any properties with value null
-  return Object.fromEntries(Object.entries(filtered).filter(([_, v]) => v !== null));
 }
 
 // Base component that receives the item as a prop
@@ -84,51 +69,7 @@ const ReaderComponent = ({ item }: { item: Item }) => {
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [selectedText, setSelectedText] = useState<string>("");
 
-  //new
-
-  const [htmlContent, setHtmlContent] = useState(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-      <style>
-        body {
-          font-family: system-ui, -apple-system, sans-serif;
-          padding: 20px;
-          line-height: 1.6;
-          font-size: 18px;
-          color: #333;
-        }
-        h1 {
-          font-size: 24px;
-          margin-bottom: 20px;
-        }
-        .text-highlight {
-          border-radius: 2px;
-          padding: 0 2px;
-        }
-      </style>
-    </head>
-    <body>
-      <h1>Lorem Ipsum Passage</h1>
-      <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum. 
-        Donec in efficitur leo. Proin sagittis lectus diam, ut convallis leo finibus vel. 
-        Curabitur ut ipsum id diam interdum luctus nec quis ipsum.
-      </p>
-      <p>
-        Nullam vel molestie justo. Curabitur vitae efficitur leo. Ut mollis, est in auctor imperdiet, 
-        erat erat fermentum justo, vel hendrerit mi ligula at nisi. In hac habitasse platea dictumst. 
-        Aenean pellentesque ultrices risus, at congue eros porta ac.
-      </p>
-      <p>
-        Fusce neque magna, faucibus ac congue eu, tincidunt ut ante. Nullam justo massa, tempor non 
-        molestie non, molestie eget justo. Cras nec enim vitae augue placerat vulputate in non velit. 
-        Praesent eu tellus sed erat convallis elementum.
-      </p>
-    </body>
-    </html>
-  `);
+  console.log("Selected text:", selectedText, "Highlights:", highlights);
 
   // Handle highlight added
   const handleHighlightAdded = (id, text, color) => {
@@ -153,28 +94,6 @@ const ReaderComponent = ({ item }: { item: Item }) => {
     } catch (error) {
       console.error("Error sharing text:", error);
     }
-  };
-
-  //old
-
-  const handleTextSelect = (text: string) => {
-    setSelectedText(text);
-  };
-
-  const handleHighlightAdd = (highlight: Highlight) => {
-    setHighlights((prev) => [...prev, highlight]);
-  };
-
-  const handleHighlightRemove = (highlightId: string) => {
-    setHighlights((prev) => prev.filter((h) => h.id !== highlightId));
-  };
-
-  const handleParagraphTap = (paragraphIndex: number, text: string) => {
-    console.log(`Paragraph ${paragraphIndex} tapped: ${text.substring(0, 30)}...`);
-  };
-
-  const clearAllHighlights = () => {
-    setHighlights([]);
   };
 
   // Memoize the EnhancedRecommendedItems component
@@ -428,22 +347,6 @@ const ReaderComponent = ({ item }: { item: Item }) => {
                   {item.source}
                 </ThemeText>
               )}
-
-              {/* <RenderHTML
-                source={{ html: processedContent }}
-                contentWidth={width - 40}
-                baseStyle={{
-                  color: theme.colors.text.primary,
-                  fontSize: 18,
-                  lineHeight: 27,
-                  ...omitCursor(getLiterataStyle(400, false)),
-                }}
-                tagsStyles={{
-                  p: {
-                    marginBottom: 16,
-                  },
-                }}
-              /> */}
             </ThemeView>
             <HTMLViewer
               html={processedContent}
@@ -744,10 +647,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 8,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
   },
   clearButton: {
     backgroundColor: "#ff3b30",

@@ -31,7 +31,6 @@ export const RenderWebViewLoading = () => {
       </ThemeView>
       <ThemeView style={styles.skeletonHeader} backgroundColor={theme.colors.background.default} />
 
-
       {/* Loading indicator */}
       {/* <ActivityIndicator
         size="large"
