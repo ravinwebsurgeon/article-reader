@@ -36,10 +36,7 @@ import ReaderActionMenu from "@/components/shared/menu/ReaderActionMenu";
 // import { getLiterataStyle } from "@/theme";
 import { useTranslation } from "react-i18next";
 import InteractiveHtmlViewer from "@/components/InteractiveHTMLviewer";
-
-
-
-
+import HTMLViewer from "@/components/HTMLviewer";
 
 interface Highlight {
   id: string;
@@ -87,24 +84,78 @@ const ReaderComponent = ({ item }: { item: Item }) => {
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [selectedText, setSelectedText] = useState<string>("");
 
-  const sampleHtml = `
-    <h1>Interactive HTML Viewer</h1>
-    <p>This is a paragraph that can be selected or tapped. You can select text within this paragraph to highlight specific phrases.</p>
-    <p>This is another paragraph. Try tapping on this entire paragraph to highlight it at once.</p>
-    <p>You can also remove highlights by tapping on them.</p>
-    <ul>
-      <li>This is a list item that can be selected</li>
-      <li>Another list item that supports highlighting</li>
-    </ul>
-    <p>The component supports the following interactions:</p>
-    <ol>
-      <li>Standard native text selection</li>
-      <li>Adding highlights to selected text</li>
-      <li>Removing highlights by tapping on them</li>
-      <li>Tapping on paragraphs to highlight the entire paragraph</li>
-    </ol>
-    <p>Try these features by interacting with the text in this example!</p>
-  `;
+  //new
+
+  const [htmlContent, setHtmlContent] = useState(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+      <style>
+        body {
+          font-family: system-ui, -apple-system, sans-serif;
+          padding: 20px;
+          line-height: 1.6;
+          font-size: 18px;
+          color: #333;
+        }
+        h1 {
+          font-size: 24px;
+          margin-bottom: 20px;
+        }
+        .text-highlight {
+          border-radius: 2px;
+          padding: 0 2px;
+        }
+      </style>
+    </head>
+    <body>
+      <h1>Lorem Ipsum Passage</h1>
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum. 
+        Donec in efficitur leo. Proin sagittis lectus diam, ut convallis leo finibus vel. 
+        Curabitur ut ipsum id diam interdum luctus nec quis ipsum.
+      </p>
+      <p>
+        Nullam vel molestie justo. Curabitur vitae efficitur leo. Ut mollis, est in auctor imperdiet, 
+        erat erat fermentum justo, vel hendrerit mi ligula at nisi. In hac habitasse platea dictumst. 
+        Aenean pellentesque ultrices risus, at congue eros porta ac.
+      </p>
+      <p>
+        Fusce neque magna, faucibus ac congue eu, tincidunt ut ante. Nullam justo massa, tempor non 
+        molestie non, molestie eget justo. Cras nec enim vitae augue placerat vulputate in non velit. 
+        Praesent eu tellus sed erat convallis elementum.
+      </p>
+    </body>
+    </html>
+  `);
+
+  // Handle highlight added
+  const handleHighlightAdded = (id, text, color) => {
+    setHighlights((prev) => [...prev, { id, text, color }]);
+  };
+
+  // Handle highlight removed
+  const handleHighlightRemoved = (id) => {
+    setHighlights((prev) => prev.filter((h) => h.id !== id));
+  };
+
+  // Handle selection change
+  const handleSelectionChange = (text) => {
+    setSelectedText(text);
+  };
+
+  const handleShareSelectedText = async (text) => {
+    try {
+      await Share.share({
+        message: text,
+      });
+    } catch (error) {
+      console.error("Error sharing text:", error);
+    }
+  };
+
+  //old
 
   const handleTextSelect = (text: string) => {
     setSelectedText(text);
@@ -393,38 +444,24 @@ const ReaderComponent = ({ item }: { item: Item }) => {
                   },
                 }}
               /> */}
-
-              <View style={styles.heacder}>
-                <Text style={styles.title}>Article Reader</Text>
-                {highlights.length > 0 && (
-                  <TouchableOpacity onPress={clearAllHighlights} style={styles.clearButton}>
-                    <Text style={styles.clearButtonText}>Clear All</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-
-              <View style={styles.statsContainer}>
-                <Text style={styles.statsText}>Highlights: {highlights.length}</Text>
-                {selectedText ? (
-                  <Text style={styles.statsText} numberOfLines={1}>
-                    Selected: {selectedText.substring(0, 30)}
-                    {selectedText.length > 30 ? "..." : ""}
-                  </Text>
-                ) : null}
-              </View>
-
-              <View style={styles.viewerContainer}>
-                <InteractiveHtmlViewer
-                  html={processedContent}
-                  highlights={highlights}
-                  onTextSelect={handleTextSelect}
-                  onHighlightAdd={handleHighlightAdd}
-                  onHighlightRemove={handleHighlightRemove}
-                  onParagraphTap={handleParagraphTap}
-                  highlightColor="rgba(255, 230, 0, 0.4)"
-                />
-              </View>
             </ThemeView>
+            <HTMLViewer
+              html={processedContent}
+              style={styles.webView}
+              onHighlightAdded={handleHighlightAdded}
+              onHighlightRemoved={handleHighlightRemoved}
+              onSelectionChange={handleSelectionChange}
+              onShare={handleShareSelectedText}
+              onScroll={handleScroll}
+              // scrollEventThrottle={400}
+              onContentSizeChange={(width, height) => {
+                setContentHeight(height);
+              }}
+              onLayout={(event) => {
+                const { height } = event.nativeEvent.layout;
+                setScrollViewHeight(height);
+              }}
+            />
             <ThemeView style={styles.afterReadingSection}>
               <ThemeView
                 style={styles.afterReadingSec}
@@ -734,9 +771,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
     marginVertical: 2,
-  },
-  viewerContainer: {
-    flex: 1,
-    height: 1000,
   },
 });
