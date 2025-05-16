@@ -72,21 +72,21 @@ const ReaderComponent = ({ item }: { item: Item }) => {
   console.log("Selected text:", selectedText, "Highlights:", highlights);
 
   // Handle highlight added
-  const handleHighlightAdded = (id, text, color) => {
-    setHighlights((prev) => [...prev, { id, text, color }]);
+  const handleHighlightAdded = (id: any, text: string, color: string) => {
+    setHighlights((prev: any) => [...prev, { id, text, color }]);
   };
 
   // Handle highlight removed
-  const handleHighlightRemoved = (id) => {
+  const handleHighlightRemoved = (id: any) => {
     setHighlights((prev) => prev.filter((h) => h.id !== id));
   };
 
   // Handle selection change
-  const handleSelectionChange = (text) => {
+  const handleSelectionChange = (text: string) => {
     setSelectedText(text);
   };
 
-  const handleShareSelectedText = async (text) => {
+  const handleShareSelectedText = async (text: any) => {
     try {
       await Share.share({
         message: text,
@@ -360,8 +360,8 @@ const ReaderComponent = ({ item }: { item: Item }) => {
               onContentSizeChange={(width, height) => {
                 setContentHeight(height);
               }}
-              onLayout={(event) => {
-                const { height } = event.nativeEvent.layout;
+              onLayout={(event: any) => {
+                const { height }: { height: number } = event.nativeEvent.layout;
                 setScrollViewHeight(height);
               }}
             />
