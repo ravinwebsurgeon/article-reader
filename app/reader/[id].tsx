@@ -359,7 +359,6 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
               onSelectionChange={handleSelectionChange}
               onShare={handleShareSelectedText}
               onScroll={handleScroll}
-              // scrollEventThrottle={400}
               onContentSizeChange={(width, height) => {
                 setContentHeight(height);
               }}
@@ -572,6 +571,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 20,
     paddingBottom: 40,
+    minHeight: "100%",
   },
   title: {
     fontWeight: "700",
