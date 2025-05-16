@@ -9,8 +9,8 @@ interface HTMLViewerProps {
   html: string;
   baseUrl?: string;
   style?: object;
-  onHighlightAdded?: (id: string, text: string, color: string) => void;
-  onHighlightRemoved?: (id: string) => void;
+  onHighlightAdded?: (id: any, text: string, color: string) => void;
+  onHighlightRemoved?: (id: any) => void;
   onSelectionChange?: (selectedText: string) => void;
   onShare?: (text: string) => void;
   onScroll?: (event: any) => void;
@@ -264,9 +264,15 @@ window.removeHighlight = function(highlightId) {
 
   // Handle messages from WebView
   const handleMessage = useCallback(
-    (event) => {
+    (event: {
+      nativeEvent: {
+        data: string;
+      };
+    }) => {
       try {
-        const data = JSON.parse(event.nativeEvent.data);
+        const data: { type: string; text: string; id: any; color: string } = JSON.parse(
+          event.nativeEvent.data,
+        );
 
         switch (data.type) {
           case "selection":
@@ -333,7 +339,7 @@ window.removeHighlight = function(highlightId) {
   );
 
   // Remove highlight by ID
-  const removeHighlight = useCallback((highlightId) => {
+  const removeHighlight = useCallback((highlightId: string) => {
     console.log("Removing highlight:", highlightId);
     webViewRef.current?.injectJavaScript(`
       window.removeHighlight('${highlightId}');
@@ -387,7 +393,12 @@ window.removeHighlight = function(highlightId) {
   ];
 
   const handleCustomMenuSelection = useCallback(
-    (event) => {
+    (event: {
+      nativeEvent: {
+        key: string;
+        selectedText: string;
+      };
+    }) => {
       const { key, selectedText } = event.nativeEvent;
 
       switch (key) {
