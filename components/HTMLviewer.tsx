@@ -1,7 +1,6 @@
 import React, { useRef, useState, useCallback } from "react";
-import { View, StyleSheet, TouchableOpacity, Text, Platform } from "react-native";
+import { StyleSheet, Platform } from "react-native";
 import WebView from "react-native-webview";
-import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
 import { ThemeView } from "./primitives";
 
@@ -45,7 +44,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = ({
   const webViewRef = useRef<WebView>(null);
   const [selectedText, setSelectedText] = useState<string>("");
   const [highlights, setHighlights] = useState<HighlightData[]>([]);
-  const [showToolbar, setShowToolbar] = useState<boolean>(false);
+  // const [showToolbar, setShowToolbar] = useState<boolean>(false);
   const [selectedHighlightId, setSelectedHighlightId] = useState<string | null>(null);
   const [webViewHeight, setWebViewHeight] = useState<number>(0);
 
@@ -292,7 +291,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = ({
     true;
     })();
   `;
-  
+
   // Handle messages from WebView
   const handleMessage = useCallback(
     (event: {
@@ -301,9 +300,8 @@ const HTMLViewer: React.FC<HTMLViewerProps> = ({
       };
     }) => {
       try {
-        const data: { type: string; text: string; id: any; color: string } = JSON.parse(
-          event.nativeEvent.data,
-        );
+        const data: { type: string; text: string; id: any; color: string; height: number } =
+          JSON.parse(event.nativeEvent.data);
 
         console.log("Received message from WebView: height", data.type);
 
@@ -325,7 +323,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = ({
 
           case "selection":
             setSelectedText(data.text);
-            setShowToolbar(true);
+            // setShowToolbar(true);
             if (onSelectionChange) {
               onSelectionChange(data.text);
             }
@@ -333,7 +331,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = ({
 
           case "selection-cleared":
             setSelectedText("");
-            setShowToolbar(false);
+            // setShowToolbar(false);
             break;
 
           case "highlight-added":
@@ -356,7 +354,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = ({
             break;
 
           case "highlight-clicked":
-            setShowToolbar(true);
+            // setShowToolbar(true);
             break;
         }
       } catch (error) {
@@ -377,7 +375,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = ({
       true;
     `);
 
-      setShowToolbar(false);
+      // setShowToolbar(false);
     },
     [selectedText],
   );
@@ -390,10 +388,8 @@ const HTMLViewer: React.FC<HTMLViewerProps> = ({
       true;
     `);
     setSelectedHighlightId(null);
-    setShowToolbar(false);
+    // setShowToolbar(false);
   }, []);
-
-  
 
   // Select all text
   const selectAll = useCallback(() => {
@@ -427,7 +423,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = ({
           break;
         case "copy":
           Clipboard.setStringAsync(selectedText);
-          setShowToolbar(false);
+          // setShowToolbar(false);
           break;
         case "selectAll":
           selectAll();
@@ -463,13 +459,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = ({
   );
 
   return (
-    <ThemeView
-      style={[
-        styles.container,
-        // { height: webViewHeight > 0 ? Math.min(webViewHeight, 2000) : 300 },
-        { height: webViewHeight > 0 ? webViewHeight : 300 },
-      ]}
-    >
+    <ThemeView style={[styles.container, { height: webViewHeight > 0 ? webViewHeight : 300 }]}>
       <WebView
         ref={webViewRef}
         originWhitelist={["*"]}
