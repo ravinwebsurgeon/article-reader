@@ -56,24 +56,24 @@ const HTMLViewer: React.FC<HTMLViewerProps> = ({
       // Add Literata font support
       const style = document.createElement('style');
       style.textContent = \`
-        // @font-face {
-        //   font-family: 'Literata';
-        //   src: url('https://fonts.gstatic.com/s/literata/v30/or3PQ6P12-iJxAIgLa78DkrbXsDgk0oVDaDPYLanFLHpPf2TbBG_J_zWTFUPx1j.woff2') format('woff2');
-        //   font-weight: normal;
-        //   font-style: normal;
-        // }
-        // @font-face {
-        //   font-family: 'Literata';
-        //   src: url('https://fonts.gstatic.com/s/literata/v30/or3PQ6P12-iJxAIgLa78DkrbXsDgk0oVDaDPYLanFLHpPf2TbBG_J__WTFUPx1j.woff2') format('woff2');
-        //   font-weight: bold;
-        //   font-style: normal;
-        // }
-        // @font-face {
-        //   font-family: 'Literata';
-        //   src: url('https://fonts.gstatic.com/s/literata/v30/or3NQ6P12-iJxAIgLYT1PLs1Zd0nfUwAbeGVKoRYzNiCp1OUedn8f7XWSUKTt8iVow.woff2') format('woff2');
-        //   font-weight: normal;
-        //   font-style: italic;
-        // }
+        @font-face {
+          font-family: 'Literata';
+          src: url('https://fonts.gstatic.com/s/literata/v30/or3PQ6P12-iJxAIgLa78DkrbXsDgk0oVDaDPYLanFLHpPf2TbBG_J_zWTFUPx1j.woff2') format('woff2');
+          font-weight: normal;
+          font-style: normal;
+        }
+        @font-face {
+          font-family: 'Literata';
+          src: url('https://fonts.gstatic.com/s/literata/v30/or3PQ6P12-iJxAIgLa78DkrbXsDgk0oVDaDPYLanFLHpPf2TbBG_J__WTFUPx1j.woff2') format('woff2');
+          font-weight: bold;
+          font-style: normal;
+        }
+        @font-face {
+          font-family: 'Literata';
+          src: url('https://fonts.gstatic.com/s/literata/v30/or3NQ6P12-iJxAIgLYT1PLs1Zd0nfUwAbeGVKoRYzNiCp1OUedn8f7XWSUKTt8iVow.woff2') format('woff2');
+          font-weight: normal;
+          font-style: italic;
+        }
         body {
           font-family: 'Literata', serif;
           font-size: 18px;
@@ -92,6 +92,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = ({
         p {
           margin-bottom: 1em;
         }
+        img { max-width: 100%; height: auto; }
         .text-highlight {
           background-color: rgba(255, 255, 0, 0.4);
           border-radius: 3px;
@@ -117,6 +118,18 @@ const HTMLViewer: React.FC<HTMLViewerProps> = ({
       \`;
       document.head.appendChild(style);
       
+      // Add viewport meta tag for proper mobile rendering
+  const meta = document.createElement('meta');
+  meta.setAttribute('name', 'viewport');
+  meta.setAttribute('content', 'width=device-width, initial-scale=1.0');
+  document.head.appendChild(meta);
+
+  // Reset default margins
+  document.documentElement.style.margin = 0;
+  document.documentElement.style.padding = 0;
+  document.body.style.margin = 0;
+  document.body.style.padding = 0;
+
       // Tracking selection
       document.addEventListener('selectionchange', function() {
         const selection = window.getSelection();
@@ -171,7 +184,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = ({
         }
       };
 
-     window.removeHighlight = function(highlightId) {
+      window.removeHighlight = function(highlightId) {
         const highlightEl = document.getElementById(highlightId);
         if (!highlightEl) return false;
         
@@ -232,89 +245,54 @@ const HTMLViewer: React.FC<HTMLViewerProps> = ({
       const observer = new MutationObserver(setHighlightAccessibility);
       observer.observe(document.body, { childList: true, subtree: true });
 
-    //v1
-    // Add height measurement
-    function updateHeight() {
-      const height = document.body.scrollHeight;
-      window.ReactNativeWebView.postMessage(JSON.stringify({
-        type: 'contentHeight',
-        height: height
-      }));
+  function getActualHeight() {
+    // Use documentElement instead of body for better measurement
+    return Math.min(
+      document.documentElement.scrollHeight,
+      document.documentElement.offsetHeight
+    );
+  }
+
+  function updateHeight() {
+    const height = getActualHeight();
+    window.ReactNativeWebView.postMessage(JSON.stringify({
+      type: 'contentHeight',
+      height: height
+    }));
+  }
+
+  // Throttle height updates
+  let updatePending = false;
+  const throttledUpdate = () => {
+    if (!updatePending) {
+      updatePending = true;
+      requestAnimationFrame(() => {
+        updateHeight();
+        updatePending = false;
+      });
     }
-    
-    // Call initially and when content changes
-    updateHeight();
-    window.addEventListener('load', updateHeight);
-    new MutationObserver(updateHeight).observe(document.body, { 
-      childList: true, 
-      subtree: true,
-      attributes: true,
-      characterData: true 
-    });
+  };
 
-    //v2
-    // Improved height calculation
-    // function updateHeight() {
-    //   const html = document.documentElement;
-    //   const body = document.body;
+  // Initial setup
+  updateHeight();
+  
+  // Setup observers
+  new ResizeObserver(throttledUpdate).observe(document.body);
+  new MutationObserver(throttledUpdate).observe(document.body, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    characterData: true
+  });
+
+  // Final verification
+  setTimeout(updateHeight, 500);
+  setTimeout(updateHeight, 1000);
       
-    //   // Use the maximum of various height measurements
-    //   const heights = [
-    //     html.scrollHeight,
-    //     html.offsetHeight,
-    //     body.scrollHeight,
-    //     body.offsetHeight,
-    //     body.getBoundingClientRect().height
-    //   ];
-      
-    //   const height = Math.max(...heights);
-      
-    //   window.ReactNativeWebView.postMessage(JSON.stringify({
-    //     type: 'contentHeight',
-    //     height: height
-    //   }));
-    // }
-
-    // // Enhanced MutationObserver configuration
-    // const observer = new MutationObserver(updateHeight);
-    // observer.observe(document.documentElement, {
-    //   childList: true,
-    //   subtree: true,
-    //   attributes: true,
-    //   characterData: true,
-    //   attributeFilter: ['style', 'class']
-    // });
-
-    // // Initial setup
-    // updateHeight();
-    // window.addEventListener('load', updateHeight);
-    // // Add resize listener for images
-    // document.querySelectorAll('img').forEach(img => {
-    //   img.addEventListener('load', updateHeight);
-    //   img.addEventListener('error', updateHeight);
-    // });
-
-    // // Add resize observer for elements with dynamic sizing
-    // // if (typeof ResizeObserver !== 'undefined') {
-    // //   const resizeObserver = new ResizeObserver(updateHeight);
-    // //   resizeObserver.observe(document.documentElement);
-    // //   resizeObserver.observe(document.body);
-    // // }
-
-    // Ensure initial sync
-    setTimeout(updateHeight, 100);
-    setTimeout(updateHeight, 1000);
-      
-      true;
+    true;
     })();
   `;
-
-  const webViewScript = `
-(function() {
-window.ReactNativeWebView.postMessage(document.documentElement.scrollHeight);
-})()
-`;
-
+  
   // Handle messages from WebView
   const handleMessage = useCallback(
     (event: {
@@ -356,7 +334,6 @@ window.ReactNativeWebView.postMessage(document.documentElement.scrollHeight);
           case "selection-cleared":
             setSelectedText("");
             setShowToolbar(false);
-            // setSelectedHighlightId(null);
             break;
 
           case "highlight-added":
@@ -379,10 +356,7 @@ window.ReactNativeWebView.postMessage(document.documentElement.scrollHeight);
             break;
 
           case "highlight-clicked":
-            // Handle highlight click - for example, show options to remove
-            // setSelectedHighlightId(data.id);
             setShowToolbar(true);
-            // showHighlightOptions(data.id);
             break;
         }
       } catch (error) {
@@ -419,31 +393,7 @@ window.ReactNativeWebView.postMessage(document.documentElement.scrollHeight);
     setShowToolbar(false);
   }, []);
 
-  // Show options when a highlight is clicked
-  //   const showHighlightOptions = useCallback(
-  //     (highlightId) => {
-  //       // In a real app, you might show a modal or ActionSheet here
-  //       // For simplicity, we'll just remove the highlight
-  //       if (Platform.OS === "web") {
-  //         if (confirm("Remove this highlight?")) {
-  //           removeHighlight(highlightId);
-  //         }
-  //       } else {
-  //         // On native, you would typically show an ActionSheet or custom modal
-  //         removeHighlight(highlightId);
-  //       }
-  //     },
-  //     [removeHighlight],
-  //   );
-
-  // Copy selected text to clipboard
-  const copySelectedText = useCallback(() => {
-    if (selectedText) {
-      Clipboard.setStringAsync(selectedText);
-      setShowToolbar(false);
-      // Optional: Show a toast or feedback that text was copied
-    }
-  }, [selectedText]);
+  
 
   // Select all text
   const selectAll = useCallback(() => {
@@ -517,7 +467,7 @@ window.ReactNativeWebView.postMessage(document.documentElement.scrollHeight);
       style={[
         styles.container,
         // { height: webViewHeight > 0 ? Math.min(webViewHeight, 2000) : 300 },
-        // { height: webViewHeight > 0 ? webViewHeight : 300 },
+        { height: webViewHeight > 0 ? webViewHeight : 300 },
       ]}
     >
       <WebView
@@ -533,73 +483,14 @@ window.ReactNativeWebView.postMessage(document.documentElement.scrollHeight);
         menuItems={menuItems}
         onCustomMenuSelection={handleCustomMenuSelection}
         textInteractionEnabled={true}
-        textZoom={200}
+        textZoom={100}
         scalesPageToFit={true}
         javaScriptEnabled={true}
         showsVerticalScrollIndicator={false}
         overScrollMode="never"
-        scrollEnabled={true}
-        nestedScrollEnabled={true}
-
-        // androidLayerType="software"
-// cacheEnabled={false}
-// cacheMode={'LOAD_NO_CACHE'}
-        // androidLayerType="hardware"
-        // onLoadEnd={() => webViewRef.current?.injectJavaScript("updateHeight();")}
-        // onContentProcessDidTerminate={() => webViewRef.current?.reload()}
-
-        // onScroll={handleScroll}
-        // onContentSizeChange={( height) => {
-        //   setContentHeight && setContentHeight(height);
-        // }}
-        // onLayout={(event) => {
-        //   const { height } = event.nativeEvent.layout;
-        //   setScrollViewHeight && setScrollViewHeight(height);
-        // }}
+        scrollEnabled={false}
+        nestedScrollEnabled={false}
       />
-
-      {/* {showToolbar && (
-        <View style={styles.toolbar}>
-          <TouchableOpacity style={styles.toolbarButton} onPress={() => addHighlight("#FFFF00")}>
-            <Ionicons name="color-fill" size={24} color="#FFCC00" />
-            <Text style={styles.toolbarText}>Highlight</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.toolbarButton} onPress={copySelectedText}>
-            <Ionicons name="copy-outline" size={24} color="#000" />
-            <Text style={styles.toolbarText}>Copy</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.toolbarButton} onPress={selectAll}>
-            <Ionicons name="checkbox-outline" size={24} color="#000" />
-            <Text style={styles.toolbarText}>Select All</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.toolbarButton}
-            // onPress={() => shareSelectedText()}
-          >
-            <Ionicons name="share-outline" size={24} color="#000" />
-            <Text style={styles.toolbarText}>Share</Text>
-          </TouchableOpacity>
-
-          {selectedHighlightId && (
-            <TouchableOpacity
-              style={styles.toolbarButton}
-              onPress={() => {
-                if (selectedHighlightId) {
-                  removeHighlight(selectedHighlightId);
-                  setSelectedHighlightId(null);
-                  setShowToolbar(false);
-                }
-              }}
-            >
-              <Ionicons name="trash-outline" size={24} color="#FF3B30" />
-              <Text style={[styles.toolbarText, { color: "#FF3B30" }]}>Remove</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      )} */}
     </ThemeView>
   );
 };
