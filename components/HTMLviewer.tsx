@@ -26,39 +26,45 @@ interface HighlightData {
   color: string;
 }
 
-const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(({
-  html,
-  baseUrl,
-  style,
-  onHighlightAdded,
-  onHighlightRemoved,
-  onSelectionChange,
-  onShare,
-  onScroll,
-  onContentSizeChange,
-  onLayout,
-  setContentHeight,
-  setScrollViewHeight,
-  handleScroll,
-}) => {
-  const webViewRef = useRef<WebView>(null);
-  const [selectedText, setSelectedText] = useState<string>("");
-  const [highlights, setHighlights] = useState<HighlightData[]>([]);
-  const [selectedHighlightId, setSelectedHighlightId] = useState<string | null>(null);
-  const [webViewHeight, setWebViewHeight] = useState<number>(300); // Start with a default height
-  
-  // Debounce height changes to prevent rapid re-renders
-  const debouncedSetHeight = useCallback((height: number) => {
-    if (Math.abs(height - webViewHeight) > 10) { // Only update if significant change
-      setWebViewHeight(height);
-      if (setContentHeight) {
-        setContentHeight(height);
-      }
-    }
-  }, [webViewHeight, setContentHeight]);
+const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
+  ({
+    html,
+    baseUrl,
+    style,
+    onHighlightAdded,
+    onHighlightRemoved,
+    onSelectionChange,
+    onShare,
+    onScroll,
+    onContentSizeChange,
+    onLayout,
+    setContentHeight,
+    setScrollViewHeight,
+    handleScroll,
+  }) => {
+    const webViewRef = useRef<WebView>(null);
+    const [selectedText, setSelectedText] = useState<string>("");
+    const [highlights, setHighlights] = useState<HighlightData[]>([]);
+    const [selectedHighlightId, setSelectedHighlightId] = useState<string | null>(null);
+    const [webViewHeight, setWebViewHeight] = useState<number>(300); // Start with a default height
 
-  // Cache the injected JavaScript to prevent unnecessary re-creation
-  const injectedJavaScript = useMemo(() => `
+    // Debounce height changes to prevent rapid re-renders
+    const debouncedSetHeight = useCallback(
+      (height: number) => {
+        if (Math.abs(height - webViewHeight) > 10) {
+          // Only update if significant change
+          setWebViewHeight(height);
+          if (setContentHeight) {
+            setContentHeight(height);
+          }
+        }
+      },
+      [webViewHeight, setContentHeight],
+    );
+
+    // Cache the injected JavaScript to prevent unnecessary re-creation
+    const injectedJavaScript = useMemo(
+      () => `
     (function() {
       // Only add styles if they don't exist yet
       if (!document.getElementById('literata-styles')) {
@@ -301,128 +307,133 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(({
     
     return true;
     })();
-  `, []);
+  `,
+      [],
+    );
 
-  // Define menu items outside the render to prevent re-creation
-  const menuItems = useMemo(() => [
-    { label: "Highlight", key: "highlight" },
-    { label: "Copy", key: "copy" },
-    { label: "Select All", key: "selectAll" },
-    { label: "Share", key: "share" },
-    { label: "Remove Highlight", key: "removeHighlight" },
-  ], []);
+    // Define menu items outside the render to prevent re-creation
+    const menuItems = useMemo(
+      () => [
+        { label: "Highlight", key: "highlight" },
+        { label: "Copy", key: "copy" },
+        { label: "Select All", key: "selectAll" },
+        { label: "Share", key: "share" },
+        { label: "Remove Highlight", key: "removeHighlight" },
+      ],
+      [],
+    );
 
-  // Handle messages from WebView
-  const handleMessage = useCallback(
-    (event: { nativeEvent: { data: string } }) => {
-      try {
-        const data = JSON.parse(event.nativeEvent.data);
+    // Handle messages from WebView
+    const handleMessage = useCallback(
+      (event: { nativeEvent: { data: string } }) => {
+        try {
+          const data = JSON.parse(event.nativeEvent.data);
 
-        switch (data.type) {
-          case "contentHeight":
-            // Use requestAnimationFrame to batch height updates
-            requestAnimationFrame(() => {
-              debouncedSetHeight(data.height);
-            });
-            break;
-            
-          case "selection":
-            setSelectedText(data.text);
-            if (onSelectionChange) {
-              onSelectionChange(data.text);
-            }
-            break;
+          switch (data.type) {
+            case "contentHeight":
+              // Use requestAnimationFrame to batch height updates
+              requestAnimationFrame(() => {
+                debouncedSetHeight(data.height);
+              });
+              break;
 
-          case "selection-cleared":
-            setSelectedText("");
-            break;
+            case "selection":
+              setSelectedText(data.text);
+              if (onSelectionChange) {
+                onSelectionChange(data.text);
+              }
+              break;
 
-          case "highlight-added":
-            const newHighlight = {
-              id: data.id,
-              text: data.text,
-              color: data.color,
-            };
-            setHighlights((prev) => [...prev, newHighlight]);
-            if (onHighlightAdded) {
-              onHighlightAdded(data.id, data.text, data.color);
-            }
-            break;
+            case "selection-cleared":
+              setSelectedText("");
+              break;
 
-          case "highlight-removed":
-            setHighlights((prev) => prev.filter((h) => h.id !== data.id));
-            if (onHighlightRemoved) {
-              onHighlightRemoved(data.id);
-            }
-            break;
+            case "highlight-added":
+              const newHighlight = {
+                id: data.id,
+                text: data.text,
+                color: data.color,
+              };
+              setHighlights((prev) => [...prev, newHighlight]);
+              if (onHighlightAdded) {
+                onHighlightAdded(data.id, data.text, data.color);
+              }
+              break;
 
-          case "highlight-clicked":
-            // setSelectedHighlightId(data.id);
-            break;
+            case "highlight-removed":
+              setHighlights((prev) => prev.filter((h) => h.id !== data.id));
+              if (onHighlightRemoved) {
+                onHighlightRemoved(data.id);
+              }
+              break;
+
+            case "highlight-clicked":
+              // setSelectedHighlightId(data.id);
+              break;
+          }
+        } catch (error) {
+          console.error("Error handling WebView message:", error);
         }
-      } catch (error) {
-        console.error("Error handling WebView message:", error);
-      }
-    },
-    [debouncedSetHeight, onHighlightAdded, onHighlightRemoved, onSelectionChange]
-  );
+      },
+      [debouncedSetHeight, onHighlightAdded, onHighlightRemoved, onSelectionChange],
+    );
 
-  // Memoize WebView actions to prevent recreation on render
-  const addHighlight = useCallback(
-    (color = "#FFFF00") => {
-      if (!selectedText || !webViewRef.current) return;
+    // Memoize WebView actions to prevent recreation on render
+    const addHighlight = useCallback(
+      (color = "#FFFF00") => {
+        if (!selectedText || !webViewRef.current) return;
 
-      webViewRef.current.injectJavaScript(`
+        webViewRef.current.injectJavaScript(`
         window.highlightSelection('${color}');
         window.getSelection().removeAllRanges();
         true;
       `);
-    },
-    [selectedText]
-  );
+      },
+      [selectedText],
+    );
 
-  const removeHighlight = useCallback((highlightId: string) => {
-    if (!webViewRef.current) return;
-    
-    webViewRef.current.injectJavaScript(`
+    const removeHighlight = useCallback((highlightId: string) => {
+      if (!webViewRef.current) return;
+
+      webViewRef.current.injectJavaScript(`
       window.removeHighlight('${highlightId}');
       true;
     `);
-    setSelectedHighlightId(null);
-  }, []);
+      setSelectedHighlightId(null);
+    }, []);
 
-  const selectAll = useCallback(() => {
-    if (!webViewRef.current) return;
-    
-    webViewRef.current.injectJavaScript(`
+    const selectAll = useCallback(() => {
+      if (!webViewRef.current) return;
+
+      webViewRef.current.injectJavaScript(`
       window.selectAllText();
       true;
     `);
-  }, []);
+    }, []);
 
-  const handleCustomMenuSelection = useCallback(
-    (event: { nativeEvent: { key: string; selectedText: string } }) => {
-      const { key, selectedText } = event.nativeEvent;
+    const handleCustomMenuSelection = useCallback(
+      (event: { nativeEvent: { key: string; selectedText: string } }) => {
+        const { key, selectedText } = event.nativeEvent;
 
-      switch (key) {
-        case "highlight":
-          addHighlight();
-          break;
-        case "copy":
-          Clipboard.setStringAsync(selectedText);
-          break;
-        case "selectAll":
-          selectAll();
-          break;
-        case "share":
-          if (onShare) onShare(selectedText);
-          break;
-        case "removeHighlight":
-          if (selectedHighlightId) {
-            removeHighlight(selectedHighlightId);
-          } else if (webViewRef.current) {
-            // Try removing based on selection
-            webViewRef.current.injectJavaScript(`
+        switch (key) {
+          case "highlight":
+            addHighlight();
+            break;
+          case "copy":
+            Clipboard.setStringAsync(selectedText);
+            break;
+          case "selectAll":
+            selectAll();
+            break;
+          case "share":
+            if (onShare) onShare(selectedText);
+            break;
+          case "removeHighlight":
+            if (selectedHighlightId) {
+              removeHighlight(selectedHighlightId);
+            } else if (webViewRef.current) {
+              // Try removing based on selection
+              webViewRef.current.injectJavaScript(`
               (function() {
                 const sel = window.getSelection();
                 if (!sel.rangeCount) return;
@@ -435,57 +446,60 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(({
                 return true;
               })();
             `);
-          }
-          break;
-      }
-    },
-    [addHighlight, selectAll, onShare, selectedHighlightId, removeHighlight]
-  );
+            }
+            break;
+        }
+      },
+      [addHighlight, selectAll, onShare, selectedHighlightId, removeHighlight],
+    );
 
-  // Use a style object that doesn't change on re-renders
-  const containerStyle = useMemo(() => 
-    [styles.container, { height: webViewHeight }], 
-    [webViewHeight]
-  );
-  
-  // Combine user style with base webview style
-  const webViewStyle = useMemo(() => 
-    [styles.webview, style], 
-    [style]
-  );
+    // Use a style object that doesn't change on re-renders
+    const containerStyle = useMemo(
+      () => [styles.container, { height: webViewHeight }],
+      [webViewHeight],
+    );
 
-  // WebView source object created once to prevent re-renders
-  const source = useMemo(() => ({
-    html: html,
-    baseUrl: baseUrl || "about:blank",
-  }), [html, baseUrl]);
+    // Combine user style with base webview style
+    const webViewStyle = useMemo(() => [styles.webview, style], [style]);
 
-  return (
-    <ThemeView style={containerStyle}>
-      <WebView
-        ref={webViewRef}
-        originWhitelist={["*"]}
-        source={source}
-        style={webViewStyle}
-        injectedJavaScript={injectedJavaScript}
-        onMessage={handleMessage}
-        menuItems={menuItems}
-        onCustomMenuSelection={handleCustomMenuSelection}
-        textInteractionEnabled={true}
-        textZoom={100}
-        scalesPageToFit={true}
-        javaScriptEnabled={true}
-        showsVerticalScrollIndicator={false}
-        overScrollMode="never"
-        scrollEnabled={false}
-        nestedScrollEnabled={false}
-        cacheEnabled={true}
-        cacheMode="LOAD_DEFAULT"
-        domStorageEnabled={true}
-      />
-    </ThemeView>
-  );
-});
+    // WebView source object created once to prevent re-renders
+    const source = useMemo(
+      () => ({
+        html: html,
+        baseUrl: baseUrl || "about:blank",
+      }),
+      [html, baseUrl],
+    );
+
+    
+
+    return (
+      <ThemeView style={containerStyle}>
+        <WebView
+          ref={webViewRef}
+          originWhitelist={["*"]}
+          source={source}
+          style={webViewStyle}
+          injectedJavaScript={injectedJavaScript}
+          onMessage={handleMessage}
+          menuItems={menuItems}
+          onCustomMenuSelection={handleCustomMenuSelection}
+          textInteractionEnabled={true}
+          textZoom={100}
+          scalesPageToFit={true}
+          javaScriptEnabled={true}
+          showsVerticalScrollIndicator={false}
+          overScrollMode="never"
+          scrollEnabled={false}
+          nestedScrollEnabled={false}
+          cacheEnabled={true}
+          cacheMode="LOAD_DEFAULT"
+          domStorageEnabled={true}
+        />
+      </ThemeView>
+    );
+  },
+);
 
 const styles = StyleSheet.create({
   container: {
