@@ -4,6 +4,7 @@ import Constants from "expo-constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { debounce, DebouncedFunc } from "lodash-es";
 import { Subscription } from "rxjs";
+import ItemContentSyncer from "./ItemContentSyncer";
 
 // API URL from environment configuration.
 const API_URL = Constants.expoConfig?.extra?.apiUrl || "https://api.pckt.dev/v4";
@@ -27,7 +28,7 @@ type SyncPromiseState = {
  */
 class SyncEngine {
   // The WatermelonDB database instance. Needs to be set after initialization.
-  public database: Database | null;
+  private database: Database | null;
   // Authentication token for API requests.
   public token: string | null = null;
   // Flag indicating if a synchronization operation (`_syncInternal`) is currently active.
@@ -39,9 +40,17 @@ class SyncEngine {
   private debouncedSync: DebouncedFunc<(isFirstSync?: boolean) => Promise<void>>;
   // Subscription to database changes
   private subscription: Subscription | null = null;
+  // Item content syncer
+  private itemContentSyncer: ItemContentSyncer;
 
   constructor(database: Database | null = null) {
     this.database = database;
+    // Create item content syncer instance
+    this.itemContentSyncer = new ItemContentSyncer();
+    if (database) {
+      this.itemContentSyncer.database = database;
+    }
+
     // Initialize the debounced function.
     // `leading: true` runs the function immediately on the first call within the wait period.
     // `trailing: false` prevents an additional run after the wait period.
@@ -66,6 +75,7 @@ class SyncEngine {
       this.stopWatchForChanges();
     }
 
+    // Only watch tables that should be synced with the server
     const tables = ["items", "tags", "item_tags"];
     console.log(`${LOG_PREFIX} Setting up watch for changes on tables: ${tables.join(", ")}`);
     this.subscription = this.database.withChangesForTables(tables).subscribe((changes) => {
@@ -94,11 +104,22 @@ class SyncEngine {
   }
 
   /**
+   * Sets the database instance and ensures the item content syncer is updated
+   * @param database WatermelonDB database instance
+   */
+  setDatabase(database: Database | null) {
+    this.database = database;
+    this.itemContentSyncer.database = database;
+  }
+
+  /**
    * Updates the authentication token used for synchronization.
    * @param token JWT token string or null to clear.
    */
   setToken(token: string | null) {
     this.token = token;
+    // Update token in itemContentSyncer
+    this.itemContentSyncer.token = token;
   }
 
   /**
@@ -108,7 +129,7 @@ class SyncEngine {
   async loadToken(): Promise<string | null> {
     try {
       const token = await AsyncStorage.getItem("auth_token");
-      this.token = token; // Update the instance property
+      this.setToken(token); // Use existing method to set token
       return token;
     } catch (error) {
       console.error(`${LOG_PREFIX} Failed to load auth token:`, error);
@@ -257,7 +278,9 @@ class SyncEngine {
           }
         },
         pushChanges: async ({ changes, lastPulledAt }) => {
-          // Send local changes to the server.
+          // Send local changes to the server, excluding item_contents
+          const { item_contents, ...changesToPush } = changes as any;
+
           const params = new URLSearchParams();
           params.set("last_pulled_at", String(lastPulledAt));
 
@@ -269,7 +292,7 @@ class SyncEngine {
               "Authorization": `Bearer ${this.token}`,
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(changes),
+            body: JSON.stringify(changesToPush),
           });
 
           const pushEndTime = Date.now();
@@ -277,7 +300,6 @@ class SyncEngine {
 
           console.log(`${LOG_PREFIX} Push response status: ${response.status}`);
           if (!response.ok) {
-            // Throw an error to be caught by the outer try/catch.
             throw new Error(`Push failed: ${await response.text()}`);
           }
           console.log(`${LOG_PREFIX} Push successful. Duration: ${pushDuration}ms`);
@@ -292,6 +314,10 @@ class SyncEngine {
       // --- End Synchronization Logic ---
 
       console.log(`${LOG_PREFIX} Sync operation completed successfully.`);
+      // Kick off item content sync out-of-band, do not await it.
+      this.itemContentSyncer.sync().catch((error: Error) => {
+        console.error(`${LOG_PREFIX} Asynchronous content sync failed:`, error);
+      });
     } catch (error) {
       console.error(`${LOG_PREFIX} Sync operation failed:`, error);
       // Store the error to be handled in the finally block.
