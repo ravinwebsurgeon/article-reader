@@ -34,6 +34,8 @@ import { useTranslation } from "react-i18next";
 import HTMLViewer from "@/components/HTMLviewer";
 import { map, switchMap } from "rxjs/operators";
 import { of as observableOf } from "rxjs";
+import { Image } from "expo-image";
+import { typography } from "@/theme";
 
 interface Highlight {
   id: string;
@@ -137,10 +139,31 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
     }
   }, [contentHeight, scrollViewHeight, item.progress, hasRestoredPosition]);
 
+
+  console.log("item content", marked.parse(content?.content ?? "") as string);
+
   // Process markdown content
   const processedContent = useMemo(() => {
     return marked.parse(content?.content ?? "") as string;
   }, [content?.content]);
+
+  const contentHasImage = useMemo(() => {
+    // Look for various types of image elements in the processed HTML
+    const imagePatterns = [
+      /<img[^>]+>/i,                            // Standard img tags
+      /<figure[^>]*>[\s\S]*?<img[^>]+>/i,       // Figure elements with images
+      /<picture[^>]*>[\s\S]*?<img[^>]+>/i,      // Picture elements with images
+      /<svg[^>]*>[\s\S]*?<\/svg>/i              // SVG elements
+    ];
+    
+    // Return true if any pattern is found in the content
+    return imagePatterns.some(pattern => pattern.test(processedContent));
+  }, [processedContent]);
+  
+  // Log for debugging
+  useEffect(() => {
+    console.log("Content has image:", contentHasImage);
+  }, [contentHasImage]);
 
   // Handle navigation back
   const handleBack = async () => {
@@ -249,6 +272,15 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
     }
   };
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
   // Custom header rendering for the specific design
   const renderCustomHeader = () => {
     return (
@@ -286,6 +318,15 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
       </ThemeView>
     );
   };
+
+  console.log(
+    "item in the article detail",
+    item.publishedAt,
+    item.imageThumbHash,
+    item.imageUrl,
+    item?.dek,
+    item?.readTime,
+  );
 
   return (
     <ThemeView style={{ flex: 1 }} backgroundColor={theme.colors.background.paper}>
@@ -336,21 +377,62 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
               setScrollViewHeight(height);
             }}
           >
+            {item.source && (
+              <ThemeText variant="meta" color={theme.colors.text.secondary} style={styles.metaText}>
+                {item.source}
+              </ThemeText>
+            )}
             <ThemeText variant="reader.title" style={styles.title}>
               {item.title}
             </ThemeText>
 
             <ThemeView style={styles.metaContainer}>
-              {item.source && (
+              {item.dek && (
+                <ThemeText
+                  variant="meta"
+                  color={theme.colors.text.secondary}
+                  style={[styles.metaText, styles.dekText]}
+                >
+                  {item.dek}
+                </ThemeText>
+              )}
+
+              {item?.author && (
                 <ThemeText
                   variant="meta"
                   color={theme.colors.text.secondary}
                   style={styles.metaText}
                 >
-                  {item.source}
+                  {item.author}
+                </ThemeText>
+              )}
+
+              {item.publishedAt && (
+                <ThemeText
+                  variant="meta"
+                  color={theme.colors.text.secondary}
+                  style={styles.metaText}
+                >
+                  {formatDate(item.publishedAt)} {item.readTime && `• ${item.readTime} min`}
                 </ThemeText>
               )}
             </ThemeView>
+
+            {/* Display the feature image if available */}
+            {item.imageUrl && !contentHasImage && (
+              <ThemeView style={styles.imageContainer}>
+                <Image
+                  source={{ uri: item.imageUrl }}
+                  style={styles.featureImage}
+                  resizeMode="cover"
+                  placeholder={
+                    item.imageThumbHash
+                      ? { uri: `data:image/png;base64,${item.imageThumbHash}` }
+                      : undefined
+                  }
+                />
+              </ThemeView>
+            )}
             <HTMLViewer
               html={processedContent}
               style={styles.webView}
@@ -576,6 +658,7 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: "700",
     marginBottom: 16,
+    ...typography.reader.title,
   },
   metaContainer: {
     marginBottom: 24,
@@ -688,5 +771,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
     marginVertical: 2,
+  },
+  imageContainer: {
+    marginBottom: 24,
+    width: "100%",
+    borderRadius: 0,
+    overflow: "hidden",
+  },
+  featureImage: {
+    width: "100%",
+    height: 300,
+    borderRadius: 0,
   },
 });
