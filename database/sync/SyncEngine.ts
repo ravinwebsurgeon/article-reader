@@ -4,7 +4,7 @@ import Constants from "expo-constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { debounce, DebouncedFunc } from "lodash-es";
 import { Subscription } from "rxjs";
-import { syncItemContent } from "./ItemContentSyncer";
+import ItemContentSyncer from "./ItemContentSyncer";
 
 // API URL from environment configuration.
 const API_URL = Constants.expoConfig?.extra?.apiUrl || "https://api.pckt.dev/v4";
@@ -28,7 +28,7 @@ type SyncPromiseState = {
  */
 class SyncEngine {
   // The WatermelonDB database instance. Needs to be set after initialization.
-  public database: Database | null;
+  private database: Database | null;
   // Authentication token for API requests.
   public token: string | null = null;
   // Flag indicating if a synchronization operation (`_syncInternal`) is currently active.
@@ -40,9 +40,17 @@ class SyncEngine {
   private debouncedSync: DebouncedFunc<(isFirstSync?: boolean) => Promise<void>>;
   // Subscription to database changes
   private subscription: Subscription | null = null;
+  // Item content syncer
+  private itemContentSyncer: ItemContentSyncer;
 
   constructor(database: Database | null = null) {
     this.database = database;
+    // Create item content syncer instance
+    this.itemContentSyncer = new ItemContentSyncer();
+    if (database) {
+      this.itemContentSyncer.database = database;
+    }
+
     // Initialize the debounced function.
     // `leading: true` runs the function immediately on the first call within the wait period.
     // `trailing: false` prevents an additional run after the wait period.
@@ -96,11 +104,22 @@ class SyncEngine {
   }
 
   /**
+   * Sets the database instance and ensures the item content syncer is updated
+   * @param database WatermelonDB database instance
+   */
+  setDatabase(database: Database | null) {
+    this.database = database;
+    this.itemContentSyncer.database = database;
+  }
+
+  /**
    * Updates the authentication token used for synchronization.
    * @param token JWT token string or null to clear.
    */
   setToken(token: string | null) {
     this.token = token;
+    // Update token in itemContentSyncer
+    this.itemContentSyncer.token = token;
   }
 
   /**
@@ -110,7 +129,7 @@ class SyncEngine {
   async loadToken(): Promise<string | null> {
     try {
       const token = await AsyncStorage.getItem("auth_token");
-      this.token = token; // Update the instance property
+      this.setToken(token); // Use existing method to set token
       return token;
     } catch (error) {
       console.error(`${LOG_PREFIX} Failed to load auth token:`, error);
@@ -296,8 +315,8 @@ class SyncEngine {
 
       console.log(`${LOG_PREFIX} Sync operation completed successfully.`);
       // Kick off item content sync out-of-band, do not await it.
-      syncItemContent(this.database, this.token).catch((contentSyncError) => {
-        console.error(`${LOG_PREFIX} Asynchronous syncItemContent failed:`, contentSyncError);
+      this.itemContentSyncer.sync().catch((error: Error) => {
+        console.error(`${LOG_PREFIX} Asynchronous content sync failed:`, error);
       });
     } catch (error) {
       console.error(`${LOG_PREFIX} Sync operation failed:`, error);
