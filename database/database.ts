@@ -6,6 +6,7 @@ import schema from "./schemas/schema";
 import Item from "./models/ItemModel";
 import Tag from "./models/TagModel";
 import ItemTag from "./models/ItemTagModel";
+import ItemContent from "./models/ItemContentModel";
 import { setGenerator } from "@nozbe/watermelondb/utils/common/randomId";
 import { ulid } from "ulid";
 
@@ -24,7 +25,7 @@ const adapter = new SQLiteAdapter({
 
 export const database = new Database({
   adapter,
-  modelClasses: [Item, Tag, ItemTag],
+  modelClasses: [Item, Tag, ItemTag, ItemContent],
 });
 
 export default database;
