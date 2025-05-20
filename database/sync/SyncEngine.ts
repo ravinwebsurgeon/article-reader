@@ -4,6 +4,7 @@ import Constants from "expo-constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { debounce, DebouncedFunc } from "lodash-es";
 import { Subscription } from "rxjs";
+import { syncItemContent } from "./ItemContentSyncer";
 
 // API URL from environment configuration.
 const API_URL = Constants.expoConfig?.extra?.apiUrl || "https://api.pckt.dev/v4";
@@ -66,6 +67,7 @@ class SyncEngine {
       this.stopWatchForChanges();
     }
 
+    // Only watch tables that should be synced with the server
     const tables = ["items", "tags", "item_tags"];
     console.log(`${LOG_PREFIX} Setting up watch for changes on tables: ${tables.join(", ")}`);
     this.subscription = this.database.withChangesForTables(tables).subscribe((changes) => {
@@ -257,7 +259,9 @@ class SyncEngine {
           }
         },
         pushChanges: async ({ changes, lastPulledAt }) => {
-          // Send local changes to the server.
+          // Send local changes to the server, excluding item_contents
+          const { item_contents, ...changesToPush } = changes as any;
+
           const params = new URLSearchParams();
           params.set("last_pulled_at", String(lastPulledAt));
 
@@ -269,7 +273,7 @@ class SyncEngine {
               "Authorization": `Bearer ${this.token}`,
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(changes),
+            body: JSON.stringify(changesToPush),
           });
 
           const pushEndTime = Date.now();
@@ -277,7 +281,6 @@ class SyncEngine {
 
           console.log(`${LOG_PREFIX} Push response status: ${response.status}`);
           if (!response.ok) {
-            // Throw an error to be caught by the outer try/catch.
             throw new Error(`Push failed: ${await response.text()}`);
           }
           console.log(`${LOG_PREFIX} Push successful. Duration: ${pushDuration}ms`);
@@ -292,6 +295,10 @@ class SyncEngine {
       // --- End Synchronization Logic ---
 
       console.log(`${LOG_PREFIX} Sync operation completed successfully.`);
+      // Kick off item content sync out-of-band, do not await it.
+      syncItemContent(this.database, this.token).catch((contentSyncError) => {
+        console.error(`${LOG_PREFIX} Asynchronous syncItemContent failed:`, contentSyncError);
+      });
     } catch (error) {
       console.error(`${LOG_PREFIX} Sync operation failed:`, error);
       // Store the error to be handled in the finally block.
