@@ -136,7 +136,7 @@ export const withSearch = ({ query }: WithSearchProps = {}) => {
     const termConditions = searchTerms.map((term) =>
       Q.or(
         Q.where("title", Q.like(`%${term}%`)),
-        Q.where("description", Q.like(`%${term}%`)),
+        // Q.where("description", Q.like(`%${term}%`)),
         Q.where("url", Q.like(`%${term}%`)),
         Q.where("site_name", Q.like(`%${term}%`)),
       ),
@@ -176,7 +176,7 @@ export const withSearch = ({ query }: WithSearchProps = {}) => {
             const scoredResults = results.map((item: Item) => {
               // Extract and lowercase text fields only once
               const title = (item.title || "").toLowerCase();
-              const description = (item.description || "").toLowerCase();
+              // const description = (item.description || "").toLowerCase();
               const url = (item.url || "").toLowerCase();
               const siteName = (item.siteName || "").toLowerCase();
 
@@ -194,11 +194,11 @@ export const withSearch = ({ query }: WithSearchProps = {}) => {
                 }
 
                 // Description (medium weight)
-                const descScore = description.includes(term) ? 50 : 0;
-                if (descScore > 0) {
-                  totalScore += descScore;
-                  matchedTerms.add(term);
-                }
+                // const descScore = description.includes(term) ? 50 : 0;
+                // if (descScore > 0) {
+                //   totalScore += descScore;
+                //   matchedTerms.add(term);
+                // }
 
                 // URL (lower weight)
                 if (url.includes(term)) {
