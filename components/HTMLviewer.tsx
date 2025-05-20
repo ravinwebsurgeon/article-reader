@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback, useMemo, useEffect } from "react";
 import { StyleSheet, Platform } from "react-native";
 import WebView from "react-native-webview";
 import * as Clipboard from "expo-clipboard";
@@ -26,7 +26,7 @@ interface HighlightData {
   color: string;
 }
 
-const HTMLViewer: React.FC<HTMLViewerProps> = ({
+const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(({
   html,
   baseUrl,
   style,
@@ -44,115 +44,144 @@ const HTMLViewer: React.FC<HTMLViewerProps> = ({
   const webViewRef = useRef<WebView>(null);
   const [selectedText, setSelectedText] = useState<string>("");
   const [highlights, setHighlights] = useState<HighlightData[]>([]);
-  // const [showToolbar, setShowToolbar] = useState<boolean>(false);
   const [selectedHighlightId, setSelectedHighlightId] = useState<string | null>(null);
-  const [webViewHeight, setWebViewHeight] = useState<number>(0);
+  const [webViewHeight, setWebViewHeight] = useState<number>(300); // Start with a default height
+  
+  // Debounce height changes to prevent rapid re-renders
+  const debouncedSetHeight = useCallback((height: number) => {
+    if (Math.abs(height - webViewHeight) > 10) { // Only update if significant change
+      setWebViewHeight(height);
+      if (setContentHeight) {
+        setContentHeight(height);
+      }
+    }
+  }, [webViewHeight, setContentHeight]);
 
-  console.log("HTMLViewer props:", highlights);
-
-  const getInjectedJavaScript = () => `
+  // Cache the injected JavaScript to prevent unnecessary re-creation
+  const injectedJavaScript = useMemo(() => `
     (function() {
-      // Add Literata font support
-      const style = document.createElement('style');
-      style.textContent = \`
-        @font-face {
-          font-family: 'Literata';
-          src: url('https://fonts.gstatic.com/s/literata/v30/or3PQ6P12-iJxAIgLa78DkrbXsDgk0oVDaDPYLanFLHpPf2TbBG_J_zWTFUPx1j.woff2') format('woff2');
-          font-weight: normal;
-          font-style: normal;
-        }
-        @font-face {
-          font-family: 'Literata';
-          src: url('https://fonts.gstatic.com/s/literata/v30/or3PQ6P12-iJxAIgLa78DkrbXsDgk0oVDaDPYLanFLHpPf2TbBG_J__WTFUPx1j.woff2') format('woff2');
-          font-weight: bold;
-          font-style: normal;
-        }
-        @font-face {
-          font-family: 'Literata';
-          src: url('https://fonts.gstatic.com/s/literata/v30/or3NQ6P12-iJxAIgLYT1PLs1Zd0nfUwAbeGVKoRYzNiCp1OUedn8f7XWSUKTt8iVow.woff2') format('woff2');
-          font-weight: normal;
-          font-style: italic;
-        }
-        body {
-          font-family: 'Literata', serif;
-          font-size: 18px;
-          line-height: 1.8;
-          padding: 20px;
-          color: #333;
-          margin: 0;
-          -webkit-text-size-adjust: 100%;
-          overflow-wrap: break-word;
-        }
-        h1, h2, h3, h4, h5, h6 {
-          font-family: 'Literata', serif;
-          font-weight: 700;
-          line-height: 1.3;
-        }
-        p {
-          margin-bottom: 1em;
-        }
-        img { max-width: 100%; height: auto; }
-        .text-highlight {
-          background-color: rgba(255, 255, 0, 0.4);
-          border-radius: 3px;
-          padding: 0 2px;
-          margin: 0 -2px;
-          box-decoration-break: clone;
-          -webkit-box-decoration-break: clone;
-          cursor: pointer;
-          position: relative;
-        }
-        .text-highlight:active {
-          opacity: 0.8;
-        }
-        @media (prefers-color-scheme: dark) {
+      // Only add styles if they don't exist yet
+      if (!document.getElementById('literata-styles')) {
+        const style = document.createElement('style');
+        style.id = 'literata-styles';
+        style.textContent = \`
+          @font-face {
+            font-family: 'Literata';
+            src: url('https://fonts.gstatic.com/s/literata/v30/or3PQ6P12-iJxAIgLa78DkrbXsDgk0oVDaDPYLanFLHpPf2TbBG_J_zWTFUPx1j.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+          }
+          @font-face {
+            font-family: 'Literata';
+            src: url('https://fonts.gstatic.com/s/literata/v30/or3PQ6P12-iJxAIgLa78DkrbXsDgk0oVDaDPYLanFLHpPf2TbBG_J__WTFUPx1j.woff2') format('woff2');
+            font-weight: bold;
+            font-style: normal;
+          }
+          @font-face {
+            font-family: 'Literata';
+            src: url('https://fonts.gstatic.com/s/literata/v30/or3NQ6P12-iJxAIgLYT1PLs1Zd0nfUwAbeGVKoRYzNiCp1OUedn8f7XWSUKTt8iVow.woff2') format('woff2');
+            font-weight: normal;
+            font-style: italic;
+          }
           body {
-            background-color: #121212;
-            color: #e0e0e0;
+            font-family: 'Literata', serif;
+            font-size: 18px;
+            line-height: 1.8;
+            padding: 20px;
+            color: #333;
+            margin: 0;
+            -webkit-text-size-adjust: 100%;
+            overflow-wrap: break-word;
           }
+          h1, h2, h3, h4, h5, h6 {
+            font-family: 'Literata', serif;
+            font-weight: 700;
+            line-height: 1.3;
+          }
+          p {
+            margin-bottom: 1em;
+          }
+          img { max-width: 100%; height: auto; }
           .text-highlight {
-            background-color: rgba(255, 255, 0, 0.25);
+            background-color: rgba(255, 255, 0, 0.4);
+            border-radius: 3px;
+            padding: 0 2px;
+            margin: 0 -2px;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            cursor: pointer;
+            position: relative;
           }
-        }
-      \`;
-      document.head.appendChild(style);
-      
-      // Add viewport meta tag for proper mobile rendering
-  const meta = document.createElement('meta');
-  meta.setAttribute('name', 'viewport');
-  meta.setAttribute('content', 'width=device-width, initial-scale=1.0');
-  document.head.appendChild(meta);
-
-  // Reset default margins
-  document.documentElement.style.margin = 0;
-  document.documentElement.style.padding = 0;
-  document.body.style.margin = 0;
-  document.body.style.padding = 0;
-
-      // Tracking selection
-      document.addEventListener('selectionchange', function() {
-        const selection = window.getSelection();
-        const selectedText = selection.toString();
-        if (selectedText) {
-          const range = selection.getRangeAt(0);
-          const rect = range.getBoundingClientRect();
-          window.ReactNativeWebView.postMessage(JSON.stringify({
-            type: 'selection',
-            text: selectedText,
-            position: {
-              top: rect.top,
-              left: rect.left,
-              width: rect.width,
-              height: rect.height
+          .text-highlight:active {
+            opacity: 0.8;
+          }
+          @media (prefers-color-scheme: dark) {
+            body {
+              background-color: #121212;
+              color: #e0e0e0;
             }
-          }));
-        } else {
-          window.ReactNativeWebView.postMessage(JSON.stringify({
-            type: 'selection-cleared'
-          }));
-        }
-      });
-
+            .text-highlight {
+              background-color: rgba(255, 255, 0, 0.25);
+            }
+          }
+        \`;
+        document.head.appendChild(style);
+      
+        // Add viewport meta tag for proper mobile rendering
+        const meta = document.createElement('meta');
+        meta.setAttribute('name', 'viewport');
+        meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0');
+        document.head.appendChild(meta);
+      
+        // Reset default margins
+        document.documentElement.style.margin = '0';
+        document.documentElement.style.padding = '0';
+        document.body.style.margin = '0';
+        document.body.style.padding = '0';
+      }
+      
+      // Only setup event listeners once
+      if (!window.highlightSelectionInitialized) {
+        window.highlightSelectionInitialized = true;
+      
+        // Tracking selection
+        document.addEventListener('selectionchange', function() {
+          const selection = window.getSelection();
+          const selectedText = selection.toString();
+          if (selectedText) {
+            const range = selection.getRangeAt(0);
+            const rect = range.getBoundingClientRect();
+            window.ReactNativeWebView.postMessage(JSON.stringify({
+              type: 'selection',
+              text: selectedText,
+              position: {
+                top: rect.top,
+                left: rect.left,
+                width: rect.width,
+                height: rect.height
+              }
+            }));
+          } else {
+            window.ReactNativeWebView.postMessage(JSON.stringify({
+              type: 'selection-cleared'
+            }));
+          }
+        });
+      
+        // Add event listener for clicking on highlights
+        document.body.addEventListener('click', function(e) {
+          // Only prevent default if clicking on a highlight
+          if (e.target.className === 'text-highlight') {
+            e.preventDefault(); // avoid unwanted bubbling only for highlights
+            window.ReactNativeWebView.postMessage(JSON.stringify({
+              type: 'highlight-clicked',
+              id: e.target.id,
+              text: e.target.textContent
+            }));
+          }
+        });
+      }
+      
       // Function to highlight text
       window.highlightSelection = function(color) {
         const selection = window.getSelection();
@@ -218,112 +247,87 @@ const HTMLViewer: React.FC<HTMLViewerProps> = ({
         }));
       };
 
-      // Add event listener for clicking on highlights
-      document.body.addEventListener('click', function(e) {
-      e.preventDefault(); // avoid unwanted bubbling
-        if (e.target.className === 'text-highlight') {
-          window.ReactNativeWebView.postMessage(JSON.stringify({
-            type: 'highlight-clicked',
-            id: e.target.id,
-            text: e.target.textContent
-          }));
-        }
-      });
-
-      // Add accessibility to all highlights
+      // Set accessibility for highlights
       const setHighlightAccessibility = function() {
         const highlights = document.querySelectorAll('.text-highlight');
         highlights.forEach(highlight => {
-          highlight.setAttribute('role', 'mark');
-          highlight.setAttribute('aria-label', 'Highlighted text: ' + highlight.textContent);
+          if (!highlight.hasAttribute('role')) {
+            highlight.setAttribute('role', 'mark');
+            highlight.setAttribute('aria-label', 'Highlighted text: ' + highlight.textContent);
+          }
         });
       };
       
       // Call initially and when content changes
       setHighlightAccessibility();
-      const observer = new MutationObserver(setHighlightAccessibility);
-      observer.observe(document.body, { childList: true, subtree: true });
-
-  function getActualHeight() {
-    // Use documentElement instead of body for better measurement
-    return Math.min(
-      document.documentElement.scrollHeight,
-      document.documentElement.offsetHeight
-    );
-  }
-
-  function updateHeight() {
-    const height = getActualHeight();
-    window.ReactNativeWebView.postMessage(JSON.stringify({
-      type: 'contentHeight',
-      height: height
-    }));
-  }
-
-  // Throttle height updates
-  let updatePending = false;
-  const throttledUpdate = () => {
-    if (!updatePending) {
-      updatePending = true;
-      requestAnimationFrame(() => {
-        updateHeight();
-        updatePending = false;
-      });
-    }
-  };
-
-  // Initial setup
-  updateHeight();
-  
-  // Setup observers
-  new ResizeObserver(throttledUpdate).observe(document.body);
-  new MutationObserver(throttledUpdate).observe(document.body, {
-    childList: true,
-    subtree: true,
-    attributes: true,
-    characterData: true
-  });
-
-  // Final verification
-  setTimeout(updateHeight, 500);
-  setTimeout(updateHeight, 1000);
       
-    true;
+      // Only set up observers once
+      if (!window.highlightObserverInitialized) {
+        window.highlightObserverInitialized = true;
+        
+        // Observer for accessibility
+        const observer = new MutationObserver(setHighlightAccessibility);
+        observer.observe(document.body, { childList: true, subtree: true });
+        
+        // Height management with improved performance
+        function getActualHeight() {
+          return document.documentElement.scrollHeight;
+        }
+      
+        // Use ResizeObserver with throttling for more efficient height tracking
+        let resizeTimeout = null;
+        const heightObserver = new ResizeObserver(() => {
+          if (resizeTimeout) clearTimeout(resizeTimeout);
+          resizeTimeout = setTimeout(() => {
+            const height = getActualHeight();
+            window.ReactNativeWebView.postMessage(JSON.stringify({
+              type: 'contentHeight',
+              height: height
+            }));
+          }, 100); // 100ms throttle
+        });
+        
+        heightObserver.observe(document.documentElement);
+        
+        // Initial height measurement
+        setTimeout(() => {
+          const height = getActualHeight();
+          window.ReactNativeWebView.postMessage(JSON.stringify({
+            type: 'contentHeight',
+            height: height
+          }));
+        }, 300);
+      }
+    
+    return true;
     })();
-  `;
+  `, []);
+
+  // Define menu items outside the render to prevent re-creation
+  const menuItems = useMemo(() => [
+    { label: "Highlight", key: "highlight" },
+    { label: "Copy", key: "copy" },
+    { label: "Select All", key: "selectAll" },
+    { label: "Share", key: "share" },
+    { label: "Remove Highlight", key: "removeHighlight" },
+  ], []);
 
   // Handle messages from WebView
   const handleMessage = useCallback(
-    (event: {
-      nativeEvent: {
-        data: string;
-      };
-    }) => {
+    (event: { nativeEvent: { data: string } }) => {
       try {
-        const data: { type: string; text: string; id: any; color: string; height: number } =
-          JSON.parse(event.nativeEvent.data);
-
-        console.log("Received message from WebView: height", data.type);
+        const data = JSON.parse(event.nativeEvent.data);
 
         switch (data.type) {
-          case "resize":
-            // Apply reasonable minimum and maximum
-            const height = Math.max(100, Math.min(10000, data.height));
-            console.log("Setting WebView height to:", height, data.height);
-            setWebViewHeight(height);
-            break;
-
           case "contentHeight":
-            console.log("WebView height changed:1", data.height);
-            if (Math.abs(data.height - webViewHeight) > 5) {
-              console.log("WebView height changed:2", data.height);
-              setWebViewHeight(data.height);
-            }
+            // Use requestAnimationFrame to batch height updates
+            requestAnimationFrame(() => {
+              debouncedSetHeight(data.height);
+            });
             break;
-
+            
           case "selection":
             setSelectedText(data.text);
-            // setShowToolbar(true);
             if (onSelectionChange) {
               onSelectionChange(data.text);
             }
@@ -331,7 +335,6 @@ const HTMLViewer: React.FC<HTMLViewerProps> = ({
 
           case "selection-cleared":
             setSelectedText("");
-            // setShowToolbar(false);
             break;
 
           case "highlight-added":
@@ -354,67 +357,51 @@ const HTMLViewer: React.FC<HTMLViewerProps> = ({
             break;
 
           case "highlight-clicked":
-            // setShowToolbar(true);
+            // setSelectedHighlightId(data.id);
             break;
         }
       } catch (error) {
         console.error("Error handling WebView message:", error);
       }
     },
-    [onHighlightAdded, onHighlightRemoved, onSelectionChange, webViewHeight],
+    [debouncedSetHeight, onHighlightAdded, onHighlightRemoved, onSelectionChange]
   );
 
-  // Add highlight with specified color
+  // Memoize WebView actions to prevent recreation on render
   const addHighlight = useCallback(
     (color = "#FFFF00") => {
-      if (!selectedText) return;
+      if (!selectedText || !webViewRef.current) return;
 
-      webViewRef.current?.injectJavaScript(`
-      window.highlightSelection('${color}');
-      window.getSelection().removeAllRanges();
-      true;
-    `);
-
-      // setShowToolbar(false);
+      webViewRef.current.injectJavaScript(`
+        window.highlightSelection('${color}');
+        window.getSelection().removeAllRanges();
+        true;
+      `);
     },
-    [selectedText],
+    [selectedText]
   );
 
-  // Remove highlight by ID
   const removeHighlight = useCallback((highlightId: string) => {
-    console.log("Removing highlight:", highlightId);
-    webViewRef.current?.injectJavaScript(`
+    if (!webViewRef.current) return;
+    
+    webViewRef.current.injectJavaScript(`
       window.removeHighlight('${highlightId}');
       true;
     `);
     setSelectedHighlightId(null);
-    // setShowToolbar(false);
   }, []);
 
-  // Select all text
   const selectAll = useCallback(() => {
-    webViewRef.current?.injectJavaScript(`
+    if (!webViewRef.current) return;
+    
+    webViewRef.current.injectJavaScript(`
       window.selectAllText();
       true;
     `);
   }, []);
 
-  // Custom WebView with enhanced menu items
-  const menuItems = [
-    { label: "Highlight", key: "highlight" },
-    { label: "Copy", key: "copy" },
-    { label: "Select All", key: "selectAll" },
-    { label: "Share", key: "share" },
-    { label: "Remove Highlight", key: "removeHighlight" },
-  ];
-
   const handleCustomMenuSelection = useCallback(
-    (event: {
-      nativeEvent: {
-        key: string;
-        selectedText: string;
-      };
-    }) => {
+    (event: { nativeEvent: { key: string; selectedText: string } }) => {
       const { key, selectedText } = event.nativeEvent;
 
       switch (key) {
@@ -423,21 +410,19 @@ const HTMLViewer: React.FC<HTMLViewerProps> = ({
           break;
         case "copy":
           Clipboard.setStringAsync(selectedText);
-          // setShowToolbar(false);
           break;
         case "selectAll":
           selectAll();
           break;
         case "share":
-          onShare && onShare(selectedText);
+          if (onShare) onShare(selectedText);
           break;
         case "removeHighlight":
           if (selectedHighlightId) {
             removeHighlight(selectedHighlightId);
-            setSelectedHighlightId(null);
-          } else {
-            // fallback: try removing based on selection (if it's a highlight)
-            webViewRef.current?.injectJavaScript(`
+          } else if (webViewRef.current) {
+            // Try removing based on selection
+            webViewRef.current.injectJavaScript(`
               (function() {
                 const sel = window.getSelection();
                 if (!sel.rangeCount) return;
@@ -445,30 +430,44 @@ const HTMLViewer: React.FC<HTMLViewerProps> = ({
                 const ancestor = range.commonAncestorContainer;
                 const highlightEl = ancestor.nodeType === 1 ? ancestor : ancestor.parentElement;
                 if (highlightEl && highlightEl.classList.contains('text-highlight')) {
-                  const id = highlightEl.id;
-                  window.removeHighlight(id);
+                  window.removeHighlight(highlightEl.id);
                 }
+                return true;
               })();
-              true;
             `);
           }
           break;
       }
     },
-    [addHighlight, selectAll, onShare, selectedHighlightId, removeHighlight],
+    [addHighlight, selectAll, onShare, selectedHighlightId, removeHighlight]
   );
 
+  // Use a style object that doesn't change on re-renders
+  const containerStyle = useMemo(() => 
+    [styles.container, { height: webViewHeight }], 
+    [webViewHeight]
+  );
+  
+  // Combine user style with base webview style
+  const webViewStyle = useMemo(() => 
+    [styles.webview, style], 
+    [style]
+  );
+
+  // WebView source object created once to prevent re-renders
+  const source = useMemo(() => ({
+    html: html,
+    baseUrl: baseUrl || "about:blank",
+  }), [html, baseUrl]);
+
   return (
-    <ThemeView style={[styles.container, { height: webViewHeight > 0 ? webViewHeight : 300 }]}>
+    <ThemeView style={containerStyle}>
       <WebView
         ref={webViewRef}
         originWhitelist={["*"]}
-        source={{
-          html: html,
-          baseUrl: baseUrl || "about:blank",
-        }}
-        style={[styles.webview, style]}
-        injectedJavaScript={getInjectedJavaScript()}
+        source={source}
+        style={webViewStyle}
+        injectedJavaScript={injectedJavaScript}
         onMessage={handleMessage}
         menuItems={menuItems}
         onCustomMenuSelection={handleCustomMenuSelection}
@@ -480,49 +479,22 @@ const HTMLViewer: React.FC<HTMLViewerProps> = ({
         overScrollMode="never"
         scrollEnabled={false}
         nestedScrollEnabled={false}
+        cacheEnabled={true}
+        cacheMode="LOAD_DEFAULT"
+        domStorageEnabled={true}
       />
     </ThemeView>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     width: "100%",
-    height: 1000,
+    overflow: "hidden",
   },
   webview: {
     flexGrow: 1,
-  },
-  toolbar: {
-    flexDirection: "row",
-    backgroundColor: "#FAFAFA",
-    borderTopWidth: 1,
-    borderTopColor: "#E0E0E0",
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-    justifyContent: "space-around",
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
-  },
-  toolbarButton: {
-    alignItems: "center",
-    padding: 8,
-    borderRadius: 8,
-  },
-  toolbarText: {
-    fontSize: 12,
-    marginTop: 4,
-    fontWeight: "500",
   },
 });
 
