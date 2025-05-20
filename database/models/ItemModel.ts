@@ -1,4 +1,4 @@
-import { Model, Query } from "@nozbe/watermelondb";
+import { Model, Query, Relation } from "@nozbe/watermelondb";
 import {
   field,
   date,
@@ -10,14 +10,15 @@ import {
 } from "@nozbe/watermelondb/decorators";
 import ItemTag from "./ItemTagModel";
 import Tag from "./TagModel";
+import ItemContent from "./ItemContentModel";
 import { Q } from "@nozbe/watermelondb";
-import { Relation } from "@nozbe/watermelondb";
 
 export default class Item extends Model {
   static table = "items";
 
   static associations = {
     item_tags: { type: "has_many" as const, foreignKey: "item_id" },
+    item_contents: { type: "has_many" as const, foreignKey: "item_id" },
   };
 
   // Fields
@@ -25,13 +26,16 @@ export default class Item extends Model {
   @readonly @text("canonical_url") canonicalUrl?: string | null;
   @readonly @text("domain") domain?: string | null;
   @readonly @text("title") title?: string | null;
-  @readonly @text("description") description?: string | null;
   @readonly @text("site_name") siteName?: string | null;
   @readonly @text("image_url") imageUrl?: string | null;
   @readonly @text("image_thumb_hash") imageThumbHash?: string | null;
   @readonly @date("published_at") publishedAt?: Date | null;
   @readonly @field("word_count") wordCount?: number | null;
-  @readonly @text("content") content?: string | null;
+  @readonly @text("content_hash") contentHash?: string | null;
+  @readonly @text("kind") kind?: string | null;
+  @readonly @text("custom_title") customTitle?: string | null;
+  @readonly @text("category") category?: string | null;
+  @readonly @field("clickbait") clickbait?: boolean | null;
   @field("archived") archived!: boolean;
   @field("favorite") favorite!: boolean;
   @field("progress") progress!: number;
@@ -45,6 +49,7 @@ export default class Item extends Model {
 
   // Relationships
   @children("item_tags") itemTags!: Query<ItemTag>;
+  @children("item_contents") itemContentQuery!: Query<ItemContent>;
 
   // Lazy loaded tags
   @lazy

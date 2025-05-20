@@ -24,6 +24,7 @@ import { useTheme, useDarkMode } from "@/theme/hooks";
 import { withObservables } from "@nozbe/watermelondb/react";
 import { useDatabase } from "@/database/provider/DatabaseProvider";
 import Item from "@/database/models/ItemModel";
+import ItemContent from "@/database/models/ItemContentModel";
 import RecommendedItems from "@/components/item/RecommendedItems";
 import { withRecommendedItems } from "@/database/hooks/withRecommendedItems";
 import { SvgIcon } from "@/components/SvgIcon";
@@ -31,6 +32,8 @@ import { ActionMenuPosition } from "@/components/shared/menu/ReusableActionMenu"
 import ReaderActionMenu from "@/components/shared/menu/ReaderActionMenu";
 import { useTranslation } from "react-i18next";
 import HTMLViewer from "@/components/HTMLviewer";
+import { map, switchMap } from "rxjs/operators";
+import { of as observableOf } from "rxjs";
 
 interface Highlight {
   id: string;
@@ -44,8 +47,8 @@ interface Highlight {
   color?: string;
 }
 
-// Base component that receives the item as a prop
-const ReaderComponent = ({ item }: { item: Item }) => {
+// Base component that receives the item and its content as props
+const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent | null }) => {
   const router = useRouter();
   const theme = useTheme();
   const isDarkMode = useDarkMode();
@@ -136,8 +139,8 @@ const ReaderComponent = ({ item }: { item: Item }) => {
 
   // Process markdown content
   const processedContent = useMemo(() => {
-    return marked.parse(item.content ?? "") as string;
-  }, [item.content]);
+    return marked.parse(content?.content ?? "") as string;
+  }, [content?.content]);
 
   // Handle navigation back
   const handleBack = async () => {
@@ -480,9 +483,24 @@ export default function ReaderScreen() {
     return null;
   }
 
-  const EnhancedReader = withObservables(["id"], ({ id }: { id: string }) => ({
-    item: database.collections.get<Item>("items").findAndObserve(id),
-  }))(ReaderComponent);
+  const EnhancedReader = withObservables(["id"], ({ id }: { id: string }) => {
+    const item$ = database.collections.get<Item>("items").findAndObserve(id);
+    return {
+      item: item$,
+      content: item$.pipe(
+        switchMap((item) => {
+          if (!item) {
+            // This case should ideally not happen if findAndObserve throws or resolves for a valid id
+            return observableOf(null);
+          }
+          // item.itemContentQuery is Query<ItemContent>
+          // item.itemContentQuery.observe() is Observable<ItemContent[]>
+          return item.itemContentQuery.observe();
+        }),
+        map((contents) => (contents && contents.length > 0 ? contents[0] : null)),
+      ),
+    };
+  })(ReaderComponent);
 
   return <EnhancedReader id={id} />;
 }

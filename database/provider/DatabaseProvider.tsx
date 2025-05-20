@@ -5,7 +5,7 @@ import { syncEngine } from "../sync/SyncEngine";
 import database from "../database";
 
 // Set the database instance in the sync engine
-syncEngine.database = database;
+syncEngine.setDatabase(database);
 
 // Automatically sync changes from the database
 syncEngine.watchForChanges();
