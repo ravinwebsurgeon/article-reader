@@ -19,7 +19,7 @@ export const fontFamily = {
     semiBoldItalic: "Literata-SemiBoldItalic",
     bold: "Literata-Bold",
     boldItalic: "Literata-BoldItalic",
-    extraBold: "Literata-ExtraBold",
+    extraBold: "Literata_60pt-ExtraBold",
     extraBoldItalic: "Literata-ExtraBoldItalic",
   },
 };
