@@ -95,8 +95,12 @@ export default class Item extends Model {
   @writer async addTag(tag: Tag) {
     const itemTagsCollection = this.collections.get<ItemTag>("item_tags");
     await itemTagsCollection.create((itemTag) => {
-      itemTag.item.set(this);
-      itemTag.tag.set(tag);
+      if (itemTag.item) {
+        itemTag.item.set(this);
+      }
+      if (itemTag.tag) {
+        itemTag.tag.set(tag);
+      }
     });
   }
 
@@ -112,6 +116,7 @@ export default class Item extends Model {
   }
 
   @writer async removeAllTags() {
+    if (!this.itemTags) return;
     const itemTags = await this.itemTags.fetch();
     await Promise.all(itemTags.map((tag) => tag.markAsDeleted()));
   }

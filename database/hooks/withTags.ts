@@ -148,23 +148,22 @@ export const withItemTags = () => {
       return { itemTags: of$([] as Tag[]) };
     }
 
-    const selectedTagsObservable = item.itemTags.observe().pipe(
-      switchMap((itemTagModels: ItemTag[]) => {
-        if (!itemTagModels || itemTagModels.length === 0) {
-          return of$([] as Tag[]); // Emit empty array of Tags
-        }
-        // Create an array of observables, one for each tag
-        const tagObservables = itemTagModels.map((itemTag) =>
-          // Ensure itemTag.tag is treated as an observable relation
-          // If itemTag.tag is a direct model, observe it. If it's a relation, observe the relation.
-          // Assuming 'tag' is a relation defined with @relation
-          itemTag.tag.observe(),
-        );
-        // Combine them: emits an array of Tags when all tagObservables have emitted
-        return tagObservables.length > 0 ? combineLatest(tagObservables) : of$([] as Tag[]);
-      }),
-      map((tags) => tags.filter((tag) => !!tag) as Tag[]), // Ensure tags are truthy, changed from tag !== null
-    );
+    const selectedTagsObservable = item.itemTags
+      ? item.itemTags.observe().pipe(
+          switchMap((itemTagModels: ItemTag[]) => {
+            if (!itemTagModels || itemTagModels.length === 0) {
+              return of$([] as Tag[]); // Emit empty array of Tags
+            }
+            // Create an array of observables, one for each tag
+            const tagObservables = itemTagModels
+              .map((itemTag) => (itemTag.tag ? itemTag.tag.observe() : undefined))
+              .filter((obs): obs is Observable<Tag> => obs !== undefined);
+            // Combine them: emits an array of Tags when all tagObservables have emitted
+            return tagObservables.length > 0 ? combineLatest(tagObservables) : of$([] as Tag[]);
+          }),
+          map((tags) => tags.filter((tag) => !!tag) as Tag[]), // Ensure tags are truthy, changed from tag !== null
+        )
+      : of$([] as Tag[]);
 
     return {
       itemTags: selectedTagsObservable,
