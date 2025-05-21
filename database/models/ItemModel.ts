@@ -22,10 +22,12 @@ export default class Item extends Model {
   };
 
   // Fields
-  @text("url") url!: string;
+  @text("url") url?: string;
   @readonly @text("canonical_url") canonicalUrl?: string | null;
   @readonly @text("domain") domain?: string | null;
   @readonly @text("title") title?: string | null;
+  @readonly @text("author") author?: string | null;
+  @readonly @text("dek") dek?: string | null;
   @readonly @text("site_name") siteName?: string | null;
   @readonly @text("image_url") imageUrl?: string | null;
   @readonly @text("image_thumb_hash") imageThumbHash?: string | null;
@@ -36,20 +38,20 @@ export default class Item extends Model {
   @readonly @text("custom_title") customTitle?: string | null;
   @readonly @text("category") category?: string | null;
   @readonly @field("clickbait") clickbait?: boolean | null;
-  @field("archived") archived!: boolean;
-  @field("favorite") favorite!: boolean;
-  @field("progress") progress!: number;
-  @field("viewed") viewed!: boolean;
+  @field("archived") archived?: boolean;
+  @field("favorite") favorite?: boolean;
+  @field("progress") progress?: number;
+  @field("viewed") viewed?: boolean;
   @text("notes") notes?: string | null;
 
   // Timestamps
-  @readonly @date("created_at") createdAt!: Date;
-  @readonly @date("updated_at") updatedAt!: Date;
-  @date("saved_at") savedAt!: Date;
+  @readonly @date("created_at") createdAt?: Date;
+  @readonly @date("updated_at") updatedAt?: Date;
+  @date("saved_at") savedAt?: Date;
 
   // Relationships
-  @children("item_tags") itemTags!: Query<ItemTag>;
-  @children("item_contents") itemContentQuery!: Query<ItemContent>;
+  @children("item_tags") itemTags?: Query<ItemTag>;
+  @children("item_contents") itemContentQuery?: Query<ItemContent>;
 
   // Lazy loaded tags
   @lazy

@@ -1,6 +1,5 @@
 import "react-native-get-random-values";
 import { Database } from "@nozbe/watermelondb";
-import SQLiteAdapter from "@nozbe/watermelondb/adapters/sqlite";
 import migrations from "./migration/index";
 import schema from "./schemas/schema";
 import Item from "./models/ItemModel";
@@ -10,14 +9,18 @@ import ItemContent from "./models/ItemContentModel";
 import { setGenerator } from "@nozbe/watermelondb/utils/common/randomId";
 import { ulid } from "ulid";
 
-// Use ULID for database IDs
+import LokiJSAdapter from "@nozbe/watermelondb/adapters/lokijs";
+
 setGenerator(() => ulid());
 
-// Initialize the database
-const adapter = new SQLiteAdapter({
+const adapter = new LokiJSAdapter({
   schema,
   migrations,
-  jsi: true, // Enable JSI for better performance (optional)
+  useWebWorker: false,
+  useIncrementalIndexedDB: true,
+  onQuotaExceededError: (error) => {
+    console.error("Quota exceeded:", error);
+  },
   onSetUpError: (error) => {
     console.error("Database setup error:", error);
   },
