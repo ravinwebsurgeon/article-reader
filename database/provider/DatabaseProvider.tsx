@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useAppSelector } from "@/redux/hook";
 import { selectAuthToken } from "@/redux/utils";
 import { syncEngine } from "../sync/SyncEngine";
-import database from "../database";
+import database from "@/database";
 
 // Set the database instance in the sync engine
 syncEngine.setDatabase(database);
