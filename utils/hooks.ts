@@ -1,8 +1,7 @@
-import { useState, useEffect, useRef } from "react";
-import { Keyboard, AppState } from "react-native";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Keyboard, AppState, View } from "react-native";
 import NetInfo from "@react-native-community/netinfo";
-import { useCallback } from "react";
-import { View } from "react-native";
+
 import { ActionMenuItem, ActionMenuPosition } from "@/components/shared/menu/ReusableActionMenu";
 
 /**

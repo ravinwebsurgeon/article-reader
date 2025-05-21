@@ -35,7 +35,6 @@ import HTMLViewer from "@/components/HTMLviewer";
 import { map, switchMap } from "rxjs/operators";
 import { of as observableOf } from "rxjs";
 import { Image } from "expo-image";
-import { typography } from "@/theme";
 import Svg, { Path } from "react-native-svg";
 
 interface Highlight {
@@ -74,7 +73,7 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [selectedText, setSelectedText] = useState<string>("");
 
-  // console.log("Selected text:", selectedText, "Highlights:", highlights);
+  console.log("Selected text:", selectedText, "Highlights:", highlights);
 
   // Handle highlight added
   const handleHighlightAdded = (id: any, text: string, color: string) => {
@@ -269,7 +268,7 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
     }
   };
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string | number | Date) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       year: "numeric",

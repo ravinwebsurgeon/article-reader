@@ -42,15 +42,6 @@ export type { UseThemeColorProps } from "./hooks";
 // Export theme tokens for direct access if needed
 export * from "./tokens";
 
-// Export individual core components for convenience
-export {
-  typography,
-  createTextStyle,
-  createLiterataStyle,
-  getInterStyle,
-  getLiterataStyle,
-} from "./tokens/typography";
-
 /**
  * Usage Guide
  *
