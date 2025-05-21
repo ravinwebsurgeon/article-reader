@@ -16,7 +16,6 @@ import { ThemeProvider } from "@/theme";
 import { DatabaseProvider, useDatabase } from "@/database/provider/DatabaseProvider";
 import { NetworkProvider } from "@/provider/NetworkProvider";
 import "@/i18n"; // Import i18n configuration
-import { Text } from "react-native";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -150,7 +149,7 @@ export default function RootLayout() {
   return (
     <ReduxProvider>
       <DatabaseProvider>
-        <NetworkProvider>          
+        <NetworkProvider>
           <AppContent />
         </NetworkProvider>
       </DatabaseProvider>

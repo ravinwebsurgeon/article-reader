@@ -7,7 +7,6 @@ import { ItemFilter } from "@/types/item";
 import { SortOption } from "@/components/shared/menu/SortMenu";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ItemsFlatList from "@/components/item/ItemsFlatList";
-import { Alert } from "react-native";
 
 const ItemsListWithInitialSync = ({
   filter,

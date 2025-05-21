@@ -1,4 +1,4 @@
-import { Model, Query, Relation } from "@nozbe/watermelondb";
+import { Model, Query, Q } from "@nozbe/watermelondb";
 import {
   field,
   date,
@@ -11,7 +11,6 @@ import {
 import ItemTag from "./ItemTagModel";
 import Tag from "./TagModel";
 import ItemContent from "./ItemContentModel";
-import { Q } from "@nozbe/watermelondb";
 
 export default class Item extends Model {
   static table = "items";
