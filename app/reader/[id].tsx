@@ -167,7 +167,7 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
     if (progress !== item.progress) {
       console.log("Saving progress:", progress);
       await item
-        .setProgress(progress)
+        .setProgress(progress as number)
         .catch((error) => console.error("Error saving progress:", error));
     }
     router.back();
@@ -193,7 +193,7 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
       );
 
       // Only update if significant change (avoid too many database operations)
-      if (Math.abs(newProgress - progress) > 0.01) {
+      if (Math.abs(newProgress - (progress ?? 0)) > 0.01) {
         setProgress(newProgress);
       }
     }
@@ -425,7 +425,7 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
               onHighlightRemoved={handleHighlightRemoved}
               onSelectionChange={handleSelectionChange}
               onShare={handleShareSelectedText}
-              onScroll={handleScroll}
+              // onScroll={handleScroll}
               onContentSizeChange={(width, height) => {
                 setContentHeight(height);
               }}
@@ -605,7 +605,7 @@ export default function ReaderScreen() {
           }
           // item.itemContentQuery is Query<ItemContent>
           // item.itemContentQuery.observe() is Observable<ItemContent[]>
-          return item.itemContentQuery.observe();
+          return item.itemContentQuery ? item.itemContentQuery.observe() : observableOf([]);
         }),
         map((contents) => (contents && contents.length > 0 ? contents[0] : null)),
       ),

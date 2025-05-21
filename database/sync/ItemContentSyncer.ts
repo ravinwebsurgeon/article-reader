@@ -176,7 +176,9 @@ export default class ItemContentSyncer {
                 // Create new content
                 operations.push(
                   this.database!.get<ItemContent>("item_contents").prepareCreate((newContent) => {
-                    newContent.item.set(item);
+                    if (newContent.item) {
+                      newContent.item.set(item);
+                    }
                     newContent.content = content;
                     newContent.contentHash = serverContentHash;
                     newContent.takeaways = takeaways;
