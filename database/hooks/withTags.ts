@@ -1,13 +1,11 @@
 import { Q } from "@nozbe/watermelondb";
 import { withObservables } from "@nozbe/watermelondb/react";
 import { switchMap, map } from "rxjs/operators";
-import { combineLatest, of as of$ } from "rxjs";
+import { combineLatest, of as of$, Observable } from "rxjs";
 import Tag from "../models/TagModel";
 import Item from "../models/ItemModel";
 import ItemTag from "../models/ItemTagModel";
 import database from "@/database";
-import { Observable } from "rxjs";
-import { Relation } from "@nozbe/watermelondb";
 
 /**
  * Access to the tags collection in the WatermelonDB database
@@ -87,9 +85,9 @@ interface WithAllTagsOptions {
   sortDirection?: "asc" | "desc";
 }
 
-interface WithAllTagsProps {
-  allTags: Tag[];
-}
+// interface WithAllTagsProps {
+//   allTags: Tag[];
+// }
 
 /**
  * HOC that provides a reactive list of all tags.
@@ -129,9 +127,9 @@ interface WithItemTagsOuterProps {
   item: Item;
 }
 
-interface WithItemTagsInnerProps {
-  itemTags: Tag[];
-}
+// interface WithItemTagsInnerProps {
+//   itemTags: Tag[];
+// }
 
 /**
  * HOC that provides a reactive list of tags associated with a specific item.
