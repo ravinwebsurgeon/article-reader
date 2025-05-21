@@ -17,7 +17,7 @@ import Item from "@/database/models/ItemModel";
 import ItemTag from "@/database/models/ItemTagModel";
 import { SvgIcon } from "@/components/SvgIcon";
 import { TagBadge, TagList } from "@/components/shared/tag";
-import database from "@/database/database";
+
 import { useTranslation } from "react-i18next";
 import { withObservables } from "@nozbe/watermelondb/react";
 import { Q } from "@nozbe/watermelondb";
@@ -33,6 +33,7 @@ import {
   useRouter, // For route params and navigation
 } from "expo-router";
 import { useDatabase } from "@/database/provider/DatabaseProvider"; // To get database instance
+import database from "@/database";
 
 // Props for the core editing component (previously EditTagInner)
 interface EditTagsViewProps {

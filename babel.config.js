@@ -5,8 +5,14 @@ module.exports = function (api) {
     plugins: [
       ["@babel/plugin-proposal-decorators", { legacy: true }],
       ["react-native-reanimated/plugin"],
-      // ["@babel/plugin-proposal-class-properties", { loose: true }],
-      // ["@babel/plugin-transform-runtime"],
+      ["@babel/plugin-proposal-class-properties", { loose: true }],
+      [
+        "@babel/plugin-transform-runtime",
+        {
+          helpers: true,
+          regenerator: true,
+        },
+      ],
     ],
   };
 };

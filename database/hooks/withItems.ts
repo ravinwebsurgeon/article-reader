@@ -2,7 +2,7 @@ import { Q } from "@nozbe/watermelondb";
 import { withObservables } from "@nozbe/watermelondb/react";
 import { map } from "rxjs/operators";
 import Item from "../models/ItemModel";
-import database from "../database";
+import database from "@/database";
 import { ItemFilter } from "@/types/item";
 import { SortOption } from "@/components/shared/menu/SortMenu";
 
