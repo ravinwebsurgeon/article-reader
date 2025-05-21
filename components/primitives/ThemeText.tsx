@@ -68,7 +68,7 @@ export const ThemeText: React.FC<ThemeTextProps> = ({
   // Get font style based on variant
   const getVariantStyle = () => {
     if (variant.startsWith("reader.")) {
-      const readerKey = variant.substring("reader.".length) as keyof typeof theme.typography.reader;    
+      const readerKey = variant.substring("reader.".length) as keyof typeof theme.typography.reader;
       const readerStyle = theme.typography.reader[readerKey];
 
       return readerStyle || theme.typography.body1;

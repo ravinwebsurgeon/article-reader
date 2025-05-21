@@ -7,7 +7,6 @@ import {
   RefreshTokenRequest,
 } from "../../types/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { syncEngine } from "@/database/sync/SyncEngine";
 
 // Auth API endpoints
 export const authApi = api.injectEndpoints({
