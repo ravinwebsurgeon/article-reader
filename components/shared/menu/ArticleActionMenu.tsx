@@ -47,7 +47,7 @@ const ArticleActionMenu: React.FC<ArticleActionMenuProps> = ({
       const url = item.url;
 
       await Share.share({
-        message: url,
+        message: url as string,
         title: title,
         url: url,
       });

@@ -30,7 +30,7 @@ export function useAuth() {
       if (token) {
         // In a real app, validate the token with your backend
         const userData = await AsyncStorage.getItem("user_data");
-        setUser(userData ? JSON.parse(userData) : null);
+        setUser(userData ? (JSON.parse(userData) as User) : null);
         setIsAuthenticated(true);
       } else {
         setIsAuthenticated(false);
@@ -127,10 +127,10 @@ export function useAuth() {
       });
       const resultData = await response.json();
       if (!response.ok) {
-        throw new Error(resultData.errors || "Something went wrong");
+        throw new Error(String(resultData.errors ?? "Something went wrong"));
       }
       return resultData;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
       return error;
     }

@@ -42,7 +42,7 @@ const FONTS = {
   "Literata-SemiBoldItalic": require("../assets/fonts/Literata/Literata-SemiBoldItalic.ttf"),
   "Literata-Bold": require("../assets/fonts/Literata/Literata-Bold.ttf"),
   "Literata-BoldItalic": require("../assets/fonts/Literata/Literata-BoldItalic.ttf"),
-  "Literata-ExtraBold": require("../assets/fonts/Literata/Literata-ExtraBold.ttf"),
+  "Literata-ExtraBold": require("../assets/fonts/Literata/Literata_60pt-ExtraBold.ttf"),
   "Literata-ExtraBoldItalic": require("../assets/fonts/Literata/Literata-ExtraBoldItalic.ttf"),
 };
 
@@ -86,6 +86,7 @@ function AppContent() {
   const [fontsLoaded] = useFonts(FONTS);
 
   useEffect(() => {
+    console.log("fontsLoaded", fontsLoaded);
     if (fontsLoaded && isDatabaseReady) {
       SplashScreen.hideAsync();
     }

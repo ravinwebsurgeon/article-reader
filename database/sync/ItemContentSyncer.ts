@@ -161,11 +161,14 @@ export default class ItemContentSyncer {
                   author,
                 } = JSON.parse(line);
 
-                const item = itemMap.get(id);
+                const item = itemMap.get(id as string);
                 if (!item) continue;
 
                 // Find and mark existing content as deleted
-                const existingContents = await item.itemContentQuery.fetch();
+                let existingContents: ItemContent[] = [];
+                if (item.itemContentQuery) {
+                  existingContents = await item.itemContentQuery.fetch();
+                }
                 existingContents.forEach((content) =>
                   operations.push(content.prepareMarkAsDeleted()),
                 );
@@ -173,7 +176,9 @@ export default class ItemContentSyncer {
                 // Create new content
                 operations.push(
                   this.database!.get<ItemContent>("item_contents").prepareCreate((newContent) => {
-                    newContent.item.set(item);
+                    if (newContent.item) {
+                      newContent.item.set(item);
+                    }
                     newContent.content = content;
                     newContent.contentHash = serverContentHash;
                     newContent.takeaways = takeaways;
