@@ -7,6 +7,7 @@ import { ItemFilter } from "@/types/item";
 import { SortOption } from "@/components/shared/menu/SortMenu";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ItemsFlatList from "@/components/item/ItemsFlatList";
+import { Alert } from "react-native";
 
 const ItemsListWithInitialSync = ({
   filter,
@@ -18,7 +19,6 @@ const ItemsListWithInitialSync = ({
   const [isInitialSync, setIsInitialSync] = useState(false);
   const [shouldFetchItems, setShouldFetchItems] = useState(false);
   const [isCheckingSync, setIsCheckingSync] = useState(true);
-
   const ObservableItemsPresenter = memo(
     ({ items, originalFilter }: { items: Item[]; originalFilter: ItemFilter }) => {
       return <ItemsFlatList items={items} filter={originalFilter} />;
@@ -31,8 +31,8 @@ const ItemsListWithInitialSync = ({
     const checkFirstSync = async () => {
       try {
         const isFirstSync = await AsyncStorage.getItem("already_synced");
+        console.log("isFirstSync", isFirstSync);
         if (isMounted) {
-          setIsInitialSync(!isFirstSync);
           if (!isFirstSync) {
             await syncEngine.sync(true);
             await AsyncStorage.setItem("already_synced", "true");

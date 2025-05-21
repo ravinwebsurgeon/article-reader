@@ -5,7 +5,7 @@ import { combineLatest, of as of$ } from "rxjs";
 import Tag from "../models/TagModel";
 import Item from "../models/ItemModel";
 import ItemTag from "../models/ItemTagModel";
-import database from "../database";
+import database from "@/database";
 import { Observable } from "rxjs";
 import { Relation } from "@nozbe/watermelondb";
 
