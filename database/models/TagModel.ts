@@ -9,10 +9,10 @@ export default class Tag extends Model {
     item_tags: { type: "has_many" as const, foreignKey: "tag_id" },
   };
 
-  @text("name") name!: string;
+  @text("name") name?: string;
 
-  @readonly @date("created_at") createdAt!: Date;
-  @readonly @date("updated_at") updatedAt!: Date;
+  @readonly @date("created_at") createdAt?: Date;
+  @readonly @date("updated_at") updatedAt?: Date;
 
-  @children("item_tags") itemTags!: Query<ItemTag>;
+  @children("item_tags") itemTags?: Query<ItemTag>;
 }

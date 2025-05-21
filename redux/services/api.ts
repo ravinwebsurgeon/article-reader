@@ -45,5 +45,5 @@ export const handleApiError = (error: unknown): string => {
 
 // Add TypeScript definitions for global networkFlipperPlugin
 declare global {
-  var networkFlipperPlugin: any;
+  let networkFlipperPlugin: unknown;
 }

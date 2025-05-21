@@ -80,7 +80,7 @@ const TagSelectorInner: React.FC<TagSelectorProps> = ({
         {displayTags.map((tag) => (
           <TagBadge
             key={tag.id}
-            label={tag.name}
+            label={tag.name as string}
             onRemove={() => handleRemoveTag(tag)}
             size="medium"
           />

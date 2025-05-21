@@ -11,9 +11,9 @@ export default class ItemTag extends Model {
     tags: { type: "belongs_to" as const, key: "tag_id" },
   };
 
-  @immutableRelation("items", "item_id") item!: Relation<Item>;
-  @immutableRelation("tags", "tag_id") tag!: Relation<Tag>;
+  @immutableRelation("items", "item_id") item?: Relation<Item>;
+  @immutableRelation("tags", "tag_id") tag?: Relation<Tag>;
 
-  @readonly @date("created_at") createdAt!: Date;
-  @readonly @date("updated_at") updatedAt!: Date;
+  @readonly @date("created_at") createdAt?: Date;
+  @readonly @date("updated_at") updatedAt?: Date;
 }
