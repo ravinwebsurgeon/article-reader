@@ -50,7 +50,6 @@ const ItemsFlatList = memo(({ items, filter }: ItemsFlatListProps) => {
     }),
     [],
   );
-
   return (
     <FlatList
       data={items}

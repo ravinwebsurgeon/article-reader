@@ -1,5 +1,5 @@
-import React, { useRef, useState, useCallback, useMemo, useEffect } from "react";
-import { StyleSheet, Platform } from "react-native";
+import React, { useRef, useState, useCallback, useMemo } from "react";
+import { StyleSheet } from "react-native";
 import WebView from "react-native-webview";
 import * as Clipboard from "expo-clipboard";
 import { ThemeView } from "./primitives";
@@ -8,16 +8,16 @@ interface HTMLViewerProps {
   html: string;
   baseUrl?: string;
   style?: object;
-  onHighlightAdded?: (id: any, text: string, color: string) => void;
-  onHighlightRemoved?: (id: any) => void;
+  onHighlightAdded?: (id: unknown, text: string, color: string) => void;
+  onHighlightRemoved?: (id: unknown) => void;
   onSelectionChange?: (selectedText: string) => void;
   onShare?: (text: string) => void;
-  onScroll?: (event: any) => void;
+  onScroll?: (event: unknown) => void;
   onContentSizeChange?: (width: number, height: number) => void;
-  onLayout?: (event: any) => void;
+  onLayout?: (event: unknown) => void;
   setContentHeight?: (height: number) => void;
   setScrollViewHeight?: (height: number) => void;
-  handleScroll?: (event: any) => void;
+  handleScroll?: (event: unknown) => void;
 }
 
 interface HighlightData {
@@ -47,7 +47,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
     const [highlights, setHighlights] = useState<HighlightData[]>([]);
     const [selectedHighlightId, setSelectedHighlightId] = useState<string | null>(null);
     const [webViewHeight, setWebViewHeight] = useState<number>(300); // Start with a default height
-
+    console.log(highlights);
     // Debounce height changes to prevent rapid re-renders
     const debouncedSetHeight = useCallback(
       (height: number) => {
@@ -333,14 +333,14 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             case "contentHeight":
               // Use requestAnimationFrame to batch height updates
               requestAnimationFrame(() => {
-                debouncedSetHeight(data.height);
+                debouncedSetHeight(data.height as number);
               });
               break;
 
             case "selection":
-              setSelectedText(data.text);
+              setSelectedText(data.text as string);
               if (onSelectionChange) {
-                onSelectionChange(data.text);
+                onSelectionChange(data.text as string);
               }
               break;
 
@@ -356,7 +356,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
               };
               setHighlights((prev) => [...prev, newHighlight]);
               if (onHighlightAdded) {
-                onHighlightAdded(data.id, data.text, data.color);
+                onHighlightAdded(data.id, data.text as string, data.color as string);
               }
               break;
 
@@ -471,8 +471,6 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
       [html, baseUrl],
     );
 
-    
-
     return (
       <ThemeView style={containerStyle}>
         <WebView
@@ -500,7 +498,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
     );
   },
 );
-
+HTMLViewer.displayName = "HTMLViewer";
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,

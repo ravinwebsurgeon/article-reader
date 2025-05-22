@@ -86,6 +86,7 @@ function AppContent() {
   const [fontsLoaded] = useFonts(FONTS);
 
   useEffect(() => {
+    console.log("fontsLoaded", fontsLoaded);
     if (fontsLoaded && isDatabaseReady) {
       SplashScreen.hideAsync();
     }

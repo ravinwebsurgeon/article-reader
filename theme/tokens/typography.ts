@@ -1,4 +1,4 @@
-import { Platform, TextStyle } from "react-native";
+import { TextStyle } from "react-native";
 
 // Font family definitions
 export const fontFamily = {

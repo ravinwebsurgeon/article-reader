@@ -35,19 +35,21 @@ export const withRecommendedItems = ({ currentItem, limit = 3 }: RecommendedItem
     }
 
     // Get items with similar tags
-    const similarTagItems = currentItem.itemTags.observe().pipe(
+    const similarTagItems = (currentItem.itemTags?.observe?.() ?? of$([])).pipe(
       switchMap(async (itemTags) => {
         if (!itemTags || itemTags.length === 0) {
           return [];
         }
 
         // Get the tag IDs from the current item's tags
-        const tagIds = await Promise.all(
-          itemTags.map(async (itemTag) => {
-            const tag = await itemTag.tag.fetch();
-            return tag.id;
-          }),
-        );
+        const tagIds = (
+          await Promise.all(
+            itemTags.map(async (itemTag) => {
+              const tag = await itemTag?.tag?.fetch();
+              return tag?.id;
+            }),
+          )
+        ).filter((id): id is string => typeof id === "string");
 
         // Query for items with any of these tags
         return itemsCollection

@@ -70,6 +70,7 @@ export const ThemeText: React.FC<ThemeTextProps> = ({
     if (variant.startsWith("reader.")) {
       const readerKey = variant.substring("reader.".length) as keyof typeof theme.typography.reader;
       const readerStyle = theme.typography.reader[readerKey];
+
       return readerStyle || theme.typography.body1;
     } else {
       // Ensure variant is a valid key for the top-level typography styles
@@ -122,7 +123,6 @@ export const ThemeText: React.FC<ThemeTextProps> = ({
 
   // Add the custom style prop last so it can override anything
   textStyle.push(style);
-
   return (
     <Text style={textStyle} {...otherProps}>
       {transformText(children)}

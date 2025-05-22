@@ -17,7 +17,7 @@ import Item from "@/database/models/ItemModel";
 import ItemTag from "@/database/models/ItemTagModel";
 import { SvgIcon } from "@/components/SvgIcon";
 import { TagBadge, TagList } from "@/components/shared/tag";
-import database from "@/database/database";
+
 import { useTranslation } from "react-i18next";
 import { withObservables } from "@nozbe/watermelondb/react";
 import { Q } from "@nozbe/watermelondb";
@@ -33,6 +33,7 @@ import {
   useRouter, // For route params and navigation
 } from "expo-router";
 import { useDatabase } from "@/database/provider/DatabaseProvider"; // To get database instance
+import database from "@/database";
 
 // Props for the core editing component (previously EditTagInner)
 interface EditTagsViewProps {
@@ -63,7 +64,7 @@ const EditTagsView: React.FC<EditTagsViewProps> = ({
   useEffect(() => {
     setAllTags(allTagsFromDB);
     const sortedByUpdate = [...allTagsFromDB].sort(
-      (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime(),
+      (a, b) => (b.updatedAt?.getTime?.() ?? 0) - (a.updatedAt?.getTime?.() ?? 0),
     );
     const recent = sortedByUpdate.slice(0, Math.min(5, sortedByUpdate.length));
     const others = sortedByUpdate.slice(Math.min(5, sortedByUpdate.length));
@@ -77,8 +78,9 @@ const EditTagsView: React.FC<EditTagsViewProps> = ({
 
   useEffect(() => {
     if (tagText.trim()) {
-      const filtered = allTags.filter((tag) =>
-        tag.name.toLowerCase().includes(tagText.toLowerCase()),
+      const filtered = allTags.filter(
+        (tag) =>
+          typeof tag.name === "string" && tag.name.toLowerCase().includes(tagText.toLowerCase()),
       );
       setSearchResults(filtered);
     } else {
@@ -107,7 +109,8 @@ const EditTagsView: React.FC<EditTagsViewProps> = ({
       if (!name.trim()) return null;
       try {
         const existingTag = allTags.find(
-          (tag) => tag.name.toLowerCase() === name.trim().toLowerCase(),
+          (tag) =>
+            typeof tag.name === "string" && tag.name.toLowerCase() === name.trim().toLowerCase(),
         );
         if (existingTag) {
           if (!selectedTagIds.has(existingTag.id)) {
@@ -213,7 +216,7 @@ const EditTagsView: React.FC<EditTagsViewProps> = ({
                   <TagBadge
                     key={tagItem.id}
                     color={theme.colors.white}
-                    label={tagItem.name}
+                    label={tagItem?.name as string}
                     onRemove={() => toggleTag(tagItem)}
                   />
                 )}
@@ -280,15 +283,19 @@ const enhanceEditTagsView = withObservables<
     .query(Q.sortBy("updated_at", Q.desc)) // Using 'updated_at' as a proxy for recency
     .observe();
 
-  const selectedTagsObservable = item.itemTags.observe().pipe(
-    switchMap((itemTags: ItemTag[]) => {
-      if (!itemTags || itemTags.length === 0) {
-        return of$([] as Tag[]);
-      }
-      const tagObservables = itemTags.map((itemTag) => itemTag.tag.observe());
-      return tagObservables.length > 0 ? combineLatest(tagObservables) : of$([] as Tag[]);
-    }),
-  );
+  const selectedTagsObservable =
+    item?.itemTags?.observe()?.pipe(
+      switchMap((itemTags: ItemTag[] = []) => {
+        if (!itemTags || itemTags.length === 0) {
+          return of$([] as Tag[]);
+        }
+        const tagObservables = itemTags
+          .map((itemTag) => itemTag.tag)
+          .filter((tag): tag is NonNullable<typeof tag> => !!tag)
+          .map((tag) => tag!.observe());
+        return tagObservables.length > 0 ? combineLatest(tagObservables) : of$([] as Tag[]);
+      }),
+    ) ?? of$([] as Tag[]);
 
   return {
     item: item, // Pass item through
