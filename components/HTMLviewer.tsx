@@ -71,24 +71,30 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
         const style = document.createElement('style');
         style.id = 'literata-styles';
         style.textContent = \`
-          @font-face {
+           @font-face {
             font-family: 'Literata';
-            src: url('https://fonts.gstatic.com/s/literata/v30/or3PQ6P12-iJxAIgLa78DkrbXsDgk0oVDaDPYLanFLHpPf2TbBG_J_zWTFUPx1j.woff2') format('woff2');
+            src: url('file:///android_asset/fonts/Literata/Literata_18pt-Regular.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
           }
           @font-face {
             font-family: 'Literata';
-            src: url('https://fonts.gstatic.com/s/literata/v30/or3PQ6P12-iJxAIgLa78DkrbXsDgk0oVDaDPYLanFLHpPf2TbBG_J__WTFUPx1j.woff2') format('woff2');
+            src: url('file:///android_asset/fonts/Literata/Literata_18pt-Bold.ttf') format('truetype');
             font-weight: bold;
             font-style: normal;
           }
           @font-face {
             font-family: 'Literata';
-            src: url('https://fonts.gstatic.com/s/literata/v30/or3NQ6P12-iJxAIgLYT1PLs1Zd0nfUwAbeGVKoRYzNiCp1OUedn8f7XWSUKTt8iVow.woff2') format('woff2');
+            src: url('file:///android_asset/fonts/Literata/Literata_18pt-Italic.ttf') format('truetype');
             font-weight: normal;
             font-style: italic;
           }
+          // @font-face {
+          //   font-family: 'Literata';
+          //   src: url('file:///android_asset/fonts/Literata/Literata_18pt-BoldItalic.ttf') format('truetype');
+          //   font-weight: bold;
+          //   font-style: italic;
+          // } 
           body {
             font-family: 'Literata', serif;
             font-size: 18px;
