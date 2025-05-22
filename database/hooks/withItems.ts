@@ -2,7 +2,7 @@ import { Q } from "@nozbe/watermelondb";
 import { withObservables } from "@nozbe/watermelondb/react";
 import { map } from "rxjs/operators";
 import Item from "../models/ItemModel";
-import database from "../database";
+import database from "@/database";
 import { ItemFilter } from "@/types/item";
 import { SortOption } from "@/components/shared/menu/SortMenu";
 
@@ -219,7 +219,7 @@ export const withSearch = ({ query }: WithSearchProps = {}) => {
               }
 
               // Add recency boost for items saved in the last 30 days
-              if (item.savedAt > thirtyDaysAgo) {
+              if (item.savedAt && item.savedAt > thirtyDaysAgo) {
                 // Calculate how recent the item is (0-1 scale, 1 being newest)
                 const ageInDays = (Date.now() - item.savedAt.getTime()) / (1000 * 60 * 60 * 24);
                 const recencyFactor = Math.max(0, (30 - ageInDays) / 30);

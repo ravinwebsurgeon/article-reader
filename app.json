@@ -1,5 +1,6 @@
 {
   "expo": {
+    "assetBundlePatterns": ["**/*"],
     "name": "Pocket",
     "slug": "pocket-app",
     "version": "1.0.0",

@@ -1,13 +1,11 @@
 import { Q } from "@nozbe/watermelondb";
 import { withObservables } from "@nozbe/watermelondb/react";
 import { switchMap, map } from "rxjs/operators";
-import { combineLatest, of as of$ } from "rxjs";
+import { combineLatest, of as of$, Observable } from "rxjs";
 import Tag from "../models/TagModel";
 import Item from "../models/ItemModel";
 import ItemTag from "../models/ItemTagModel";
-import database from "../database";
-import { Observable } from "rxjs";
-import { Relation } from "@nozbe/watermelondb";
+import database from "@/database";
 
 /**
  * Access to the tags collection in the WatermelonDB database
@@ -87,9 +85,9 @@ interface WithAllTagsOptions {
   sortDirection?: "asc" | "desc";
 }
 
-interface WithAllTagsProps {
-  allTags: Tag[];
-}
+// interface WithAllTagsProps {
+//   allTags: Tag[];
+// }
 
 /**
  * HOC that provides a reactive list of all tags.
@@ -129,9 +127,9 @@ interface WithItemTagsOuterProps {
   item: Item;
 }
 
-interface WithItemTagsInnerProps {
-  itemTags: Tag[];
-}
+// interface WithItemTagsInnerProps {
+//   itemTags: Tag[];
+// }
 
 /**
  * HOC that provides a reactive list of tags associated with a specific item.
@@ -150,23 +148,22 @@ export const withItemTags = () => {
       return { itemTags: of$([] as Tag[]) };
     }
 
-    const selectedTagsObservable = item.itemTags.observe().pipe(
-      switchMap((itemTagModels: ItemTag[]) => {
-        if (!itemTagModels || itemTagModels.length === 0) {
-          return of$([] as Tag[]); // Emit empty array of Tags
-        }
-        // Create an array of observables, one for each tag
-        const tagObservables = itemTagModels.map((itemTag) =>
-          // Ensure itemTag.tag is treated as an observable relation
-          // If itemTag.tag is a direct model, observe it. If it's a relation, observe the relation.
-          // Assuming 'tag' is a relation defined with @relation
-          itemTag.tag.observe(),
-        );
-        // Combine them: emits an array of Tags when all tagObservables have emitted
-        return tagObservables.length > 0 ? combineLatest(tagObservables) : of$([] as Tag[]);
-      }),
-      map((tags) => tags.filter((tag) => !!tag) as Tag[]), // Ensure tags are truthy, changed from tag !== null
-    );
+    const selectedTagsObservable = item.itemTags
+      ? item.itemTags.observe().pipe(
+          switchMap((itemTagModels: ItemTag[]) => {
+            if (!itemTagModels || itemTagModels.length === 0) {
+              return of$([] as Tag[]); // Emit empty array of Tags
+            }
+            // Create an array of observables, one for each tag
+            const tagObservables = itemTagModels
+              .map((itemTag) => (itemTag.tag ? itemTag.tag.observe() : undefined))
+              .filter((obs): obs is Observable<Tag> => obs !== undefined);
+            // Combine them: emits an array of Tags when all tagObservables have emitted
+            return tagObservables.length > 0 ? combineLatest(tagObservables) : of$([] as Tag[]);
+          }),
+          map((tags) => tags.filter((tag) => !!tag) as Tag[]), // Ensure tags are truthy, changed from tag !== null
+        )
+      : of$([] as Tag[]);
 
     return {
       itemTags: selectedTagsObservable,
