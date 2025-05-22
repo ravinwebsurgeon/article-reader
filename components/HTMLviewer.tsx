@@ -71,30 +71,34 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
         const style = document.createElement('style');
         style.id = 'literata-styles';
         style.textContent = \`
-           @font-face {
+          @font-face {
             font-family: 'Literata';
-            src: url('file:///android_asset/fonts/Literata/Literata_18pt-Regular.ttf') format('truetype');
+            src: url('file:///assets/fonts/Literata/Literata_18pt-Regular.ttf') format('truetype'),
+                 url('file:///android_asset/fonts/Literata/Literata_18pt-Regular.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
           }
           @font-face {
             font-family: 'Literata';
-            src: url('file:///android_asset/fonts/Literata/Literata_18pt-Bold.ttf') format('truetype');
+            src: url('file:///assets/fonts/Literata/Literata_18pt-Bold.ttf') format('truetype'),
+                 url('file:///android_asset/fonts/Literata/Literata_18pt-Bold.ttf') format('truetype');
             font-weight: bold;
             font-style: normal;
           }
           @font-face {
             font-family: 'Literata';
-            src: url('file:///android_asset/fonts/Literata/Literata_18pt-Italic.ttf') format('truetype');
+            src: url('file:///assets/fonts/Literata/Literata_18pt-Italic.ttf') format('truetype'),
+                 url('file:///android_asset/fonts/Literata/Literata_18pt-Italic.ttf') format('truetype');
             font-weight: normal;
             font-style: italic;
           }
-          // @font-face {
-          //   font-family: 'Literata';
-          //   src: url('file:///android_asset/fonts/Literata/Literata_18pt-BoldItalic.ttf') format('truetype');
-          //   font-weight: bold;
-          //   font-style: italic;
-          // } 
+          @font-face {
+            font-family: 'Literata';
+            src: url('file:///assets/fonts/Literata/Literata_18pt-BoldItalic.ttf') format('truetype'),
+                 url('file:///android_asset/fonts/Literata/Literata_18pt-BoldItalic.ttf') format('truetype');
+            font-weight: bold;
+            font-style: italic;
+          }
           body {
             font-family: 'Literata', serif;
             font-size: 18px;
