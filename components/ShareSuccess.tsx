@@ -1,6 +1,6 @@
 // components/ShareSuccess.tsx
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
 
 interface ShareSuccessProps {
   visible: boolean;
@@ -29,20 +29,20 @@ export const ShareSuccess: React.FC<ShareSuccessProps> = ({ visible, onHide }) =
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
+    position: "absolute",
     top: 100,
     left: 20,
     right: 20,
     zIndex: 1000,
   },
   card: {
-    backgroundColor: '#333',
+    backgroundColor: "#333",
     padding: 16,
     borderRadius: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
@@ -53,8 +53,8 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   text: {
-    color: 'white',
+    color: "white",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
