@@ -9178,7 +9178,6 @@ __metadata:
     react-native-render-html: ^6.3.4
     react-native-safe-area-context: ^5.4.0
     react-native-screens: ~4.10.0
-    react-native-share-extension: ^2.0.0
     react-native-size-matters: ^0.4.2
     react-native-svg: 15.11.2
     react-native-web: ^0.20.0
@@ -9630,13 +9629,6 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 291f3024eabbb02b3299d4afafba6812f7a1dcd95f762b9be80fa9a69b20650d66a72e64f339776eb4b72e759a1b2201bb80a8501d90f9b4f4d42f19d6c09d5a
-  languageName: node
-  linkType: hard
-
-"react-native-share-extension@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "react-native-share-extension@npm:2.0.0"
-  checksum: 33dab4e5c5a5475c50c2a912e85de88095114dcddf1098f94ab07fd1de88692a3095cb6642ce9f2c88bf53eb512f6c44084f5946d29967b33d9d06e1c7ac6f07
   languageName: node
   linkType: hard
 
