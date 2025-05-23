@@ -4,6 +4,8 @@ import { StyleSheet, View, Animated } from "react-native";
 import WebView from "react-native-webview";
 import * as Clipboard from "expo-clipboard";
 import { ThemeView } from "./primitives";
+import { leterataFontBase64 } from "@/constants/leterataFontBase64";
+import { literataBold18base64 } from "@/constants/literateBold18Base64";
 
 interface HTMLViewerProps {
   html: string;
@@ -44,7 +46,7 @@ const SkeletonLoader: React.FC<{ isDark?: boolean }> = ({ isDark = false }) => {
           duration: 1000,
           useNativeDriver: true,
         }),
-      ])
+      ]),
     );
     pulse.start();
     return () => pulse.stop();
@@ -57,18 +59,14 @@ const SkeletonLoader: React.FC<{ isDark?: boolean }> = ({ isDark = false }) => {
     }),
   };
 
-  const baseColor = isDark ? '#333' : '#E5E5E5';
-  const skeletonStyle = [
-    styles.skeletonLine,
-    { backgroundColor: baseColor },
-    pulseStyle,
-  ];
+  const baseColor = isDark ? "#333" : "#E5E5E5";
+  const skeletonStyle = [styles.skeletonLine, { backgroundColor: baseColor }, pulseStyle];
 
   return (
-    <View style={[styles.skeletonContainer, { backgroundColor: isDark ? '#121212' : '#FFFFFF' }]}>
+    <View style={[styles.skeletonContainer, { backgroundColor: isDark ? "#121212" : "#FFFFFF" }]}>
       {/* Header skeleton */}
       <Animated.View style={[skeletonStyle, styles.skeletonHeader]} />
-      
+
       {/* Paragraph skeletons */}
       <View style={styles.skeletonParagraph}>
         <Animated.View style={[skeletonStyle, styles.skeletonLongLine]} />
@@ -109,12 +107,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
     onHighlightRemoved,
     onSelectionChange,
     onShare,
-    onScroll,
-    onContentSizeChange,
-    onLayout,
     setContentHeight,
-    setScrollViewHeight,
-    handleScroll,
   }) => {
     const webViewRef = useRef<WebView>(null);
     const [selectedText, setSelectedText] = useState<string>("");
@@ -124,7 +117,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
     const [isWebViewReady, setIsWebViewReady] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
-    
+
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
     console.log(highlights);
@@ -155,7 +148,8 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             style.id = 'base-styles';
             style.textContent = \`
               body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                font-family: 'Literata', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+                
                 font-size: 18px;
                 line-height: 1.8;
                 padding: 20px;
@@ -198,36 +192,36 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             style.textContent = \`
               @font-face {
                 font-family: 'Literata';
-                src: url('file:///assets/fonts/Literata/Literata_18pt-Regular.ttf') format('truetype'),
-                     url('file:///android_asset/fonts/Literata/Literata_18pt-Regular.ttf') format('truetype');
+                src: url(data:font/ttf;charset=utf-8;base64,${leterataFontBase64});
+                    //  url('file:///android_asset/fonts/Literata/Literata_18pt-Regular.ttf') format('truetype');
                 font-weight: normal;
                 font-style: normal;
                 font-display: swap; /* Improve font loading performance */
               }
               @font-face {
                 font-family: 'Literata';
-                src: url('file:///assets/fonts/Literata/Literata_18pt-Bold.ttf') format('truetype'),
-                     url('file:///android_asset/fonts/Literata/Literata_18pt-Bold.ttf') format('truetype');
+                src: url(data:font/ttf;charset=utf-8;base64, ${literataBold18base64});
+                    //  url('file:///android_asset/fonts/Literata/Literata_18pt-Bold.ttf') format('truetype');
                 font-weight: bold;
                 font-style: normal;
                 font-display: swap;
               }
-              @font-face {
-                font-family: 'Literata';
-                src: url('file:///assets/fonts/Literata/Literata_18pt-Italic.ttf') format('truetype'),
-                     url('file:///android_asset/fonts/Literata/Literata_18pt-Italic.ttf') format('truetype');
-                font-weight: normal;
-                font-style: italic;
-                font-display: swap;
-              }
-              @font-face {
-                font-family: 'Literata';
-                src: url('file:///assets/fonts/Literata/Literata_18pt-BoldItalic.ttf') format('truetype'),
-                     url('file:///android_asset/fonts/Literata/Literata_18pt-BoldItalic.ttf') format('truetype');
-                font-weight: bold;
-                font-style: italic;
-                font-display: swap;
-              }
+              // @font-face {
+              //   font-family: 'Literata';
+              //   src: url('../assets/fonts/Literata/Literata_18pt-Regular.ttf') format('truetype'),
+              //        url('file:///android_asset/fonts/Literata/Literata_18pt-Italic.ttf') format('truetype');
+              //   font-weight: normal;
+              //   font-style: italic;
+              //   font-display: swap;
+              // }
+              // @font-face {
+              //   font-family: 'Literata';
+              //   src: url('file:///assets/fonts/Literata/Literata_18pt-BoldItalic.ttf') format('truetype'),
+              //        url('file:///android_asset/fonts/Literata/Literata_18pt-BoldItalic.ttf') format('truetype');
+              //   font-weight: bold;
+              //   font-style: italic;
+              //   font-display: swap;
+              // }
             \`;
             document.head.appendChild(style);
             
@@ -243,12 +237,13 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             enhancedStyle.id = 'enhanced-styles';
             enhancedStyle.textContent = \`
               h1, h2, h3, h4, h5, h6 {
-                font-family: 'Literata', serif;
+                font-family: 'Literata', serif !important;
                 font-weight: 700;
                 line-height: 1.3;
               }
               p {
                 margin-bottom: 1em;
+                font-family: 'Literata', serif !important;
               }
               img { 
                 max-width: 100%; 
@@ -522,7 +517,14 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           console.error("Error handling WebView message:", error);
         }
       },
-      [debouncedSetHeight, onHighlightAdded, onHighlightRemoved, onSelectionChange, fullFeaturesJavaScript, fadeAnim],
+      [
+        debouncedSetHeight,
+        onHighlightAdded,
+        onHighlightRemoved,
+        onSelectionChange,
+        fullFeaturesJavaScript,
+        fadeAnim,
+      ],
     );
 
     // Handle WebView load events
@@ -559,15 +561,18 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
       [selectedText, isWebViewReady],
     );
 
-    const removeHighlight = useCallback((highlightId: string) => {
-      if (!webViewRef.current || !isWebViewReady) return;
+    const removeHighlight = useCallback(
+      (highlightId: string) => {
+        if (!webViewRef.current || !isWebViewReady) return;
 
-      webViewRef.current.injectJavaScript(`
+        webViewRef.current.injectJavaScript(`
         window.removeHighlight && window.removeHighlight('${highlightId}');
         true;
       `);
-      setSelectedHighlightId(null);
-    }, [isWebViewReady]);
+        setSelectedHighlightId(null);
+      },
+      [isWebViewReady],
+    );
 
     const selectAll = useCallback(() => {
       if (!webViewRef.current || !isWebViewReady) return;
@@ -628,7 +633,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
     // Combine user style with base webview style
     const webViewStyle = useMemo(() => [styles.webview, style], [style]);
 
-    const addLazyLoading = (html:any) => {
+    const addLazyLoading = (html: any) => {
       return html.replace(/<img/gi, '<img loading="lazy"');
     };
 
