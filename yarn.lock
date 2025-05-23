@@ -5480,6 +5480,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-intent-launcher@npm:~12.1.4":
+  version: 12.1.4
+  resolution: "expo-intent-launcher@npm:12.1.4"
+  peerDependencies:
+    expo: "*"
+  checksum: 8908a74c28b9423e8075f4f0a8687fad1ea495313814728c101c7eba5b3587bcd03154ee098590b86d5816f24e2196248f166cdfe052edb69af4c77a19c3f85b
+  languageName: node
+  linkType: hard
+
 "expo-keep-awake@npm:~14.1.4":
   version: 14.1.4
   resolution: "expo-keep-awake@npm:14.1.4"
@@ -5586,6 +5595,15 @@ __metadata:
     react-native-reanimated:
       optional: true
   checksum: cedd65030eb3357ea9e71df568ccca32f54a7825d44bf616d3b35734f13207d3606b78185dc0ea798b49c847eeb6d162704212d3c2b71308961358292e21749d
+  languageName: node
+  linkType: hard
+
+"expo-sharing@npm:~13.1.5":
+  version: 13.1.5
+  resolution: "expo-sharing@npm:13.1.5"
+  peerDependencies:
+    expo: "*"
+  checksum: e1d23401762c2174b4483e4306771da7132c54f4be5880895452bd7e403d82a30311e601a9fe2b3eb361d611b1b2de1b98ba9908b86fe8912164044c7dc12f9d
   languageName: node
   linkType: hard
 
@@ -9130,10 +9148,12 @@ __metadata:
     expo-font: ~13.3.1
     expo-haptics: ~14.1.4
     expo-image: ~2.1.7
+    expo-intent-launcher: ~12.1.4
     expo-linear-gradient: ~14.1.4
     expo-linking: ~7.1.4
     expo-localization: ~16.1.5
     expo-router: ~5.0.6
+    expo-sharing: ~13.1.5
     expo-splash-screen: ~0.30.8
     expo-status-bar: ~2.2.3
     expo-symbols: ~0.4.4
@@ -9158,6 +9178,7 @@ __metadata:
     react-native-render-html: ^6.3.4
     react-native-safe-area-context: ^5.4.0
     react-native-screens: ~4.10.0
+    react-native-share-extension: ^2.0.0
     react-native-size-matters: ^0.4.2
     react-native-svg: 15.11.2
     react-native-web: ^0.20.0
@@ -9609,6 +9630,13 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 291f3024eabbb02b3299d4afafba6812f7a1dcd95f762b9be80fa9a69b20650d66a72e64f339776eb4b72e759a1b2201bb80a8501d90f9b4f4d42f19d6c09d5a
+  languageName: node
+  linkType: hard
+
+"react-native-share-extension@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "react-native-share-extension@npm:2.0.0"
+  checksum: 33dab4e5c5a5475c50c2a912e85de88095114dcddf1098f94ab07fd1de88692a3095cb6642ce9f2c88bf53eb512f6c44084f5946d29967b33d9d06e1c7ac6f07
   languageName: node
   linkType: hard
 

@@ -722,7 +722,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     fontFamily: "Literata-ExtraBold",
     lineHeight: 38,
-    letterSpacing: -0.2,
+    letterSpacing: 0,
     fontSize: 32,
     color: "#1C1F21",
   },
