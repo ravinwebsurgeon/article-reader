@@ -1,20 +1,23 @@
 {
   "expo": {
     "assetBundlePatterns": ["**/*"],
-    "name": "Pocket",
-    "slug": "pocket-app",
+    "name": "Folio",
+    "slug": "folio",
     "version": "1.0.0",
-    "orientation": "portrait",
-    "scheme": "myapp",
+    "orientation": "default",
+    "scheme": "folio",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.gurditsingh77.pocketapp",
+      "bundleIdentifier": "co.lessisbetter.folio",
       "icon": {
         "dark": "./assets/images/ios-dark.png",
         "light": "./assets/images/ios-light.png",
         "tinted": "./assets/images/ios-tinted.png"
+      },
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -22,7 +25,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.gurditsingh77.pocketapp"
+      "package": "co.lessisbetter.folio",
+      "supportsTablet": true
     },
     "web": {
       "bundler": "metro",
@@ -77,8 +81,9 @@
         "origin": false
       },
       "eas": {
-        "projectId": "9d74e179-2832-4c29-ab20-4f59873a43ef"
+        "projectId": "75579236-282c-4bc2-9f72-bc9ebe2f4ce2"
       }
-    }
+    },
+    "owner": "lessisbetter"
   }
 }
