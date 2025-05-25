@@ -50,6 +50,10 @@
       "emailSignIn": "Continue with Email",
       "newHere": "New Here?",
       "button": "Create an account"
+    },
+    "connectExtension": {
+      "title": "Extension Connected",
+      "message": "Your browser extension has been successfully connected to Pocket. You can now save items directly from your browser."
     }
   },
   "search": {
