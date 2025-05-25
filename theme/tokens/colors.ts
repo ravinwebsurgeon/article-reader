@@ -142,7 +142,7 @@ const baseColors = {
     dark: "#c32c41",
     contrast: "#ffffff",
   },
-  favorite: "#f8e61b",
+  favorite: "#FCE37D",
   white: "#ffffff",
   black: "#000000",
   transparent: "transparent",
