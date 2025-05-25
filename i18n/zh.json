@@ -43,6 +43,10 @@
       "emailSignIn": "使用电子邮箱继续",
       "newHere": "新用户？",
       "button": "创建账户"
+    },
+    "connectExtension": {
+      "title": "扩展已连接",
+      "message": "您的浏览器扩展已成功连接到 Pocket。您现在可以直接从浏览器保存内容。"
     }
   },
   "search": {

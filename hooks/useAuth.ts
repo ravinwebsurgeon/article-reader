@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
+import { sendExtensionLogout } from "@/utils/extension";
 
 interface User {
   id: string;
@@ -57,7 +58,7 @@ export function useAuth() {
       setIsAuthenticated(true);
 
       // Navigate to the home screen
-      router.replace("/saves");
+      router.replace("/");
       return { success: true };
     } catch (error) {
       console.error("Login failed:", error);
@@ -76,6 +77,9 @@ export function useAuth() {
 
       setUser(null);
       setIsAuthenticated(false);
+
+      // Notify extension about logout
+      sendExtensionLogout();
 
       // Navigate to the login screen
       router.replace("/(auth)/login");

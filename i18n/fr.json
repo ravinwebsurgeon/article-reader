@@ -47,9 +47,13 @@
       "title": "Comment souhaitez-vous vous connecter ?",
       "subtitle": "Choisissez une méthode pour commencer.",
       "googleSignIn": "Continuer avec Google",
-      "emailSignIn": "Continuer avec l'e-mail",
+      "emailSignIn": "Continuer avec Email",
       "newHere": "Nouveau ?",
       "button": "Créer un compte"
+    },
+    "connectExtension": {
+      "title": "Extension Connectée",
+      "message": "Votre extension de navigateur a été connectée avec succès à Pocket. Vous pouvez maintenant sauvegarder des éléments directement depuis votre navigateur."
     }
   },
   "search": {
