@@ -25,6 +25,7 @@
   "auth": {
     "login": {
       "title": "Bon retour",
+      "welcome": "Bon retour",
       "subtitle": "Connectez-vous à votre compte",
       "email": "E-mail",
       "password": "Mot de passe",
@@ -35,21 +36,27 @@
     },
     "signup": {
       "title": "Bienvenue sur Pocket",
+      "welcome": "Bienvenue sur Pocket",
       "subtitle": "Créez votre compte",
       "email": "E-mail",
       "password": "Mot de passe",
       "confirmPassword": "Confirmer le mot de passe",
       "button": "Créer un compte",
+      "submitting": "Envoi en cours...",
       "hasAccount": "Vous avez déjà un compte ?",
-      "logIn": "Se connecter"
+      "logIn": "Se connecter",
+      "newHere": "Nouveau ?",
+      "signIn": "Se connecter"
     },
     "authStart": {
       "title": "Comment souhaitez-vous vous connecter ?",
       "subtitle": "Choisissez une méthode pour commencer.",
       "googleSignIn": "Continuer avec Google",
+      "appleSignIn": "Continuer avec Apple",
       "emailSignIn": "Continuer avec Email",
       "newHere": "Nouveau ?",
-      "button": "Créer un compte"
+      "button": "Créer un compte",
+      "loginError": "Erreur de connexion"
     },
     "connectExtension": {
       "title": "Extension Connectée",
@@ -89,8 +96,19 @@
       "required": "Ce champ est obligatoire",
       "minLength": "Doit contenir au moins {{count}} caractères",
       "maxLength": "Doit contenir au maximum {{count}} caractères",
-      "email": "Veuillez entrer une adresse e-mail valide",
-      "password": "Le mot de passe doit contenir au moins 8 caractères",
+      "email": {
+        "required": "L'e-mail est obligatoire",
+        "invalid": "Veuillez entrer une adresse e-mail valide"
+      },
+      "password": {
+        "required": "Le mot de passe est obligatoire",
+        "minLength": "Le mot de passe doit contenir au moins 8 caractères",
+        "complexity": "Le mot de passe doit contenir au moins une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial"
+      },
+      "confirmPassword": {
+        "required": "Veuillez confirmer votre mot de passe",
+        "mismatch": "Les mots de passe ne correspondent pas"
+      },
       "passwordMatch": "Les mots de passe ne correspondent pas"
     }
   },

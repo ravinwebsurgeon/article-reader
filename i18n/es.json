@@ -25,6 +25,7 @@
   "auth": {
     "login": {
       "title": "Bienvenido de nuevo",
+      "welcome": "Bienvenido de nuevo",
       "subtitle": "Inicia sesión en tu cuenta",
       "email": "Correo electrónico",
       "password": "Contraseña",
@@ -35,21 +36,27 @@
     },
     "signup": {
       "title": "Bienvenido a Pocket",
+      "welcome": "Bienvenido a Pocket",
       "subtitle": "Crea tu cuenta",
       "email": "Correo electrónico",
       "password": "Contraseña",
       "confirmPassword": "Confirmar contraseña",
       "button": "Crear cuenta",
+      "submitting": "Enviando...",
       "hasAccount": "¿Ya tienes una cuenta?",
-      "logIn": "Iniciar sesión"
+      "logIn": "Iniciar sesión",
+      "newHere": "¿Nuevo aquí?",
+      "signIn": "Iniciar sesión"
     },
     "authStart": {
       "title": "¿Cómo te gustaría iniciar sesión?",
       "subtitle": "Elige un método para comenzar.",
       "googleSignIn": "Continuar con Google",
+      "appleSignIn": "Continuar con Apple",
       "emailSignIn": "Continuar con Email",
       "newHere": "¿Nuevo aquí?",
-      "button": "Crear una cuenta"
+      "button": "Crear una cuenta",
+      "loginError": "Error de inicio de sesión"
     },
     "connectExtension": {
       "title": "Extensión Conectada",
@@ -89,8 +96,19 @@
       "required": "Este campo es obligatorio",
       "minLength": "Debe tener al menos {{count}} caracteres",
       "maxLength": "Debe tener como máximo {{count}} caracteres",
-      "email": "Por favor, introduce un correo electrónico válido",
-      "password": "La contraseña debe tener al menos 8 caracteres",
+      "email": {
+        "required": "El correo electrónico es obligatorio",
+        "invalid": "Por favor, introduce un correo electrónico válido"
+      },
+      "password": {
+        "required": "La contraseña es obligatoria",
+        "minLength": "La contraseña debe tener al menos 8 caracteres",
+        "complexity": "La contraseña debe contener al menos una letra mayúscula, una minúscula, un número y un carácter especial"
+      },
+      "confirmPassword": {
+        "required": "Por favor, confirma tu contraseña",
+        "mismatch": "Las contraseñas no coinciden"
+      },
       "passwordMatch": "Las contraseñas no coinciden"
     }
   },
