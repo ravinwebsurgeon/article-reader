@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/TextInput/input";
 import { SvgIcon } from "@/components/SvgIcon";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
+import { sendExtensionAuthToken } from "@/utils/extension";
 
 interface LoginFormData {
   email: string;
@@ -43,12 +44,17 @@ function LoginScreen() {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      await login({
+      const result = await login({
         user: {
           email: data.email,
           password: data.password,
         },
       }).unwrap();
+
+      // Send auth token to extension if login was successful
+      if (result.token) {
+        sendExtensionAuthToken(result.token);
+      }
     } catch (err) {
       console.error("Login failed", err);
     }

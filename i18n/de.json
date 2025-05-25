@@ -50,6 +50,10 @@
       "emailSignIn": "Mit E-Mail fortfahren",
       "newHere": "Neu hier?",
       "button": "Konto erstellen"
+    },
+    "connectExtension": {
+      "title": "Erweiterung Verbunden",
+      "message": "Ihre Browser-Erweiterung wurde erfolgreich mit Pocket verbunden. Sie können jetzt Elemente direkt aus Ihrem Browser speichern."
     }
   },
   "search": {

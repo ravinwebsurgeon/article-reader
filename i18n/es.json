@@ -44,12 +44,16 @@
       "logIn": "Iniciar sesión"
     },
     "authStart": {
-      "title": "¿Cómo quieres iniciar sesión?",
+      "title": "¿Cómo te gustaría iniciar sesión?",
       "subtitle": "Elige un método para comenzar.",
       "googleSignIn": "Continuar con Google",
-      "emailSignIn": "Continuar con correo electrónico",
-      "newHere": "¿Eres nuevo?",
+      "emailSignIn": "Continuar con Email",
+      "newHere": "¿Nuevo aquí?",
       "button": "Crear una cuenta"
+    },
+    "connectExtension": {
+      "title": "Extensión Conectada",
+      "message": "Tu extensión del navegador se ha conectado exitosamente a Pocket. Ahora puedes guardar elementos directamente desde tu navegador."
     }
   },
   "search": {
