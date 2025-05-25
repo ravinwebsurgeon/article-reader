@@ -185,7 +185,7 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
             />
 
             <Button
-              title={loader ? "Submiting..." : "Create Account"}
+              title={loader ? t("auth.signup.submitting") : t("auth.signup.button")}
               onPress={handleSubmit(onSubmit)}
               style={dynamicStyles.signUpButton}
               rightIcon={null}
@@ -193,9 +193,9 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
           </View>
 
           <View style={styles.loginContainer}>
-            <ThemeText style={styles.loginText}>Already have an account? </ThemeText>
+            <ThemeText style={styles.loginText}>{t("auth.signup.hasAccount")} </ThemeText>
             <ThemeText style={dynamicStyles.loginLinkText} onPress={navigateToLogin}>
-              Sign in
+              {t("auth.signup.signIn")}
             </ThemeText>
           </View>
         </ScrollView>

@@ -25,6 +25,7 @@
   "auth": {
     "login": {
       "title": "Welcome Back",
+      "welcome": "Welcome Back",
       "subtitle": "Log in to your account",
       "email": "Email",
       "password": "Password",
@@ -35,21 +36,27 @@
     },
     "signup": {
       "title": "Welcome to Pocket",
+      "welcome": "Welcome to Pocket",
       "subtitle": "Create your account",
       "email": "Email",
       "password": "Password",
       "confirmPassword": "Confirm Password",
       "button": "Create Account",
+      "submitting": "Submitting...",
       "hasAccount": "Already have an account?",
-      "logIn": "Log In"
+      "logIn": "Log In",
+      "newHere": "New here?",
+      "signIn": "Sign in"
     },
     "authStart": {
       "title": "How would you like to sign in?",
       "subtitle": "Choose a method to get started.",
       "googleSignIn": "Continue with Google",
+      "appleSignIn": "Continue with Apple",
       "emailSignIn": "Continue with Email",
       "newHere": "New Here?",
-      "button": "Create an account"
+      "button": "Create an account",
+      "loginError": "Login Error"
     },
     "connectExtension": {
       "title": "Extension Connected",
@@ -89,8 +96,19 @@
       "required": "This field is required",
       "minLength": "Must be at least {{count}} characters",
       "maxLength": "Must be at most {{count}} characters",
-      "email": "Please enter a valid email address",
-      "password": "Password must be at least 8 characters",
+      "email": {
+        "required": "Email is required",
+        "invalid": "Please enter a valid email address"
+      },
+      "password": {
+        "required": "Password is required",
+        "minLength": "Password must be at least 8 characters",
+        "complexity": "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+      },
+      "confirmPassword": {
+        "required": "Please confirm your password",
+        "mismatch": "Passwords do not match"
+      },
       "passwordMatch": "Passwords do not match"
     }
   },

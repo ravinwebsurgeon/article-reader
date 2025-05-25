@@ -52,7 +52,7 @@ function AuthStart() {
   // Show error alert if needed
   useEffect(() => {
     if (error) {
-      Alert.alert("Login Error", error);
+      Alert.alert(t("auth.authStart.loginError"), error);
       dispatch(resetAuthError());
     }
   }, [error, dispatch]);
