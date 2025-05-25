@@ -19,6 +19,7 @@ import { useTheme } from "@/theme";
 import { ThemeText, ThemeView } from "@/components";
 import { SvgIcon } from "@/components/SvgIcon";
 import { useTranslation } from "react-i18next";
+import { sendExtensionAuthToken } from "@/utils/extension";
 
 interface SignUpFormData {
   username: string;
@@ -54,13 +55,18 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
     console.log(data);
     setLoader(true);
     try {
-      await register({
+      const result = await register({
         user: {
           username: data.username,
           email: data.email,
           password: data.password,
         },
       }).unwrap();
+
+      // Send auth token to extension if registration was successful
+      if (result.token) {
+        sendExtensionAuthToken(result.token);
+      }
     } catch (error: unknown) {
       console.error(error);
     } finally {
