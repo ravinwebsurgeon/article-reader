@@ -6,7 +6,6 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
   StyleSheet,
-  Platform,
   View,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";

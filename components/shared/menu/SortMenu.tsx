@@ -1,7 +1,4 @@
-import React, { useMemo } from "react";
-import { View, StyleSheet } from "react-native";
-import { useTheme, Theme } from "@/theme";
-import { ThemeText } from "@/components/primitives";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import ReusableActionMenu, { ActionMenuItem, ActionMenuPosition } from "./ReusableActionMenu";
 
@@ -26,7 +23,6 @@ const SortMenu: React.FC<SortMenuProps> = ({
   onSortChange,
   onClose,
 }) => {
-  const theme = useTheme();
   const { t } = useTranslation();
 
   // Generate menu items based on current sort
