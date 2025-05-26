@@ -15,7 +15,10 @@ export default function SavesScreen() {
   const theme = useTheme();
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background.default }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.colors.background.default }]}
+      edges={["top"]}
+    >
       <StatusBar style={theme.mode === "dark" ? "light" : "dark"} />
 
       <ItemListHeader />

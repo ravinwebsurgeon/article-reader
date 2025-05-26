@@ -26,7 +26,8 @@
         "backgroundColor": "#FFFFFF"
       },
       "package": "co.lessisbetter.folio",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "edgeToEdgeEnabled": true
     },
     "web": {
       "bundler": "metro",
