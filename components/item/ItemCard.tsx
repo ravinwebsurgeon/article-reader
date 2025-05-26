@@ -113,17 +113,19 @@ const makeStyles = (theme: Theme, isDarkMode: boolean) =>
       flexDirection: "row",
       alignItems: "center",
       backgroundColor: theme.colors.gray[200],
-      paddingHorizontal: 10,
-      paddingVertical: 2,
-      borderRadius: 8,
+      height: 24,
+      paddingLeft: 8,
+      paddingRight: 10,
+      borderRadius: 4,
+      marginBottom: 4,
       marginRight: 4,
-      minHeight: 24,
     },
     tagIconSvg: {
       marginRight: 2,
     },
     tagText: {
       marginLeft: 4,
+      lineHeight: 14,
     },
     menuButton: {
       paddingLeft: 8,
