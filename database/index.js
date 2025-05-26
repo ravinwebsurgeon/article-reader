@@ -9,6 +9,7 @@ import Tag from "./models/TagModel";
 import ItemTag from "./models/ItemTagModel";
 import ItemContent from "./models/ItemContentModel";
 import { getAdapter } from "./adapter";
+import Annotation from "./models/AnnotationModel";
 
 setGenerator(() => ulid());
 
@@ -16,7 +17,7 @@ let adapter = getAdapter(schema, migrations);
 
 const database = new Database({
   adapter,
-  modelClasses: [Item, Tag, ItemTag, ItemContent],
+  modelClasses: [Item, Tag, ItemTag, ItemContent, Annotation],
 });
 
 export default database;

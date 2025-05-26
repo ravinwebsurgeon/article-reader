@@ -5,6 +5,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { debounce, DebouncedFunc } from "lodash-es";
 import { Subscription } from "rxjs";
 import ItemContentSyncer from "./ItemContentSyncer";
+import { Platform } from "react-native";
 
 // API URL from environment configuration.
 const API_URL = Constants.expoConfig?.extra?.apiUrl || "https://api.pckt.dev/v4";
@@ -76,7 +77,7 @@ class SyncEngine {
     }
 
     // Only watch tables that should be synced with the server
-    const tables = ["items", "tags", "item_tags"];
+    const tables = ["items", "tags", "item_tags", "annotations"];
     console.log(`${LOG_PREFIX} Setting up watch for changes on tables: ${tables.join(", ")}`);
     this.subscription = this.database.withChangesForTables(tables).subscribe((changes) => {
       if (changes) {
@@ -233,7 +234,8 @@ class SyncEngine {
     this.isSyncing = true;
     const syncStartTime = Date.now();
     console.log(`${LOG_PREFIX} Starting sync operation (isFirstSync: ${isFirstSync})`);
-    const useTurbo = isFirstSync;
+    const isWeb = Platform.OS === "web";
+    const useTurbo = isFirstSync && !isWeb;
     let syncError: Error | null = null; // Track error state for the finally block.
 
     try {

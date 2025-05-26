@@ -6,6 +6,7 @@ import Item from "./models/ItemModel";
 import Tag from "./models/TagModel";
 import ItemTag from "./models/ItemTagModel";
 import ItemContent from "./models/ItemContentModel";
+import Annotation from "./models/AnnotationModel";
 import { setGenerator } from "@nozbe/watermelondb/utils/common/randomId";
 import { ulid } from "ulid";
 
@@ -28,7 +29,7 @@ const adapter = new LokiJSAdapter({
 
 export const database = new Database({
   adapter,
-  modelClasses: [Item, Tag, ItemTag, ItemContent],
+  modelClasses: [Item, Tag, ItemTag, ItemContent, Annotation],
 });
 
 export default database;

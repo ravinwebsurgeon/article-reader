@@ -11,6 +11,7 @@ import {
 import ItemTag from "./ItemTagModel";
 import Tag from "./TagModel";
 import ItemContent from "./ItemContentModel";
+import Annotation from "./AnnotationModel";
 
 export default class Item extends Model {
   static table = "items";
@@ -18,6 +19,7 @@ export default class Item extends Model {
   static associations = {
     item_tags: { type: "has_many" as const, foreignKey: "item_id" },
     item_contents: { type: "has_many" as const, foreignKey: "item_id" },
+    annotations: { type: "has_many" as const, foreignKey: "item_id" },
   };
 
   // Fields
@@ -51,6 +53,7 @@ export default class Item extends Model {
   // Relationships
   @children("item_tags") itemTags?: Query<ItemTag>;
   @children("item_contents") itemContentQuery?: Query<ItemContent>;
+  @children("annotations") annotations?: Query<Annotation>;
 
   // Lazy loaded tags
   @lazy

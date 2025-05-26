@@ -134,7 +134,7 @@ export const typography = {
   caption: createTextStyle(12, 16, 400 as FontWeight),
   caption2: createTextStyle(12, 14, 500 as FontWeight),
   overline: createTextStyle(10, 14, 500 as FontWeight, 1.5),
-  tagStyle: createTextStyle(13, 24, 600 as FontWeight),
+  tagStyle: createTextStyle(13, 24, 400 as FontWeight),
 
   // meta
   meta: createTextStyle(16, 18, 400 as FontWeight),
