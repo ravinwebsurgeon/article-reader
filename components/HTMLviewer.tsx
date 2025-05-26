@@ -63,7 +63,7 @@ const SkeletonLoader: React.FC<{ isDark?: boolean }> = ({ isDark = false }) => {
   const skeletonStyle = [styles.skeletonLine, { backgroundColor: baseColor }, pulseStyle];
 
   return (
-    <View style={[styles.skeletonContainer, { backgroundColor: isDark ? "#121212" : "#FFFFFF" }]}>
+    <View style={[styles.skeletonContainer, { backgroundColor: isDark ? "#242526" : "#FFFFFF" }]}>
       {/* Header skeleton */}
       <Animated.View style={[skeletonStyle, styles.skeletonHeader]} />
 
