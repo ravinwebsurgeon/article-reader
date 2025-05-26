@@ -72,7 +72,7 @@ ItemsFlatList.displayName = "ItemsFlatList";
 
 const styles = StyleSheet.create({
   listContainer: {
-    paddingBottom: 20,
+    flexGrow: 1,
   },
 });
 

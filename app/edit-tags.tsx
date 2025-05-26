@@ -10,6 +10,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme, useColors, useTypography } from "@/theme/hooks";
 import { ThemeText } from "@/components/primitives";
 import Tag from "@/database/models/TagModel";
@@ -315,9 +316,11 @@ export default function EditTagsScreen() {
   if (!itemId) {
     // Optionally, render a loading state or an error message
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ThemeText>Loading item data...</ThemeText>
-      </View>
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+          <ThemeText>Loading item data...</ThemeText>
+        </View>
+      </SafeAreaView>
     );
   }
 
@@ -343,7 +346,11 @@ export default function EditTagsScreen() {
     return <EnhancedView itemId={currentItemId} />;
   };
 
-  return <ItemDataLoader itemId={itemId} onCloseScreen={() => router.back()} />;
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
+      <ItemDataLoader itemId={itemId} onCloseScreen={() => router.back()} />
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({

@@ -119,7 +119,7 @@ const FilterTabs: React.FC<FilterTabsProps> = ({
       if (currentFilter === filterId) {
         return theme.colors.primary.main;
       }
-      return theme.colors.inputBackground;
+      return theme.colors.gray[200];
     },
     [currentFilter, theme.colors],
   );
