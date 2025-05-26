@@ -77,7 +77,7 @@ class SyncEngine {
     }
 
     // Only watch tables that should be synced with the server
-    const tables = ["items", "tags", "item_tags"];
+    const tables = ["items", "tags", "item_tags", "annotations"];
     console.log(`${LOG_PREFIX} Setting up watch for changes on tables: ${tables.join(", ")}`);
     this.subscription = this.database.withChangesForTables(tables).subscribe((changes) => {
       if (changes) {
