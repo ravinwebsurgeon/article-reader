@@ -128,16 +128,11 @@ const makeStyles = (theme: Theme, isDarkMode: boolean) =>
     menuButton: {
       paddingLeft: 8,
     },
-    thumbnailContainer: {
+    thumbnail: {
       width: 100,
       height: 75,
       borderRadius: 4,
-      overflow: "hidden",
-      backgroundColor: theme.colors.background.default,
-    },
-    thumbnail: {
-      width: "100%",
-      height: "100%",
+      backgroundColor: theme.colors.gray[100],
     },
     tagsGradient: {
       position: "absolute",
@@ -289,7 +284,6 @@ const ItemCardComponent = ({ item, itemTags, onPress, style }: ItemCardProps) =>
   }
 
   const readTime = item.readTime;
-  const thumbhashForPlaceholder: string | undefined = item.imageThumbHash ?? undefined;
 
   return (
     <>
@@ -315,17 +309,14 @@ const ItemCardComponent = ({ item, itemTags, onPress, style }: ItemCardProps) =>
               </View>
             </View>
             {item.imageUrl && (
-              <View style={styles.thumbnailContainer}>
-                <Image
-                  source={{ uri: item.imageUrl }}
-                  style={styles.thumbnail}
-                  contentFit="cover"
-                  transition={200}
-                  cachePolicy="memory-disk"
-                  placeholder={thumbhashForPlaceholder}
-                  recyclingKey={item.id}
-                />
-              </View>
+              <Image
+                source={{ uri: item.imageUrl }}
+                style={styles.thumbnail}
+                contentFit="cover"
+                cachePolicy="memory-disk"
+                recyclingKey={item.id}
+                transition={100}
+              />
             )}
           </View>
 
