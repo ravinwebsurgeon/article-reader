@@ -154,14 +154,14 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
                 line-height: 1.8;
                 padding: 20px;
                 color: \${isDark ? '#e0e0e0' : '#333'};
-                background-color: \${isDark ? '#121212' : '#ffffff'};
+                background-color: \${isDark ? '#242526' : '#ffffff'};
                 margin: 0;
                 -webkit-text-size-adjust: 100%;
                 overflow-wrap: break-word;
               }
               @media (prefers-color-scheme: dark) {
                 body {
-                  background-color: #121212;
+                  background-color: #242526;
                   color: #e0e0e0;
                 }
               }
