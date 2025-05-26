@@ -63,5 +63,17 @@ export default appSchema({
         { name: "updated_at", type: "number" },
       ],
     }),
+    tableSchema({
+      name: "annotations",
+      columns: [
+        { name: "item_id", type: "string", isIndexed: true },
+        { name: "text", type: "string" },
+        { name: "prefix", type: "string" },
+        { name: "suffix", type: "string" },
+        { name: "note", type: "string", isOptional: true },
+        { name: "created_at", type: "number" },
+        { name: "updated_at", type: "number" },
+      ],
+    }),
   ],
 });
