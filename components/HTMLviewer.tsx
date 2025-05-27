@@ -108,6 +108,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
     onSelectionChange,
     onShare,
     setContentHeight,
+    // isDarkMode,
   }) => {
     const webViewRef = useRef<WebView>(null);
     const [selectedText, setSelectedText] = useState<string>("");
@@ -136,48 +137,99 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
     );
 
     // Minimal initial JavaScript - just what's needed for first render
+    // Update the initialJavaScript to be more robust
     const initialJavaScript = useMemo(
       () => `
-        (function() {
-          // Detect dark mode
-          const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-          
-          // Add basic styles immediately for faster rendering
-          if (!document.getElementById('base-styles')) {
-            const style = document.createElement('style');
-            style.id = 'base-styles';
-            style.textContent = \`
-              body {
-                font-family: 'Literata', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-                
-                font-size: 18px;
-                line-height: 1.8;
-                padding: 20px;
-                color: \${isDark ? '#e0e0e0' : '#333'};
-                background-color: \${isDark ? '#242526' : '#ffffff'};
-                margin: 0;
-                -webkit-text-size-adjust: 100%;
-                overflow-wrap: break-word;
-              }
-              @media (prefers-color-scheme: dark) {
-                body {
-                  background-color: #242526;
-                  color: #e0e0e0;
-                }
-              }
-            \`;
-            document.head.appendChild(style);
+    (function() {
+      // Enhanced dark mode detection
+      const detectDarkMode = () => {
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      };
+      
+      let currentIsDark = detectDarkMode();
+      
+      // Function to update theme colors
+      const updateThemeColors = (isDark) => {
+        const bodyColor = isDark ? '#e0e0e0' : '#333';
+        const bgColor = isDark ? '#242526' : '#ffffff';
+        
+        document.body.style.color = bodyColor;
+        document.body.style.backgroundColor = bgColor;
+        document.documentElement.style.backgroundColor = bgColor;
+        
+        // Update CSS custom properties for more reliable theming
+        document.documentElement.style.setProperty('--text-color', bodyColor);
+        document.documentElement.style.setProperty('--bg-color', bgColor);
+      };
+      
+      // Add base styles with CSS custom properties
+      if (!document.getElementById('base-styles')) {
+        const style = document.createElement('style');
+        style.id = 'base-styles';
+        style.textContent = \`
+          :root {
+            --text-color: \${currentIsDark ? '#e0e0e0' : '#333'};
+            --bg-color: \${currentIsDark ? '#242526' : '#ffffff'};
           }
           
-          // Signal that initial render is ready
-          window.ReactNativeWebView.postMessage(JSON.stringify({
-            type: 'webview-ready',
-            isDark: isDark
-          }));
+          html, body {
+            font-family: 'Literata', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            font-size: 18px;
+            line-height: 1.8;
+            padding: 20px;
+            color: var(--text-color) !important;
+            background-color: var(--bg-color) !important;
+            margin: 0;
+            -webkit-text-size-adjust: 100%;
+            overflow-wrap: break-word;
+            transition: background-color 0.3s ease, color 0.3s ease;
+          }
           
-          return true;
-        })();
-      `,
+          * {
+            color: inherit;
+          }
+        \`;
+        document.head.appendChild(style);
+      }
+      
+      // Apply initial theme
+      updateThemeColors(currentIsDark);
+      
+      // Listen for theme changes
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleThemeChange = (e) => {
+        currentIsDark = e.matches;
+        updateThemeColors(currentIsDark);
+        
+        // Notify React Native about theme change
+        window.ReactNativeWebView.postMessage(JSON.stringify({
+          type: 'theme-changed',
+          isDark: currentIsDark
+        }));
+      };
+      
+      if (mediaQuery.addListener) {
+        mediaQuery.addListener(handleThemeChange);
+      } else if (mediaQuery.addEventListener) {
+        mediaQuery.addEventListener('change', handleThemeChange);
+      }
+      
+      // Store theme change handler for cleanup
+      window.themeChangeHandler = handleThemeChange;
+      window.mediaQuery = mediaQuery;
+      
+      // Expose theme update function for manual control
+      window.updateTheme = updateThemeColors;
+      
+      // Signal that initial render is ready
+      window.ReactNativeWebView.postMessage(JSON.stringify({
+        type: 'webview-ready',
+        isDark: currentIsDark
+      }));
+      
+      return true;
+    })();
+  `,
       [],
     );
 
@@ -267,6 +319,17 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
                   background-color: rgba(255, 255, 0, 0.25);
                 }
               }
+                 /* Dark mode highlight adjustment */
+          @media (prefers-color-scheme: dark) {
+            .text-highlight {
+              background-color: rgba(255, 255, 0, 0.25);
+            }
+          }
+          
+          /* Force dark mode when CSS variables indicate dark theme */
+          [style*="--bg-color: #242526"] .text-highlight {
+            background-color: rgba(255, 255, 0, 0.25) !important;
+          }
             \`;
             document.head.appendChild(enhancedStyle);
           }
@@ -512,6 +575,11 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             case "highlight-clicked":
               // setSelectedHighlightId(data.id);
               break;
+
+            case "theme-changed":
+              setIsDarkMode(data.isDark || false);
+              // Force a re-render of any theme-dependent elements
+              break;
           }
         } catch (error) {
           console.error("Error handling WebView message:", error);
@@ -526,6 +594,29 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
         fadeAnim,
       ],
     );
+
+    // Add a method to manually update theme (call this when you detect theme changes in React Native)
+    const updateWebViewTheme = useCallback(
+      (isDark: boolean) => {
+        if (!webViewRef.current || !isWebViewReady) return;
+
+        webViewRef.current.injectJavaScript(`
+    if (window.updateTheme) {
+      window.updateTheme(${isDark});
+    }
+    true;
+  `);
+      },
+      [isWebViewReady],
+    );
+
+    // Add useEffect to handle prop-based theme changes
+    React.useEffect(() => {
+      if (isDarkMode !== undefined && isDarkMode !== isDarkMode) {
+        updateWebViewTheme(isDarkMode);
+        setIsDarkMode(isDarkMode);
+      }
+    }, [isDarkMode, isDarkMode, updateWebViewTheme]);
 
     // Handle WebView load events
     const handleLoadStart = useCallback(() => {
