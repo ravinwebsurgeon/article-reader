@@ -430,20 +430,13 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
                 </ThemeView>
               )}
               <HTMLViewer
+                item={item}
                 html={processedContent}
                 style={styles.webView}
                 onHighlightAdded={handleHighlightAdded}
                 onHighlightRemoved={handleHighlightRemoved}
                 onSelectionChange={handleSelectionChange}
                 onShare={handleShareSelectedText}
-                // onScroll={handleScroll}
-                onContentSizeChange={(width, height) => {
-                  setContentHeight(height);
-                }}
-                onLayout={(event: any) => {
-                  const { height }: { height: number } = event.nativeEvent.layout;
-                  setScrollViewHeight(height);
-                }}
               />
               <ThemeView style={styles.afterReadingSection}>
                 <ThemeView
