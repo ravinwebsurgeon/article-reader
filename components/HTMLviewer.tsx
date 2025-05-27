@@ -15,12 +15,7 @@ interface HTMLViewerProps {
   onHighlightRemoved?: (id: unknown) => void;
   onSelectionChange?: (selectedText: string) => void;
   onShare?: (text: string) => void;
-  onScroll?: (event: unknown) => void;
-  onContentSizeChange?: (width: number, height: number) => void;
-  onLayout?: (event: unknown) => void;
   setContentHeight?: (height: number) => void;
-  setScrollViewHeight?: (height: number) => void;
-  handleScroll?: (event: unknown) => void;
 }
 
 interface HighlightData {
@@ -108,7 +103,6 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
     onSelectionChange,
     onShare,
     setContentHeight,
-    // isDarkMode,
   }) => {
     const webViewRef = useRef<WebView>(null);
     const [selectedText, setSelectedText] = useState<string>("");
@@ -245,7 +239,6 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
               @font-face {
                 font-family: 'Literata';
                 src: url(data:font/ttf;charset=utf-8;base64,${leterataFontBase64});
-                    //  url('file:///android_asset/fonts/Literata/Literata_18pt-Regular.ttf') format('truetype');
                 font-weight: normal;
                 font-style: normal;
                 font-display: swap; /* Improve font loading performance */
@@ -253,7 +246,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
               @font-face {
                 font-family: 'Literata';
                 src: url(data:font/ttf;charset=utf-8;base64, ${literataBold18base64});
-                    //  url('file:///android_asset/fonts/Literata/Literata_18pt-Bold.ttf') format('truetype');
+                //  url('file:///android_asset/fonts/Literata/Literata_18pt-Bold.ttf') format('truetype');
                 font-weight: bold;
                 font-style: normal;
                 font-display: swap;
@@ -314,17 +307,13 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
               .text-highlight:active {
                 opacity: 0.8;
               }
+
+              /* Dark mode highlight adjustment */
               @media (prefers-color-scheme: dark) {
                 .text-highlight {
                   background-color: rgba(255, 255, 0, 0.25);
                 }
               }
-                 /* Dark mode highlight adjustment */
-          @media (prefers-color-scheme: dark) {
-            .text-highlight {
-              background-color: rgba(255, 255, 0, 0.25);
-            }
-          }
           
           /* Force dark mode when CSS variables indicate dark theme */
           [style*="--bg-color: #242526"] .text-highlight {
