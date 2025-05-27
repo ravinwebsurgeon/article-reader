@@ -6,11 +6,15 @@ import * as Clipboard from "expo-clipboard";
 import { ThemeView } from "./primitives";
 import { leterataFontBase64 } from "@/constants/leterataFontBase64";
 import { literataBold18base64 } from "@/constants/literateBold18Base64";
+import { useDatabase } from "@/database/provider/DatabaseProvider";
+import Annotation from "@/database/models/AnnotationModel";
+import Item from "@/database/models/ItemModel";
 
 interface HTMLViewerProps {
   html: string;
   baseUrl?: string;
   style?: object;
+  item: Item; // Add item prop to identify which item annotations belong to
   onHighlightAdded?: (id: unknown, text: string, color: string) => void;
   onHighlightRemoved?: (id: unknown) => void;
   onSelectionChange?: (selectedText: string) => void;
@@ -22,6 +26,8 @@ interface HighlightData {
   id: string;
   text: string;
   color: string;
+  prefix?: string;
+  suffix?: string;
 }
 
 // Skeleton component for loading state
@@ -98,6 +104,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
     html,
     baseUrl,
     style,
+    item,
     onHighlightAdded,
     onHighlightRemoved,
     onSelectionChange,
@@ -105,6 +112,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
     setContentHeight,
   }) => {
     const webViewRef = useRef<WebView>(null);
+    const { database } = useDatabase();
     const [selectedText, setSelectedText] = useState<string>("");
     const [highlights, setHighlights] = useState<HighlightData[]>([]);
     const [selectedHighlightId, setSelectedHighlightId] = useState<string | null>(null);
@@ -116,6 +124,94 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
     console.log(highlights);
+
+    // Load existing annotations when component mounts
+    React.useEffect(() => {
+      const loadExistingAnnotations = async () => {
+        if (!database || !item.annotations) return;
+        
+        try {
+          const existingAnnotations = await item.annotations.fetch();
+          const highlightData = existingAnnotations.map(annotation => ({
+            id: annotation.id,
+            text: annotation.text || '',
+            color: '#FFFF00', // Default yellow color
+            prefix: annotation.prefix || '',
+            suffix: annotation.suffix || '',
+          }));
+          
+          setHighlights(highlightData);
+          
+          // Inject highlights into WebView once it's ready
+          if (isWebViewReady && webViewRef.current && highlightData.length > 0) {
+            const restoreScript = highlightData.map(highlight => 
+              `window.restoreHighlight && window.restoreHighlight('${highlight.id}', '${highlight.text}', '${highlight.prefix}', '${highlight.suffix}', '${highlight.color}');`
+            ).join('\n');
+            
+            webViewRef.current.injectJavaScript(`
+              ${restoreScript}
+              true;
+            `);
+          }
+        } catch (error) {
+          console.error('Error loading existing annotations:', error);
+        }
+      };
+
+      loadExistingAnnotations();
+    }, [database, item, isWebViewReady]);
+
+    // Save annotation to database
+    const saveAnnotationToDatabase = useCallback(async (
+      annotationId: string,
+      text: string,
+      prefix: string,
+      suffix: string,
+      color: string = '#FFFF00'
+    ) => {
+      if (!database) {
+        console.error('Database not available');
+        return;
+      }
+
+      try {
+        await database.write(async () => {
+          await database.get<Annotation>('annotations').create((annotation) => {
+            annotation._raw.id = annotationId;
+            if (annotation.item) {
+              annotation.item.set(item);
+            }
+            annotation.text = text;
+            annotation.prefix = prefix;
+            annotation.suffix = suffix;
+            annotation.note = null; // Can be used later for user notes
+          });
+        });
+        
+        console.log('Annotation saved successfully:', annotationId);
+      } catch (error) {
+        console.error('Error saving annotation to database:', error);
+      }
+    }, [database, item]);
+
+    // Remove annotation from database
+    const removeAnnotationFromDatabase = useCallback(async (annotationId: string) => {
+      if (!database) {
+        console.error('Database not available');
+        return;
+      }
+
+      try {
+        await database.write(async () => {
+          const annotation = await database.get<Annotation>('annotations').find(annotationId);
+          await annotation.markAsDeleted();
+        });
+        
+        console.log('Annotation removed successfully:', annotationId);
+      } catch (error) {
+        console.error('Error removing annotation from database:', error);
+      }
+    }, [database]);
 
     // Debounce height changes to prevent rapid re-renders
     const debouncedSetHeight = useCallback(
@@ -337,6 +433,24 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           document.body.style.margin = '0';
           document.body.style.padding = '0';
 
+          // Utility function to get text context around selection
+          function getTextContext(range, contextLength = 50) {
+            const container = range.commonAncestorContainer;
+            const fullText = container.textContent || '';
+            const startOffset = range.startOffset;
+            const endOffset = range.endOffset;
+            
+            // Get prefix (text before selection)
+            const prefixStart = Math.max(0, startOffset - contextLength);
+            const prefix = fullText.substring(prefixStart, startOffset);
+            
+            // Get suffix (text after selection)
+            const suffixEnd = Math.min(fullText.length, endOffset + contextLength);
+            const suffix = fullText.substring(endOffset, suffixEnd);
+            
+            return { prefix, suffix };
+          }
+
           // Setup event listeners
           if (!window.highlightSelectionInitialized) {
             window.highlightSelectionInitialized = true;
@@ -378,27 +492,35 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             });
           }
 
-          // Function to highlight text
+          // Function to highlight text with context
           window.highlightSelection = function(color) {
             const selection = window.getSelection();
             if (!selection.toString()) return null;
             
             const range = selection.getRangeAt(0);
             const highlightId = 'highlight-' + Date.now();
+            const selectedText = selection.toString();
+            
+            // Get context around the selection
+            const { prefix, suffix } = getTextContext(range);
             
             const highlightEl = document.createElement('span');
             highlightEl.id = highlightId;
             highlightEl.className = 'text-highlight';
             highlightEl.style.backgroundColor = color;
             highlightEl.setAttribute('role', 'mark');
-            highlightEl.setAttribute('aria-label', 'Highlighted text: ' + selection.toString());
+            highlightEl.setAttribute('aria-label', 'Highlighted text: ' + selectedText);
+            highlightEl.setAttribute('data-prefix', prefix);
+            highlightEl.setAttribute('data-suffix', suffix);
             
             try {
               range.surroundContents(highlightEl);
               window.ReactNativeWebView.postMessage(JSON.stringify({
                 type: 'highlight-added',
                 id: highlightId,
-                text: highlightEl.textContent,
+                text: selectedText,
+                prefix: prefix,
+                suffix: suffix,
                 color: color
               }));
               return highlightId;
@@ -406,6 +528,53 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
               console.error('Error highlighting:', e);
               return null;
             }
+          };
+
+          // Function to restore highlights from database
+          window.restoreHighlight = function(highlightId, text, prefix, suffix, color) {
+            // Find text using prefix and suffix context
+            const walker = document.createTreeWalker(
+              document.body,
+              NodeFilter.SHOW_TEXT,
+              null,
+              false
+            );
+            
+            let node;
+            while (node = walker.nextNode()) {
+              const nodeText = node.textContent || '';
+              const textIndex = nodeText.indexOf(text);
+              
+              if (textIndex !== -1) {
+                // Check if context matches
+                const beforeText = nodeText.substring(Math.max(0, textIndex - prefix.length), textIndex);
+                const afterText = nodeText.substring(textIndex + text.length, textIndex + text.length + suffix.length);
+                
+                if (beforeText.includes(prefix.slice(-20)) && afterText.includes(suffix.slice(0, 20))) {
+                  // Create highlight
+                  const range = document.createRange();
+                  range.setStart(node, textIndex);
+                  range.setEnd(node, textIndex + text.length);
+                  
+                  const highlightEl = document.createElement('span');
+                  highlightEl.id = highlightId;
+                  highlightEl.className = 'text-highlight';
+                  highlightEl.style.backgroundColor = color;
+                  highlightEl.setAttribute('role', 'mark');
+                  highlightEl.setAttribute('aria-label', 'Highlighted text: ' + text);
+                  highlightEl.setAttribute('data-prefix', prefix);
+                  highlightEl.setAttribute('data-suffix', suffix);
+                  
+                  try {
+                    range.surroundContents(highlightEl);
+                    return true;
+                  } catch (e) {
+                    console.error('Error restoring highlight:', e);
+                  }
+                }
+              }
+            }
+            return false;
           };
 
           window.removeHighlight = function(highlightId) {
@@ -547,8 +716,20 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
                 id: data.id,
                 text: data.text,
                 color: data.color,
+                prefix: data.prefix,
+                suffix: data.suffix,
               };
               setHighlights((prev) => [...prev, newHighlight]);
+              
+              // Save to database
+              saveAnnotationToDatabase(
+                data.id,
+                data.text as string,
+                data.prefix as string,
+                data.suffix as string,
+                data.color as string
+              );
+              
               if (onHighlightAdded) {
                 onHighlightAdded(data.id, data.text as string, data.color as string);
               }
@@ -556,6 +737,10 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
 
             case "highlight-removed":
               setHighlights((prev) => prev.filter((h) => h.id !== data.id));
+              
+              // Remove from database
+              removeAnnotationFromDatabase(data.id);
+              
               if (onHighlightRemoved) {
                 onHighlightRemoved(data.id);
               }
@@ -581,6 +766,8 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
         onSelectionChange,
         fullFeaturesJavaScript,
         fadeAnim,
+        saveAnnotationToDatabase,
+        removeAnnotationFromDatabase,
       ],
     );
 
