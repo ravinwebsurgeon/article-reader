@@ -16,6 +16,7 @@
         "light": "./assets/images/ios-light.png",
         "tinted": "./assets/images/ios-tinted.png"
       },
+      "associatedDomains": ["applinks:yourapp.com"],
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -72,7 +73,9 @@
       "expo-font",
       "expo-web-browser",
       "expo-localization",
-      "./plugins/withLargeHeap"
+      "./plugins/withLargeHeap",
+      "./plugins/withShareIntent",
+      "./plugins/withIOShareExtension"
     ],
     "experiments": {
       "typedRoutes": true

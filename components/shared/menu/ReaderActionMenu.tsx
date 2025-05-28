@@ -1,7 +1,8 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback } from "react";
 import Item from "@/database/models/ItemModel";
 import ReusableActionMenu, { ActionMenuItem, ActionMenuPosition } from "./ReusableActionMenu";
-import { Linking } from "react-native";
+import { Linking, Share } from "react-native";
 import { useTheme } from "@/theme";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "expo-router";
@@ -60,9 +61,24 @@ const ReaderActionMenu: React.FC<ReaderActionMenuProps> = ({
         id: "share",
         label: t("menu.share"),
         icon: "share",
-        onPress: () => {
+        onPress: async () => {
           // Implement share functionality
-          console.log("Share item:", item.id);
+          try {
+            // Close action menu first
+            onClose();
+
+            // Prepare share content
+            const title = item.title ?? "Article";
+            const url = item.url;
+
+            await Share.share({
+              message: url as string,
+              title: title,
+              url: url,
+            });
+          } catch (error) {
+            console.error("Error sharing article:", error);
+          }
         },
         dividerAfter: true,
       },
