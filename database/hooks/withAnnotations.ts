@@ -19,11 +19,11 @@ export const createAnnotation = async (
   text: string,
   prefix: string,
   suffix: string,
-  note?: string
+  note?: string,
 ): Promise<Annotation> => {
   return database.write(async () => {
     const item = await database.get<Item>("items").find(itemId);
-    
+
     const newAnnotation = await annotationsCollection.create((annotation) => {
       if (annotation.item) {
         annotation.item.set(item);
@@ -33,7 +33,7 @@ export const createAnnotation = async (
       annotation.suffix = suffix;
       annotation.note = note || null;
     });
-    
+
     return newAnnotation;
   });
 };
@@ -66,20 +66,20 @@ interface WithItemAnnotationsProps {
  * HOC that provides a reactive list of annotations for a specific item
  */
 export const withItemAnnotations = () => {
-  return withObservables<
-    WithItemAnnotationsProps,
-    { annotations: Observable<Annotation[]> }
-  >(["item"], ({ item }: WithItemAnnotationsProps) => {
-    if (!item) {
-      return { annotations: new Observable(subscriber => subscriber.next([])) };
-    }
+  return withObservables<WithItemAnnotationsProps, { annotations: Observable<Annotation[]> }>(
+    ["item"],
+    ({ item }: WithItemAnnotationsProps) => {
+      if (!item) {
+        return { annotations: new Observable((subscriber) => subscriber.next([])) };
+      }
 
-    const annotations = annotationsCollection
-      .query(Q.where("item_id", item.id), Q.sortBy("created_at", Q.asc))
-      .observe();
+      const annotations = annotationsCollection
+        .query(Q.where("item_id", item.id), Q.sortBy("created_at", Q.asc))
+        .observe();
 
-    return {
-      annotations,
-    };
-  });
+      return {
+        annotations,
+      };
+    },
+  );
 };

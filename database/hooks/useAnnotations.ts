@@ -1,14 +1,14 @@
 // hooks/useAnnotations.ts - React Native version
-import { useState, useEffect, useCallback } from 'react';
-import { withObservables } from '@nozbe/watermelondb/react';
-import Item from '@/database/models/ItemModel';
-import Annotation from '@/database/models/AnnotationModel';
-import { 
-  handleTextHighlight, 
-  loadAnnotations, 
+import { useState, useEffect, useCallback } from "react";
+import { withObservables } from "@nozbe/watermelondb/react";
+import Item from "@/database/models/ItemModel";
+import Annotation from "@/database/models/AnnotationModel";
+import {
+  handleTextHighlight,
+  loadAnnotations,
   deleteAnnotation,
-  updateAnnotationNote 
-} from './annotationHelpers';
+  updateAnnotationNote,
+} from "./annotationHelpers";
 
 interface SelectionData {
   selectedText: string;
@@ -32,8 +32,8 @@ interface UseAnnotationsReturn {
 
 // HOC for reactive annotations
 export const withAnnotations = () => {
-  return withObservables(['item'], ({ item }: { item: Item }) => ({
-    annotations: item.annotations?.observe() || [],
+  return withObservables(["item"], ({ item }: { item: Item }) => ({
+    annotations: item.annotations?.observe() ?? [],
   }));
 };
 
@@ -49,7 +49,7 @@ export const useAnnotations = ({ item }: UseAnnotationsOptions): UseAnnotationsR
       const existingAnnotations = await loadAnnotations(item);
       setAnnotations(existingAnnotations);
     } catch (error) {
-      console.error('Error loading annotations:', error);
+      console.error("Error loading annotations:", error);
     } finally {
       setIsLoading(false);
     }
@@ -63,46 +63,47 @@ export const useAnnotations = ({ item }: UseAnnotationsOptions): UseAnnotationsR
   useEffect(() => {
     if (!item.annotations) return;
 
-    const subscription = item.annotations.observe().subscribe(
-      (updatedAnnotations) => {
-        setAnnotations(updatedAnnotations);
-        setIsLoading(false);
-      }
-    );
+    const subscription = item.annotations.observe().subscribe((updatedAnnotations) => {
+      setAnnotations(updatedAnnotations);
+      setIsLoading(false);
+    });
 
     return () => subscription.unsubscribe();
   }, [item]);
 
   // Save highlight
-  const saveHighlight = useCallback(async (selectionData: SelectionData): Promise<Annotation | null> => {
-    if (!selectionData.selectedText.trim() || !item) return null;
+  const saveHighlight = useCallback(
+    async (selectionData: SelectionData): Promise<Annotation | null> => {
+      if (!selectionData.selectedText.trim() || !item) return null;
 
-    try {
-      const annotation = await handleTextHighlight(item, selectionData);
-      if (annotation) {
-        // The reactive subscription should automatically update the state
-        // But we can also manually update for immediate feedback
-        setAnnotations(prev => {
-          const exists = prev.some(ann => ann.id === annotation.id);
-          return exists ? prev : [...prev, annotation];
-        });
-        return annotation;
+      try {
+        const annotation = await handleTextHighlight(item, selectionData);
+        if (annotation) {
+          // The reactive subscription should automatically update the state
+          // But we can also manually update for immediate feedback
+          setAnnotations((prev) => {
+            const exists = prev.some((ann) => ann.id === annotation.id);
+            return exists ? prev : [...prev, annotation];
+          });
+          return annotation;
+        }
+      } catch (error) {
+        console.error("Failed to save highlight:", error);
       }
-    } catch (error) {
-      console.error('Failed to save highlight:', error);
-    }
-    
-    return null;
-  }, [item]);
+
+      return null;
+    },
+    [item],
+  );
 
   // Delete highlight
   const deleteHighlight = useCallback(async (annotation: Annotation): Promise<void> => {
     try {
       await deleteAnnotation(annotation);
       // Update local state immediately for better UX
-      setAnnotations(prev => prev.filter(ann => ann.id !== annotation.id));
+      setAnnotations((prev) => prev.filter((ann) => ann.id !== annotation.id));
     } catch (error) {
-      console.error('Failed to delete annotation:', error);
+      console.error("Failed to delete annotation:", error);
       throw error;
     }
   }, []);
@@ -112,15 +113,11 @@ export const useAnnotations = ({ item }: UseAnnotationsOptions): UseAnnotationsR
     try {
       await updateAnnotationNote(annotation, note);
       // Update local state immediately
-      setAnnotations(prev => 
-        prev.map(ann => 
-          ann.id === annotation.id 
-            ? { ...ann, note } 
-            : ann
-        )
-      );
+      // setAnnotations((prev) =>
+      //   prev.map((ann) => (ann.id === annotation.id ? { ...ann, note } : ann)),
+      // );
     } catch (error) {
-      console.error('Failed to update annotation note:', error);
+      console.error("Failed to update annotation note:", error);
       throw error;
     }
   }, []);
@@ -140,35 +137,39 @@ export const useWebViewAnnotations = (item: Item) => {
   const { annotations, saveHighlight, deleteHighlight, updateNote } = useAnnotations({ item });
 
   // Handle WebView messages
-  const handleWebViewMessage = useCallback(async (event: any) => {
-    try {
-      const data = JSON.parse(event.nativeEvent.data);
-      
-      switch (data.type) {
-        case 'textSelected':
-          return await saveHighlight({
-            selectedText: data.selectedText,
-            selectionStart: data.selectionStart,
-            selectionEnd: data.selectionEnd,
-            fullText: data.fullText
-          });
-        
-        case 'highlightClicked':
-          const annotation = annotations.find(ann => ann.id === data.annotationId);
-          return annotation;
-        
-        default:
-          console.log('Unknown WebView message type:', data.type);
-          return null;
+  const handleWebViewMessage = useCallback(
+    async (event: { nativeEvent: { data: string } }) => {
+      try {
+        const data = JSON.parse(event.nativeEvent.data);
+
+        switch (data.type) {
+          case "textSelected":
+            return await saveHighlight({
+              selectedText: data.selectedText,
+              selectionStart: data.selectionStart,
+              selectionEnd: data.selectionEnd,
+              fullText: data.fullText,
+            });
+
+          case "highlightClicked":
+            const annotation = annotations.find((ann) => ann.id === data.annotationId);
+            return annotation;
+
+          default:
+            console.log("Unknown WebView message type:", data.type);
+            return null;
+        }
+      } catch (error) {
+        console.error("Error handling WebView message:", error);
+        return null;
       }
-    } catch (error) {
-      console.error('Error handling WebView message:', error);
-      return null;
-    }
-  }, [saveHighlight, annotations]);
+    },
+    [saveHighlight, annotations],
+  );
 
   // JavaScript to inject into WebView
-  const getInjectedJavaScript = useCallback(() => `
+  const getInjectedJavaScript = useCallback(
+    () => `
     (function() {
       let isSelecting = false;
       
@@ -220,7 +221,9 @@ export const useWebViewAnnotations = (item: Item) => {
       });
     })();
     true;
-  `, []);
+  `,
+    [],
+  );
 
   return {
     annotations,
