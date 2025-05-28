@@ -81,7 +81,7 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
   };
 
   // Handle highlight removed
-  const handleHighlightRemoved = (id: any) => {
+  const handleHighlightRemoved = (id: string) => {
     setHighlights((prev) => prev.filter((h) => h.id !== id));
   };
 
@@ -90,7 +90,7 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
     setSelectedText(text);
   };
 
-  const handleShareSelectedText = async (text: any) => {
+  const handleShareSelectedText = async (text: string) => {
     try {
       await Share.share({
         message: text,
@@ -137,6 +137,8 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
       return () => clearTimeout(timer);
     }
   }, [contentHeight, scrollViewHeight, item.progress, hasRestoredPosition]);
+
+  // console.log("item content", marked.parse(content?.content ?? "") as string);
 
   // Process markdown content
   const processedContent = useMemo(() => {
@@ -383,7 +385,7 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
                 {content?.dek && (
                   <ThemeText
                     variant="meta"
-                    color={theme.colors.text.secondary}
+                    color={theme.colors.text.primary}
                     style={[styles.dekText]}
                   >
                     {content.dek}
@@ -391,7 +393,11 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
                 )}
 
                 {content?.author && (
-                  <ThemeText variant="meta" style={styles.authorText}>
+                  <ThemeText
+                    variant="meta"
+                    color={theme.colors.text.primary}
+                    style={styles.authorText}
+                  >
                     {content.author}
                   </ThemeText>
                 )}
@@ -423,20 +429,13 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
                 </ThemeView>
               )}
               <HTMLViewer
+                item={item}
                 html={processedContent}
                 style={styles.webView}
                 onHighlightAdded={handleHighlightAdded}
                 onHighlightRemoved={handleHighlightRemoved}
                 onSelectionChange={handleSelectionChange}
                 onShare={handleShareSelectedText}
-                // onScroll={handleScroll}
-                onContentSizeChange={(width, height) => {
-                  setContentHeight(height);
-                }}
-                onLayout={(event: any) => {
-                  const { height }: { height: number } = event.nativeEvent.layout;
-                  setScrollViewHeight(height);
-                }}
               />
               <ThemeView style={styles.afterReadingSection}>
                 <ThemeView
@@ -634,7 +633,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     letterSpacing: 0,
     textAlign: "left",
-    color: "rgba(28, 31, 33, 0.72)",
+    // color: "rgba(28, 31, 33, 0.72)",
     fontFamily: "Inter-Regular",
     marginBottom: 0,
   },
@@ -644,7 +643,7 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     letterSpacing: 0,
     textAlign: "left",
-    color: "#1C1F21",
+    // color: "#1C1F21",
     fontFamily: "Inter-Regular",
     marginBottom: 16,
   },
@@ -654,7 +653,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     letterSpacing: 0,
     textAlign: "left",
-    color: "#1C1F21",
+    // color: "#1C1F21",
     fontFamily: "Inter-Regular",
     marginBottom: 4,
   },
@@ -721,9 +720,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     fontFamily: "Literata-ExtraBold",
     lineHeight: 38,
-    letterSpacing: -0.2,
+    letterSpacing: 0,
     fontSize: 32,
-    color: "#1C1F21",
+    // color: "#1C1F21",
   },
   metaContainer: {
     marginBottom: 24,
