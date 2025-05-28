@@ -46,7 +46,6 @@ const FONTS = {
   "Literata-BoldItalic": require("../assets/fonts/Literata/Literata-BoldItalic.ttf"),
   "Literata-ExtraBold": require("../assets/fonts/Literata/Literata_60pt-ExtraBold.ttf"),
   "Literata-ExtraBoldItalic": require("../assets/fonts/Literata/Literata-ExtraBoldItalic.ttf"),
-  
 };
 
 /**
@@ -121,24 +120,24 @@ function RootLayoutNav() {
       const sharedUrl = await ShareHandler.handleInitialShare();
       if (sharedUrl) {
         const result = await ShareHandler.saveLink(sharedUrl);
-        Alert.alert('Success', result.message);
+        Alert.alert("Success", result.message);
       }
     };
 
     // Handle deep links while app is running
-    const handleDeepLink = (event) => {
+    const handleDeepLink = (event: { url: string }) => {
       const url = ShareHandler.extractUrlFromIntent(event.url);
       if (url) {
         ShareHandler.saveLink(url).then((result) => {
-          Alert.alert('Success', result.message);
+          Alert.alert("Success", result.message);
         });
       }
     };
 
     handleInitialShare();
-    
-    const subscription = Linking.addEventListener('url', handleDeepLink);
-    
+
+    const subscription = Linking.addEventListener("url", handleDeepLink);
+
     return () => subscription?.remove();
   }, []);
 

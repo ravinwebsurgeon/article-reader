@@ -35,7 +35,6 @@ import HTMLViewer from "@/components/HTMLviewer";
 import { map, switchMap } from "rxjs/operators";
 import { of as observableOf } from "rxjs";
 import { Image } from "expo-image";
-import { typography } from "@/theme";
 import Svg, { Path } from "react-native-svg";
 
 interface Highlight {
@@ -82,7 +81,7 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
   };
 
   // Handle highlight removed
-  const handleHighlightRemoved = (id: any) => {
+  const handleHighlightRemoved = (id: string) => {
     setHighlights((prev) => prev.filter((h) => h.id !== id));
   };
 
@@ -91,7 +90,7 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
     setSelectedText(text);
   };
 
-  const handleShareSelectedText = async (text: any) => {
+  const handleShareSelectedText = async (text: string) => {
     try {
       await Share.share({
         message: text,
@@ -139,7 +138,7 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
     }
   }, [contentHeight, scrollViewHeight, item.progress, hasRestoredPosition]);
 
-  console.log("item content", marked.parse(content?.content ?? "") as string);
+  // console.log("item content", marked.parse(content?.content ?? "") as string);
 
   // Process markdown content
   const processedContent = useMemo(() => {

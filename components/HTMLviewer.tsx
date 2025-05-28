@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 //HTMLViewer.tsx
-import React, { useRef, useState, useCallback, useMemo } from "react";
-import { StyleSheet, View, Animated } from "react-native";
+import React, { useRef, useState, useCallback, useMemo, useEffect } from "react";
+import { StyleSheet, View, Animated, ActivityIndicator } from "react-native";
 import WebView from "react-native-webview";
 import * as Clipboard from "expo-clipboard";
 import { ThemeView } from "./primitives";
@@ -9,14 +10,18 @@ import { literataBold18base64 } from "@/constants/literateBold18Base64";
 import { useDatabase } from "@/database/provider/DatabaseProvider";
 import Annotation from "@/database/models/AnnotationModel";
 import Item from "@/database/models/ItemModel";
-
+import { ulid } from "ulid";
+import { getPrefixAndSuffix } from "@/utils/getPrefixAndSuffix";
+import { parseDocument } from "htmlparser2";
+import { Element, Text } from "domhandler";
+import { default as render } from "dom-serializer";
 interface HTMLViewerProps {
   html: string;
   baseUrl?: string;
   style?: object;
   item: Item; // Add item prop to identify which item annotations belong to
   onHighlightAdded?: (id: unknown, text: string, color: string) => void;
-  onHighlightRemoved?: (id: unknown) => void;
+  onHighlightRemoved?: (id: string) => void;
   onSelectionChange?: (selectedText: string) => void;
   onShare?: (text: string) => void;
   setContentHeight?: (height: number) => void;
@@ -116,102 +121,122 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
     const [selectedText, setSelectedText] = useState<string>("");
     const [highlights, setHighlights] = useState<HighlightData[]>([]);
     const [selectedHighlightId, setSelectedHighlightId] = useState<string | null>(null);
+    const [selectedHighlightText, setSelectedHighlightText] = useState<string | null>(null);
     const [webViewHeight, setWebViewHeight] = useState<number>(300);
     const [isWebViewReady, setIsWebViewReady] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [isRemovingLoading, setRemovingLoading] = useState<boolean>(false);
     const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
-
+    const [highlighted, setHighlighted] = useState<boolean>(false);
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
-    console.log(highlights);
+    useEffect(() => {
+      if (highlights.length > 0) {
+        highlights.map(async (item) => {
+          console.log("item----------->", item);
+        });
+      }
+    }, [highlights]);
 
-    // Load existing annotations when component mounts
     React.useEffect(() => {
-      const loadExistingAnnotations = async () => {
-        if (!database || !item.annotations) return;
-        
-        try {
-          const existingAnnotations = await item.annotations.fetch();
-          const highlightData = existingAnnotations.map(annotation => ({
-            id: annotation.id,
-            text: annotation.text || '',
-            color: '#FFFF00', // Default yellow color
-            prefix: annotation.prefix || '',
-            suffix: annotation.suffix || '',
-          }));
-          
-          setHighlights(highlightData);
-          
-          // Inject highlights into WebView once it's ready
-          if (isWebViewReady && webViewRef.current && highlightData.length > 0) {
-            const restoreScript = highlightData.map(highlight => 
-              `window.restoreHighlight && window.restoreHighlight('${highlight.id}', '${highlight.text}', '${highlight.prefix}', '${highlight.suffix}', '${highlight.color}');`
-            ).join('\n');
-            
-            webViewRef.current.injectJavaScript(`
+      loadExistingAnnotations();
+    }, [database, item, isWebViewReady]);
+    const loadExistingAnnotations = async () => {
+      if (!database || !item.annotations) return;
+
+      try {
+        const existingAnnotations = await item.annotations.fetch();
+        const highlightData = existingAnnotations.map((annotation) => ({
+          id: annotation.id,
+          text: annotation.text ?? "",
+          color: "#FFFF00", // Default yellow color
+          prefix: annotation.prefix ?? "",
+          suffix: annotation.suffix ?? "",
+        }));
+        setHighlights(highlightData);
+
+        // Inject highlights into WebView once it's ready
+        if (isWebViewReady && webViewRef.current && highlightData.length > 0) {
+          const restoreScript = highlightData
+            .map(
+              (highlight) =>
+                `window.restoreHighlight && window.restoreHighlight('${highlight.id}', '${highlight.text}', '${highlight.prefix}', '${highlight.suffix}', '${highlight.color}');`,
+            )
+            .join("\n");
+
+          webViewRef.current.injectJavaScript(`
               ${restoreScript}
               true;
             `);
-          }
-        } catch (error) {
-          console.error('Error loading existing annotations:', error);
         }
-      };
-
-      loadExistingAnnotations();
-    }, [database, item, isWebViewReady]);
-
-    // Save annotation to database
-    const saveAnnotationToDatabase = useCallback(async (
-      annotationId: string,
-      text: string,
-      prefix: string,
-      suffix: string,
-      color: string = '#FFFF00'
-    ) => {
-      if (!database) {
-        console.error('Database not available');
-        return;
-      }
-
-      try {
-        await database.write(async () => {
-          await database.get<Annotation>('annotations').create((annotation) => {
-            annotation._raw.id = annotationId;
-            if (annotation.item) {
-              annotation.item.set(item);
-            }
-            annotation.text = text;
-            annotation.prefix = prefix;
-            annotation.suffix = suffix;
-            annotation.note = null; // Can be used later for user notes
-          });
-        });
-        
-        console.log('Annotation saved successfully:', annotationId);
       } catch (error) {
-        console.error('Error saving annotation to database:', error);
+        console.error("Error loading existing annotations:", error);
       }
-    }, [database, item]);
+    };
+    // Save annotation to database
+    const saveAnnotationToDatabase = useCallback(
+      async (
+        annotationId: string,
+        text: string,
+        prefix: string,
+        suffix: string,
+        color: string = "#FFFF00",
+      ) => {
+        if (!database) {
+          console.error("Database not available");
+          return;
+        }
+
+        try {
+          await database.write(async () => {
+            const result = await database.get<Annotation>("annotations").create((annotation) => {
+              if (annotation.item) {
+                annotation.item.set(item);
+              }
+              annotation.text = text;
+              annotation.prefix = prefix;
+              annotation.suffix = suffix;
+              annotation.note = null; // Can be used later for user notes
+            });
+            if (result) {
+              loadExistingAnnotations();
+            }
+          });
+
+          // console.log("Annotation saved successfully:", annotationId);
+        } catch (error) {
+          console.error("Error saving annotation to database:", error);
+        }
+      },
+      [database, item],
+    );
 
     // Remove annotation from database
-    const removeAnnotationFromDatabase = useCallback(async (annotationId: string) => {
-      if (!database) {
-        console.error('Database not available');
-        return;
-      }
+    const removeAnnotationFromDatabase = useCallback(
+      async (annotationId: string) => {
+        if (!database) {
+          console.error("Database not available");
+          return;
+        }
 
-      try {
-        await database.write(async () => {
-          const annotation = await database.get<Annotation>('annotations').find(annotationId);
-          await annotation.markAsDeleted();
-        });
-        
-        console.log('Annotation removed successfully:', annotationId);
-      } catch (error) {
-        console.error('Error removing annotation from database:', error);
-      }
-    }, [database]);
+        try {
+          await database.write(async () => {
+            // console.log("annotationId--->", annotationId);
+            const annotation = await database.get<Annotation>("annotations").find(annotationId);
+            await annotation.destroyPermanently();
+            setRemovingLoading(true);
+            await loadExistingAnnotations();
+            setHighlighted(false);
+            setSelectedHighlightId(null);
+            setSelectedHighlightText(null);
+            setRemovingLoading(false);
+          });
+        } catch (error) {
+          console.error("Error removing annotation from database:", error);
+        }
+      },
+      [database],
+    );
 
     // Debounce height changes to prevent rapid re-renders
     const debouncedSetHeight = useCallback(
@@ -457,6 +482,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
 
             // Tracking selection
             document.addEventListener('selectionchange', function() {
+            
               const selection = window.getSelection();
               const selectedText = selection.toString();
               if (selectedText) {
@@ -472,17 +498,48 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
                     height: rect.height
                   }
                 }));
-              } else {
+              } else {                  
                 window.ReactNativeWebView.postMessage(JSON.stringify({
                   type: 'selection-cleared'
                 }));
               }
             });
+             const LONG_PRESS_DURATION = 300;
+  let longPressTimer = null;
 
+  document.body.addEventListener('touchstart', function (e) {
+    const target = e.target;
+
+    if (target.className === 'text-highlight') {
+      longPressTimer = setTimeout(() => {
+        // Long press detected, select the text
+        const range = document.createRange();
+        range.selectNodeContents(target);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        // Send message to React Native
+        window.ReactNativeWebView.postMessage(JSON.stringify({
+          type: 'highlight-longpress',
+          id: target.id,
+          text: target.textContent
+        }));
+      }, LONG_PRESS_DURATION);
+    }
+  });
+
+  document.body.addEventListener('touchend', function () {
+    clearTimeout(longPressTimer);
+  });
+
+  document.body.addEventListener('touchmove', function () {
+    clearTimeout(longPressTimer);
+  });
             // Add event listener for clicking on highlights
             document.body.addEventListener('click', function(e) {
               if (e.target.className === 'text-highlight') {
-                e.preventDefault();
+                e.preventDefault();                
                 window.ReactNativeWebView.postMessage(JSON.stringify({
                   type: 'highlight-clicked',
                   id: e.target.id,
@@ -493,7 +550,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           }
 
           // Function to highlight text with context
-          window.highlightSelection = function(color) {
+          window.highlightSelection = function(color) {          
             const selection = window.getSelection();
             if (!selection.toString()) return null;
             
@@ -665,17 +722,24 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
       ],
       [],
     );
-
+    const menuItemsHighlight = useMemo(
+      () => [
+        { label: "Remove Highlight", key: "removeHighlight" },
+        { label: "Copy", key: "copy" },
+        { label: "Select All", key: "selectAll" },
+        { label: "Share", key: "share" },
+      ],
+      [],
+    );
     // Handle messages from WebView
     const handleMessage = useCallback(
       (event: { nativeEvent: { data: string } }) => {
         try {
           const data = JSON.parse(event.nativeEvent.data);
-
           switch (data.type) {
             case "webview-ready":
               setIsWebViewReady(true);
-              setIsDarkMode(data.isDark || false);
+              setIsDarkMode(Boolean(data.isDark) ?? false);
               // Load full features after initial render
               setTimeout(() => {
                 if (webViewRef.current) {
@@ -701,6 +765,16 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
               break;
 
             case "selection":
+              const getId = highlights.find((item) => {
+                const highlightText = data.text as string;
+                return item.text === highlightText;
+              });
+              if (getId) {
+                setHighlighted(true);
+              } else {
+                setHighlighted(false);
+              }
+              setSelectedHighlightText(data.text as string);
               setSelectedText(data.text as string);
               if (onSelectionChange) {
                 onSelectionChange(data.text as string);
@@ -708,50 +782,52 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
               break;
 
             case "selection-cleared":
+              setHighlighted(false);
               setSelectedText("");
               break;
 
             case "highlight-added":
-              const newHighlight = {
-                id: data.id,
-                text: data.text,
-                color: data.color,
-                prefix: data.prefix,
-                suffix: data.suffix,
-              };
-              setHighlights((prev) => [...prev, newHighlight]);
-              
-              // Save to database
-              saveAnnotationToDatabase(
-                data.id,
-                data.text as string,
-                data.prefix as string,
-                data.suffix as string,
-                data.color as string
-              );
-              
-              if (onHighlightAdded) {
-                onHighlightAdded(data.id, data.text as string, data.color as string);
-              }
+              // const newHighlight = {
+              //   id: ulid(),
+              //   text: data.text,
+              //   color: data.color,
+              //   prefix: prefix,
+              //   suffix: suffix,
+              // };
+              // setHighlights((prev) => [...prev, newHighlight]);
+              // // Save to database
+              // saveAnnotationToDatabase(
+              //   ulid(),
+              //   data.text as string,
+              //   prefix as string,
+              //   suffix as string,
+              //   data.color as string,
+              // );
+
+              // if (onHighlightAdded) {
+              //   onHighlightAdded(data.id, data.text as string, data.color as string);
+              // }
               break;
 
             case "highlight-removed":
-              setHighlights((prev) => prev.filter((h) => h.id !== data.id));
-              
+              // setHighlights((prev) => prev.filter((h) => h.id !== data.id));
+
               // Remove from database
-              removeAnnotationFromDatabase(data.id);
-              
+              // removeAnnotationFromDatabase(data.id as string);
+
               if (onHighlightRemoved) {
-                onHighlightRemoved(data.id);
+                onHighlightRemoved(data.id as string);
               }
               break;
 
             case "highlight-clicked":
-              // setSelectedHighlightId(data.id);
+              console.log("sdff", data);
+              setSelectedHighlightId(data.id as string);
+              setSelectedHighlightText(data.text as string);
               break;
 
             case "theme-changed":
-              setIsDarkMode(data.isDark || false);
+              setIsDarkMode(Boolean(data.isDark) || false);
               // Force a re-render of any theme-dependent elements
               break;
           }
@@ -792,7 +868,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
         updateWebViewTheme(isDarkMode);
         setIsDarkMode(isDarkMode);
       }
-    }, [isDarkMode, isDarkMode, updateWebViewTheme]);
+    }, [isDarkMode, updateWebViewTheme]);
 
     // Handle WebView load events
     const handleLoadStart = useCallback(() => {
@@ -818,7 +894,22 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
     const addHighlight = useCallback(
       (color = "#FFFF00") => {
         if (!selectedText || !webViewRef.current || !isWebViewReady) return;
+        if (selectedText) {
+          const { suffix, prefix } = getPrefixAndSuffix(`${selectedText}`);
+          const id = ulid();
+          // Save to database
+          saveAnnotationToDatabase(
+            id,
+            selectedText as string,
+            prefix as string,
+            suffix as string,
+            color as string,
+          );
 
+          if (onHighlightAdded) {
+            onHighlightAdded(id, selectedText as string, color as string);
+          }
+        }
         webViewRef.current.injectJavaScript(`
           window.highlightSelection && window.highlightSelection('${color}');
           window.getSelection().removeAllRanges();
@@ -837,10 +928,22 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
         true;
       `);
         setSelectedHighlightId(null);
+        setSelectedHighlightText(null);
       },
       [isWebViewReady],
     );
-
+    const removeHighlightText = useCallback(
+      (highlightText: string) => {
+        const getId = highlights.find((item) => {
+          console.log("highlightText", highlightText, item.text);
+          return item.text === highlightText;
+        });
+        if (getId?.id) {
+          removeAnnotationFromDatabase(getId.id as string);
+        }
+      },
+      [highlights],
+    );
     const selectAll = useCallback(() => {
       if (!webViewRef.current || !isWebViewReady) return;
 
@@ -868,6 +971,10 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             if (onShare) onShare(selectedText);
             break;
           case "removeHighlight":
+            console.log("selectedHighlightText ", selectedHighlightText);
+            if (selectedHighlightText) {
+              removeHighlightText(selectedHighlightText as string);
+            }
             if (selectedHighlightId) {
               removeHighlight(selectedHighlightId);
             } else if (webViewRef.current && isWebViewReady) {
@@ -899,29 +1006,67 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
 
     // Combine user style with base webview style
     const webViewStyle = useMemo(() => [styles.webview, style], [style]);
+    const processHtmlWithHighlights = (html: string): string => {
+      // 1. Add lazy loading to all images
+      let updatedHtml = html.replace(/<img/gi, '<img loading="lazy"');
 
-    const addLazyLoading = (html: any) => {
-      return html.replace(/<img/gi, '<img loading="lazy"');
+      const highlightTexts = highlights.map((h: HighlightData) => h.text?.trim());
+
+      // 2. Parse HTML into DOM
+      const doc = parseDocument(updatedHtml);
+
+      // 3. Traverse nodes and wrap matched highlight text
+      const traverse = (node: any) => {
+        if (node.type === "text") {
+          highlightTexts.forEach((highlight) => {
+            const index = node.data.indexOf(highlight);
+            if (index !== -1) {
+              const before = node.data.slice(0, index);
+              const match = node.data.slice(index, index + highlight.length) as string;
+              const after = node.data.slice(index + highlight.length);
+
+              const parent = node.parent;
+              const newNodes = [];
+
+              if (before) newNodes.push(new Text(before as string));
+              newNodes.push(new Element("span", { class: "text-highlight" }, [new Text(match)]));
+              if (after) newNodes.push(new Text(after as string));
+
+              const parentChildren = parent?.children;
+              if (parentChildren) {
+                const idx = parentChildren.indexOf(node);
+                parentChildren.splice(idx, 1, ...newNodes);
+              }
+            }
+          });
+        } else if (node.children) {
+          node.children.forEach(traverse);
+        }
+      };
+
+      doc.children.forEach(traverse);
+      return render(doc);
     };
 
     // WebView source object created once to prevent re-renders
     const source = useMemo(
       () => ({
-        html: addLazyLoading(html),
-        baseUrl: baseUrl || "about:blank",
+        html: processHtmlWithHighlights(html),
+        baseUrl: baseUrl ?? "about:blank",
       }),
-      [html, baseUrl],
+      [html, baseUrl, highlights],
     );
 
     return (
       <ThemeView style={containerStyle}>
         {/* Skeleton Loader */}
-        {isLoading && (
+        {(isLoading || isRemovingLoading) && (
           <View style={styles.skeletonOverlay}>
-            <SkeletonLoader isDark={isDarkMode} />
+            {isLoading && <SkeletonLoader isDark={isDarkMode} />}
+            {isRemovingLoading && <ActivityIndicator size="large" />}
           </View>
         )}
-
+        {/* menuItemsHighlight */}
         {/* WebView with fade animation */}
         <Animated.View style={[styles.webviewContainer, { opacity: fadeAnim }]}>
           <WebView
@@ -933,7 +1078,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             onMessage={handleMessage}
             onLoadStart={handleLoadStart}
             onLoadEnd={handleLoadEnd}
-            menuItems={menuItems}
+            menuItems={highlighted ? menuItemsHighlight : menuItems}
             onCustomMenuSelection={handleCustomMenuSelection}
             textInteractionEnabled={true}
             textZoom={100}
@@ -948,11 +1093,11 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             domStorageEnabled={true}
             // Performance optimizations
             mixedContentMode="compatibility"
-            allowsInlineMediaPlayload={false}
+            // allowsInlineMediaPlayload={false}
             mediaPlaybackRequiresUserAction={true}
             // Reduce initial load time
             startInLoadingState={false}
-            renderLoading={() => null}
+            // renderLoading={() => null}
           />
         </Animated.View>
       </ThemeView>
