@@ -317,7 +317,7 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
     );
   };
 
-  console.log("item in the article detail", item?.dek);
+  console.log("item in the article detail", item);
 
   return (
     <ThemeView style={{ flex: 1 }} backgroundColor={theme.colors.background.paper}>
@@ -606,6 +606,7 @@ export default function ReaderScreen() {
 
   const EnhancedReader = withObservables(["id"], ({ id }: { id: string }) => {
     const item$ = database?.collections.get<Item>("items").findAndObserve(id);
+
     return {
       item: item$,
       content: item$.pipe(
@@ -614,11 +615,15 @@ export default function ReaderScreen() {
             // This case should ideally not happen if findAndObserve throws or resolves for a valid id
             return observableOf(null);
           }
+
           // item.itemContentQuery is Query<ItemContent>
           // item.itemContentQuery.observe() is Observable<ItemContent[]>
           return item.itemContentQuery ? item.itemContentQuery.observe() : observableOf([]);
         }),
-        map((contents) => (contents && contents.length > 0 ? contents[0] : null)),
+        map((contents) => {
+          console.log("contents", contents);
+          return contents && contents.length > 0 ? contents[0] : null;
+        }),
       ),
     };
   })(ReaderComponent);
