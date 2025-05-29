@@ -72,23 +72,39 @@ export default class ItemContentSyncer {
     if (!this.database || !this.token) return;
 
     // 1. Find items that need content (have content_hash but no content)
-    const itemsNeedingContent = await this.database
+    const itemsWithContentHash = await this.database
       .get<Item>("items")
-      .query(
-        Q.unsafeSqlQuery(
-          `SELECT items.* FROM items 
-           LEFT JOIN item_contents ON item_contents.item_id = items.id 
-           WHERE items.content_hash IS NOT NULL 
-           AND items.content_hash != ''
-           AND item_contents.id IS NULL
-           ORDER BY 
-             items.archived ASC,
-             items.viewed ASC,
-             COALESCE(items.saved_at, items.created_at) DESC`,
-        ),
-      )
+      .query(Q.where("content_hash", Q.notEq(null)), Q.where("content_hash", Q.notEq("")))
       .fetch();
 
+    // Filter out items that already have content
+    const itemsNeedingContent = [];
+
+    for (const item of itemsWithContentHash) {
+      const existingContent = await item.itemContentQuery?.fetch();
+      if (!existingContent || existingContent.length === 0) {
+        itemsNeedingContent.push(item);
+      }
+    }
+
+    // Sort the results
+    itemsNeedingContent.sort((a, b) => {
+      // Sort by archived (false first)
+      if (a.archived !== b.archived) {
+        return a.archived ? 1 : -1;
+      }
+
+      // Then by viewed (false first)
+      if (a.viewed !== b.viewed) {
+        return a.viewed ? 1 : -1;
+      }
+
+      // Then by saved_at/created_at (desc)
+      const aDate = a.savedAt ?? a.createdAt ?? 0;
+      const bDate = b.savedAt ?? b.createdAt ?? 0;
+      return new Date(bDate).getTime() - new Date(aDate).getTime();
+    });
+    console.log("itemsNeedingContent", itemsNeedingContent);
     // 2. If items need content, fetch and store it
     if (itemsNeedingContent.length > 0) {
       console.log(`${LOG_PREFIX} Found ${itemsNeedingContent.length} items requiring content.`);
@@ -241,7 +257,7 @@ export default class ItemContentSyncer {
           ),
         )
         .fetch();
-
+      console.log("orphanedContent", orphanedContent);
       // Combine all deletions in one batch operation
       const operations = [
         ...contentForItemsWithoutHash.map((content) => content.prepareMarkAsDeleted()),
