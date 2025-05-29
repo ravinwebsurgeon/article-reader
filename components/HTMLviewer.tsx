@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 //HTMLViewer.tsx
 import React, { useRef, useState, useCallback, useMemo, useEffect } from "react";
-import { StyleSheet, View, Animated, ActivityIndicator } from "react-native";
+import { StyleSheet, View, Animated, ActivityIndicator, Platform } from "react-native";
 import WebView from "react-native-webview";
 import * as Clipboard from "expo-clipboard";
 import { ThemeView } from "./primitives";
@@ -133,7 +133,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
     useEffect(() => {
       if (highlights.length > 0) {
         highlights.map(async (item) => {
-          console.log("item----------->", item);
+          // console.log("item----------->", item);
         });
       }
     }, [highlights]);
@@ -1000,7 +1000,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
 
     // Use a style object that doesn't change on re-renders
     const containerStyle = useMemo(
-      () => [styles.container, { height: webViewHeight }],
+      () => [styles.container, ...(Platform.OS === "web" ? [] : [{ height: webViewHeight }])],
       [webViewHeight],
     );
 
@@ -1056,11 +1056,109 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
       }),
       [html, baseUrl, highlights],
     );
+    useEffect(() => {
+      const detectDarkMode = () => {
+        return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      };
+
+      let currentIsDark = detectDarkMode();
+      setIsDarkMode(currentIsDark);
+    }, []);
 
     return (
       <ThemeView style={containerStyle}>
         {/* Skeleton Loader */}
-        {(isLoading || isRemovingLoading) && (
+
+        {Platform.OS === "web" && source.html ? (
+          <div
+            dangerouslySetInnerHTML={{
+              __html:
+                `<style>
+                   :root {
+            --text-color: ${isDarkMode ? "#e0e0e0" : "#333"};
+            --bg-color: ${isDarkMode ? "#242526" : "#ffffff"};
+          }
+          
+          html, body {
+            font-family: 'Literata', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            font-size: 18px;
+            line-height: 1.8;
+            padding: 0;
+            color: var(--text-color) !important;
+            background-color: var(--bg-color) !important;
+            margin: 0;
+            -webkit-text-size-adjust: 100%;
+            overflow-wrap: break-word;
+            transition: background-color 0.3s ease, color 0.3s ease;
+          }
+          
+          * {
+            color: inherit;
+          }
+            @font-face {
+                font-family: 'Literata';
+                src: url(data:font/ttf;charset=utf-8;base64,${leterataFontBase64});
+                font-weight: normal;
+                font-style: normal;
+                font-display: swap; /* Improve font loading performance */
+              }
+              @font-face {
+                font-family: 'Literata';
+                src: url(data:font/ttf;charset=utf-8;base64, ${literataBold18base64});
+                //  url('file:///android_asset/fonts/Literata/Literata_18pt-Bold.ttf') format('truetype');
+                font-weight: bold;
+                font-style: normal;
+                font-display: swap;
+              }
+             h1, h2, h3, h4, h5, h6 {
+                font-family: 'Literata', serif !important;
+                font-weight: 700;
+                line-height: 1.3;
+              }
+              p {
+                margin-bottom: 1em;
+                font-family: 'Literata', serif !important;
+              }
+              img { 
+                max-width: 100%; 
+                height: auto; 
+              }
+              .text-highlight {
+                background-color: rgba(255, 255, 0, 0.4);
+                border-radius: 3px;
+                padding: 0 2px;
+                margin: 0 -2px;
+                box-decoration-break: clone;
+                -webkit-box-decoration-break: clone;
+                cursor: pointer;
+                position: relative;
+              }
+              .text-highlight:active {
+                opacity: 0.8;
+              }
+
+              /* Dark mode highlight adjustment */
+              @media (prefers-color-scheme: dark) {
+                .text-highlight {
+                  background-color: rgba(255, 255, 0, 0.25);
+                }
+              }
+          
+          /* Force dark mode when CSS variables indicate dark theme */
+          [style*="--bg-color: #242526"] .text-highlight {
+            background-color: rgba(255, 255, 0, 0.25) !important;
+          }
+           
+          
+          </style>` + source.html,
+            }}
+          ></div>
+        ) : (
+          <View style={styles.skeletonOverlay}>
+            {isLoading && <SkeletonLoader isDark={isDarkMode} />}
+          </View>
+        )}
+        {Platform.OS !== "web" && (isLoading || isRemovingLoading) && (
           <View style={styles.skeletonOverlay}>
             {isLoading && <SkeletonLoader isDark={isDarkMode} />}
             {isRemovingLoading && <ActivityIndicator size="large" />}
