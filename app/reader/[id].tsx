@@ -72,6 +72,8 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
   const [isLoadingComplete, setIsLoadingComplete] = useState(false);
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [selectedText, setSelectedText] = useState<string>("");
+  const [isHtmlLoaded, setIsHtmlLoaded] = useState(false);
+  const [isUserScrolled, setIsUserScrolled] = useState(false);
 
   console.log("Selected text:", selectedText, "Highlights:", highlights);
 
@@ -116,7 +118,8 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
       contentHeight > 0 &&
       scrollViewHeight > 0 &&
       scrollViewRef.current &&
-      item.progress
+      item.progress &&
+      isHtmlLoaded
     ) {
       // Calculate scroll position based on progress
       const maxScrollPosition = contentHeight - scrollViewHeight;
@@ -136,7 +139,13 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
 
       return () => clearTimeout(timer);
     }
-  }, [contentHeight, scrollViewHeight, item.progress, hasRestoredPosition]);
+  }, [contentHeight, scrollViewHeight, item.progress, hasRestoredPosition, isHtmlLoaded]);
+
+  useEffect(() => {
+    setIsHtmlLoaded(false);
+    setHasRestoredPosition(false);
+    setIsUserScrolled(false);
+  }, [item.id]);
 
   // console.log("item content", marked.parse(content?.content ?? "") as string);
 
@@ -166,7 +175,7 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
   // Handle navigation back
   const handleBack = async () => {
     // Only save if progress has changed from initial value
-    if (progress !== item.progress) {
+    if (isUserScrolled && progress !== item.progress) {
       console.log("Saving progress:", progress);
       await item
         .setProgress(progress as number)
@@ -179,14 +188,19 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
 
-    // Save sizes for scroll position calculation
-    if (scrollViewHeight === 0) {
-      setScrollViewHeight(layoutMeasurement.height);
+    // Track if user has actively scrolled
+    if (!isUserScrolled) {
+      setIsUserScrolled(true);
     }
 
-    if (contentHeight === 0) {
-      setContentHeight(contentSize.height);
-    }
+    // Save sizes for scroll position calculation
+    // if (scrollViewHeight === 0) {
+    //   setScrollViewHeight(layoutMeasurement.height);
+    // }
+
+    // if (contentHeight === 0) {
+    //   setContentHeight(contentSize.height);
+    // }
 
     if (contentSize.height > 0) {
       const newProgress = Math.min(
@@ -194,8 +208,8 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
         1,
       );
 
-      // Only update if significant change (avoid too many database operations)
-      if (Math.abs(newProgress - (progress ?? 0)) > 0.01) {
+      // Only update progress if user has actively scrolled
+      if (isUserScrolled && Math.abs(newProgress - (progress ?? 0)) > 0.01) {
         setProgress(newProgress);
       }
     }
@@ -264,7 +278,6 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
             ...createMenuPosition("bottomRight"),
           });
           setMenuVisible(true);
-          console.log("Menu true or not ", menuVisible);
         },
       );
     }
@@ -317,7 +330,7 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
     );
   };
 
-  console.log("item in the article detail", item);
+  console.log("Item progress:", item.progress);
 
   return (
     <ThemeView style={{ flex: 1 }} backgroundColor={theme.colors.background.paper}>
@@ -436,6 +449,7 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
                 onHighlightRemoved={handleHighlightRemoved}
                 onSelectionChange={handleSelectionChange}
                 onShare={handleShareSelectedText}
+                onLoadComplete={() => setIsHtmlLoaded(true)}
               />
               <ThemeView style={styles.afterReadingSection}>
                 <ThemeView
@@ -621,7 +635,6 @@ export default function ReaderScreen() {
           return item.itemContentQuery ? item.itemContentQuery.observe() : observableOf([]);
         }),
         map((contents) => {
-          console.log("contents", contents);
           return contents && contents.length > 0 ? contents[0] : null;
         }),
       ),
