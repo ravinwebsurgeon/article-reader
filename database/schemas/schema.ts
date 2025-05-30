@@ -30,6 +30,8 @@ export default appSchema({
         { name: "saved_at", type: "number" },
         { name: "created_at", type: "number" },
         { name: "updated_at", type: "number" },
+        { name: "paywalled", type: "boolean", isOptional: true },
+        { name: "language", type: "string", isOptional: true },
       ],
     }),
     tableSchema({
