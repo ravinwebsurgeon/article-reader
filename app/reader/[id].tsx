@@ -205,9 +205,9 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
     if (contentSize.height > 0) {
       const newProgress = Math.min(
         Math.max(0, contentOffset.y / (contentSize.height - layoutMeasurement.height)),
-        1
+        1,
       );
-  
+
       // Only update progress if user has actively scrolled
       if (isUserScrolled && Math.abs(newProgress - (progress ?? 0)) > 0.01) {
         setProgress(newProgress);
