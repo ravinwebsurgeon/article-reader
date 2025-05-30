@@ -25,6 +25,7 @@ interface HTMLViewerProps {
   onSelectionChange?: (selectedText: string) => void;
   onShare?: (text: string) => void;
   setContentHeight?: (height: number) => void;
+  onLoadComplete?: () => void; // Add this
 }
 
 interface HighlightData {
@@ -115,6 +116,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
     onSelectionChange,
     onShare,
     setContentHeight,
+    onLoadComplete,
   }) => {
     const webViewRef = useRef<WebView>(null);
     const { database } = useDatabase();
@@ -199,7 +201,8 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
               annotation.note = null; // Can be used later for user notes
             });
             if (result) {
-              loadExistingAnnotations();
+              console.log("Annotation saved: here", result);
+              // loadExistingAnnotations();
             }
           });
 
@@ -225,7 +228,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             const annotation = await database.get<Annotation>("annotations").find(annotationId);
             await annotation.destroyPermanently();
             setRemovingLoading(true);
-            await loadExistingAnnotations();
+            // await loadExistingAnnotations();
             setHighlighted(false);
             setSelectedHighlightId(null);
             setSelectedHighlightText(null);
@@ -756,6 +759,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
                 duration: 300,
                 useNativeDriver: true,
               }).start();
+              if (onLoadComplete) onLoadComplete();
               break;
 
             case "contentHeight":
@@ -897,6 +901,8 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
         if (selectedText) {
           const { suffix, prefix } = getPrefixAndSuffix(`${selectedText}`);
           const id = ulid();
+
+          console.log("how many times it came here");
           // Save to database
           saveAnnotationToDatabase(
             id,
@@ -907,6 +913,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           );
 
           if (onHighlightAdded) {
+            console.log("does it also come here?");
             onHighlightAdded(id, selectedText as string, color as string);
           }
         }
@@ -1010,41 +1017,225 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
       // 1. Add lazy loading to all images
       let updatedHtml = html.replace(/<img/gi, '<img loading="lazy"');
 
-      const highlightTexts = highlights.map((h: HighlightData) => h.text?.trim());
+      const highlightTexts = highlights.map((h: HighlightData) => h.text?.trim()).filter(Boolean);
+
+      if (highlightTexts.length === 0) {
+        return updatedHtml;
+      }
 
       // 2. Parse HTML into DOM
       const doc = parseDocument(updatedHtml);
 
-      // 3. Traverse nodes and wrap matched highlight text
-      const traverse = (node: any) => {
+      // Helper function to get all text content from a node and its children
+      const getTextContent = (node: any): string => {
         if (node.type === "text") {
-          highlightTexts.forEach((highlight) => {
-            const index = node.data.indexOf(highlight);
-            if (index !== -1) {
-              const before = node.data.slice(0, index);
-              const match = node.data.slice(index, index + highlight.length) as string;
-              const after = node.data.slice(index + highlight.length);
+          return node.data || "";
+        }
+        if (node.children) {
+          return node.children.map(getTextContent).join("");
+        }
+        return "";
+      };
 
-              const parent = node.parent;
-              const newNodes = [];
+      // Helper function to find text nodes recursively
+      const findTextNodes = (node: Element | Text): (Element | Text)[] => {
+        const textNodes: (Element | Text)[] = [];
 
-              if (before) newNodes.push(new Text(before as string));
-              newNodes.push(new Element("span", { class: "text-highlight" }, [new Text(match)]));
-              if (after) newNodes.push(new Text(after as string));
+        if (node.type === "text") {
+          textNodes.push(node);
+        } else if ("children" in node && Array.isArray(node.children)) {
+          node.children.forEach((child) => {
+            textNodes.push(...findTextNodes(child as Element | Text));
+          });
+        }
 
-              const parentChildren = parent?.children;
-              if (parentChildren) {
-                const idx = parentChildren.indexOf(node);
-                parentChildren.splice(idx, 1, ...newNodes);
+        return textNodes;
+      };
+
+      // Helper function to create highlight element
+      const createHighlightElement = (highlightText: string, highlightData?: HighlightData) => {
+        const highlightId = highlightData?.id ?? `highlight-${Date.now()}-${Math.random()}`;
+        return new Element(
+          "span",
+          {
+            "class": "text-highlight",
+            "id": highlightId,
+            "data-highlight": "true",
+          },
+          [new Text(highlightText)],
+        );
+      };
+
+      // Enhanced traverse function that handles cross-element text highlighting
+      const traverse = (node: any) => {
+        if (!node.children) return;
+
+        // For each highlight text, try to find and highlight it
+        highlightTexts.forEach((highlightText) => {
+          if (!highlightText) return;
+
+          const highlightData = highlights.find((h) => h.text?.trim() === highlightText);
+
+          // Get the full text content of this node
+          const fullText = getTextContent(node);
+          const highlightIndex = fullText.indexOf(highlightText);
+
+          if (highlightIndex === -1) return;
+
+          // Find all text nodes in this subtree
+          const textNodes = findTextNodes(node as Element | Text);
+
+          if (textNodes.length === 0) return;
+
+          // Calculate which text nodes contain the highlight
+          let currentPosition = 0;
+          let startNode: any = null;
+          let endNode: any = null;
+          let startOffset = 0;
+          let endOffset = 0;
+
+          // Find start and end positions
+          for (const textNode of textNodes) {
+            const nodeText = textNode.type === "text" ? (textNode as Text).data || "" : "";
+            const nodeEnd = currentPosition + nodeText.length;
+
+            // Check if highlight starts in this node
+            if (
+              startNode === null &&
+              currentPosition <= highlightIndex &&
+              highlightIndex < nodeEnd
+            ) {
+              startNode = textNode;
+              startOffset = highlightIndex - currentPosition;
+            }
+
+            // Check if highlight ends in this node
+            const highlightEnd = highlightIndex + highlightText.length;
+            if (currentPosition < highlightEnd && highlightEnd <= nodeEnd) {
+              endNode = textNode;
+              endOffset = highlightEnd - currentPosition;
+              break;
+            }
+
+            currentPosition = nodeEnd;
+          }
+
+          if (!startNode || !endNode) return;
+
+          // Case 1: Highlight is within a single text node
+          if (startNode === endNode) {
+            const nodeText = startNode.data;
+            const beforeText = nodeText.slice(0, startOffset);
+            const highlightedText = nodeText.slice(startOffset, endOffset);
+            const afterText = nodeText.slice(endOffset);
+
+            const parent = startNode.parent;
+            if (!parent?.children) return;
+
+            const nodeIndex = parent.children.indexOf(startNode);
+            const newNodes = [];
+
+            if (beforeText) newNodes.push(new Text(beforeText as string));
+            newNodes.push(createHighlightElement(highlightedText as string, highlightData));
+            if (afterText) newNodes.push(new Text(afterText as string));
+
+            parent.children.splice(nodeIndex, 1, ...newNodes);
+          }
+          // Case 2: Highlight spans multiple text nodes
+          else {
+            const nodesToProcess = [];
+            let foundStart = false;
+
+            for (const textNode of textNodes) {
+              if (textNode === startNode) {
+                foundStart = true;
+              }
+
+              if (foundStart) {
+                nodesToProcess.push(textNode);
+              }
+
+              if (textNode === endNode) {
+                break;
               }
             }
+
+            // Process nodes from end to start to avoid index shifting issues
+            for (let i = nodesToProcess.length - 1; i >= 0; i--) {
+              const textNode = nodesToProcess[i];
+              const parent = textNode.parent;
+              if (!parent?.children) continue;
+
+              const nodeIndex = parent.children.indexOf(textNode);
+              const nodeText = textNode.type === "text" ? (textNode as Text).data || "" : "";
+
+              if (textNode === startNode && textNode === endNode) {
+                // Single node case (shouldn't happen here, but just in case)
+                const beforeText = nodeText.slice(0, startOffset);
+                const highlightedText = nodeText.slice(startOffset, endOffset);
+                const afterText = nodeText.slice(endOffset);
+
+                const newNodes = [];
+                if (beforeText) newNodes.push(new Text(beforeText as string));
+                newNodes.push(createHighlightElement(highlightedText as string, highlightData));
+                if (afterText) newNodes.push(new Text(afterText as string));
+
+                parent.children.splice(nodeIndex, 1, ...newNodes);
+              } else if (textNode === startNode) {
+                // First node
+                const beforeText = nodeText.slice(0, startOffset);
+                const highlightedText = nodeText.slice(startOffset);
+
+                const newNodes = [];
+                if (beforeText) newNodes.push(new Text(beforeText as string));
+                if (highlightedText)
+                  newNodes.push(createHighlightElement(highlightedText as string, highlightData));
+
+                parent.children.splice(nodeIndex, 1, ...newNodes);
+              } else if (textNode === endNode) {
+                // Last node
+                const highlightedText = nodeText.slice(0, endOffset);
+                const afterText = nodeText.slice(endOffset);
+
+                const newNodes = [];
+                if (highlightedText)
+                  newNodes.push(createHighlightElement(highlightedText as string, highlightData));
+                if (afterText) newNodes.push(new Text(afterText as string));
+
+                parent.children.splice(nodeIndex, 1, ...newNodes);
+              } else {
+                // Middle node - entirely highlighted
+                if (nodeText) {
+                  parent.children.splice(
+                    nodeIndex,
+                    1,
+                    createHighlightElement(nodeText as string, highlightData),
+                  );
+                }
+              }
+            }
+          }
+        });
+
+        // Recursively process child elements
+        if (node.children) {
+          // Create a copy of children array to avoid modification during iteration
+          const children = [...node.children];
+          children.forEach((child: any) => {
+            if (child.type === "tag") {
+              traverse(child);
+            }
           });
-        } else if (node.children) {
-          node.children.forEach(traverse);
         }
       };
 
-      doc.children.forEach(traverse);
+      // Process each top-level element
+      doc.children.forEach((child: any) => {
+        if (child.type === "tag") {
+          traverse(child);
+        }
+      });
+
       return render(doc);
     };
 
@@ -1154,9 +1345,13 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             }}
           ></div>
         ) : (
-          <View style={styles.skeletonOverlay}>
-            {isLoading && <SkeletonLoader isDark={isDarkMode} />}
-          </View>
+          <>
+            {isLoading && (
+              <View style={styles.skeletonOverlay}>
+                <SkeletonLoader isDark={isDarkMode} />
+              </View>
+            )}
+          </>
         )}
         {Platform.OS !== "web" && (isLoading || isRemovingLoading) && (
           <View style={styles.skeletonOverlay}>
@@ -1164,8 +1359,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             {isRemovingLoading && <ActivityIndicator size="large" />}
           </View>
         )}
-        {/* menuItemsHighlight */}
-        {/* WebView with fade animation */}
+
         <Animated.View style={[styles.webviewContainer, { opacity: fadeAnim }]}>
           <WebView
             ref={webViewRef}
