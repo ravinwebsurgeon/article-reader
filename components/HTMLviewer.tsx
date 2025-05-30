@@ -1154,9 +1154,11 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             }}
           ></div>
         ) : (
-          <View style={styles.skeletonOverlay}>
-            {isLoading && <SkeletonLoader isDark={isDarkMode} />}
-          </View>
+          Platform.OS === "web" && (
+            <View style={styles.skeletonOverlay}>
+              {isLoading && <SkeletonLoader isDark={isDarkMode} />}
+            </View>
+          )
         )}
         {Platform.OS !== "web" && (isLoading || isRemovingLoading) && (
           <View style={styles.skeletonOverlay}>
