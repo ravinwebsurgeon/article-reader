@@ -4,7 +4,7 @@ import React, { useRef, useState, useCallback, useMemo, useEffect } from "react"
 import { StyleSheet, View, Animated, ActivityIndicator, Platform } from "react-native";
 import WebView from "react-native-webview";
 import * as Clipboard from "expo-clipboard";
-import { ThemeView } from "./primitives";
+import { ThemeText, ThemeView } from "./primitives";
 import { leterataFontBase64 } from "@/constants/leterataFontBase64";
 import { literataBold18base64 } from "@/constants/literateBold18Base64";
 import { useDatabase } from "@/database/provider/DatabaseProvider";
@@ -25,6 +25,7 @@ interface HTMLViewerProps {
   onSelectionChange?: (selectedText: string) => void;
   onShare?: (text: string) => void;
   setContentHeight?: (height: number) => void;
+  onLoadComplete?: () => void; // Add this
 }
 
 interface HighlightData {
@@ -115,6 +116,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
     onSelectionChange,
     onShare,
     setContentHeight,
+    onLoadComplete,
   }) => {
     const webViewRef = useRef<WebView>(null);
     const { database } = useDatabase();
@@ -199,6 +201,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
               annotation.note = null; // Can be used later for user notes
             });
             if (result) {
+              console.log("Annotation saved: here", result);
               loadExistingAnnotations();
             }
           });
@@ -756,6 +759,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
                 duration: 300,
                 useNativeDriver: true,
               }).start();
+              if (onLoadComplete) onLoadComplete();
               break;
 
             case "contentHeight":
@@ -897,6 +901,8 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
         if (selectedText) {
           const { suffix, prefix } = getPrefixAndSuffix(`${selectedText}`);
           const id = ulid();
+
+          console.log('how many times it came here');
           // Save to database
           saveAnnotationToDatabase(
             id,
@@ -907,6 +913,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           );
 
           if (onHighlightAdded) {
+            console.log('does it also come here?');
             onHighlightAdded(id, selectedText as string, color as string);
           }
         }
@@ -1154,9 +1161,13 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             }}
           ></div>
         ) : (
-          <View style={styles.skeletonOverlay}>
-            {isLoading && <SkeletonLoader isDark={isDarkMode} />}
-          </View>
+          <>
+            {isLoading && (
+              <View style={styles.skeletonOverlay}>
+                <SkeletonLoader isDark={isDarkMode} />
+              </View>
+            )}
+          </>
         )}
         {Platform.OS !== "web" && (isLoading || isRemovingLoading) && (
           <View style={styles.skeletonOverlay}>
@@ -1164,8 +1175,7 @@ const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             {isRemovingLoading && <ActivityIndicator size="large" />}
           </View>
         )}
-        {/* menuItemsHighlight */}
-        {/* WebView with fade animation */}
+
         <Animated.View style={[styles.webviewContainer, { opacity: fadeAnim }]}>
           <WebView
             ref={webViewRef}
