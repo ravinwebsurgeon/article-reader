@@ -97,12 +97,12 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
               ${htmlViewerApiScript}
               ${combinedPluginScript}
               
-              console.log('Scripts injected, sending ready message...');
-              // Notify that HTMLViewer is ready immediately since script is at bottom of body
-              window.htmlViewer.postMessage({
-                type: 'webview-ready'
+              // Wait for everything to load before sending ready message
+              window.addEventListener('load', () => {
+                window.htmlViewer.postMessage({
+                  type: 'webview-ready'
+                });
               });
-              console.log('Ready message sent');
             </script>
           </body>
         </html>
@@ -114,10 +114,8 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
       (event: any) => {
         try {
           const message = JSON.parse(event.nativeEvent.data);
-          console.log("HTMLViewer: Received message:", message);
 
           if (message.type === "webview-ready") {
-            console.log("HTMLViewer: WebView is ready, calling onLoadComplete");
             setIsWebViewReady(true);
             if (onLoadComplete) {
               onLoadComplete();
@@ -129,10 +127,7 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           if (message.pluginName) {
             const plugin = plugins.find((p) => p.name === message.pluginName);
             if (plugin) {
-              console.log("HTMLViewer: Routing message to plugin:", message.pluginName);
               plugin.messageHandler(message as PluginMessage, pluginContext);
-            } else {
-              console.log("HTMLViewer: Plugin not found:", message.pluginName);
             }
           }
 
@@ -141,7 +136,7 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             onMessage(message);
           }
         } catch (error) {
-          console.error("Error parsing WebView message:", error, event.nativeEvent.data);
+          console.error("Error parsing WebView message:", error);
         }
       },
       [plugins, pluginContext, onMessage, onLoadComplete],
@@ -157,11 +152,11 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
     );
 
     const handleLoadStart = useCallback(() => {
-      console.log("HTMLViewer: WebView load started");
+      // No need for debug log
     }, []);
 
     const handleLoadEnd = useCallback(() => {
-      console.log("HTMLViewer: WebView load ended");
+      // No need for debug log
     }, []);
 
     const handleError = useCallback((error: any) => {
@@ -187,14 +182,13 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           showsVerticalScrollIndicator={false}
           overScrollMode="never"
           nestedScrollEnabled={false}
-          cacheEnabled={false}
+          cacheEnabled={true}
           mixedContentMode="compatibility"
           mediaPlaybackRequiresUserAction={true}
           startInLoadingState={false}
           allowsInlineMediaPlayback={true}
           bounces={false}
           onShouldStartLoadWithRequest={() => true}
-          debuggingEnabled={true}
         />
       </ThemeView>
     );
