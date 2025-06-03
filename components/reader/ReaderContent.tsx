@@ -1,10 +1,11 @@
-import React, { useState, useRef, useMemo, useEffect } from "react";
+import React, { useState, useRef, useMemo, useEffect, useCallback } from "react";
 import { StyleSheet, Share, View, Animated } from "react-native";
 import { marked } from "marked";
 import { useDarkMode } from "@/theme/hooks";
 import HTMLViewer from "./htmlviewer/HTMLViewer";
 import { AutoResizePlugin } from "./htmlviewer/plugins/AutoResizePlugin";
 import { HighlightsPlugin } from "./htmlviewer/plugins/HighlightsPlugin";
+import { PluginContext, PluginMessage } from "./htmlviewer/plugins/types";
 import Item from "@/database/models/ItemModel";
 import ItemContent from "@/database/models/ItemContentModel";
 import ReaderSkeleton from "./ReaderSkeleton";
@@ -32,7 +33,10 @@ export const ReaderContent: React.FC<ContentProps> = ({
   // State
   const [isHtmlLoaded, setIsHtmlLoaded] = useState(false);
   const [selectedText, setSelectedText] = useState<string>("");
-  const [highlights, setHighlights] = useState<any[]>([]);
+  const [highlights, setHighlights] = useState<Array<{ id: string; text: string; color: string }>>(
+    [],
+  );
+  const [isHighlighted, setIsHighlighted] = useState(false);
 
   // Process markdown content
   const processedContent = useMemo(() => {

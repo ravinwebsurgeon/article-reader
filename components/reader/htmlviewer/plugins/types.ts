@@ -8,6 +8,7 @@ export interface HTMLViewerPlugin {
 
 export interface PluginContext {
   injectJavaScript: (script: string) => void;
+  sendCommand?: (pluginName: string, commandType: string, payload?: any) => void;
   item: Item | null;
   isDarkMode: boolean;
   onUpdate: (data: any) => void;
