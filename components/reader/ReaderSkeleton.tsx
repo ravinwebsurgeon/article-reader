@@ -5,7 +5,7 @@ interface SkeletonProps {
   isDark?: boolean;
 }
 
-export const Skeleton: React.FC<SkeletonProps> = ({ isDark = false }) => {
+export const ReaderSkeleton: React.FC<SkeletonProps> = ({ isDark = false }) => {
   const pulseAnim = useRef(new Animated.Value(0)).current;
 
   React.useEffect(() => {
@@ -94,4 +94,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Skeleton;
+export default ReaderSkeleton;

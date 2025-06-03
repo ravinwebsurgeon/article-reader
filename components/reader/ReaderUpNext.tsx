@@ -12,7 +12,7 @@ interface UpNextProps {
   item: Item;
 }
 
-export const UpNext: React.FC<UpNextProps> = ({ item }) => {
+export const ReaderUpNext: React.FC<UpNextProps> = ({ item }) => {
   const theme = useTheme();
   const { t } = useTranslation();
 
@@ -58,4 +58,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default UpNext;
+export default ReaderUpNext;

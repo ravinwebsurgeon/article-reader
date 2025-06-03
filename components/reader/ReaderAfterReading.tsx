@@ -7,11 +7,11 @@ import { SvgIcon } from "@/components/SvgIcon";
 import { useTheme } from "@/theme/hooks";
 import Item from "@/database/models/ItemModel";
 
-interface AfterReadingProps {
+interface ReaderAfterReadingProps {
   item: Item;
 }
 
-export const AfterReading: React.FC<AfterReadingProps> = ({ item }) => {
+export const ReaderAfterReading: React.FC<ReaderAfterReadingProps> = ({ item }) => {
   const theme = useTheme();
   const { t } = useTranslation();
 
@@ -194,4 +194,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AfterReading;
+export default ReaderAfterReading;

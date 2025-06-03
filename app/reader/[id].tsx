@@ -18,7 +18,13 @@ import { map, switchMap } from "rxjs/operators";
 import { of as observableOf } from "rxjs";
 
 // Import new reader components
-import { Header, MetaData, Content, AfterReading, UpNext } from "@/components/reader";
+import {
+  ReaderHeader,
+  ReaderMetaData,
+  ReaderContent,
+  ReaderAfterReading,
+  ReaderUpNext,
+} from "@/components/reader";
 
 // Base component that receives the item and its content as props
 const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent | null }) => {
@@ -65,7 +71,7 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
       <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
         <StatusBar style={isDarkMode ? "light" : "dark"} />
 
-        <Header
+        <ReaderHeader
           item={item}
           browserMode={browserMode}
           onToggleView={handleToggleView}
@@ -104,18 +110,18 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
             contentContainerStyle={styles.articleContent}
             showsVerticalScrollIndicator={true}
           >
-            <MetaData item={item} content={content} />
+            <ReaderMetaData item={item} content={content} />
 
-            <Content
+            <ReaderContent
               item={item}
               content={content}
               onProgressChange={handleProgressChange}
               onUserScrolled={handleUserScrolled}
             />
 
-            <AfterReading item={item} />
+            <ReaderAfterReading item={item} />
 
-            <UpNext item={item} />
+            <ReaderUpNext item={item} />
           </ScrollView>
         )}
       </SafeAreaView>

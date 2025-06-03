@@ -7,7 +7,7 @@ import { AutoResizePlugin } from "./htmlviewer/plugins/AutoResizePlugin";
 import { HighlightsPlugin } from "./htmlviewer/plugins/HighlightsPlugin";
 import Item from "@/database/models/ItemModel";
 import ItemContent from "@/database/models/ItemContentModel";
-import Skeleton from "./Skeleton";
+import ReaderSkeleton from "./ReaderSkeleton";
 import { leterataFontBase64 } from "@/constants/leterataFontBase64";
 import { literataBold18base64 } from "@/constants/literateBold18Base64";
 
@@ -19,7 +19,7 @@ interface ContentProps {
   onLoadComplete?: () => void;
 }
 
-export const Content: React.FC<ContentProps> = ({
+export const ReaderContent: React.FC<ContentProps> = ({
   item,
   content,
   onProgressChange,
@@ -262,12 +262,12 @@ export const Content: React.FC<ContentProps> = ({
 
   // Show skeleton if content is not ready
   if (!content || !processedContent) {
-    return <Skeleton isDark={isDarkMode} />;
+    return <ReaderSkeleton isDark={isDarkMode} />;
   }
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.contentContainer, { opacity: fadeAnim }]}>
+      <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
         <HTMLViewer
           content={processedContent}
           cssStyles={baseCSS}
@@ -276,13 +276,8 @@ export const Content: React.FC<ContentProps> = ({
         />
       </Animated.View>
       {!isHtmlLoaded && (
-        <View
-          style={[
-            styles.skeletonContainer,
-            { backgroundColor: isDarkMode ? "#242526" : "#ffffff" },
-          ]}
-        >
-          <Skeleton isDark={isDarkMode} />
+        <View style={styles.loading}>
+          <ReaderSkeleton isDark={isDarkMode} />
         </View>
       )}
     </View>
@@ -294,10 +289,10 @@ const styles = StyleSheet.create({
     flex: 1,
     position: "relative",
   },
-  contentContainer: {
+  content: {
     flex: 1,
   },
-  skeletonContainer: {
+  loading: {
     position: "absolute",
     top: 0,
     left: 0,
@@ -306,4 +301,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Content;
+export default ReaderContent;
