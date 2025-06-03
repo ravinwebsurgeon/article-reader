@@ -97,9 +97,11 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
               ${htmlViewerApiScript}
               ${combinedPluginScript}
               
-              // Notify that HTMLViewer is ready immediately since script is at bottom of body
-              window.htmlViewer.postMessage({
-                type: 'webview-ready'
+              // Wait for everything to load before sending ready message
+              window.addEventListener('load', () => {
+                window.htmlViewer.postMessage({
+                  type: 'webview-ready'
+                });
               });
             </script>
           </body>

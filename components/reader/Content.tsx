@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo, useEffect } from "react";
-import { StyleSheet, Share, View } from "react-native";
+import { StyleSheet, Share, View, Animated } from "react-native";
 import { marked } from "marked";
 import { useDarkMode } from "@/theme/hooks";
 import HTMLViewer from "./htmlviewer/HTMLViewer";
@@ -8,6 +8,8 @@ import { HighlightsPlugin } from "./htmlviewer/plugins/HighlightsPlugin";
 import Item from "@/database/models/ItemModel";
 import ItemContent from "@/database/models/ItemContentModel";
 import Skeleton from "./Skeleton";
+import { leterataFontBase64 } from "@/constants/leterataFontBase64";
+import { literataBold18base64 } from "@/constants/literateBold18Base64";
 
 interface ContentProps {
   item: Item;
@@ -25,6 +27,7 @@ export const Content: React.FC<ContentProps> = ({
   onLoadComplete,
 }) => {
   const isDarkMode = useDarkMode();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   // State
   const [isHtmlLoaded, setIsHtmlLoaded] = useState(false);
@@ -40,77 +43,93 @@ export const Content: React.FC<ContentProps> = ({
   // Base styles for the article content
   const baseCSS = useMemo(
     () => `
+      @font-face {
+        font-family: 'Literata';
+        src: url(data:font/ttf;charset=utf-8;base64,${leterataFontBase64});
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Literata';
+        src: url(data:font/ttf;charset=utf-8;base64,${literataBold18base64});
+        font-weight: bold;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      :root {
+        --text-color: ${isDarkMode ? "#e0e0e0" : "#000000"};
+        --bg-color: ${isDarkMode ? "#242526" : "#ffffff"};
+        --link-color: ${isDarkMode ? "#4A9EFF" : "#007AFF"};
+        --blockquote-border: ${isDarkMode ? "#444" : "#ddd"};
+        --blockquote-color: ${isDarkMode ? "#ccc" : "#666"};
+        --code-bg: ${isDarkMode ? "#2d2d2d" : "#f6f6f6"};
+      }
+
       html, body {
-        font-family: 'Literata-Regular', Georgia, serif;
+        font-family: 'Literata', Georgia, serif;
         font-size: 18px;
         line-height: 28px;
         font-weight: 400;
         padding: 0 10px;
         margin: 0;
-        color: ${isDarkMode ? "#ffffff" : "#000000"};
-        background-color: ${isDarkMode ? "#000000" : "#ffffff"};
+        color: var(--text-color);
+        background-color: var(--bg-color);
         width: 100%;
         overflow-x: hidden;
         box-sizing: border-box;
       }
       
+      h1, h2, h3, h4, h5, h6 {
+        font-family: 'Literata', Georgia, serif;
+        line-height: 1.3;
+        color: var(--text-color);
+      }
+      
       h1 {
-        font-family: 'Literata-Bold', Georgia, serif;
         font-size: 24px;
         line-height: 32px;
         font-weight: 700;
         margin: 24px 0 16px 0;
-        color: ${isDarkMode ? "#ffffff" : "#000000"};
       }
       
       h2 {
-        font-family: 'Literata-Bold', Georgia, serif;
         font-size: 22px;
         line-height: 30px;
         font-weight: 700;
         margin: 22px 0 14px 0;
-        color: ${isDarkMode ? "#ffffff" : "#000000"};
       }
       
       h3 {
-        font-family: 'Literata-SemiBold', Georgia, serif;
         font-size: 20px;
         line-height: 28px;
         font-weight: 600;
         margin: 20px 0 12px 0;
-        color: ${isDarkMode ? "#ffffff" : "#000000"};
       }
       
       h4, h5, h6 {
-        font-family: 'Literata-SemiBold', Georgia, serif;
         font-size: 18px;
         line-height: 26px;
         font-weight: 600;
         margin: 18px 0 10px 0;
-        color: ${isDarkMode ? "#ffffff" : "#000000"};
       }
       
       p {
-        font-family: 'Literata-Regular', Georgia, serif;
-        font-size: 18px;
-        line-height: 28px;
-        font-weight: 400;
         margin-bottom: 16px;
-        color: ${isDarkMode ? "#ffffff" : "#000000"};
+        color: var(--text-color);
       }
       
       em, i {
-        font-family: 'Literata-Italic', Georgia, serif;
         font-style: italic;
       }
       
       strong, b {
-        font-family: 'Literata-Bold', Georgia, serif;
         font-weight: 700;
       }
       
       a {
-        color: ${isDarkMode ? "#4A9EFF" : "#007AFF"};
+        color: var(--link-color);
         text-decoration: none;
       }
       
@@ -126,14 +145,11 @@ export const Content: React.FC<ContentProps> = ({
       }
       
       blockquote {
-        font-family: 'Literata-Italic', Georgia, serif;
-        font-size: 18px;
-        line-height: 28px;
         font-style: italic;
-        border-left: 4px solid ${isDarkMode ? "#444" : "#ddd"};
+        border-left: 4px solid var(--blockquote-border);
         margin: 20px 0;
         padding-left: 20px;
-        color: ${isDarkMode ? "#ccc" : "#666"};
+        color: var(--blockquote-color);
       }
       
       ul, ol {
@@ -142,15 +158,12 @@ export const Content: React.FC<ContentProps> = ({
       }
       
       li {
-        font-family: 'Literata-Regular', Georgia, serif;
-        font-size: 18px;
-        line-height: 28px;
         margin-bottom: 8px;
-        color: ${isDarkMode ? "#ffffff" : "#000000"};
+        color: var(--text-color);
       }
       
       code {
-        background-color: ${isDarkMode ? "#2d2d2d" : "#f6f6f6"};
+        background-color: var(--code-bg);
         padding: 2px 6px;
         border-radius: 4px;
         font-family: 'Monaco', 'Consolas', 'Liberation Mono', monospace;
@@ -158,7 +171,7 @@ export const Content: React.FC<ContentProps> = ({
       }
       
       pre {
-        background-color: ${isDarkMode ? "#2d2d2d" : "#f6f6f6"};
+        background-color: var(--code-bg);
         padding: 16px;
         border-radius: 8px;
         overflow-x: auto;
@@ -170,6 +183,27 @@ export const Content: React.FC<ContentProps> = ({
         padding: 0;
         font-size: 14px;
         line-height: 20px;
+      }
+
+      .text-highlight {
+        background-color: rgba(255, 255, 0, 0.4);
+        border-radius: 3px;
+        padding: 0 2px;
+        margin: 0 -2px;
+        box-decoration-break: clone;
+        -webkit-box-decoration-break: clone;
+        cursor: pointer;
+        position: relative;
+      }
+
+      .text-highlight:active {
+        opacity: 0.8;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .text-highlight {
+          background-color: rgba(255, 255, 0, 0.25);
+        }
       }
     `,
     [isDarkMode],
@@ -205,19 +239,26 @@ export const Content: React.FC<ContentProps> = ({
     }
   };
 
-  // Reset state when item changes
-  useEffect(() => {
-    setIsHtmlLoaded(false);
-  }, [item.id]);
-
   const handleLoadComplete = () => {
     console.log("Content: handleLoadComplete called, setting isHtmlLoaded to true");
     setIsHtmlLoaded(true);
+    // Fade in the content
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
     if (onLoadComplete) {
       console.log("Content: calling parent onLoadComplete");
       onLoadComplete();
     }
   };
+
+  // Reset state when item changes
+  useEffect(() => {
+    setIsHtmlLoaded(false);
+    fadeAnim.setValue(0);
+  }, [item.id, fadeAnim]);
 
   // Show skeleton if content is not ready
   if (!content || !processedContent) {
@@ -226,17 +267,19 @@ export const Content: React.FC<ContentProps> = ({
 
   return (
     <View style={styles.container}>
-      <HTMLViewer
-        content={processedContent}
-        cssStyles={baseCSS}
-        plugins={plugins}
-        onLoadComplete={handleLoadComplete}
-      />
+      <Animated.View style={[styles.contentContainer, { opacity: fadeAnim }]}>
+        <HTMLViewer
+          content={processedContent}
+          cssStyles={baseCSS}
+          plugins={plugins}
+          onLoadComplete={handleLoadComplete}
+        />
+      </Animated.View>
       {!isHtmlLoaded && (
         <View
           style={[
             styles.skeletonContainer,
-            { backgroundColor: isDarkMode ? "#000000" : "#ffffff" },
+            { backgroundColor: isDarkMode ? "#242526" : "#ffffff" },
           ]}
         >
           <Skeleton isDark={isDarkMode} />
@@ -250,6 +293,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: "relative",
+  },
+  contentContainer: {
+    flex: 1,
   },
   skeletonContainer: {
     position: "absolute",
