@@ -1,6 +1,6 @@
 // Export all reader components
-export { default as Header } from "./Header";
-export { default as MetaData } from "./MetaData";
-export { default as Content } from "./Content";
-export { default as AfterReading } from "./AfterReading";
-export { default as UpNext } from "./UpNext";
+export { default as ReaderHeader } from "./ReaderHeader";
+export { default as ReaderMetaData } from "./ReaderMetaData";
+export { default as ReaderContent } from "./ReaderContent";
+export { default as ReaderAfterReading } from "./ReaderAfterReading";
+export { default as ReaderUpNext } from "./ReaderUpNext";

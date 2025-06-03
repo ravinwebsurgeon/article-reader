@@ -12,7 +12,11 @@ interface MetaDataProps {
   showFeatureImage?: boolean;
 }
 
-export const MetaData: React.FC<MetaDataProps> = ({ item, content, showFeatureImage = true }) => {
+export const ReaderMetaData: React.FC<MetaDataProps> = ({
+  item,
+  content,
+  showFeatureImage = true,
+}) => {
   const theme = useTheme();
 
   const formatDate = (dateString: string | number | Date) => {
@@ -28,16 +32,11 @@ export const MetaData: React.FC<MetaDataProps> = ({ item, content, showFeatureIm
   const contentHasImage = useMemo(() => {
     if (!content?.content) return false;
 
-    // Look for various types of image elements in the processed HTML
-    const imagePatterns = [
-      /<img[^>]+>/i, // Standard img tags
-      /<figure[^>]*>[\s\S]*?<img[^>]+>/i, // Figure elements with images
-      /<picture[^>]*>[\s\S]*?<img[^>]+>/i, // Picture elements with images
-      /<svg[^>]*>[\s\S]*?<\/svg>/i, // SVG elements
-    ];
+    // Look for markdown image syntax: ![alt text](url)
+    const markdownImagePattern = /!\[.*?\]\(.*?\)/;
 
-    // Return true if any pattern is found in the content
-    return imagePatterns.some((pattern) => pattern.test(content.content || ""));
+    // Return true if markdown image is found in the content
+    return markdownImagePattern.test(content.content);
   }, [content?.content]);
 
   const shouldShowFeatureImage = showFeatureImage && item.imageUrl && !contentHasImage;
@@ -86,7 +85,6 @@ export const MetaData: React.FC<MetaDataProps> = ({ item, content, showFeatureIm
           <Image
             source={{ uri: item.imageUrl }}
             style={styles.featureImage}
-            resizeMode="cover"
             placeholder={
               item.imageThumbHash
                 ? { uri: `data:image/png;base64,${item.imageThumbHash}` }
@@ -146,16 +144,17 @@ const styles = StyleSheet.create({
     marginBottom: 0,
   },
   imageContainer: {
-    marginBottom: 24,
+    marginBottom: 10,
     width: "100%",
     borderRadius: 0,
     overflow: "hidden",
   },
   featureImage: {
     width: "100%",
-    height: 300,
+    aspectRatio: 16 / 9,
+    resizeMode: "cover",
     borderRadius: 0,
   },
 });
 
-export default MetaData;
+export default ReaderMetaData;

@@ -19,7 +19,7 @@ interface HeaderProps {
   isUserScrolled?: boolean;
 }
 
-export const Header: React.FC<HeaderProps> = ({
+export const ReaderHeader: React.FC<HeaderProps> = ({
   item,
   browserMode,
   onToggleView,
@@ -147,4 +147,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Header;
+export default ReaderHeader;
