@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback, useMemo } from "react";
+import React, { useRef, useState, useCallback, useMemo, useEffect } from "react";
 import { StyleSheet } from "react-native";
 import WebView from "react-native-webview";
 import { ThemeView } from "@/components/primitives";
@@ -19,6 +19,44 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
     const webViewRef = useRef<WebView>(null);
     const [isWebViewReady, setIsWebViewReady] = useState(false);
     const [viewerHeight, setViewerHeight] = useState(600);
+    const [selectedText, setSelectedText] = useState("");
+    const [menuUpdateTrigger, setMenuUpdateTrigger] = useState(0);
+
+    // Get menu items from plugins
+    const menuItems = useMemo(() => {
+      console.log("HTMLViewer: Getting menu items from plugins");
+      const highlightsPlugin = plugins.find((p) => p.name === "highlights") as any;
+      if (highlightsPlugin?.getMenuItems) {
+        const items = highlightsPlugin.getMenuItems();
+        console.log("HTMLViewer: Menu items from highlights plugin:", items);
+        return items;
+      }
+      console.log("HTMLViewer: No menu items found from highlights plugin");
+      return [];
+    }, [plugins, selectedText, menuUpdateTrigger]);
+
+    // Handle menu selection
+    const handleCustomMenuSelection = useCallback(
+      (event: { nativeEvent: { key: string; selectedText: string } }) => {
+        console.log("HTMLViewer: Menu selection event:", event.nativeEvent);
+        const { key, selectedText } = event.nativeEvent;
+        const highlightsPlugin = plugins.find((p) => p.name === "highlights") as any;
+        if (highlightsPlugin?.handleMenuSelection) {
+          console.log("HTMLViewer: Calling handleMenuSelection on highlights plugin");
+          highlightsPlugin.handleMenuSelection(key, selectedText);
+        } else {
+          console.log(
+            "HTMLViewer: No highlights plugin found or handleMenuSelection not available",
+          );
+        }
+      },
+      [plugins],
+    );
+
+    // Debug log for menu items
+    useEffect(() => {
+      console.log("HTMLViewer: Current menu items:", menuItems);
+    }, [menuItems]);
 
     // Viewer functions that plugins can call directly
     const viewerFunctions = useMemo(
@@ -114,6 +152,7 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
       (event: any) => {
         try {
           const message = JSON.parse(event.nativeEvent.data);
+          console.log("HTMLViewer: Received message:", message);
 
           if (message.type === "webview-ready") {
             setIsWebViewReady(true);
@@ -127,7 +166,14 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           if (message.pluginName) {
             const plugin = plugins.find((p) => p.name === message.pluginName);
             if (plugin) {
+              console.log("HTMLViewer: Routing message to plugin:", message.pluginName);
               plugin.messageHandler(message as PluginMessage, pluginContext);
+
+              // Trigger menu update for selection changes
+              if (message.type === "selection-changed" && message.pluginName === "highlights") {
+                setMenuUpdateTrigger((prev) => prev + 1);
+                console.log("HTMLViewer: Triggering menu update due to selection change");
+              }
             }
           }
 
@@ -152,11 +198,11 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
     );
 
     const handleLoadStart = useCallback(() => {
-      // No need for debug log
+      console.log("HTMLViewer: Load started");
     }, []);
 
     const handleLoadEnd = useCallback(() => {
-      // No need for debug log
+      console.log("HTMLViewer: Load ended");
     }, []);
 
     const handleError = useCallback((error: any) => {
@@ -189,6 +235,11 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           allowsInlineMediaPlayback={true}
           bounces={false}
           onShouldStartLoadWithRequest={() => true}
+          textInteractionEnabled={true}
+          textZoom={100}
+          scalesPageToFit={true}
+          menuItems={menuItems}
+          onCustomMenuSelection={handleCustomMenuSelection}
         />
       </ThemeView>
     );

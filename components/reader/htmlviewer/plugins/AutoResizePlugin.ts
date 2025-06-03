@@ -11,8 +11,8 @@ export class AutoResizePlugin implements HTMLViewerPlugin {
         function reportHeight() {
           const height = Math.max(
             document.documentElement.scrollHeight,
-            document.documentElement.offsetHeight,
             document.body.scrollHeight,
+            document.documentElement.offsetHeight,
             document.body.offsetHeight
           );
           
@@ -26,49 +26,23 @@ export class AutoResizePlugin implements HTMLViewerPlugin {
           }
         }
 
-        // Initial height report
+        // Report height when ready
         if (document.readyState === 'loading') {
           document.addEventListener('DOMContentLoaded', reportHeight);
         } else {
           reportHeight();
         }
 
-        // Monitor for changes
-        const observer = new ResizeObserver(reportHeight);
-        observer.observe(document.body);
-        
-        // Also monitor for dynamic content changes
-        const mutationObserver = new MutationObserver(function(mutations) {
-          let shouldCheck = false;
-          mutations.forEach(function(mutation) {
-            if (mutation.type === 'childList' || mutation.type === 'attributes') {
-              shouldCheck = true;
-            }
-          });
-          if (shouldCheck) {
-            setTimeout(reportHeight, 100);
-          }
-        });
-        
-        mutationObserver.observe(document.body, {
-          childList: true,
-          subtree: true,
-          attributes: true,
-          attributeFilter: ['style', 'class']
-        });
-
-        // Cleanup function
-        window.autoResizeCleanup = function() {
-          observer.disconnect();
-          mutationObserver.disconnect();
-        };
+        // Watch for changes
+        new ResizeObserver(reportHeight).observe(document.body);
+        new MutationObserver(() => setTimeout(reportHeight, 50))
+          .observe(document.body, { childList: true, subtree: true });
       })();
     `;
   }
 
   messageHandler = (message: PluginMessage, context: PluginContext) => {
     if (message.type === "height-changed" && message.payload?.height) {
-      // Use the viewer function to set height directly
       context.viewer.setHeight(message.payload.height);
     }
   };

@@ -11,10 +11,22 @@ interface HTMLViewerProps {
   onMessage?: (message: any) => void;
   onLoadComplete?: () => void;
   onContentSizeChange?: (height: number) => void;
+  menuItems?: Array<{ label: string; key: string }>;
+  onCustomMenuSelection?: (event: { nativeEvent: { key: string; selectedText: string } }) => void;
 }
 
 export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
-  ({ content, cssStyles, plugins = [], style, onMessage, onLoadComplete, onContentSizeChange }) => {
+  ({
+    content,
+    cssStyles,
+    plugins = [],
+    style,
+    onMessage,
+    onLoadComplete,
+    onContentSizeChange,
+    menuItems,
+    onCustomMenuSelection,
+  }) => {
     const iframeRef = useRef<HTMLIFrameElement>(null);
     const [isWebViewReady, setIsWebViewReady] = useState(false);
     const [viewerHeight, setViewerHeight] = useState(300);
@@ -52,6 +64,19 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             }
           }
         },
+        sendCommand: (pluginName: string, commandType: string, payload?: any) => {
+          if (iframeRef.current?.contentWindow && isWebViewReady) {
+            iframeRef.current.contentWindow.postMessage(
+              {
+                type: "plugin-command",
+                pluginName,
+                commandType,
+                payload,
+              },
+              "*",
+            );
+          }
+        },
         item: null, // Will be provided by plugin if needed
         isDarkMode: false, // Will be provided by plugin if needed
         onUpdate: (data: any) => {
@@ -69,8 +94,27 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
         postMessage: function(data) {
           const jsonString = typeof data === 'string' ? data : JSON.stringify(data);
           window.parent.postMessage(jsonString, '*');
+        },
+        showContextMenu: function(x, y, selectedText) {
+          // This is a placeholder for web - we'll implement a custom context menu later
+          console.log('Context menu requested at', x, y, 'for text:', selectedText);
         }
       };
+
+      // Listen for commands from React Native
+      window.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'plugin-command') {
+          const { pluginName, commandType, payload } = event.data;
+          
+          // Dispatch to the appropriate plugin
+          window.dispatchEvent(new CustomEvent(pluginName + 'Command', {
+            detail: {
+              type: commandType,
+              payload: payload
+            }
+          }));
+        }
+      });
     `,
       [],
     );
