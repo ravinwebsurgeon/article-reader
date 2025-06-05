@@ -1,29 +1,29 @@
-import Item from "@/database/models/ItemModel";
-
 export interface HTMLViewerPlugin {
   name: string;
   jsCode: string;
   messageHandler: (message: PluginMessage, context: PluginContext) => void;
+  setContext?: (context: PluginContext) => void;
+  activate?: () => void; // Called when WebView is ready and plugin can start sending commands
+  getMenuItems?: () => { label: string; key: string }[]; // Get context menu items
+  handleMenuSelection?: (key: string, selectedText: string) => void; // Handle menu selection
 }
 
 export interface PluginContext {
-  injectJavaScript: (script: string) => void;
-  sendCommand?: (pluginName: string, commandType: string, payload?: any) => void;
-  item: Item | null;
+  sendCommand: (pluginName: string, commandType: string, payload?: unknown) => void;
   isDarkMode: boolean;
-  onUpdate: (data: any) => void;
   // Viewer functions that plugins can call directly
   viewer: {
     setHeight: (height: number) => void;
     getHeight: () => number;
     refresh: () => void;
   };
+  updateMenus: () => void; // Request menu update when plugin state changes
 }
 
 export interface PluginMessage {
   type: string;
   pluginName: string;
-  payload?: any;
+  payload?: unknown;
 }
 
 export interface AutoResizeMessage extends PluginMessage {
@@ -36,12 +36,19 @@ export interface AutoResizeMessage extends PluginMessage {
 
 export interface HighlightMessage extends PluginMessage {
   pluginName: "highlights";
-  type: "highlight-added" | "highlight-removed" | "selection-changed" | "highlight-clicked";
+  type:
+    | "highlight-added"
+    | "highlight-removed"
+    | "selection-changed"
+    | "highlight-clicked"
+    | "highlight-created";
   payload: {
     id?: string;
     text?: string;
     color?: string;
-    range?: any;
+    range?: unknown;
     isHighlighted?: boolean;
+    prefix?: string;
+    suffix?: string;
   };
 }

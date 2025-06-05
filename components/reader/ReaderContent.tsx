@@ -1,42 +1,122 @@
 import React, { useState, useRef, useMemo, useEffect, useCallback } from "react";
-import { StyleSheet, Share, View, Animated } from "react-native";
+import { StyleSheet, View, Animated } from "react-native";
 import { marked } from "marked";
 import { useDarkMode } from "@/theme/hooks";
 import HTMLViewer from "./htmlviewer/HTMLViewer";
 import { AutoResizePlugin } from "./htmlviewer/plugins/AutoResizePlugin";
-import { HighlightsPlugin } from "./htmlviewer/plugins/HighlightsPlugin";
-import { PluginContext, PluginMessage } from "./htmlviewer/plugins/types";
+import { HighlightsPlugin, HighlightsPluginCallbacks } from "./htmlviewer/plugins/HighlightsPlugin";
 import Item from "@/database/models/ItemModel";
 import ItemContent from "@/database/models/ItemContentModel";
+import Annotation from "@/database/models/AnnotationModel";
 import ReaderSkeleton from "./ReaderSkeleton";
 import { leterataFontBase64 } from "@/constants/leterataFontBase64";
 import { literataBold18base64 } from "@/constants/literateBold18Base64";
+import {
+  withItemAnnotations,
+  createAnnotation,
+  deleteAnnotationById,
+  findAnnotationByText,
+  annotationToHighlightData,
+  HighlightData,
+} from "@/database/hooks/withAnnotations";
 
 interface ContentProps {
   item: Item;
   content: ItemContent | null;
+  annotations: Annotation[]; // Provided by HOC
   onProgressChange?: (progress: number) => void;
   onUserScrolled?: () => void;
   onLoadComplete?: () => void;
 }
 
-export const ReaderContent: React.FC<ContentProps> = ({
+const ReaderContentComponent: React.FC<ContentProps> = ({
   item,
   content,
+  annotations,
   onProgressChange,
   onUserScrolled,
   onLoadComplete,
 }) => {
   const isDarkMode = useDarkMode();
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const highlightsPluginRef = useRef<HighlightsPlugin | null>(null);
 
   // State
   const [isHtmlLoaded, setIsHtmlLoaded] = useState(false);
-  const [selectedText, setSelectedText] = useState<string>("");
-  const [highlights, setHighlights] = useState<Array<{ id: string; text: string; color: string }>>(
-    [],
+
+  // Convert annotations to highlight data
+  const highlights = useMemo((): HighlightData[] => {
+    console.log(
+      "ReaderContent: Converting annotations to highlights:",
+      annotations.length,
+      annotations,
+    );
+    return annotations.map(annotationToHighlightData);
+  }, [annotations]);
+
+  // Debug log when annotations prop changes
+  useEffect(() => {
+    console.log("ReaderContent: Annotations prop changed:", annotations.length, annotations);
+  }, [annotations]);
+
+  // Update plugin highlights whenever they change
+  useEffect(() => {
+    console.log(
+      "ReaderContent: Highlights changed, updating plugin:",
+      highlights.length,
+      highlights,
+    );
+    if (highlightsPluginRef.current) {
+      highlightsPluginRef.current.setHighlights(highlights);
+    }
+  }, [highlights]);
+
+  // Handle highlight creation
+  const handleHighlightAdded = useCallback(
+    async (text: string, prefix?: string, suffix?: string) => {
+      if (!item?.id) return;
+
+      try {
+        console.log("ReaderContent: Creating highlight:", { text, prefix, suffix });
+
+        // Check if annotation already exists
+        const existing = await findAnnotationByText(item.id, text, prefix, suffix);
+        if (existing) {
+          console.log("ReaderContent: Annotation already exists:", existing);
+          return;
+        }
+
+        // Create new annotation (database update will trigger highlights re-render via HOC)
+        await createAnnotation(item.id, text, prefix, suffix);
+        console.log("ReaderContent: Highlight created successfully");
+      } catch (error) {
+        console.error("ReaderContent: Error creating highlight:", error);
+      }
+    },
+    [item?.id],
   );
-  const [isHighlighted, setIsHighlighted] = useState(false);
+
+  // Handle highlight removal
+  const handleHighlightRemoved = useCallback(async (highlightId: string) => {
+    try {
+      console.log("ReaderContent: Removing highlight:", highlightId);
+
+      // Remove from database (database update will trigger highlights re-render via HOC)
+      await deleteAnnotationById(highlightId);
+      console.log("ReaderContent: Highlight removed successfully");
+    } catch (error) {
+      console.error("ReaderContent: Error removing highlight:", error);
+    }
+  }, []);
+
+  // Plugin callbacks
+  const highlightsCallbacks: HighlightsPluginCallbacks = useMemo(
+    () => ({
+      onHighlightAdded: handleHighlightAdded,
+      onHighlightRemoved: handleHighlightRemoved,
+    }),
+    [handleHighlightAdded, handleHighlightRemoved],
+  );
 
   // Process markdown content
   const processedContent = useMemo(() => {
@@ -214,34 +294,12 @@ export const ReaderContent: React.FC<ContentProps> = ({
   );
 
   // Create plugins
-  const plugins = useMemo(
-    () => [
-      new AutoResizePlugin(),
-      new HighlightsPlugin({
-        onHighlightAdded: (id, text, color) => {
-          setHighlights((prev) => [...prev, { id, text, color }]);
-        },
-        onHighlightRemoved: (id) => {
-          setHighlights((prev) => prev.filter((h) => h.id !== id));
-        },
-        onSelectionChange: (text) => {
-          setSelectedText(text);
-        },
-      }),
-    ],
-    [],
-  );
+  const plugins = useMemo(() => {
+    const highlightsPlugin = new HighlightsPlugin(highlightsCallbacks);
+    highlightsPluginRef.current = highlightsPlugin;
 
-  // Handle sharing selected text
-  const handleShareSelectedText = async (text: string) => {
-    try {
-      await Share.share({
-        message: text,
-      });
-    } catch (error) {
-      console.error("Error sharing text:", error);
-    }
-  };
+    return [new AutoResizePlugin(), highlightsPlugin];
+  }, [highlightsCallbacks]);
 
   const handleLoadComplete = () => {
     console.log("Content: handleLoadComplete called, setting isHtmlLoaded to true");
@@ -304,5 +362,8 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
 });
+
+// Export the component wrapped with the annotations HOC
+export const ReaderContent = withItemAnnotations()(ReaderContentComponent);
 
 export default ReaderContent;

@@ -1,59 +1,62 @@
-import { HTMLViewerPlugin, PluginContext, PluginMessage } from "./types";
+import { HTMLViewerPlugin, PluginContext, PluginMessage, HighlightMessage } from "./types";
+import { HighlightData } from "@/database/hooks/withAnnotations";
 
-interface HighlightData {
-  id: string;
-  text: string;
-  color: string;
-  prefix?: string;
-  suffix?: string;
+export interface HighlightsPluginCallbacks {
+  onHighlightAdded?: (text: string, prefix?: string, suffix?: string) => void;
+  onHighlightRemoved?: (highlightId: string) => void;
 }
 
 export class HighlightsPlugin implements HTMLViewerPlugin {
   name = "highlights";
 
-  private onHighlightAdded?: (
-    id: string,
-    text: string,
-    color: string,
-    prefix?: string,
-    suffix?: string,
-  ) => void;
-  private onHighlightRemoved?: (id: string) => void;
-  private onSelectionChange?: (text: string) => void;
-  private highlights: Map<string, HighlightData> = new Map();
-  private isHighlighted: boolean = false;
+  private callbacks: HighlightsPluginCallbacks;
   private context: PluginContext | null = null;
-  private currentHighlightId: string | null = null;
+  private currentSelection: {
+    text: string;
+    isHighlighted: boolean;
+    highlightId?: string;
+  } = { text: "", isHighlighted: false };
+  private currentHighlights: HighlightData[] = [];
+  private isActivated: boolean = false;
 
-  constructor({
-    onHighlightAdded,
-    onHighlightRemoved,
-    onSelectionChange,
-  }: {
-    onHighlightAdded?: (
-      id: string,
-      text: string,
-      color: string,
-      prefix?: string,
-      suffix?: string,
-    ) => void;
-    onHighlightRemoved?: (id: string) => void;
-    onSelectionChange?: (text: string) => void;
-  } = {}) {
-    this.onHighlightAdded = onHighlightAdded;
-    this.onHighlightRemoved = onHighlightRemoved;
-    this.onSelectionChange = onSelectionChange;
-    console.log("HighlightsPlugin: Initialized");
+  constructor(callbacks: HighlightsPluginCallbacks = {}) {
+    this.callbacks = callbacks;
+  }
+
+  /**
+   * Set the plugin context (called by HTMLViewer when WebView is ready)
+   */
+  setContext(context: PluginContext) {
+    this.context = context;
+  }
+
+  /**
+   * Activate the plugin (called by HTMLViewer when WebView is ready and plugin can start sending commands)
+   */
+  activate() {
+    this.isActivated = true;
+
+    // Send any stored highlights to the WebView now that we're activated
+    if (this.currentHighlights.length > 0 && this.context?.sendCommand) {
+      this.context.sendCommand(this.name, "set-highlights", { highlights: this.currentHighlights });
+    }
+  }
+
+  /**
+   * Update the highlights to render (called by parent when database changes)
+   */
+  setHighlights(highlights: HighlightData[]) {
+    // Always store the current highlights
+    this.currentHighlights = highlights;
+
+    // Only send to WebView if plugin is activated
+    if (this.isActivated && this.context?.sendCommand) {
+      this.context.sendCommand(this.name, "set-highlights", { highlights });
+    }
   }
 
   // Get current menu items based on selection state
-  getMenuItems(): Array<{ label: string; key: string }> {
-    console.log("HighlightsPlugin: Getting menu items", {
-      isHighlighted: this.isHighlighted,
-      currentHighlightId: this.currentHighlightId,
-      highlightsCount: this.highlights.size,
-    });
-
+  getMenuItems(): { label: string; key: string }[] {
     // Base menu items that should always be available
     const baseItems = [
       { label: "Copy", key: "copy" },
@@ -62,75 +65,37 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
     ];
 
     // Add highlight-specific items based on state
-    if (!this.isHighlighted) {
-      const items = [{ label: "Highlight", key: "highlight" }, ...baseItems];
-      console.log("HighlightsPlugin: Returning highlight menu items:", items);
-      return items;
+    if (!this.currentSelection.isHighlighted && this.currentSelection.text) {
+      return [{ label: "Highlight", key: "highlight" }, ...baseItems];
     }
 
-    const items = [{ label: "Remove Highlight", key: "removeHighlight" }, ...baseItems];
-    console.log("HighlightsPlugin: Returning remove highlight menu items:", items);
-    return items;
+    if (this.currentSelection.isHighlighted && this.currentSelection.highlightId) {
+      return [{ label: "Remove Highlight", key: "removeHighlight" }, ...baseItems];
+    }
+
+    return baseItems;
   }
 
   // Handle menu selection
   handleMenuSelection(key: string, selectedText: string) {
-    console.log("HighlightsPlugin: Handling menu selection:", { key, selectedText });
     switch (key) {
       case "highlight":
-        if (selectedText) {
-          const id = `highlight-${Date.now()}`;
-          const color = "#FFFF00"; // Default yellow color
-          console.log("HighlightsPlugin: Creating highlight:", { id, text: selectedText, color });
-
-          // Send message via postMessage instead of calling global function
-          if (this.context?.injectJavaScript) {
-            this.context.injectJavaScript(`
-              window.dispatchEvent(new CustomEvent('highlightCommand', {
-                detail: {
-                  type: 'create-highlight',
-                  payload: { id: '${id}', text: '${selectedText.replace(/'/g, "\\'")}', color: '${color}' }
-                }
-              }));
-              true;
-            `);
-          }
+        // Send command to get selection context and create highlight
+        if (this.context?.sendCommand) {
+          this.context.sendCommand(this.name, "create-highlight-from-selection");
         }
         break;
+
       case "removeHighlight":
-        if (this.currentHighlightId) {
-          console.log("HighlightsPlugin: Removing highlight with ID:", this.currentHighlightId);
-
-          // Send message via postMessage instead of calling global function
-          if (this.context?.injectJavaScript) {
-            this.context.injectJavaScript(`
-              window.dispatchEvent(new CustomEvent('highlightCommand', {
-                detail: {
-                  type: 'remove-highlight',
-                  payload: { id: '${this.currentHighlightId}' }
-                }
-              }));
-              true;
-            `);
-          }
-
-          // Reset current highlight ID
-          this.currentHighlightId = null;
-        } else {
-          console.log("HighlightsPlugin: No current highlight ID found");
+        if (this.currentSelection.highlightId && this.callbacks.onHighlightRemoved) {
+          this.callbacks.onHighlightRemoved(this.currentSelection.highlightId);
         }
         break;
+
       case "copy":
-        // Handle copy action
-        console.log("HighlightsPlugin: Copy action requested");
-        break;
       case "share":
-        // Handle share action
-        console.log("HighlightsPlugin: Share action requested");
-        break;
       case "selectAll":
-        // Handle select all action
-        console.log("HighlightsPlugin: Select all action requested");
+        // These actions are handled by the system
         break;
     }
   }
@@ -138,47 +103,15 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
   get jsCode(): string {
     return `
       (function() {
-        let selectedText = '';
-        let isHighlighted = false;
-        let currentHighlightId = null;
-
         // Helper function to get text inside a node
         function getTextInsideNode(node, start, end) {
           if (!node) return '';
           
           if (node.nodeType === 3) { // text node
-            return node.data.slice(start || 0, end || node.data.length);
+            return node.data.slice(start ?? 0, end ?? node.data.length);
           } else { // DOM node
-            return node.textContent ? node.textContent.slice(start || 0, end || node.textContent.length) : '';
+            return node.textContent ? node.textContent.slice(start ?? 0, end ?? node.textContent.length) : '';
           }
-        }
-
-        // Helper function to get the first word at anchor position
-        function getFirstAnchorWord(node, offset) {
-          const text = getTextInsideNode(node);
-          if (offset === 0) {
-            return text.split(' ')[0];
-          }
-          
-          let spaceOffset = offset;
-          while (spaceOffset > 0 && text[spaceOffset] !== ' ') {
-            spaceOffset--;
-          }
-          return text.slice(spaceOffset + 1).split(' ')[0];
-        }
-
-        // Helper function to get the last word at focus position
-        function getLastFocusWord(node, offset) {
-          const text = getTextInsideNode(node);
-          if (offset === text.length) {
-            return text.split(' ').reverse()[0];
-          }
-          
-          let spaceOffset = offset;
-          while (spaceOffset < text.length && text[spaceOffset] !== ' ') {
-            spaceOffset++;
-          }
-          return text.slice(0, spaceOffset).split(' ').reverse()[0];
         }
 
         // Function to get words before selection
@@ -267,253 +200,221 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
               
               if (isValidMatch) {
                 matchCount++;
-                if (matchCount > 1) return false; // Not unique
+                if (matchCount > 1) return false;
               }
               
               index = nodeText.indexOf(text, index + 1);
             }
           }
           
-          return matchCount === 1; // Unique if exactly one match
+          return matchCount === 1;
         }
 
-        // Function to extract text with prefix and suffix context using uniqueness checking
-        function getTextWithContext(selection) {
-          const selectedText = selection.toString().trim();
-          if (!selectedText) {
-            return { text: '', prefix: undefined, suffix: undefined };
-          }
-          
-          // Step 1: Try with no context
-          if (isUniqueInDocument(selectedText, undefined, undefined)) {
-            return { text: selectedText, prefix: undefined, suffix: undefined };
-          }
-          
-          // Step 2: Try with 3 words of context
-          let prefix = getWordsBefore(selection, 3);
-          let suffix = getWordsAfter(selection, 3);
-          
-          if (isUniqueInDocument(selectedText, prefix, suffix)) {
-            return { text: selectedText, prefix, suffix };
-          }
-          
-          // Step 3: Keep adding 1 word at a time until unique (max 10 words each side)
-          for (let wordCount = 4; wordCount <= 10; wordCount++) {
-            prefix = getWordsBefore(selection, wordCount);
-            suffix = getWordsAfter(selection, wordCount);
-            
-            if (isUniqueInDocument(selectedText, prefix, suffix)) {
-              return { text: selectedText, prefix, suffix };
-            }
-          }
-          
-          // Fallback: return what we have (even if not unique)
-          return { text: selectedText, prefix, suffix };
-        }
-
-        // Track selection changes
-        document.addEventListener('selectionchange', function() {
+        // Function to get selection context
+        function getSelectionContext() {
           const selection = window.getSelection();
-          const text = selection ? selection.toString().trim() : '';
+          if (!selection || selection.isCollapsed) return null;
           
-          if (text === selectedText) return;
+          const text = selection.toString().trim();
+          if (!text) return null;
           
-          selectedText = text;
-          isHighlighted = false;
-          currentHighlightId = null;
+          // Get context words
+          const prefix = getWordsBefore(selection, 3);
+          const suffix = getWordsAfter(selection, 3);
           
-          // Check if selection is within a highlight
-          if (text && selection.rangeCount > 0) {
-            const range = selection.getRangeAt(0);
-            const element = range.commonAncestorContainer.nodeType === 1 
-              ? range.commonAncestorContainer 
-              : range.commonAncestorContainer.parentElement;
-              
-            if (element && element.classList.contains('text-highlight')) {
-              isHighlighted = true;
-              currentHighlightId = element.id;
-            }
+          // Test if this combination is unique
+          if (isUniqueInDocument(text, prefix, suffix)) {
+            return { text, prefix, suffix };
           }
           
+          // If not unique, try with more context
+          const prefix2 = getWordsBefore(selection, 5);
+          const suffix2 = getWordsAfter(selection, 5);
+          
+          if (isUniqueInDocument(text, prefix2, suffix2)) {
+            return { text, prefix: prefix2, suffix: suffix2 };
+          }
+          
+          // If still not unique, try with even more context
+          const prefix3 = getWordsBefore(selection, 7);
+          const suffix3 = getWordsAfter(selection, 7);
+          
+          if (isUniqueInDocument(text, prefix3, suffix3)) {
+            return { text, prefix: prefix3, suffix: suffix3 };
+          }
+          
+          // If still not unique, return just the text
+          return { text };
+        }
+
+        // Function to create a highlight
+        function createHighlight(text, prefix, suffix) {
+          const selection = window.getSelection();
+          if (!selection || selection.isCollapsed) return;
+          
+          // Create highlight element
+          const highlight = document.createElement('span');
+          highlight.className = 'pocket-highlight';
+          highlight.dataset.highlightId = Date.now().toString();
+          
+          // Wrap selection in highlight
+          const range = selection.getRangeAt(0);
+          range.surroundContents(highlight);
+          
+          // Send message to React
           window.htmlViewer.postMessage({
             pluginName: 'highlights',
-            type: 'selection-changed',
-            payload: { text, isHighlighted, currentHighlightId }
+            type: 'highlight-created',
+            payload: {
+              text,
+              prefix,
+              suffix,
+              highlightId: highlight.dataset.highlightId
+            }
           });
-        });
+        }
 
-        // Listen for commands
-        window.addEventListener('highlightCommand', function(event) {
-          const { type, payload } = event.detail;
+        // Function to remove a highlight
+        function removeHighlight(highlightId) {
+          const highlight = document.querySelector(\`[data-highlight-id="\${highlightId}"]\`);
+          if (highlight) {
+            const parent = highlight.parentNode;
+            if (parent) {
+              while (highlight.firstChild) {
+                parent.insertBefore(highlight.firstChild, highlight);
+              }
+              parent.removeChild(highlight);
+            }
+          }
+        }
+
+        // Function to apply highlights
+        function applyHighlights(highlights) {
+          // Remove existing highlights
+          document.querySelectorAll('.pocket-highlight').forEach(el => el.remove());
           
-          if (type === 'create-highlight') {
-            const selection = window.getSelection();
-            if (!selection.toString()) return;
+          // Apply new highlights
+          highlights.forEach(highlight => {
+            const { text, prefix, suffix } = highlight;
             
-            try {
-              const range = selection.getRangeAt(0);
-              const textWithContext = getTextWithContext(selection);
-              
-              const highlight = document.createElement('span');
-              highlight.id = payload.id;
-              highlight.className = 'text-highlight';
-              highlight.style.backgroundColor = payload.color;
-              highlight.setAttribute('role', 'mark');
-              
-              // Store context data as attributes for later retrieval
-              if (textWithContext.prefix) {
-                highlight.setAttribute('data-prefix', textWithContext.prefix);
-              }
-              if (textWithContext.suffix) {
-                highlight.setAttribute('data-suffix', textWithContext.suffix);
-              }
-              
-              range.surroundContents(highlight);
-              
-              window.htmlViewer.postMessage({
-                pluginName: 'highlights',
-                type: 'highlight-added',
-                payload: {
-                  ...payload,
-                  text: textWithContext.text,
-                  prefix: textWithContext.prefix,
-                  suffix: textWithContext.suffix
-                }
-              });
-            } catch (error) {
-              console.error('Error creating highlight:', error);
-            }
-          }
-          
-          else if (type === 'remove-highlight') {
-            const element = document.getElementById(payload.id);
-            if (element) {
-              const parent = element.parentNode;
-              parent.replaceChild(document.createTextNode(element.textContent), element);
-              parent.normalize();
-              
-              window.htmlViewer.postMessage({
-                pluginName: 'highlights',
-                type: 'highlight-removed',
-                payload
-              });
-            }
-          }
-          
-          else if (type === 'restore-highlight') {
-            // Find text using context-aware matching
+            // Find text in document
             const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
             let node;
-            let found = false;
             
-            while (node = walker.nextNode() && !found) {
-              const text = node.textContent;
-              let index = text.indexOf(payload.text);
+            while (node = walker.nextNode()) {
+              const nodeText = node.textContent;
+              let index = nodeText.indexOf(text);
               
-              // If we have prefix/suffix, use them for better matching
-              if (index !== -1) {
+              while (index !== -1) {
                 let isValidMatch = true;
                 
-                // Check prefix context if provided (multi-word support)
-                if (payload.prefix && index > 0) {
-                  const beforeText = text.substring(0, index).trim();
+                // Check prefix context if provided
+                if (prefix && index > 0) {
+                  const beforeText = nodeText.substring(0, index).trim();
                   const beforeWords = beforeText.split(' ').filter(word => word.length > 0);
-                  const prefixWords = payload.prefix.split(' ').filter(word => word.length > 0);
+                  const prefixWords = prefix.split(' ').filter(word => word.length > 0);
                   
                   if (beforeWords.length < prefixWords.length) {
                     isValidMatch = false;
                   } else {
                     const beforeSuffix = beforeWords.slice(-prefixWords.length).join(' ');
-                    if (beforeSuffix !== payload.prefix) {
+                    if (beforeSuffix !== prefix) {
                       isValidMatch = false;
                     }
                   }
                 }
                 
-                // Check suffix context if provided (multi-word support)
-                if (payload.suffix && isValidMatch) {
-                  const afterIndex = index + payload.text.length;
-                  const afterText = text.substring(afterIndex).trim();
+                // Check suffix context if provided
+                if (suffix && isValidMatch) {
+                  const afterIndex = index + text.length;
+                  const afterText = nodeText.substring(afterIndex).trim();
                   const afterWords = afterText.split(' ').filter(word => word.length > 0);
-                  const suffixWords = payload.suffix.split(' ').filter(word => word.length > 0);
+                  const suffixWords = suffix.split(' ').filter(word => word.length > 0);
                   
                   if (afterWords.length < suffixWords.length) {
                     isValidMatch = false;
                   } else {
                     const afterPrefix = afterWords.slice(0, suffixWords.length).join(' ');
-                    if (afterPrefix !== payload.suffix) {
+                    if (afterPrefix !== suffix) {
                       isValidMatch = false;
                     }
                   }
                 }
                 
                 if (isValidMatch) {
+                  // Create highlight element
+                  const highlight = document.createElement('span');
+                  highlight.className = 'pocket-highlight';
+                  highlight.dataset.highlightId = highlight.id;
+                  
+                  // Split text node and wrap selection
                   const range = document.createRange();
                   range.setStart(node, index);
-                  range.setEnd(node, index + payload.text.length);
+                  range.setEnd(node, index + text.length);
+                  range.surroundContents(highlight);
                   
-                  const highlight = document.createElement('span');
-                  highlight.id = payload.id;
-                  highlight.className = 'text-highlight';
-                  highlight.style.backgroundColor = payload.color;
-                  highlight.setAttribute('role', 'mark');
-                  
-                  if (payload.prefix) {
-                    highlight.setAttribute('data-prefix', payload.prefix);
-                  }
-                  if (payload.suffix) {
-                    highlight.setAttribute('data-suffix', payload.suffix);
-                  }
-                  
-                  try {
-                    range.surroundContents(highlight);
-                    found = true;
-                  } catch (error) {
-                    console.error('Error restoring highlight:', error);
-                  }
+                  // Update node reference for next iteration
+                  node = highlight.nextSibling;
+                  break;
                 }
+                
+                index = nodeText.indexOf(text, index + 1);
               }
             }
+          });
+        }
+
+        // Listen for commands from React
+        window.addEventListener('highlightsCommand', function(event) {
+          const { type, payload } = event.detail;
+          
+          switch (type) {
+            case 'set-highlights':
+              applyHighlights(payload.highlights);
+              break;
+              
+            case 'create-highlight-from-selection':
+              const context = getSelectionContext();
+              if (context) {
+                createHighlight(context.text, context.prefix, context.suffix);
+              }
+              break;
           }
         });
+
+        // Add styles
+        const style = document.createElement('style');
+        style.textContent = \`
+          .pocket-highlight {
+            background-color: rgba(255, 255, 0, 0.3);
+            border-radius: 2px;
+          }
+        \`;
+        document.head.appendChild(style);
       })();
     `;
   }
 
   messageHandler = (message: PluginMessage, context: PluginContext) => {
-    // Store context for later use
-    this.context = context;
-
-    console.log("HighlightsPlugin: Handling message:", message);
-    switch (message.type) {
-      case "selection-changed":
-        if (this.onSelectionChange && message.payload?.text) {
-          this.isHighlighted = message.payload.isHighlighted;
-          this.currentHighlightId = message.payload.currentHighlightId || null;
-          console.log("HighlightsPlugin: Selection changed:", {
-            text: message.payload.text,
-            isHighlighted: this.isHighlighted,
-            currentHighlightId: this.currentHighlightId,
-          });
-          this.onSelectionChange(message.payload.text);
+    if (message.type === "highlight-created" && message.pluginName === "highlights") {
+      const highlightMessage = message as HighlightMessage;
+      if (highlightMessage.payload) {
+        const { text, prefix, suffix, id: highlightId } = highlightMessage.payload;
+        if (typeof text === "string" && typeof highlightId === "string") {
+          this.currentSelection = {
+            text,
+            isHighlighted: true,
+            highlightId,
+          };
+          if (this.callbacks.onHighlightAdded) {
+            this.callbacks.onHighlightAdded(
+              text,
+              prefix as string | undefined,
+              suffix as string | undefined,
+            );
+          }
         }
-        break;
-      case "highlight-added":
-        if (this.onHighlightAdded && message.payload?.id && message.payload?.text) {
-          const { id, text, color, prefix, suffix } = message.payload;
-          this.highlights.set(id, { id, text, color, prefix, suffix });
-          console.log("HighlightsPlugin: Highlight added:", { id, text, color, prefix, suffix });
-          this.onHighlightAdded(id, text, color || "#FFFF00", prefix, suffix);
-        }
-        break;
-      case "highlight-removed":
-        if (this.onHighlightRemoved && message.payload?.id) {
-          const id = message.payload.id;
-          this.highlights.delete(id);
-          console.log("HighlightsPlugin: Highlight removed:", id);
-          this.onHighlightRemoved(id);
-        }
-        break;
+      }
     }
   };
 }

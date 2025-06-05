@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback, useMemo, useEffect } from "react";
+import React, { useRef, useState, useCallback, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import WebView from "react-native-webview";
 import { ThemeView } from "@/components/primitives";
@@ -9,7 +9,7 @@ interface HTMLViewerProps {
   cssStyles: string; // CSS styles for the content
   plugins?: HTMLViewerPlugin[];
   style?: object;
-  onMessage?: (message: any) => void;
+  onMessage?: (message: PluginMessage) => void;
   onLoadComplete?: () => void;
   onContentSizeChange?: (height: number) => void;
 }
@@ -17,52 +17,43 @@ interface HTMLViewerProps {
 export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
   ({ content, cssStyles, plugins = [], style, onMessage, onLoadComplete, onContentSizeChange }) => {
     const webViewRef = useRef<WebView>(null);
-    const [isWebViewReady, setIsWebViewReady] = useState(false);
     const [viewerHeight, setViewerHeight] = useState(600);
-    const [selectedText, setSelectedText] = useState("");
     const [menuUpdateTrigger, setMenuUpdateTrigger] = useState(0);
 
-    // Get menu items from plugins
+    // Get menu items from all plugins
     const menuItems = useMemo(() => {
-      console.log("HTMLViewer: Getting menu items from plugins");
-      const highlightsPlugin = plugins.find((p) => p.name === "highlights") as any;
-      if (highlightsPlugin?.getMenuItems) {
-        const items = highlightsPlugin.getMenuItems();
-        console.log("HTMLViewer: Menu items from highlights plugin:", items);
-        return items;
-      }
-      console.log("HTMLViewer: No menu items found from highlights plugin");
-      return [];
-    }, [plugins, selectedText, menuUpdateTrigger]);
+      const allMenuItems: { label: string; key: string }[] = [];
+
+      // Collect menu items from all plugins
+      plugins.forEach((plugin) => {
+        if (plugin.getMenuItems) {
+          const pluginMenuItems = plugin.getMenuItems();
+          allMenuItems.push(...pluginMenuItems);
+        }
+      });
+
+      return allMenuItems;
+    }, [plugins, menuUpdateTrigger]);
 
     // Handle menu selection
     const handleCustomMenuSelection = useCallback(
       (event: { nativeEvent: { key: string; selectedText: string } }) => {
-        console.log("HTMLViewer: Menu selection event:", event.nativeEvent);
         const { key, selectedText } = event.nativeEvent;
-        const highlightsPlugin = plugins.find((p) => p.name === "highlights") as any;
-        if (highlightsPlugin?.handleMenuSelection) {
-          console.log("HTMLViewer: Calling handleMenuSelection on highlights plugin");
-          highlightsPlugin.handleMenuSelection(key, selectedText);
-        } else {
-          console.log(
-            "HTMLViewer: No highlights plugin found or handleMenuSelection not available",
-          );
-        }
+
+        // Route menu selection to all plugins that can handle it
+        plugins.forEach((plugin) => {
+          if (plugin.handleMenuSelection) {
+            plugin.handleMenuSelection(key, selectedText);
+          }
+        });
       },
       [plugins],
     );
-
-    // Debug log for menu items
-    useEffect(() => {
-      console.log("HTMLViewer: Current menu items:", menuItems);
-    }, [menuItems]);
 
     // Viewer functions that plugins can call directly
     const viewerFunctions = useMemo(
       () => ({
         setHeight: (height: number) => {
-          console.log("HTMLViewer: Setting height to", height);
           setViewerHeight(height);
           // Notify parent of content size change for scroll calculations
           if (onContentSizeChange) {
@@ -82,31 +73,53 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
     // Create plugin context
     const pluginContext: PluginContext = useMemo(
       () => ({
-        injectJavaScript: (script: string) => {
-          if (webViewRef.current && isWebViewReady) {
-            webViewRef.current.injectJavaScript(script);
+        sendCommand: (pluginName: string, commandType: string, payload?: unknown) => {
+          if (webViewRef.current) {
+            // Use controlled closure injection - secure and minimal
+            const commandData = JSON.stringify({ pluginName, commandType, payload });
+
+            webViewRef.current.injectJavaScript(`
+              (function() {
+                if (window.handlePluginCommand) {
+                  window.handlePluginCommand(${commandData});
+                } else {
+                  console.error('HTMLViewer: handlePluginCommand not available yet');
+                }
+              })();
+              true;
+            `);
           }
         },
-        item: null,
         isDarkMode: false,
-        onUpdate: (data: any) => {
-          console.log("Plugin update:", data);
-        },
         viewer: viewerFunctions,
+        updateMenus: () => {
+          setMenuUpdateTrigger((prev) => prev + 1);
+        },
       }),
-      [isWebViewReady, viewerFunctions],
+      [viewerFunctions],
     );
 
     // Generate the generic HTMLViewer API injection script
     const htmlViewerApiScript = useMemo(
       () => `
-      console.log('HTMLViewer API script loaded');
       window.htmlViewer = {
         postMessage: function(data) {
-          console.log('HTMLViewer postMessage called with:', data);
           const jsonString = typeof data === 'string' ? data : JSON.stringify(data);
           window.ReactNativeWebView?.postMessage(jsonString);
         }
+      };
+
+      // Predefined command handler for secure plugin communication
+      window.handlePluginCommand = function(commandData) {
+        const { pluginName, commandType, payload } = commandData;
+        
+        // Dispatch to the appropriate plugin
+        window.dispatchEvent(new CustomEvent(pluginName + 'Command', {
+          detail: {
+            type: commandType,
+            payload: payload
+          }
+        }));
       };
     `,
       [],
@@ -131,7 +144,6 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           <body>
             ${content}
             <script>
-              console.log('Starting script injection...');
               ${htmlViewerApiScript}
               ${combinedPluginScript}
               
@@ -149,13 +161,25 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
 
     // Handle messages from WebView
     const handleMessage = useCallback(
-      (event: any) => {
+      (event: { nativeEvent: { data: string } }) => {
         try {
-          const message = JSON.parse(event.nativeEvent.data);
-          console.log("HTMLViewer: Received message:", message);
+          const message = JSON.parse(event.nativeEvent.data) as PluginMessage;
 
           if (message.type === "webview-ready") {
-            setIsWebViewReady(true);
+            // Set context on all plugins immediately when WebView is ready
+            plugins.forEach((plugin) => {
+              if (plugin.setContext) {
+                plugin.setContext(pluginContext);
+              }
+            });
+
+            // Activate all plugins after context is set
+            plugins.forEach((plugin) => {
+              if (plugin.activate) {
+                plugin.activate();
+              }
+            });
+
             if (onLoadComplete) {
               onLoadComplete();
             }
@@ -166,14 +190,7 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           if (message.pluginName) {
             const plugin = plugins.find((p) => p.name === message.pluginName);
             if (plugin) {
-              console.log("HTMLViewer: Routing message to plugin:", message.pluginName);
-              plugin.messageHandler(message as PluginMessage, pluginContext);
-
-              // Trigger menu update for selection changes
-              if (message.type === "selection-changed" && message.pluginName === "highlights") {
-                setMenuUpdateTrigger((prev) => prev + 1);
-                console.log("HTMLViewer: Triggering menu update due to selection change");
-              }
+              plugin.messageHandler(message, pluginContext);
             }
           }
 
@@ -182,64 +199,24 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             onMessage(message);
           }
         } catch (error) {
-          console.error("Error parsing WebView message:", error);
+          console.error("Error handling WebView message:", error);
         }
       },
       [plugins, pluginContext, onMessage, onLoadComplete],
     );
 
-    // WebView source
-    const source = useMemo(
-      () => ({
-        html: fullHtml,
-        baseUrl: "about:blank",
-      }),
-      [fullHtml],
-    );
-
-    const handleLoadStart = useCallback(() => {
-      console.log("HTMLViewer: Load started");
-    }, []);
-
-    const handleLoadEnd = useCallback(() => {
-      console.log("HTMLViewer: Load ended");
-    }, []);
-
-    const handleError = useCallback((error: any) => {
-      console.error("HTMLViewer: WebView error:", error);
-    }, []);
-
-    console.log("HTMLViewer: Rendering with height:", viewerHeight);
-
     return (
-      <ThemeView style={[styles.container, { height: viewerHeight }, style]}>
+      <ThemeView style={[styles.container, style]}>
         <WebView
           ref={webViewRef}
-          originWhitelist={["*"]}
-          source={source}
-          style={styles.webview}
+          source={{ html: fullHtml }}
+          style={[styles.webview, { height: viewerHeight }]}
           onMessage={handleMessage}
-          onLoadStart={handleLoadStart}
-          onLoadEnd={handleLoadEnd}
-          onError={handleError}
-          javaScriptEnabled={true}
-          domStorageEnabled={true}
           scrollEnabled={false}
           showsVerticalScrollIndicator={false}
-          overScrollMode="never"
-          nestedScrollEnabled={false}
-          cacheEnabled={true}
-          mixedContentMode="compatibility"
-          mediaPlaybackRequiresUserAction={true}
-          startInLoadingState={false}
-          allowsInlineMediaPlayback={true}
-          bounces={false}
-          onShouldStartLoadWithRequest={() => true}
-          textInteractionEnabled={true}
-          textZoom={100}
-          scalesPageToFit={true}
-          menuItems={menuItems}
+          showsHorizontalScrollIndicator={false}
           onCustomMenuSelection={handleCustomMenuSelection}
+          menuItems={menuItems}
         />
       </ThemeView>
     );
@@ -250,13 +227,10 @@ HTMLViewer.displayName = "HTMLViewer";
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
-    position: "relative",
-    backgroundColor: "transparent",
+    flex: 1,
   },
   webview: {
     flex: 1,
-    backgroundColor: "transparent",
   },
 });
 
