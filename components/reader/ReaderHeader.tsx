@@ -2,7 +2,6 @@ import React, { useRef } from "react";
 import { TouchableOpacity, View, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemeView, ThemeText } from "@/components/primitives";
 import { SvgIcon } from "@/components/SvgIcon";
 import { useTheme } from "@/theme/hooks";

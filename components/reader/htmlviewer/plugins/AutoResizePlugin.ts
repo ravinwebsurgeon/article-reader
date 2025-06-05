@@ -1,4 +1,4 @@
-import { HTMLViewerPlugin, PluginContext, PluginMessage } from "./types";
+import { HTMLViewerPlugin, PluginContext, PluginMessage, AutoResizeMessage } from "./types";
 
 export class AutoResizePlugin implements HTMLViewerPlugin {
   name = "auto-resize";
@@ -42,8 +42,14 @@ export class AutoResizePlugin implements HTMLViewerPlugin {
   }
 
   messageHandler = (message: PluginMessage, context: PluginContext) => {
-    if (message.type === "height-changed" && message.payload?.height) {
-      context.viewer.setHeight(message.payload.height);
+    if (message.type === "height-changed" && message.pluginName === "auto-resize") {
+      const autoResizeMessage = message as AutoResizeMessage;
+      if (autoResizeMessage.payload?.height) {
+        const height = Number(autoResizeMessage.payload.height);
+        if (!isNaN(height)) {
+          context.viewer.setHeight(height);
+        }
+      }
     }
   };
 }

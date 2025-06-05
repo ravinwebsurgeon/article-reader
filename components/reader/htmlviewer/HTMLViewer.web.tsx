@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback, useMemo, useEffect } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, ViewStyle } from "react-native";
 import { ThemeView } from "@/components/primitives";
 import { HTMLViewerPlugin, PluginContext, PluginMessage } from "./plugins/types";
 
@@ -7,11 +7,11 @@ interface HTMLViewerProps {
   content: string; // The main content to display
   cssStyles: string; // CSS styles for the content
   plugins?: HTMLViewerPlugin[];
-  style?: object;
-  onMessage?: (message: any) => void;
+  style?: ViewStyle;
+  onMessage?: (message: PluginMessage) => void;
   onLoadComplete?: () => void;
   onContentSizeChange?: (height: number) => void;
-  menuItems?: Array<{ label: string; key: string }>;
+  menuItems?: { label: string; key: string }[];
   onCustomMenuSelection?: (event: { nativeEvent: { key: string; selectedText: string } }) => void;
 }
 
@@ -55,17 +55,13 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
     // Create plugin context
     const pluginContext: PluginContext = useMemo(
       () => ({
-        injectJavaScript: (script: string) => {
+        sendCommand: (pluginName: string, commandType: string, payload?: unknown) => {
           if (iframeRef.current?.contentWindow && isWebViewReady) {
-            try {
-              (iframeRef.current.contentWindow as any).eval(script);
-            } catch (error) {
-              console.error("Error injecting JavaScript:", error);
-            }
-          }
-        },
-        sendCommand: (pluginName: string, commandType: string, payload?: any) => {
-          if (iframeRef.current?.contentWindow && isWebViewReady) {
+            console.log("HTMLViewer.web: Sending command to iframe:", {
+              pluginName,
+              commandType,
+              payload,
+            });
             iframeRef.current.contentWindow.postMessage(
               {
                 type: "plugin-command",
@@ -77,12 +73,11 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             );
           }
         },
-        item: null, // Will be provided by plugin if needed
-        isDarkMode: false, // Will be provided by plugin if needed
-        onUpdate: (data: any) => {
-          console.log("Plugin update:", data);
-        },
+        isDarkMode: false,
         viewer: viewerFunctions,
+        updateMenus: () => {
+          // No-op for web version
+        },
       }),
       [isWebViewReady, viewerFunctions],
     );
@@ -90,8 +85,10 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
     // Generate the generic HTMLViewer API injection script
     const htmlViewerApiScript = useMemo(
       () => `
+      console.log('HTMLViewer.web API script loaded');
       window.htmlViewer = {
         postMessage: function(data) {
+          console.log('HTMLViewer.web postMessage called with:', data);
           const jsonString = typeof data === 'string' ? data : JSON.stringify(data);
           window.parent.postMessage(jsonString, '*');
         },
@@ -101,18 +98,24 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
         }
       };
 
-      // Listen for commands from React Native
+      // Listen for commands from React (web)
       window.addEventListener('message', function(event) {
-        if (event.data && event.data.type === 'plugin-command') {
-          const { pluginName, commandType, payload } = event.data;
-          
-          // Dispatch to the appropriate plugin
-          window.dispatchEvent(new CustomEvent(pluginName + 'Command', {
-            detail: {
-              type: commandType,
-              payload: payload
-            }
-          }));
+        try {
+          const message = event.data;
+          if (message && message.type === 'plugin-command') {
+            const { pluginName, commandType, payload } = message;
+            console.log('HTMLViewer.web iframe received command:', { pluginName, commandType, payload });
+            
+            // Dispatch to the appropriate plugin
+            window.dispatchEvent(new CustomEvent(pluginName + 'Command', {
+              detail: {
+                type: commandType,
+                payload: payload
+              }
+            }));
+          }
+        } catch (error) {
+          console.error('Error parsing command message:', error);
         }
       });
     `,
@@ -138,6 +141,7 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           <body>
             ${content}
             <script>
+              console.log('HTMLViewer.web: Starting script injection...');
               ${htmlViewerApiScript}
               ${combinedPluginScript}
               
@@ -161,6 +165,7 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
 
         try {
           const message = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+          console.log("HTMLViewer.web: Received message:", message);
 
           if (message.type === "webview-ready") {
             setIsWebViewReady(true);
@@ -174,13 +179,14 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           if (message.pluginName) {
             const plugin = plugins.find((p) => p.name === message.pluginName);
             if (plugin) {
+              console.log("HTMLViewer.web: Routing message to plugin:", message.pluginName);
               plugin.messageHandler(message as PluginMessage, pluginContext);
             }
           }
 
           // Forward message to parent
           if (onMessage) {
-            onMessage(message);
+            onMessage(message as PluginMessage);
           }
         } catch (error) {
           console.error("Error parsing iframe message:", error);
@@ -195,27 +201,18 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
       return () => window.removeEventListener("message", handleMessage);
     }, [handleMessage]);
 
-    // Create data URL for iframe
-    const dataUrl = useMemo(() => {
-      return `data:text/html;charset=utf-8,${encodeURIComponent(fullHtml)}`;
-    }, [fullHtml]);
-
-    const iframeStyle: React.CSSProperties = {
-      width: "100%",
-      height: "100%",
-      border: "none",
-      backgroundColor: "transparent",
-    };
-
     return (
-      <ThemeView style={[styles.container, { height: viewerHeight }, style]}>
+      <ThemeView style={[styles.container, style]}>
         <iframe
           ref={iframeRef}
-          src={dataUrl}
-          style={iframeStyle}
-          frameBorder="0"
-          scrolling="no"
-          sandbox="allow-scripts allow-same-origin"
+          srcDoc={fullHtml}
+          style={{
+            flex: 1,
+            border: "none",
+            width: "100%",
+            height: viewerHeight,
+          }}
+          title="HTML Viewer"
         />
       </ThemeView>
     );
@@ -226,9 +223,7 @@ HTMLViewer.displayName = "HTMLViewer";
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
-    overflow: "hidden",
-    position: "relative",
+    flex: 1,
   },
 });
 

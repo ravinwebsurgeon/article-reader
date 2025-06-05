@@ -1,6 +1,6 @@
-import React, { useState, useRef, useMemo, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { WebView } from "react-native-webview";
 import { SafeAreaView } from "react-native-safe-area-context";
