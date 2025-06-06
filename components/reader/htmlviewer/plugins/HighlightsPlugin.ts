@@ -6,6 +6,10 @@ export interface HighlightsPluginCallbacks {
   onHighlightRemoved?: (highlightId: string) => void;
 }
 
+/**
+ * Plugin for handling text highlighting in the HTML viewer.
+ * Supports both single-paragraph and cross-paragraph highlights with context-aware matching.
+ */
 export class HighlightsPlugin implements HTMLViewerPlugin {
   name = "highlights";
 
@@ -53,7 +57,9 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
     }
   }
 
-  // Get current menu items based on selection state
+  /**
+   * Get current menu items based on selection state
+   */
   getMenuItems(): { label: string; key: string }[] {
     // Base menu items that should always be available
     const baseItems = [
@@ -74,7 +80,9 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
     return baseItems;
   }
 
-  // Handle menu selection
+  /**
+   * Handle menu selection events
+   */
   handleMenuSelection(key: string, selectedText: string) {
     switch (key) {
       case "highlight":
@@ -103,6 +111,9 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
     }
   }
 
+  /**
+   * CSS styles for highlights
+   */
   get cssCode(): string {
     return `
       .pocket-highlight {
@@ -112,12 +123,20 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
     `;
   }
 
+  /**
+   * JavaScript code that runs in the WebView to handle highlighting
+   */
   get jsCode(): string {
     return `
       (function() {
-        // Google's text fragments approach - exact implementation
+        // ============================================================================
+        // CONSTANTS AND CONFIGURATION
+        // ============================================================================
         
-        // Block elements list from Google's implementation
+        /**
+         * List of HTML elements that create block boundaries.
+         * Text highlights cannot span across these elements.
+         */
         const BLOCK_ELEMENTS = [
           'ADDRESS', 'ARTICLE', 'ASIDE', 'BLOCKQUOTE', 'BR', 'DETAILS',
           'DIALOG', 'DD', 'DIV', 'DL', 'DT', 'FIELDSET',
@@ -129,16 +148,26 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
           'TFOOT',
         ];
 
-        // Google's normalization function
+        // ============================================================================
+        // TEXT NORMALIZATION AND UTILITIES
+        // ============================================================================
+
+        /**
+         * Normalize text for consistent matching across different whitespace representations.
+         * Handles Unicode normalization, whitespace collapse, diacritic removal, and case.
+         */
         function normalizeString(str) {
           return (str || '')
-            .normalize('NFKD')
-            .replace(/\\s+/g, ' ')
-            .replace(/[\\u0300-\\u036f]/g, '')
-            .toLowerCase();
+            .normalize('NFKD')                    // Decompose diacriticals
+            .replace(/\\s+/g, ' ')                // Collapse whitespace to single spaces
+            .replace(/[\\u0300-\\u036f]/g, '')    // Remove diacritical marks
+            .toLowerCase();                       // Normalize case
         }
 
-        // Check if node is visible (simplified version of Google's)
+        /**
+         * Check if a DOM node is visible to the user.
+         * Invisible nodes should be excluded from text search.
+         */
         function isNodeVisible(node) {
           let elt = node;
           while (elt != null && !(elt instanceof HTMLElement)) elt = elt.parentNode;
@@ -154,14 +183,23 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
           return true;
         }
 
-        // Filter function from Google's implementation
+        /**
+         * Filter function for TreeWalker to accept only visible nodes within a range.
+         */
         function acceptNodeIfVisibleInRange(node, range) {
           if (range != null && !range.intersectsNode(node))
             return NodeFilter.FILTER_REJECT;
           return isNodeVisible(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
         }
 
-        // Get all text nodes grouped by block boundaries (Google's approach)
+        // ============================================================================
+        // TEXT NODE COLLECTION AND CONTENT EXTRACTION
+        // ============================================================================
+
+        /**
+         * Get all text nodes grouped by block boundaries.
+         * Text within the same block can be searched together.
+         */
         function getAllTextNodes(root, range) {
           const blocks = [];
           let tmp = [];
@@ -191,7 +229,9 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
           return blocks;
         }
 
-        // Get text content with normalization (Google's approach)
+        /**
+         * Extract text content from a list of text nodes with proper whitespace handling.
+         */
         function getTextContent(nodes, startOffset, endOffset) {
           let str = '';
           if (nodes.length === 1) {
@@ -204,7 +244,14 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
           return str.replace(/[\\t\\n\\r ]+/g, ' ');
         }
 
-        // Google's boundary point generation
+        // ============================================================================
+        // POSITION MAPPING BETWEEN NORMALIZED AND ORIGINAL TEXT
+        // ============================================================================
+
+        /**
+         * Convert a position in normalized text back to the corresponding DOM position.
+         * This is complex because normalized text collapses whitespace that exists in the DOM.
+         */
         function getBoundaryPointAtIndex(index, textNodes, isEnd) {
           let counted = 0;
           let normalizedData;
@@ -243,6 +290,7 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
             
             counted += normalizedData.length;
             
+            // Handle space between text nodes
             if (i + 1 < textNodes.length) {
               const nextNormalizedData = normalizeString(textNodes[i + 1].data);
               if (normalizedData.slice(-1) === ' ' && nextNormalizedData.slice(0, 1) === ' ') {
@@ -254,7 +302,13 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
           return undefined;
         }
 
-        // Google's range finding from node list
+        // ============================================================================
+        // TEXT SEARCH WITHIN BLOCKS
+        // ============================================================================
+
+        /**
+         * Find text within a specific list of text nodes (typically within one block).
+         */
         function findRangeFromNodeList(query, range, textNodes) {
           if (!query || !range || !(textNodes || []).length) return undefined;
           
@@ -284,7 +338,10 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
           return undefined;
         }
 
-        // Google's main text finding function
+        /**
+         * Find text within a range using block-aware search.
+         * This is the standard approach that respects block boundaries.
+         */
         function findTextInRange(query, range) {
           const textNodeLists = getAllTextNodes(range.commonAncestorContainer, range);
           
@@ -295,204 +352,14 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
           return undefined;
         }
 
-        // Google's mark range function (simplified for our highlights)
-        function markRange(range, highlightId) {
-          if (range.startContainer.nodeType != Node.TEXT_NODE ||
-              range.endContainer.nodeType != Node.TEXT_NODE)
-            return [];
+        // ============================================================================
+        // CROSS-BLOCK TEXT SEARCH
+        // ============================================================================
 
-          // If the range is entirely within a single node, just surround it
-          if (range.startContainer === range.endContainer) {
-            const mark = document.createElement('span');
-            mark.className = 'pocket-highlight';
-            mark.dataset.highlightId = highlightId;
-            range.surroundContents(mark);
-            return [mark];
-          }
-
-          // Handle multi-node ranges
-          const startNode = range.startContainer;
-          const startNodeSubrange = range.cloneRange();
-          startNodeSubrange.setEndAfter(startNode);
-
-          const endNode = range.endContainer;
-          const endNodeSubrange = range.cloneRange();
-          endNodeSubrange.setStartBefore(endNode);
-
-          const marks = [];
-          range.setStartAfter(startNode);
-          range.setEndBefore(endNode);
-          
-          const walker = document.createTreeWalker(
-            range.commonAncestorContainer,
-            NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
-            {
-              acceptNode: function(node) {
-                if (!range.intersectsNode(node)) return NodeFilter.FILTER_REJECT;
-                if (node.nodeType === Node.TEXT_NODE ||
-                    BLOCK_ELEMENTS.includes(node.tagName.toUpperCase()))
-                  return NodeFilter.FILTER_ACCEPT;
-                return NodeFilter.FILTER_SKIP;
-              },
-            },
-          );
-          
-          let node = walker.nextNode();
-          while (node) {
-            if (node.nodeType === Node.TEXT_NODE) {
-              const mark = document.createElement('span');
-              mark.className = 'pocket-highlight';
-              mark.dataset.highlightId = highlightId;
-              node.parentNode.insertBefore(mark, node);
-              mark.appendChild(node);
-              marks.push(mark);
-            }
-            node = walker.nextNode();
-          }
-
-          const startMark = document.createElement('span');
-          startMark.className = 'pocket-highlight';
-          startMark.dataset.highlightId = highlightId;
-          startNodeSubrange.surroundContents(startMark);
-          
-          const endMark = document.createElement('span');
-          endMark.className = 'pocket-highlight';  
-          endMark.dataset.highlightId = highlightId;
-          endNodeSubrange.surroundContents(endMark);
-
-          return [startMark, ...marks, endMark];
-        }
-
-        // Context extraction for new highlights - keep original text
-        function getSelectionContext() {
-          const selection = window.getSelection();
-          if (!selection || selection.isCollapsed) return null;
-          
-          const text = selection.toString().trim(); // Keep original text
-          if (!text) return null;
-          
-          // Get surrounding context (keep original text)
-          const range = selection.getRangeAt(0);
-          const contextRange = document.createRange();
-          contextRange.selectNodeContents(document.body);
-          
-          // Get prefix - keep original
-          const prefixRange = contextRange.cloneRange();
-          prefixRange.setEnd(range.startContainer, range.startOffset);
-          const prefixText = prefixRange.toString().trim();
-          const prefixWords = prefixText.split(/\\s+/).filter(w => w.length > 0);
-          const prefix = prefixWords.length >= 3 ? prefixWords.slice(-3).join(' ') : undefined;
-          
-          // Get suffix - keep original  
-          const suffixRange = contextRange.cloneRange();
-          suffixRange.setStart(range.endContainer, range.endOffset);
-          const suffixText = suffixRange.toString().trim();
-          const suffixWords = suffixText.split(/\\s+/).filter(w => w.length > 0);
-          const suffix = suffixWords.length >= 3 ? suffixWords.slice(0, 3).join(' ') : undefined;
-          
-          return { text, prefix, suffix }; // All original text
-        }
-
-        // Enhanced text finding that matches with prefix/suffix context
-        function findTextWithContext(text, prefix, suffix) {
-          console.log('Finding text with context:', { text, prefix, suffix });
-          
-          // Create search range for the entire document
-          const searchRange = document.createRange();
-          searchRange.selectNodeContents(document.body);
-          
-          let results = [];
-          
-          // First, find all instances of the text
-          const textNodeLists = getAllTextNodes(searchRange.commonAncestorContainer, searchRange);
-          
-          for (const list of textNodeLists) {
-            const data = normalizeString(getTextContent(list, 0, undefined));
-            const normalizedText = normalizeString(text);
-            let searchStart = 0;
-            
-            while (searchStart < data.length) {
-              const matchIndex = data.indexOf(normalizedText, searchStart);
-              if (matchIndex === -1) break;
-              
-              const start = getBoundaryPointAtIndex(matchIndex, list, false);
-              const end = getBoundaryPointAtIndex(matchIndex + normalizedText.length, list, true);
-              
-              if (start && end) {
-                const foundRange = new Range();
-                foundRange.setStart(start.node, start.offset);
-                foundRange.setEnd(end.node, end.offset);
-                results.push(foundRange);
-              }
-              
-              searchStart = matchIndex + 1;
-            }
-          }
-          
-          console.log('Found', results.length, 'text matches');
-          
-          // Now filter by context
-          for (const textRange of results) {
-            let isValidMatch = true;
-            
-            // Check prefix if provided
-            if (prefix && isValidMatch) {
-              // Look backwards from text start to find prefix
-              const prefixSearchRange = document.createRange();
-              prefixSearchRange.selectNodeContents(document.body);
-              prefixSearchRange.setEnd(textRange.startContainer, textRange.startOffset);
-              
-              // Get the text before our match and check if it ends with our prefix
-              const beforeText = normalizeString(prefixSearchRange.toString());
-              const normalizedPrefix = normalizeString(prefix);
-              
-              if (!beforeText.endsWith(normalizedPrefix)) {
-                console.log('Prefix mismatch. Expected:', normalizedPrefix, 'Found ending:', beforeText.slice(-normalizedPrefix.length * 2));
-                isValidMatch = false;
-              }
-            }
-            
-            // Check suffix if provided  
-            if (suffix && isValidMatch) {
-              // Look forwards from text end to find suffix
-              const suffixSearchRange = document.createRange();
-              suffixSearchRange.selectNodeContents(document.body);
-              suffixSearchRange.setStart(textRange.endContainer, textRange.endOffset);
-              
-              // Get the text after our match and check if it starts with our suffix
-              const afterText = normalizeString(suffixSearchRange.toString());
-              const normalizedSuffix = normalizeString(suffix);
-              
-              if (!afterText.startsWith(normalizedSuffix)) {
-                console.log('Suffix mismatch. Expected:', normalizedSuffix, 'Found beginning:', afterText.slice(0, normalizedSuffix.length * 2));
-                isValidMatch = false;
-              }
-            }
-            
-            if (isValidMatch) {
-              console.log('Found valid match with context');
-              return textRange;
-            }
-          }
-          
-          console.log('No valid match found with context');
-          return null;
-        }
-
-        // Enhanced findTextInRange that can handle cross-block text
-        function findTextInRangeWithBlocks(query, range) {
-          // First try Google's standard approach (within blocks)
-          const standardResult = findTextInRange(query, range);
-          if (standardResult) {
-            return standardResult;
-          }
-          
-          // If not found, try cross-block search
-          console.log('Standard search failed, trying cross-block search');
-          return findTextInRangeCrossBlock(query, range);
-        }
-
-        // New function to search across block boundaries
+        /**
+         * Find text that spans across block boundaries.
+         * This ignores block boundaries and searches the entire text as one string.
+         */
         function findTextInRangeCrossBlock(query, range) {
           // Get ALL text nodes in the range, ignoring block boundaries
           const walker = document.createTreeWalker(
@@ -551,83 +418,29 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
           return undefined;
         }
 
-        // Modified processTextFragmentDirective to use cross-block search
-        function processTextFragmentDirective(textFragment) {
-          const results = [];
-          const searchRange = document.createRange();
-          searchRange.selectNodeContents(document.body);
-
-          while (!searchRange.collapsed && results.length < 2) {
-            let potentialMatch;
-            
-            if (textFragment.prefix) {
-              const prefixMatch = findTextInRangeWithBlocks(textFragment.prefix, searchRange);
-              if (prefixMatch == null) {
-                break;
-              }
-              
-              try {
-                searchRange.setStart(prefixMatch.startContainer, prefixMatch.startOffset + 1);
-              } catch (err) {
-                searchRange.setStartAfter(prefixMatch.startContainer);
-              }
-
-              const matchRange = document.createRange();
-              matchRange.setStart(prefixMatch.endContainer, prefixMatch.endOffset);
-              matchRange.setEnd(searchRange.endContainer, searchRange.endOffset);
-
-              advanceRangeStartToNonWhitespace(matchRange);
-              if (matchRange.collapsed) {
-                break;
-              }
-
-              // Use cross-block search for the main text
-              potentialMatch = findTextInRangeWithBlocks(textFragment.textStart, matchRange);
-              if (potentialMatch == null) {
-                break;
-              }
-
-              if (potentialMatch.compareBoundaryPoints(Range.START_TO_START, matchRange) !== 0) {
-                continue;
-              }
-            } else {
-              // Use cross-block search for text without prefix
-              potentialMatch = findTextInRangeWithBlocks(textFragment.textStart, searchRange);
-              if (potentialMatch == null) {
-                break;
-              }
-              
-              try {
-                searchRange.setStart(potentialMatch.startContainer, potentialMatch.startOffset + 1);
-              } catch (err) {
-                searchRange.setStartAfter(potentialMatch.startContainer);
-              }
-            }
-
-            if (textFragment.suffix) {
-              const suffixRange = document.createRange();
-              suffixRange.setStart(potentialMatch.endContainer, potentialMatch.endOffset);
-              suffixRange.setEnd(searchRange.endContainer, searchRange.endOffset);
-              
-              advanceRangeStartToNonWhitespace(suffixRange);
-              
-              const suffixMatch = findTextInRangeWithBlocks(textFragment.suffix, suffixRange);
-              if (suffixMatch == null) {
-                break;
-              }
-
-              if (suffixMatch.compareBoundaryPoints(Range.START_TO_START, suffixRange) !== 0) {
-                continue;
-              }
-            }
-
-            results.push(potentialMatch.cloneRange());
+        /**
+         * Enhanced text search that tries block-aware search first, then cross-block search.
+         */
+        function findTextInRangeWithBlocks(query, range) {
+          // First try standard approach (within blocks)
+          const standardResult = findTextInRange(query, range);
+          if (standardResult) {
+            return standardResult;
           }
           
-          return results;
+          // If not found, try cross-block search
+          console.log('Standard search failed, trying cross-block search');
+          return findTextInRangeCrossBlock(query, range);
         }
 
-        // Google's advance range to non-whitespace
+        // ============================================================================
+        // RANGE MANIPULATION UTILITIES
+        // ============================================================================
+
+        /**
+         * Move the start of a range past any whitespace characters.
+         * This is used to skip whitespace between prefix and target text.
+         */
         function advanceRangeStartToNonWhitespace(range) {
           const walker = document.createTreeWalker(
             range.commonAncestorContainer,
@@ -664,7 +477,218 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
           }
         }
 
-        // Apply highlights using Google's exact approach
+        // ============================================================================
+        // TEXT FRAGMENT PROCESSING (MAIN SEARCH LOGIC)
+        // ============================================================================
+
+        /**
+         * Process a text fragment directive to find matching text in the document.
+         * Uses prefix/suffix context to find the correct instance of the text.
+         */
+        function processTextFragmentDirective(textFragment) {
+          const results = [];
+          const searchRange = document.createRange();
+          searchRange.selectNodeContents(document.body);
+
+          while (!searchRange.collapsed && results.length < 2) {
+            let potentialMatch;
+            
+            if (textFragment.prefix) {
+              // Find the prefix first
+              const prefixMatch = findTextInRangeWithBlocks(textFragment.prefix, searchRange);
+              if (prefixMatch == null) {
+                break;
+              }
+              
+              // Move search range past the first character of prefix for future iterations
+              try {
+                searchRange.setStart(prefixMatch.startContainer, prefixMatch.startOffset + 1);
+              } catch (err) {
+                searchRange.setStartAfter(prefixMatch.startContainer);
+              }
+
+              // Search for target text after the prefix
+              const matchRange = document.createRange();
+              matchRange.setStart(prefixMatch.endContainer, prefixMatch.endOffset);
+              matchRange.setEnd(searchRange.endContainer, searchRange.endOffset);
+
+              // Skip whitespace after prefix
+              advanceRangeStartToNonWhitespace(matchRange);
+              if (matchRange.collapsed) {
+                break;
+              }
+
+              // Use cross-block search for the main text
+              potentialMatch = findTextInRangeWithBlocks(textFragment.textStart, matchRange);
+              if (potentialMatch == null) {
+                break;
+              }
+
+              // Check if target text is immediately after the prefix
+              if (potentialMatch.compareBoundaryPoints(Range.START_TO_START, matchRange) !== 0) {
+                continue;
+              }
+            } else {
+              // No prefix, just look for target text
+              potentialMatch = findTextInRangeWithBlocks(textFragment.textStart, searchRange);
+              if (potentialMatch == null) {
+                break;
+              }
+              
+              try {
+                searchRange.setStart(potentialMatch.startContainer, potentialMatch.startOffset + 1);
+              } catch (err) {
+                searchRange.setStartAfter(potentialMatch.startContainer);
+              }
+            }
+
+            // Check suffix if provided
+            if (textFragment.suffix) {
+              const suffixRange = document.createRange();
+              suffixRange.setStart(potentialMatch.endContainer, potentialMatch.endOffset);
+              suffixRange.setEnd(searchRange.endContainer, searchRange.endOffset);
+              
+              advanceRangeStartToNonWhitespace(suffixRange);
+              
+              const suffixMatch = findTextInRangeWithBlocks(textFragment.suffix, suffixRange);
+              if (suffixMatch == null) {
+                break;
+              }
+
+              // Check if suffix is immediately after the target text
+              if (suffixMatch.compareBoundaryPoints(Range.START_TO_START, suffixRange) !== 0) {
+                continue;
+              }
+            }
+
+            results.push(potentialMatch.cloneRange());
+          }
+          
+          return results;
+        }
+
+        // ============================================================================
+        // HIGHLIGHT RENDERING
+        // ============================================================================
+
+        /**
+         * Create highlight elements around a range of text.
+         * Handles both single-node and multi-node ranges.
+         */
+        function markRange(range, highlightId) {
+          if (range.startContainer.nodeType != Node.TEXT_NODE ||
+              range.endContainer.nodeType != Node.TEXT_NODE)
+            return [];
+
+          // If the range is entirely within a single node, just surround it
+          if (range.startContainer === range.endContainer) {
+            const mark = document.createElement('span');
+            mark.className = 'pocket-highlight';
+            mark.dataset.highlightId = highlightId;
+            range.surroundContents(mark);
+            return [mark];
+          }
+
+          // Handle multi-node ranges
+          const startNode = range.startContainer;
+          const startNodeSubrange = range.cloneRange();
+          startNodeSubrange.setEndAfter(startNode);
+
+          const endNode = range.endContainer;
+          const endNodeSubrange = range.cloneRange();
+          endNodeSubrange.setStartBefore(endNode);
+
+          const marks = [];
+          range.setStartAfter(startNode);
+          range.setEndBefore(endNode);
+          
+          // Mark middle nodes
+          const walker = document.createTreeWalker(
+            range.commonAncestorContainer,
+            NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
+            {
+              acceptNode: function(node) {
+                if (!range.intersectsNode(node)) return NodeFilter.FILTER_REJECT;
+                if (node.nodeType === Node.TEXT_NODE ||
+                    BLOCK_ELEMENTS.includes(node.tagName.toUpperCase()))
+                  return NodeFilter.FILTER_ACCEPT;
+                return NodeFilter.FILTER_SKIP;
+              },
+            },
+          );
+          
+          let node = walker.nextNode();
+          while (node) {
+            if (node.nodeType === Node.TEXT_NODE) {
+              const mark = document.createElement('span');
+              mark.className = 'pocket-highlight';
+              mark.dataset.highlightId = highlightId;
+              node.parentNode.insertBefore(mark, node);
+              mark.appendChild(node);
+              marks.push(mark);
+            }
+            node = walker.nextNode();
+          }
+
+          // Mark start node
+          const startMark = document.createElement('span');
+          startMark.className = 'pocket-highlight';
+          startMark.dataset.highlightId = highlightId;
+          startNodeSubrange.surroundContents(startMark);
+          
+          // Mark end node
+          const endMark = document.createElement('span');
+          endMark.className = 'pocket-highlight';  
+          endMark.dataset.highlightId = highlightId;
+          endNodeSubrange.surroundContents(endMark);
+
+          return [startMark, ...marks, endMark];
+        }
+
+        // ============================================================================
+        // SELECTION CONTEXT EXTRACTION
+        // ============================================================================
+
+        /**
+         * Extract context information from the current selection.
+         * This includes the selected text plus surrounding words for precise matching.
+         */
+        function getSelectionContext() {
+          const selection = window.getSelection();
+          if (!selection || selection.isCollapsed) return null;
+          
+          const text = selection.toString().trim(); // Keep original text
+          if (!text) return null;
+          
+          // Get surrounding context (keep original text)
+          const range = selection.getRangeAt(0);
+          const contextRange = document.createRange();
+          contextRange.selectNodeContents(document.body);
+          
+          // Get prefix - keep original
+          const prefixRange = contextRange.cloneRange();
+          prefixRange.setEnd(range.startContainer, range.startOffset);
+          const prefixText = prefixRange.toString().trim();
+          const prefixWords = prefixText.split(/\\s+/).filter(w => w.length > 0);
+          const prefix = prefixWords.length >= 3 ? prefixWords.slice(-3).join(' ') : undefined;
+          
+          // Get suffix - keep original  
+          const suffixRange = contextRange.cloneRange();
+          suffixRange.setStart(range.endContainer, range.endOffset);
+          const suffixText = suffixRange.toString().trim();
+          const suffixWords = suffixText.split(/\\s+/).filter(w => w.length > 0);
+          const suffix = suffixWords.length >= 3 ? suffixWords.slice(0, 3).join(' ') : undefined;
+          
+          return { text, prefix, suffix }; // All original text
+        }
+
+        // ============================================================================
+        // HIGHLIGHT MANAGEMENT
+        // ============================================================================
+
+        /**
+         * Apply all highlights to the document using the sophisticated search algorithm.
+         */
         function applyHighlights(highlights) {
           console.log('Applying highlights:', highlights.length);
           
@@ -681,7 +705,7 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
           });
           document.normalize();
           
-          // Apply each highlight using Google's processTextFragmentDirective
+          // Apply each highlight using text fragment processing
           highlights.forEach((highlight) => {
             const { text, prefix, suffix, id } = highlight;
             console.log('Processing highlight:', { 
@@ -691,19 +715,19 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
               id 
             });
             
-            // Create text fragment object like Google expects
+            // Create text fragment object
             const textFragment = {
               textStart: text,
               prefix: prefix || '',
               suffix: suffix || ''
             };
             
-            // Use Google's exact logic
+            // Use the sophisticated search algorithm
             const results = processTextFragmentDirective(textFragment);
             
             if (results.length > 0) {
               try {
-                // Use the first result (Google's behavior)
+                // Use the first result
                 markRange(results[0], id);
                 console.log('Successfully applied highlight for:', text.substring(0, 30) + '...');
               } catch (error) {
@@ -715,23 +739,34 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
           });
         }
 
-        // Rest of the existing functions for selection tracking and UI...
+        /**
+         * Create a new highlight from the current selection.
+         */
         function createHighlight(text, prefix, suffix) {
           const selection = window.getSelection();
           if (!selection || selection.isCollapsed) return;
           
+          // Send message to React Native
           window.htmlViewer.postMessage({
             pluginName: 'highlights',
             type: 'highlight-created',
             payload: { text, prefix, suffix }
           });
           
+          // Clear selection and update UI
           selection.removeAllRanges();
           checkSelectionChange();
         }
 
+        // ============================================================================
+        // SELECTION MONITORING
+        // ============================================================================
+
         let lastSelectionText = '';
 
+        /**
+         * Check for changes in text selection and update the UI accordingly.
+         */
         function checkSelectionChange() {
           const selection = window.getSelection();
           const currentText = selection ? selection.toString().trim() : '';
@@ -776,6 +811,7 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
               }
             }
             
+            // Send selection change to React Native
             window.htmlViewer.postMessage({
               pluginName: 'highlights',
               type: 'selection-changed',
@@ -784,11 +820,20 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
           }
         }
 
+        /**
+         * Start monitoring selection changes.
+         */
         function startSelectionMonitoring() {
           document.addEventListener('selectionchange', checkSelectionChange);
         }
 
-        // Listen for commands from React
+        // ============================================================================
+        // EVENT HANDLERS
+        // ============================================================================
+
+        /**
+         * Listen for commands from React Native and dispatch to appropriate handlers.
+         */
         window.addEventListener('highlightsCommand', function(event) {
           const { type, payload } = event.detail;
           
@@ -817,11 +862,15 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
           }
         });
 
+        // Start monitoring when script loads
         startSelectionMonitoring();
       })();
     `;
   }
 
+  /**
+   * Handle messages from the WebView
+   */
   messageHandler = (message: PluginMessage, context: PluginContext) => {
     if (message.pluginName !== "highlights") return;
 
