@@ -1,7 +1,7 @@
 import React, { useRef, useState, useCallback, useMemo, useEffect } from "react";
 import { StyleSheet, ViewStyle } from "react-native";
 import { ThemeView } from "@/components/primitives";
-import { HTMLViewerPlugin, PluginContext, PluginMessage } from "./plugins/types";
+import { HTMLViewerPlugin, PluginContext, PluginMessage, HighlightMessage } from "./plugins/types";
 import { useDarkMode } from "@/theme/hooks";
 
 interface HTMLViewerProps {
@@ -19,23 +19,7 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
     const iframeRef = useRef<HTMLIFrameElement>(null);
     const [isWebViewReady, setIsWebViewReady] = useState(false);
     const [viewerHeight, setViewerHeight] = useState(600);
-    const [menuUpdateTrigger, setMenuUpdateTrigger] = useState(0);
     const isDarkMode = useDarkMode(); // Get real dark mode state
-
-    // Get menu items from all plugins
-    const menuItems = useMemo(() => {
-      const allMenuItems: { label: string; key: string }[] = [];
-
-      // Collect menu items from all plugins
-      plugins.forEach((plugin) => {
-        if (plugin.getMenuItems) {
-          const pluginMenuItems = plugin.getMenuItems();
-          allMenuItems.push(...pluginMenuItems);
-        }
-      });
-
-      return allMenuItems;
-    }, [plugins, menuUpdateTrigger]);
 
     // Handle menu selection
     const handleCustomMenuSelection = useCallback(
@@ -50,27 +34,6 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
         });
       },
       [plugins],
-    );
-
-    // Viewer functions that plugins can call directly
-    const viewerFunctions = useMemo(
-      () => ({
-        setHeight: (height: number) => {
-          setViewerHeight(height);
-          // Notify parent of content size change for scroll calculations
-          if (onContentSizeChange) {
-            onContentSizeChange(height);
-          }
-        },
-        getHeight: () => viewerHeight,
-        refresh: () => {
-          const iframe = iframeRef.current;
-          if (iframe) {
-            iframe.src = iframe.src; // Reload iframe
-          }
-        },
-      }),
-      [viewerHeight, onContentSizeChange],
     );
 
     // Create plugin context
@@ -96,11 +59,8 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             onContentSizeChange(height);
           }
         },
-        updateMenus: () => {
-          setMenuUpdateTrigger((prev) => prev + 1);
-        },
       }),
-      [isDarkMode, isWebViewReady, onContentSizeChange, viewerHeight],
+      [isDarkMode, isWebViewReady, onContentSizeChange],
     );
 
     // Generate the generic HTMLViewer API injection script
@@ -538,9 +498,6 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
                   onContentSizeChange(height);
                 }
               },
-              updateMenus: () => {
-                setMenuUpdateTrigger((prev) => prev + 1);
-              },
             };
 
             // Initialize all plugins with the ready context
@@ -568,16 +525,16 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             const highlightsPlugin = plugins.find((p) => p.name === "highlights");
             if (highlightsPlugin && selectedText) {
               // Update selection state with detected highlight info
-              const tempMessage = {
+              const tempMessage: HighlightMessage = {
                 pluginName: "highlights",
                 type: "selection-changed",
                 payload: {
                   text: selectedText,
-                  isHighlighted: isHighlighted || false,
+                  isHighlighted: isHighlighted ?? false,
                   highlightId: highlightId,
                 },
               };
-              highlightsPlugin.messageHandler(tempMessage as any, pluginContext);
+              highlightsPlugin.messageHandler(tempMessage, pluginContext);
             }
 
             // Get fresh menu items directly from all plugins (bypassing memoization)
@@ -636,7 +593,15 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           console.error("Error parsing iframe message:", error);
         }
       },
-      [plugins, pluginContext, onMessage, onLoadComplete],
+      [
+        plugins,
+        pluginContext,
+        onMessage,
+        onLoadComplete,
+        handleCustomMenuSelection,
+        isDarkMode,
+        onContentSizeChange,
+      ],
     );
 
     // Set up message listener

@@ -2,11 +2,7 @@ import React, { useRef } from "react";
 import { StyleSheet, View, Animated } from "react-native";
 import { useTheme, useSpacing } from "@/theme/hooks";
 
-interface SkeletonProps {
-  // Removed isDark prop since we'll use theme directly
-}
-
-export const ReaderSkeleton: React.FC<SkeletonProps> = () => {
+export const ReaderSkeleton: React.FC = () => {
   const theme = useTheme();
   const spacing = useSpacing();
   const pulseAnim = useRef(new Animated.Value(0)).current;
