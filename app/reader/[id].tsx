@@ -7,7 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 // Import themed components
 import { ThemeView } from "@/components/primitives";
-import { useTheme, useDarkMode } from "@/theme/hooks";
+import { useTheme, useDarkMode, useSpacing } from "@/theme/hooks";
 
 // Import WatermelonDB components
 import { withObservables } from "@nozbe/watermelondb/react";
@@ -29,6 +29,7 @@ import {
 // Base component that receives the item and its content as props
 const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent | null }) => {
   const theme = useTheme();
+  const spacing = useSpacing();
   const isDarkMode = useDarkMode();
 
   // State
@@ -66,11 +67,39 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
     setProgress(item.progress);
   }, [item.id, item.progress]);
 
+  const styles = StyleSheet.create({
+    browserContainer: {
+      flex: 1,
+      position: "relative",
+    },
+    progressBarContainer: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 3,
+      backgroundColor: theme.colors.gray[200],
+      zIndex: 10,
+    },
+    progressBar: {
+      height: "100%",
+      backgroundColor: theme.colors.primary.main,
+    },
+    webView: {
+      flex: 1,
+    },
+    articleContainer: {
+      flex: 1,
+    },
+    articleContent: {
+      paddingBottom: spacing.lg,
+    },
+  });
+
   return (
     <ThemeView style={{ flex: 1 }} backgroundColor={theme.colors.background.paper}>
       <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
         <StatusBar style={isDarkMode ? "light" : "dark"} />
-
         <ReaderHeader
           item={item}
           browserMode={browserMode}
@@ -78,7 +107,6 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
           progress={progress}
           isUserScrolled={isUserScrolled}
         />
-
         {browserMode && item.url ? (
           <View style={styles.browserContainer}>
             {/* Progress bar */}
@@ -87,7 +115,6 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
                 <View style={[styles.progressBar, { width: `${loadingProgress * 100}%` }]} />
               </View>
             )}
-
             <WebView
               source={{ uri: item.url }}
               style={styles.webView}
@@ -111,16 +138,13 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
             showsVerticalScrollIndicator={true}
           >
             <ReaderMetaData item={item} content={content} />
-
             <ReaderContent
               item={item}
               content={content}
               onProgressChange={handleProgressChange}
               onUserScrolled={handleUserScrolled}
             />
-
             <ReaderAfterReading item={item} />
-
             <ReaderUpNext item={item} />
           </ScrollView>
         )}
@@ -159,32 +183,3 @@ export default function ReaderScreen() {
 
   return <EnhancedReader id={id} />;
 }
-
-const styles = StyleSheet.create({
-  browserContainer: {
-    flex: 1,
-    position: "relative",
-  },
-  progressBarContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 3,
-    backgroundColor: "rgba(0, 0, 0, 0.1)",
-    zIndex: 10,
-  },
-  progressBar: {
-    height: "100%",
-    backgroundColor: "#2196F3",
-  },
-  webView: {
-    flex: 1,
-  },
-  articleContainer: {
-    flex: 1,
-  },
-  articleContent: {
-    paddingBottom: 40,
-  },
-});
