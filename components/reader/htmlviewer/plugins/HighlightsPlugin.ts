@@ -96,6 +96,11 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
         // These actions are handled by the system
         break;
     }
+
+    // Clear selection after any menu action
+    if (this.context?.sendCommand) {
+      this.context.sendCommand(this.name, "clear-selection");
+    }
   }
 
   get cssCode(): string {
@@ -522,16 +527,31 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
                 // Check if this text is already highlighted
                 if (selection.rangeCount > 0) {
                   const range = selection.getRangeAt(0);
-                  let container = range.commonAncestorContainer;
                   
-                  // Walk up to find if we're inside a highlight
-                  while (container && container !== document.body) {
-                    if (container.nodeType === 1 && container.classList && container.classList.contains('pocket-highlight')) {
-                      selectionData.isHighlighted = true;
-                      selectionData.highlightId = container.dataset.highlightId;
+                  // Check both start and end containers (in case selection spans nodes)
+                  const containersToCheck = [
+                    range.startContainer,
+                    range.endContainer,
+                    range.commonAncestorContainer
+                  ];
+                  
+                  for (const container of containersToCheck) {
+                    let node = container;
+                    
+                    // Walk up from this container to find a highlight
+                    while (node && node !== document.body) {
+                      if (node.nodeType === 1 && node.classList && node.classList.contains('pocket-highlight')) {
+                        selectionData.isHighlighted = true;
+                        selectionData.highlightId = node.dataset.highlightId;
+                        break;
+                      }
+                      node = node.parentNode;
+                    }
+                    
+                    // If we found a highlight, stop checking other containers
+                    if (selectionData.isHighlighted) {
                       break;
                     }
-                    container = container.parentNode;
                   }
                 }
               }
@@ -569,6 +589,14 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
               const context = getSelectionContext();
               if (context) {
                 createHighlight(context.text, context.prefix, context.suffix);
+              }
+              break;
+              
+            case 'clear-selection':
+              // Clear any current selection
+              const selection = window.getSelection();
+              if (selection) {
+                selection.removeAllRanges();
               }
               break;
               
