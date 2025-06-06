@@ -1,9 +1,10 @@
 export interface HTMLViewerPlugin {
   name: string;
   jsCode: string;
+  cssCode?: string; // New: plugins can provide CSS
+  htmlCode?: string; // New: plugins can provide HTML (for future extensibility)
   messageHandler: (message: PluginMessage, context: PluginContext) => void;
-  setContext?: (context: PluginContext) => void;
-  activate?: () => void; // Called when WebView is ready and plugin can start sending commands
+  initialize: (context: PluginContext) => void; // Much clearer than "activate"
   getMenuItems?: () => { label: string; key: string }[]; // Get context menu items
   handleMenuSelection?: (key: string, selectedText: string) => void; // Handle menu selection
 }
@@ -11,13 +12,8 @@ export interface HTMLViewerPlugin {
 export interface PluginContext {
   sendCommand: (pluginName: string, commandType: string, payload?: unknown) => void;
   isDarkMode: boolean;
-  // Viewer functions that plugins can call directly
-  viewer: {
-    setHeight: (height: number) => void;
-    getHeight: () => number;
-    refresh: () => void;
-  };
-  updateMenus: () => void; // Request menu update when plugin state changes
+  setHeight: (height: number) => void;
+  updateMenus: () => void;
 }
 
 export interface PluginMessage {

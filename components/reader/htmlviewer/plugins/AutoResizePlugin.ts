@@ -3,6 +3,14 @@ import { HTMLViewerPlugin, PluginContext, PluginMessage, AutoResizeMessage } fro
 export class AutoResizePlugin implements HTMLViewerPlugin {
   name = "auto-resize";
 
+  /**
+   * Initialize the plugin (called by HTMLViewer when WebView is ready)
+   */
+  initialize(context: PluginContext) {
+    // AutoResizePlugin doesn't need any initialization
+    // The JavaScript will start working immediately
+  }
+
   get jsCode(): string {
     return `
       (function() {
@@ -47,7 +55,7 @@ export class AutoResizePlugin implements HTMLViewerPlugin {
       if (autoResizeMessage.payload?.height) {
         const height = Number(autoResizeMessage.payload.height);
         if (!isNaN(height)) {
-          context.viewer.setHeight(height);
+          context.setHeight(height);
         }
       }
     }
