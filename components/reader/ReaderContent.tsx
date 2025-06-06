@@ -1,7 +1,7 @@
 import React, { useState, useRef, useMemo, useEffect, useCallback } from "react";
 import { StyleSheet, View, Animated } from "react-native";
 import { marked } from "marked";
-import { useDarkMode } from "@/theme/hooks";
+import { useTheme, useSpacing } from "@/theme/hooks";
 import HTMLViewer from "./htmlviewer/HTMLViewer";
 import { AutoResizePlugin } from "./htmlviewer/plugins/AutoResizePlugin";
 import { HighlightsPlugin, HighlightsPluginCallbacks } from "./htmlviewer/plugins/HighlightsPlugin";
@@ -37,12 +37,32 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
   onUserScrolled,
   onLoadComplete,
 }) => {
-  const isDarkMode = useDarkMode();
+  const theme = useTheme();
+  const spacing = useSpacing();
+  const isDarkMode = theme.mode === "dark";
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const highlightsPluginRef = useRef<HighlightsPlugin | null>(null);
 
   // State
   const [isHtmlLoaded, setIsHtmlLoaded] = useState(false);
+
+  // Create styles using theme values
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      position: "relative",
+    },
+    content: {
+      flex: 1,
+    },
+    loading: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+    },
+  });
 
   // Convert annotations to highlight data
   const highlights = useMemo((): HighlightData[] => {
@@ -124,7 +144,7 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
     return marked.parse(raw) as string;
   }, [content?.content]);
 
-  // Base styles for the article content
+  // Base styles for the article content using theme colors
   const baseCSS = useMemo(
     () => `
       @font-face {
@@ -143,12 +163,12 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
       }
 
       :root {
-        --text-color: ${isDarkMode ? "#e0e0e0" : "#000000"};
-        --bg-color: ${isDarkMode ? "#242526" : "#ffffff"};
-        --link-color: ${isDarkMode ? "#4A9EFF" : "#007AFF"};
-        --blockquote-border: ${isDarkMode ? "#444" : "#ddd"};
-        --blockquote-color: ${isDarkMode ? "#ccc" : "#666"};
-        --code-bg: ${isDarkMode ? "#2d2d2d" : "#f6f6f6"};
+        --text-color: ${theme.colors.text.primary};
+        --bg-color: ${theme.colors.background.paper};
+        --link-color: ${theme.colors.primary.main};
+        --blockquote-border: ${theme.colors.gray[300]};
+        --blockquote-color: ${theme.colors.text.secondary};
+        --code-bg: ${theme.colors.gray[100]};
       }
 
       html, body {
@@ -156,7 +176,7 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
         font-size: 18px;
         line-height: 28px;
         font-weight: 400;
-        padding: 0 10px;
+        padding: 0 ${spacing.sm + spacing.xs}px; /* 10px equivalent */
         margin: 0;
         color: var(--text-color);
         background-color: var(--bg-color);
@@ -175,32 +195,32 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
         font-size: 24px;
         line-height: 32px;
         font-weight: 700;
-        margin: 24px 0 16px 0;
+        margin: ${spacing.lg}px 0 ${spacing.md}px 0;
       }
       
       h2 {
         font-size: 22px;
         line-height: 30px;
         font-weight: 700;
-        margin: 22px 0 14px 0;
+        margin: ${spacing.lg + spacing.xs}px 0 ${spacing.md - spacing.xs}px 0; /* 22px 0 14px 0 */
       }
       
       h3 {
         font-size: 20px;
         line-height: 28px;
         font-weight: 600;
-        margin: 20px 0 12px 0;
+        margin: ${spacing.lg - spacing.xs}px 0 ${spacing.md - spacing.xs}px 0; /* 20px 0 12px 0 */
       }
       
       h4, h5, h6 {
         font-size: 18px;
         line-height: 26px;
         font-weight: 600;
-        margin: 18px 0 10px 0;
+        margin: ${spacing.md + spacing.xs}px 0 ${spacing.sm + spacing.xs}px 0; /* 18px 0 10px 0 */
       }
       
       p {
-        margin-bottom: 16px;
+        margin-bottom: ${spacing.md}px;
         color: var(--text-color);
       }
       
@@ -225,30 +245,30 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
         max-width: 100%; 
         height: auto; 
         display: block;
-        margin: 20px 0;
+        margin: ${spacing.lg - spacing.xs}px 0; /* 20px 0 */
       }
       
       blockquote {
         font-style: italic;
         border-left: 4px solid var(--blockquote-border);
-        margin: 20px 0;
-        padding-left: 20px;
+        margin: ${spacing.lg - spacing.xs}px 0; /* 20px 0 */
+        padding-left: ${spacing.lg - spacing.xs}px; /* 20px */
         color: var(--blockquote-color);
       }
       
       ul, ol {
-        margin: 16px 0;
-        padding-left: 20px;
+        margin: ${spacing.md}px 0;
+        padding-left: ${spacing.lg - spacing.xs}px; /* 20px */
       }
       
       li {
-        margin-bottom: 8px;
+        margin-bottom: ${spacing.sm}px;
         color: var(--text-color);
       }
       
       code {
         background-color: var(--code-bg);
-        padding: 2px 6px;
+        padding: ${spacing.xxs}px ${spacing.sm - spacing.xs}px; /* 2px 6px */
         border-radius: 4px;
         font-family: 'Monaco', 'Consolas', 'Liberation Mono', monospace;
         font-size: 16px;
@@ -256,10 +276,10 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
       
       pre {
         background-color: var(--code-bg);
-        padding: 16px;
-        border-radius: 8px;
+        padding: ${spacing.md}px;
+        border-radius: ${spacing.sm}px;
         overflow-x: auto;
-        margin: 20px 0;
+        margin: ${spacing.lg - spacing.xs}px 0; /* 20px 0 */
       }
       
       pre code {
@@ -272,8 +292,8 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
       .text-highlight {
         background-color: rgba(255, 255, 0, 0.4);
         border-radius: 3px;
-        padding: 0 2px;
-        margin: 0 -2px;
+        padding: 0 ${spacing.xxs}px; /* 0 2px */
+        margin: 0 -${spacing.xxs}px; /* 0 -2px */
         box-decoration-break: clone;
         -webkit-box-decoration-break: clone;
         cursor: pointer;
@@ -290,7 +310,7 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
         }
       }
     `,
-    [isDarkMode],
+    [theme.colors, spacing],
   );
 
   // Create plugins
@@ -324,7 +344,7 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
 
   // Show skeleton if content is not ready
   if (!content || !processedContent) {
-    return <ReaderSkeleton isDark={isDarkMode} />;
+    return <ReaderSkeleton />;
   }
 
   return (
@@ -339,29 +359,12 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
       </Animated.View>
       {!isHtmlLoaded && (
         <View style={styles.loading}>
-          <ReaderSkeleton isDark={isDarkMode} />
+          <ReaderSkeleton />
         </View>
       )}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    position: "relative",
-  },
-  content: {
-    flex: 1,
-  },
-  loading: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-});
 
 // Export the component wrapped with the annotations HOC
 export const ReaderContent = withItemAnnotations()(ReaderContentComponent);

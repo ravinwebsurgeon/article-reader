@@ -1,12 +1,54 @@
 import React, { useRef } from "react";
 import { StyleSheet, View, Animated } from "react-native";
+import { useTheme, useSpacing } from "@/theme/hooks";
 
 interface SkeletonProps {
-  isDark?: boolean;
+  // Removed isDark prop since we'll use theme directly
 }
 
-export const ReaderSkeleton: React.FC<SkeletonProps> = ({ isDark = false }) => {
+export const ReaderSkeleton: React.FC<SkeletonProps> = () => {
+  const theme = useTheme();
+  const spacing = useSpacing();
   const pulseAnim = useRef(new Animated.Value(0)).current;
+
+  // Create styles using theme values
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: spacing.lg - spacing.xs, // 20px equivalent
+      backgroundColor: theme.colors.background.paper,
+    },
+    skeletonLine: {
+      height: spacing.md - spacing.xs, // 12px equivalent
+      borderRadius: spacing.sm - spacing.xs, // 6px equivalent
+      marginBottom: spacing.sm,
+      backgroundColor: theme.colors.gray[200],
+    },
+    header: {
+      height: spacing.lg + spacing.sm, // 24px equivalent
+      width: "70%",
+      marginBottom: spacing.lg - spacing.xs, // 20px equivalent
+      borderRadius: spacing.sm,
+    },
+    paragraph: {
+      marginBottom: spacing.lg - spacing.xs, // 20px equivalent
+    },
+    longLine: {
+      width: "100%",
+    },
+    mediumLine: {
+      width: "80%",
+    },
+    shortLine: {
+      width: "60%",
+    },
+    image: {
+      height: 200,
+      width: "100%",
+      marginBottom: spacing.lg - spacing.xs, // 20px equivalent
+      borderRadius: spacing.sm,
+    },
+  });
 
   React.useEffect(() => {
     const pulse = Animated.loop(
@@ -34,11 +76,10 @@ export const ReaderSkeleton: React.FC<SkeletonProps> = ({ isDark = false }) => {
     }),
   };
 
-  const baseColor = isDark ? "#333" : "#E5E5E5";
-  const skeletonStyle = [styles.skeletonLine, { backgroundColor: baseColor }, pulseStyle];
+  const skeletonStyle = [styles.skeletonLine, pulseStyle];
 
   return (
-    <View style={[styles.container, { backgroundColor: isDark ? "#242526" : "#FFFFFF" }]}>
+    <View style={styles.container}>
       <View style={styles.paragraph}>
         <Animated.View style={[skeletonStyle, styles.longLine]} />
         <Animated.View style={[skeletonStyle, styles.longLine]} />
@@ -57,41 +98,5 @@ export const ReaderSkeleton: React.FC<SkeletonProps> = ({ isDark = false }) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
-  skeletonLine: {
-    height: 12,
-    borderRadius: 6,
-    marginBottom: 8,
-  },
-  header: {
-    height: 24,
-    width: "70%",
-    marginBottom: 20,
-    borderRadius: 8,
-  },
-  paragraph: {
-    marginBottom: 20,
-  },
-  longLine: {
-    width: "100%",
-  },
-  mediumLine: {
-    width: "80%",
-  },
-  shortLine: {
-    width: "60%",
-  },
-  image: {
-    height: 200,
-    width: "100%",
-    marginBottom: 20,
-    borderRadius: 8,
-  },
-});
 
 export default ReaderSkeleton;

@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { Image } from "expo-image";
 import { ThemeView, ThemeText } from "@/components/primitives";
-import { useTheme } from "@/theme/hooks";
+import { useTheme, useSpacing } from "@/theme/hooks";
 import Item from "@/database/models/ItemModel";
 import ItemContent from "@/database/models/ItemContentModel";
 
@@ -18,6 +18,69 @@ export const ReaderMetaData: React.FC<MetaDataProps> = ({
   showFeatureImage = true,
 }) => {
   const theme = useTheme();
+  const spacing = useSpacing();
+
+  // Create styles using theme values
+  // TODO: Revisit spacing values
+  const styles = StyleSheet.create({
+    container: {
+      paddingHorizontal: spacing.lg - spacing.xs, // 20px equivalent
+      paddingTop: spacing.lg - spacing.xs, // 20px equivalent
+    },
+    source: {
+      marginBottom: spacing.md,
+    },
+    title: {
+      fontWeight: 100,
+      marginBottom: spacing.md,
+      fontFamily: "Literata-ExtraBold",
+      lineHeight: 38,
+      letterSpacing: 0,
+      fontSize: 32,
+    },
+    metaContainer: {
+      marginBottom: spacing.lg + spacing.sm, // 32px equivalent
+    },
+    dek: {
+      fontWeight: 400,
+      fontSize: 18,
+      lineHeight: 24,
+      letterSpacing: 0,
+      textAlign: "left",
+      fontFamily: "Inter-Regular",
+      marginBottom: spacing.md,
+    },
+    author: {
+      fontWeight: 400,
+      fontSize: 16,
+      lineHeight: 20,
+      letterSpacing: 0,
+      textAlign: "left",
+      fontFamily: "Inter-Regular",
+      marginBottom: spacing.xs,
+    },
+    publishedAt: {
+      fontWeight: 400,
+      fontSize: 16,
+      lineHeight: 20,
+      letterSpacing: 0,
+      textAlign: "left",
+      fontFamily: "Inter-Regular",
+      marginBottom: 0,
+    },
+    imageContainer: {
+      marginBottom: spacing.sm + spacing.xs, // 10px equivalent
+      width: "100%",
+      borderRadius: 0,
+      overflow: "hidden",
+    },
+    featureImage: {
+      width: "100%",
+      aspectRatio: 16 / 9,
+      resizeMode: "cover",
+      borderRadius: 0,
+    },
+  });
 
   const formatDate = (dateString: string | number | Date) => {
     const date = new Date(dateString);
@@ -96,65 +159,5 @@ export const ReaderMetaData: React.FC<MetaDataProps> = ({
     </ThemeView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-  },
-  source: {
-    marginBottom: 16,
-  },
-  title: {
-    fontWeight: 100,
-    marginBottom: 16,
-    fontFamily: "Literata-ExtraBold",
-    lineHeight: 38,
-    letterSpacing: 0,
-    fontSize: 32,
-  },
-  metaContainer: {
-    marginBottom: 24,
-  },
-  dek: {
-    fontWeight: 400,
-    fontSize: 18,
-    lineHeight: 24,
-    letterSpacing: 0,
-    textAlign: "left",
-    fontFamily: "Inter-Regular",
-    marginBottom: 16,
-  },
-  author: {
-    fontWeight: 400,
-    fontSize: 16,
-    lineHeight: 20,
-    letterSpacing: 0,
-    textAlign: "left",
-    fontFamily: "Inter-Regular",
-    marginBottom: 4,
-  },
-  publishedAt: {
-    fontWeight: 400,
-    fontSize: 16,
-    lineHeight: 20,
-    letterSpacing: 0,
-    textAlign: "left",
-    fontFamily: "Inter-Regular",
-    marginBottom: 0,
-  },
-  imageContainer: {
-    marginBottom: 10,
-    width: "100%",
-    borderRadius: 0,
-    overflow: "hidden",
-  },
-  featureImage: {
-    width: "100%",
-    aspectRatio: 16 / 9,
-    resizeMode: "cover",
-    borderRadius: 0,
-  },
-});
 
 export default ReaderMetaData;
