@@ -111,7 +111,7 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           const jsonString = typeof data === 'string' ? data : JSON.stringify(data);
           window.parent.postMessage(jsonString, '*');
         },
-        showContextMenu: function(x, y, selectedText) {
+        showContextMenu: function(x, selectionTop, selectionBottom, selectedText) {
           // Detect if selection is within a highlight using current selection
           const selection = window.getSelection();
           let isHighlighted = false;
@@ -143,7 +143,7 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           // Request menu items from parent for the current selection
           window.parent.postMessage(JSON.stringify({
             type: 'request-menu-items',
-            payload: { x, y, selectedText, isHighlighted, highlightId }
+            payload: { x, selectionTop, selectionBottom, selectedText, isHighlighted, highlightId }
           }), '*');
         },
         hideContextMenu: function() {
@@ -169,7 +169,7 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
 
       // Context menu management
       window.pocketContextMenu = {
-        show: function(x, y, menuItems, isDark) {
+        show: function(x, selectionTop, selectionBottom, menuItems, isDark) {
           const menu = document.getElementById('pocket-context-menu');
           const menuItemsContainer = document.getElementById('pocket-menu-items');
           
@@ -205,30 +205,39 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           menu.style.left = '0px';
           menu.style.top = '0px';
           
-          // Adjust position after render to center and position above selection
+          // Adjust position after render to center and position relative to selection
           setTimeout(function() {
             const menuRect = menu.getBoundingClientRect();
             const windowWidth = window.innerWidth;
             const windowHeight = window.innerHeight;
+            const arrowSize = 8; // Size of CSS arrow
+            const spacing = 10; // Space between menu and selection
             
             // Center horizontally around x, but keep on screen
             let leftPos = x - (menuRect.width / 2);
             if (leftPos < 10) {
               leftPos = 10;
             } else if (leftPos + menuRect.width > windowWidth - 10) {
-              leftPos = windowWidth - rect.width - 10;
+              leftPos = windowWidth - menuRect.width - 10;
             }
             menu.style.left = leftPos + 'px';
             
-            // Position above selection (menu bottom edge above selection top)
-            let topPos = y - menuRect.height - 10;
+            // Check space above the TOP of selection vs space below the BOTTOM  
+            const spaceAbove = selectionTop; // Space from viewport top to selection top
+            const spaceBelow = windowHeight - selectionBottom; // Space from selection bottom to viewport bottom
+            const menuHeightWithArrow = menuRect.height + arrowSize + spacing;
             
-            // If menu would go above viewport, show below selection instead
-            if (topPos < 10) {
-              topPos = y + 30; // Show below selection with some spacing
+            if (spaceAbove >= menuHeightWithArrow) {
+              // Position above selection
+              menu.style.top = (selectionTop - menuRect.height - arrowSize - spacing) + 'px';
+              menu.classList.remove('below');
+              menu.classList.add('above');
+            } else {
+              // Position below selection  
+              menu.style.top = (selectionBottom + spacing) + 'px';
+              menu.classList.remove('above');
+              menu.classList.add('below');
             }
-            
-            menu.style.top = topPos + 'px';
           }, 0);
         },
         
@@ -250,8 +259,8 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             // Use the same command handler as mobile
             window.handlePluginCommand({ pluginName, commandType, payload });
           } else if (message && message.type === 'show-context-menu') {
-            const { x, y, menuItems, isDark } = message.payload;
-            window.pocketContextMenu.show(x, y, menuItems, isDark);
+            const { x, selectionTop, selectionBottom, menuItems, isDark } = message.payload;
+            window.pocketContextMenu.show(x, selectionTop, selectionBottom, menuItems, isDark);
           }
         } catch (error) {
           console.error('Error parsing command message:', error);
@@ -303,14 +312,15 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           const range = selection.getRangeAt(0);
           const rect = range.getBoundingClientRect();
           const x = rect.left + (rect.width / 2);
-          const y = rect.top - 10; // Position above the selection
+          const selectionTop = rect.top;
+          const selectionBottom = rect.bottom;
           
           // Debounce menu display - wait for selection to stabilize and plugins to update
           menuTimeout = setTimeout(function() {
             // Use captured data instead of re-querying selection
             // This prevents issues if selection gets cleared before menu shows
             setTimeout(function() {
-              window.htmlViewer.showContextMenu(x, y, selectedText);
+              window.htmlViewer.showContextMenu(x, selectionTop, selectionBottom, selectedText);
             }, 200);
             menuTimeout = null;
           }, 300); // 300ms debounce + 200ms for plugin processing
@@ -405,8 +415,8 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           margin-right: 6px;
         }
         
-        /* Add arrow pointing down to selection */
-        .pocket-context-menu::after {
+        /* Arrow pointing down (when menu is above selection) */
+        .pocket-context-menu.above::after {
           content: '';
           position: absolute;
           top: 100%;
@@ -417,6 +427,20 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           border-left: 8px solid transparent;
           border-right: 8px solid transparent;
           border-top: 8px solid rgba(0, 0, 0, 0.9);
+        }
+        
+        /* Arrow pointing up (when menu is below selection) */
+        .pocket-context-menu.below::before {
+          content: '';
+          position: absolute;
+          bottom: 100%;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 0;
+          height: 0;
+          border-left: 8px solid transparent;
+          border-right: 8px solid transparent;
+          border-bottom: 8px solid rgba(0, 0, 0, 0.9);
         }
       `;
 
@@ -573,7 +597,8 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
                   type: "show-context-menu",
                   payload: {
                     x: message.payload.x,
-                    y: message.payload.y,
+                    selectionTop: message.payload.selectionTop,
+                    selectionBottom: message.payload.selectionBottom,
                     menuItems: freshMenuItems,
                     isDark: isDarkMode,
                   },
