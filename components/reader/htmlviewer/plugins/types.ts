@@ -36,19 +36,13 @@ export interface AutoResizeMessage extends PluginMessage {
 
 export interface HighlightMessage extends PluginMessage {
   pluginName: "highlights";
-  type:
-    | "highlight-added"
-    | "highlight-removed"
-    | "selection-changed"
-    | "highlight-clicked"
-    | "highlight-created";
+  type: "selection-changed" | "highlight-created";
   payload: {
     id?: string;
     text?: string;
-    color?: string;
-    range?: unknown;
     isHighlighted?: boolean;
     prefix?: string;
     suffix?: string;
+    highlightId?: string;
   };
 }
