@@ -1,6 +1,7 @@
 import React, { useRef, useState, useCallback, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import WebView from "react-native-webview";
+import * as Clipboard from "expo-clipboard";
 import { ThemeView } from "@/components/primitives";
 import { HTMLViewerPlugin, PluginContext, PluginMessage } from "./plugins/types";
 import { useDarkMode } from "@/theme/hooks";
@@ -25,20 +26,36 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
     // Get menu items from all plugins (recalculate when menuVersion changes)
     const menuItems = useMemo(() => {
       const allMenuItems: { label: string; key: string }[] = [];
+
+      // Collect plugin-specific menu items
       plugins.forEach((plugin) => {
         if (plugin.getMenuItems) {
           const pluginMenuItems = plugin.getMenuItems();
           allMenuItems.push(...pluginMenuItems);
         }
       });
+
+      // Add standard system actions (handled by HTMLViewer)
+      allMenuItems.push({ label: "Copy", key: "copy" });
+
       return allMenuItems;
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [plugins, menuVersion]); // menuVersion intentionally triggers recalculation when plugin state changes
 
     // Handle menu selection
     const handleCustomMenuSelection = useCallback(
-      (event: { nativeEvent: { key: string; selectedText: string } }) => {
+      async (event: { nativeEvent: { key: string; selectedText: string } }) => {
         const { key, selectedText } = event.nativeEvent;
+
+        // Handle standard system actions
+        if (key === "copy") {
+          try {
+            await Clipboard.setStringAsync(selectedText);
+          } catch (error) {
+            console.error("Error copying text:", error);
+          }
+          return;
+        }
 
         // Route menu selection to all plugins that can handle it
         plugins.forEach((plugin) => {
@@ -49,26 +66,6 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
       },
       [plugins],
     );
-
-    // Viewer functions that plugins can call directly (currently unused but may be needed for future plugin functionality)
-    // const viewerFunctions = useMemo(
-    //   () => ({
-    //     setHeight: (height: number) => {
-    //       setViewerHeight(height);
-    //       // Notify parent of content size change for scroll calculations
-    //       if (onContentSizeChange) {
-    //         onContentSizeChange(height);
-    //       }
-    //     },
-    //     getHeight: () => viewerHeight,
-    //     refresh: () => {
-    //       if (webViewRef.current) {
-    //         webViewRef.current.reload();
-    //       }
-    //     },
-    //   }),
-    //   [viewerHeight, onContentSizeChange],
-    // );
 
     // Create plugin context
     const pluginContext: PluginContext = useMemo(

@@ -66,26 +66,19 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
       this.currentSelection,
     );
 
-    // Base menu items that should always be available
-    const baseItems = [
-      { label: "Copy", key: "copy" },
-      { label: "Share", key: "share" },
-      { label: "Select All", key: "selectAll" },
-    ];
-
-    // Add highlight-specific items based on state
+    // Return highlight-specific items based on state
     if (!this.currentSelection.isHighlighted && this.currentSelection.text) {
       console.log("HighlightsPlugin: Adding Highlight menu item");
-      return [{ label: "Highlight", key: "highlight" }, ...baseItems];
+      return [{ label: "Highlight", key: "highlight" }];
     }
 
     if (this.currentSelection.isHighlighted && this.currentSelection.highlightId) {
       console.log("HighlightsPlugin: Adding Remove Highlight menu item");
-      return [{ label: "Remove Highlight", key: "removeHighlight" }, ...baseItems];
+      return [{ label: "Remove Highlight", key: "removeHighlight" }];
     }
 
-    console.log("HighlightsPlugin: Returning base menu items only");
-    return baseItems;
+    console.log("HighlightsPlugin: Returning no menu items");
+    return [];
   }
 
   /**
@@ -106,11 +99,9 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
         }
         break;
 
-      case "copy":
-      case "share":
-      case "selectAll":
-        // These actions are handled by the system
-        break;
+      default:
+        // Unknown action - do nothing
+        return;
     }
 
     // Clear selection after any menu action
