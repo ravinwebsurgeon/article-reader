@@ -61,6 +61,11 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
    * Get current menu items based on selection state
    */
   getMenuItems(): { label: string; key: string }[] {
+    console.log(
+      "HighlightsPlugin: getMenuItems called with selection state:",
+      this.currentSelection,
+    );
+
     // Base menu items that should always be available
     const baseItems = [
       { label: "Copy", key: "copy" },
@@ -70,13 +75,16 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
 
     // Add highlight-specific items based on state
     if (!this.currentSelection.isHighlighted && this.currentSelection.text) {
+      console.log("HighlightsPlugin: Adding Highlight menu item");
       return [{ label: "Highlight", key: "highlight" }, ...baseItems];
     }
 
     if (this.currentSelection.isHighlighted && this.currentSelection.highlightId) {
+      console.log("HighlightsPlugin: Adding Remove Highlight menu item");
       return [{ label: "Remove Highlight", key: "removeHighlight" }, ...baseItems];
     }
 
+    console.log("HighlightsPlugin: Returning base menu items only");
     return baseItems;
   }
 
