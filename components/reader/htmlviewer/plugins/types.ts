@@ -13,6 +13,7 @@ export interface PluginContext {
   sendCommand: (pluginName: string, commandType: string, payload?: unknown) => void;
   isDarkMode: boolean;
   setHeight: (height: number) => void;
+  invalidateMenuItems?: () => void; // New callback to trigger menu recalculation
 }
 
 export interface PluginMessage {
