@@ -23,8 +23,29 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
 
     // Handle menu selection
     const handleCustomMenuSelection = useCallback(
-      (event: { nativeEvent: { key: string; selectedText: string } }) => {
+      async (event: { nativeEvent: { key: string; selectedText: string } }) => {
         const { key, selectedText } = event.nativeEvent;
+
+        // Handle standard system actions
+        if (key === "copy") {
+          try {
+            await navigator.clipboard.writeText(selectedText);
+          } catch (error) {
+            console.error("Error copying text:", error);
+            // Fallback for older browsers
+            try {
+              const textArea = document.createElement("textarea");
+              textArea.value = selectedText;
+              document.body.appendChild(textArea);
+              textArea.select();
+              document.execCommand("copy");
+              document.body.removeChild(textArea);
+            } catch (fallbackError) {
+              console.error("Fallback copy failed:", fallbackError);
+            }
+          }
+          return;
+        }
 
         // Route menu selection to all plugins that can handle it
         plugins.forEach((plugin) => {
@@ -58,6 +79,9 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           if (onContentSizeChange) {
             onContentSizeChange(height);
           }
+        },
+        invalidateMenuItems: () => {
+          // No-op for web version - menu items are fetched dynamically on each request
         },
       }),
       [isDarkMode, isWebViewReady, onContentSizeChange],
@@ -539,12 +563,17 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
 
             // Get fresh menu items directly from all plugins (bypassing memoization)
             const freshMenuItems: { label: string; key: string }[] = [];
+
+            // Collect plugin-specific menu items
             plugins.forEach((plugin) => {
               if (plugin.getMenuItems) {
                 const pluginMenuItems = plugin.getMenuItems();
                 freshMenuItems.push(...pluginMenuItems);
               }
             });
+
+            // Add standard system actions (handled by HTMLViewer)
+            freshMenuItems.push({ label: "Copy", key: "copy" });
 
             console.log("HTMLViewer.web: Sending menu items:", freshMenuItems);
 
