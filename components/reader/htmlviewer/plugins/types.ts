@@ -13,7 +13,6 @@ export interface PluginContext {
   sendCommand: (pluginName: string, commandType: string, payload?: unknown) => void;
   isDarkMode: boolean;
   setHeight: (height: number) => void;
-  updateMenus: () => void;
 }
 
 export interface PluginMessage {

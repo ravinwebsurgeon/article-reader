@@ -19,7 +19,6 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
   ({ content, cssStyles, plugins = [], style, onMessage, onLoadComplete, onContentSizeChange }) => {
     const webViewRef = useRef<WebView>(null);
     const [viewerHeight, setViewerHeight] = useState(600);
-    const [menuUpdateTrigger, setMenuUpdateTrigger] = useState(0);
     const isDarkMode = useDarkMode(); // Get real dark mode state
 
     // Get menu items from all plugins
@@ -35,7 +34,7 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
       });
 
       return allMenuItems;
-    }, [plugins, menuUpdateTrigger]);
+    }, [plugins]);
 
     // Handle menu selection
     const handleCustomMenuSelection = useCallback(
@@ -52,25 +51,25 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
       [plugins],
     );
 
-    // Viewer functions that plugins can call directly
-    const viewerFunctions = useMemo(
-      () => ({
-        setHeight: (height: number) => {
-          setViewerHeight(height);
-          // Notify parent of content size change for scroll calculations
-          if (onContentSizeChange) {
-            onContentSizeChange(height);
-          }
-        },
-        getHeight: () => viewerHeight,
-        refresh: () => {
-          if (webViewRef.current) {
-            webViewRef.current.reload();
-          }
-        },
-      }),
-      [viewerHeight, onContentSizeChange],
-    );
+    // Viewer functions that plugins can call directly (currently unused but may be needed for future plugin functionality)
+    // const viewerFunctions = useMemo(
+    //   () => ({
+    //     setHeight: (height: number) => {
+    //       setViewerHeight(height);
+    //       // Notify parent of content size change for scroll calculations
+    //       if (onContentSizeChange) {
+    //         onContentSizeChange(height);
+    //       }
+    //     },
+    //     getHeight: () => viewerHeight,
+    //     refresh: () => {
+    //       if (webViewRef.current) {
+    //         webViewRef.current.reload();
+    //       }
+    //     },
+    //   }),
+    //   [viewerHeight, onContentSizeChange],
+    // );
 
     // Create plugin context
     const pluginContext: PluginContext = useMemo(
@@ -98,9 +97,6 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           if (onContentSizeChange) {
             onContentSizeChange(height);
           }
-        },
-        updateMenus: () => {
-          setMenuUpdateTrigger((prev) => prev + 1);
         },
       }),
       [isDarkMode, onContentSizeChange],

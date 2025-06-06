@@ -886,16 +886,16 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
       case "selection-changed":
         // Update current selection state
         if (message.payload) {
+          const highlightMessage = message as HighlightMessage;
           this.currentSelection = {
-            text: (message.payload as any).text || "",
-            isHighlighted: (message.payload as any).isHighlighted || false,
-            highlightId: (message.payload as any).highlightId,
+            text: highlightMessage.payload.text ?? "",
+            isHighlighted: highlightMessage.payload.isHighlighted ?? false,
+            highlightId: highlightMessage.payload.highlightId,
           };
         } else {
           this.currentSelection = { text: "", isHighlighted: false };
         }
 
-        context.updateMenus();
         break;
 
       case "highlight-created":

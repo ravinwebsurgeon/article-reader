@@ -39,7 +39,6 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
 }) => {
   const theme = useTheme();
   const spacing = useSpacing();
-  const isDarkMode = theme.mode === "dark";
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const highlightsPluginRef = useRef<HighlightsPlugin | null>(null);
 
