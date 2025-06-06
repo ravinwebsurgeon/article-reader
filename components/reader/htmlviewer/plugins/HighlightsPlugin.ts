@@ -24,27 +24,19 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
   }
 
   /**
-   * Set the plugin context (called by HTMLViewer when WebView is ready)
+   * Initialize the plugin (called by HTMLViewer when WebView is ready)
    */
-  setContext(context: PluginContext) {
+  initialize(context: PluginContext) {
     this.context = context;
-  }
-
-  /**
-   * Activate the plugin (called by HTMLViewer when WebView is ready and plugin can start sending commands)
-   */
-  activate() {
     this.isActivated = true;
 
-    // Send any stored highlights to the WebView now that we're activated
-    if (this.currentHighlights.length > 0 && this.context?.sendCommand) {
-      this.context.sendCommand(this.name, "set-highlights", { highlights: this.currentHighlights });
+    // Send any stored highlights to the WebView now that we're initialized
+    if (this.currentHighlights.length > 0) {
+      context.sendCommand(this.name, "set-highlights", { highlights: this.currentHighlights });
     }
 
     // Start selection monitoring
-    if (this.context?.sendCommand) {
-      this.context.sendCommand(this.name, "start-monitoring");
-    }
+    context.sendCommand(this.name, "start-monitoring");
   }
 
   /**
@@ -104,6 +96,15 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
         // These actions are handled by the system
         break;
     }
+  }
+
+  get cssCode(): string {
+    return `
+      .pocket-highlight {
+        background-color: rgba(255, 255, 0, 0.3);
+        border-radius: 2px;
+      }
+    `;
   }
 
   get jsCode(): string {
@@ -579,16 +580,6 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
 
         // Start monitoring when script loads
         startSelectionMonitoring();
-
-        // Add styles
-        const style = document.createElement('style');
-        style.textContent = \`
-          .pocket-highlight {
-            background-color: rgba(255, 255, 0, 0.3);
-            border-radius: 2px;
-          }
-        \`;
-        document.head.appendChild(style);
       })();
     `;
   }

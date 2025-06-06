@@ -3,6 +3,7 @@ import { StyleSheet } from "react-native";
 import WebView from "react-native-webview";
 import { ThemeView } from "@/components/primitives";
 import { HTMLViewerPlugin, PluginContext, PluginMessage } from "./plugins/types";
+import { useDarkMode } from "@/theme/hooks";
 
 interface HTMLViewerProps {
   content: string; // The main content to display
@@ -19,6 +20,7 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
     const webViewRef = useRef<WebView>(null);
     const [viewerHeight, setViewerHeight] = useState(600);
     const [menuUpdateTrigger, setMenuUpdateTrigger] = useState(0);
+    const isDarkMode = useDarkMode(); // Get real dark mode state
 
     // Get menu items from all plugins
     const menuItems = useMemo(() => {
@@ -90,13 +92,18 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             `);
           }
         },
-        isDarkMode: false,
-        viewer: viewerFunctions,
+        isDarkMode, // Use real dark mode state
+        setHeight: (height: number) => {
+          setViewerHeight(height);
+          if (onContentSizeChange) {
+            onContentSizeChange(height);
+          }
+        },
         updateMenus: () => {
           setMenuUpdateTrigger((prev) => prev + 1);
         },
       }),
-      [viewerFunctions],
+      [isDarkMode, onContentSizeChange],
     );
 
     // Generate the generic HTMLViewer API injection script
@@ -130,6 +137,22 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
       return plugins.map((plugin) => plugin.jsCode).join("\n\n");
     }, [plugins]);
 
+    // Generate combined CSS from all plugins
+    const combinedPluginCSS = useMemo(() => {
+      return plugins
+        .map((plugin) => plugin.cssCode)
+        .filter(Boolean)
+        .join("\n\n");
+    }, [plugins]);
+
+    // Generate combined HTML from all plugins
+    const combinedPluginHTML = useMemo(() => {
+      return plugins
+        .map((plugin) => plugin.htmlCode)
+        .filter(Boolean)
+        .join("\n");
+    }, [plugins]);
+
     // Create the complete HTML document
     const fullHtml = useMemo(() => {
       return `
@@ -139,10 +162,12 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
             <style>
               ${cssStyles}
+              ${combinedPluginCSS}
             </style>
           </head>
           <body>
             ${content}
+            ${combinedPluginHTML}
             <script>
               ${htmlViewerApiScript}
               ${combinedPluginScript}
@@ -157,7 +182,14 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           </body>
         </html>
       `;
-    }, [content, cssStyles, htmlViewerApiScript, combinedPluginScript]);
+    }, [
+      content,
+      cssStyles,
+      combinedPluginCSS,
+      combinedPluginHTML,
+      htmlViewerApiScript,
+      combinedPluginScript,
+    ]);
 
     // Handle messages from WebView
     const handleMessage = useCallback(
@@ -166,18 +198,9 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           const message = JSON.parse(event.nativeEvent.data) as PluginMessage;
 
           if (message.type === "webview-ready") {
-            // Set context on all plugins immediately when WebView is ready
+            // Initialize all plugins with their context
             plugins.forEach((plugin) => {
-              if (plugin.setContext) {
-                plugin.setContext(pluginContext);
-              }
-            });
-
-            // Activate all plugins after context is set
-            plugins.forEach((plugin) => {
-              if (plugin.activate) {
-                plugin.activate();
-              }
+              plugin.initialize(pluginContext);
             });
 
             if (onLoadComplete) {
