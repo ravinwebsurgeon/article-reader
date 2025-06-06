@@ -2,6 +2,7 @@ import React, { useRef, useState, useCallback, useMemo, useEffect } from "react"
 import { StyleSheet, ViewStyle } from "react-native";
 import { ThemeView } from "@/components/primitives";
 import { HTMLViewerPlugin, PluginContext, PluginMessage } from "./plugins/types";
+import { useDarkMode } from "@/theme/hooks";
 
 interface HTMLViewerProps {
   content: string; // The main content to display
@@ -11,25 +12,45 @@ interface HTMLViewerProps {
   onMessage?: (message: PluginMessage) => void;
   onLoadComplete?: () => void;
   onContentSizeChange?: (height: number) => void;
-  menuItems?: { label: string; key: string }[];
-  onCustomMenuSelection?: (event: { nativeEvent: { key: string; selectedText: string } }) => void;
 }
 
 export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
-  ({
-    content,
-    cssStyles,
-    plugins = [],
-    style,
-    onMessage,
-    onLoadComplete,
-    onContentSizeChange,
-    menuItems,
-    onCustomMenuSelection,
-  }) => {
+  ({ content, cssStyles, plugins = [], style, onMessage, onLoadComplete, onContentSizeChange }) => {
     const iframeRef = useRef<HTMLIFrameElement>(null);
     const [isWebViewReady, setIsWebViewReady] = useState(false);
-    const [viewerHeight, setViewerHeight] = useState(300);
+    const [viewerHeight, setViewerHeight] = useState(600);
+    const [menuUpdateTrigger, setMenuUpdateTrigger] = useState(0);
+    const isDarkMode = useDarkMode(); // Get real dark mode state
+
+    // Get menu items from all plugins
+    const menuItems = useMemo(() => {
+      const allMenuItems: { label: string; key: string }[] = [];
+
+      // Collect menu items from all plugins
+      plugins.forEach((plugin) => {
+        if (plugin.getMenuItems) {
+          const pluginMenuItems = plugin.getMenuItems();
+          allMenuItems.push(...pluginMenuItems);
+        }
+      });
+
+      return allMenuItems;
+    }, [plugins, menuUpdateTrigger]);
+
+    // Handle menu selection
+    const handleCustomMenuSelection = useCallback(
+      (event: { nativeEvent: { key: string; selectedText: string } }) => {
+        const { key, selectedText } = event.nativeEvent;
+
+        // Route menu selection to all plugins that can handle it
+        plugins.forEach((plugin) => {
+          if (plugin.handleMenuSelection) {
+            plugin.handleMenuSelection(key, selectedText);
+          }
+        });
+      },
+      [plugins],
+    );
 
     // Viewer functions that plugins can call directly
     const viewerFunctions = useMemo(
@@ -73,13 +94,19 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             );
           }
         },
-        isDarkMode: false,
-        viewer: viewerFunctions,
+        isDarkMode, // Use real dark mode state
+        setHeight: (height: number) => {
+          console.log("HTMLViewer.web: Setting height to", height);
+          setViewerHeight(height);
+          if (onContentSizeChange) {
+            onContentSizeChange(height);
+          }
+        },
         updateMenus: () => {
-          // No-op for web version
+          setMenuUpdateTrigger((prev) => prev + 1);
         },
       }),
-      [isWebViewReady, viewerFunctions],
+      [isDarkMode, isWebViewReady, onContentSizeChange, viewerHeight],
     );
 
     // Generate the generic HTMLViewer API injection script
@@ -98,6 +125,19 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
         }
       };
 
+      // Predefined command handler for secure plugin communication
+      window.handlePluginCommand = function(commandData) {
+        const { pluginName, commandType, payload } = commandData;
+        
+        // Dispatch to the appropriate plugin
+        window.dispatchEvent(new CustomEvent(pluginName + 'Command', {
+          detail: {
+            type: commandType,
+            payload: payload
+          }
+        }));
+      };
+
       // Listen for commands from React (web)
       window.addEventListener('message', function(event) {
         try {
@@ -106,13 +146,8 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             const { pluginName, commandType, payload } = message;
             console.log('HTMLViewer.web iframe received command:', { pluginName, commandType, payload });
             
-            // Dispatch to the appropriate plugin
-            window.dispatchEvent(new CustomEvent(pluginName + 'Command', {
-              detail: {
-                type: commandType,
-                payload: payload
-              }
-            }));
+            // Use the same command handler as mobile
+            window.handlePluginCommand({ pluginName, commandType, payload });
           }
         } catch (error) {
           console.error('Error parsing command message:', error);
@@ -127,6 +162,22 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
       return plugins.map((plugin) => plugin.jsCode).join("\n\n");
     }, [plugins]);
 
+    // Generate combined CSS from all plugins
+    const combinedPluginCSS = useMemo(() => {
+      return plugins
+        .map((plugin) => plugin.cssCode)
+        .filter(Boolean)
+        .join("\n\n");
+    }, [plugins]);
+
+    // Generate combined HTML from all plugins
+    const combinedPluginHTML = useMemo(() => {
+      return plugins
+        .map((plugin) => plugin.htmlCode)
+        .filter(Boolean)
+        .join("\n");
+    }, [plugins]);
+
     // Create the complete HTML document
     const fullHtml = useMemo(() => {
       return `
@@ -136,10 +187,12 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
             <style>
               ${cssStyles}
+              ${combinedPluginCSS}
             </style>
           </head>
           <body>
             ${content}
+            ${combinedPluginHTML}
             <script>
               console.log('HTMLViewer.web: Starting script injection...');
               ${htmlViewerApiScript}
@@ -155,7 +208,14 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           </body>
         </html>
       `;
-    }, [content, cssStyles, htmlViewerApiScript, combinedPluginScript]);
+    }, [
+      content,
+      cssStyles,
+      combinedPluginCSS,
+      combinedPluginHTML,
+      htmlViewerApiScript,
+      combinedPluginScript,
+    ]);
 
     // Handle messages from iframe
     const handleMessage = useCallback(
@@ -169,6 +229,12 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
 
           if (message.type === "webview-ready") {
             setIsWebViewReady(true);
+
+            // Initialize all plugins with their context
+            plugins.forEach((plugin) => {
+              plugin.initialize(pluginContext);
+            });
+
             if (onLoadComplete) {
               onLoadComplete();
             }
@@ -207,10 +273,10 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           ref={iframeRef}
           srcDoc={fullHtml}
           style={{
-            flex: 1,
             border: "none",
             width: "100%",
             height: viewerHeight,
+            minHeight: viewerHeight,
           }}
           title="HTML Viewer"
         />

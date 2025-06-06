@@ -248,15 +248,25 @@ export default class ItemContentSyncer {
         .fetch();
 
       // 2. Find orphaned content (where item doesn't exist)
-      const orphanedContent = await this.database!.get<ItemContent>("item_contents")
-        .query(
-          Q.unsafeSqlQuery(
-            `SELECT item_contents.* FROM item_contents 
-             LEFT JOIN items ON items.id = item_contents.item_id 
-             WHERE items.id IS NULL`,
-          ),
-        )
-        .fetch();
+      // Since we can't use unsafe SQL queries for web compatibility, we'll check each content record
+      const allContent = await this.database!.get<ItemContent>("item_contents").query().fetch();
+      const orphanedContent: ItemContent[] = [];
+
+      for (const content of allContent) {
+        try {
+          // Try to fetch the related item
+          if (content.item) {
+            await content.item.fetch();
+          } else {
+            // If there's no item relation, this content is orphaned
+            orphanedContent.push(content);
+          }
+        } catch (error) {
+          // If the item doesn't exist, this content is orphaned
+          orphanedContent.push(content);
+        }
+      }
+
       console.log("orphanedContent", orphanedContent);
       // Combine all deletions in one batch operation
       const operations = [
