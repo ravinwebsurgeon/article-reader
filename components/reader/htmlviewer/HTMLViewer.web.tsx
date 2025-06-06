@@ -629,7 +629,7 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             border: "none",
             width: "100%",
             height: viewerHeight,
-            minHeight: viewerHeight,
+            display: "block",
           }}
           title="HTML Viewer"
         />
