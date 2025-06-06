@@ -1,6 +1,5 @@
 import React, { useRef, useCallback } from "react";
 import { TouchableOpacity, View, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemeView, ThemeText } from "@/components/primitives";
 import { SvgIcon } from "@/components/SvgIcon";
@@ -20,16 +19,15 @@ interface HeaderProps {
   onToggleView: () => void;
   progress?: number;
   isUserScrolled?: boolean;
+  onBack: () => void;
 }
 
 export const ReaderHeader: React.FC<HeaderProps> = ({
   item,
   browserMode,
   onToggleView,
-  progress,
-  isUserScrolled,
+  onBack,
 }) => {
-  const router = useRouter();
   const theme = useTheme();
   const spacing = useSpacing();
   const menuButtonRef = useRef<View>(null);
@@ -70,22 +68,6 @@ export const ReaderHeader: React.FC<HeaderProps> = ({
     },
   });
 
-  // Handle navigation back
-  const handleBack = useCallback(async () => {
-    try {
-      // Only save if progress has changed from initial value
-      if (isUserScrolled && progress !== undefined && progress !== item.progress) {
-        console.log("Saving progress:", progress);
-        await item.setProgress(progress);
-      }
-      router.back();
-    } catch (error) {
-      console.error("Error saving progress:", error);
-      // Still navigate back even if save fails
-      router.back();
-    }
-  }, [isUserScrolled, progress, item, router]);
-
   // Handle opening the action menu
   const handleOpenMenu = useCallback(() => {
     if (menuButtonRef.current) {
@@ -120,7 +102,7 @@ export const ReaderHeader: React.FC<HeaderProps> = ({
       <ThemeView style={styles.header} row backgroundColor={theme.colors.background.paper}>
         <ThemeView style={styles.headerLeft} row centered>
           <TouchableOpacity
-            onPress={handleBack}
+            onPress={onBack}
             style={styles.backButton}
             accessibilityRole="button"
             accessibilityLabel="Go back to saves"

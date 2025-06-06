@@ -24,8 +24,6 @@ interface ContentProps {
   item: Item;
   content: ItemContent | null;
   annotations: Annotation[]; // Provided by HOC
-  onProgressChange?: (progress: number) => void;
-  onUserScrolled?: () => void;
   onLoadComplete?: () => void;
 }
 
@@ -33,8 +31,6 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
   item,
   content,
   annotations,
-  onProgressChange,
-  onUserScrolled,
   onLoadComplete,
 }) => {
   const theme = useTheme();
