@@ -18,9 +18,7 @@ export class AutoResizePlugin implements HTMLViewerPlugin {
         
         function reportHeight() {
           const height = Math.max(
-            document.documentElement.scrollHeight,
             document.body.scrollHeight,
-            document.documentElement.offsetHeight,
             document.body.offsetHeight
           );
           
@@ -34,17 +32,11 @@ export class AutoResizePlugin implements HTMLViewerPlugin {
           }
         }
 
-        // Report height when ready
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', reportHeight);
-        } else {
-          reportHeight();
-        }
+        // Initial measurement  
+        reportHeight();
 
-        // Watch for changes
+        // Watch for size changes
         new ResizeObserver(reportHeight).observe(document.body);
-        new MutationObserver(() => setTimeout(reportHeight, 50))
-          .observe(document.body, { childList: true, subtree: true });
       })();
     `;
   }
