@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { WebView } from "react-native-webview";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -8,6 +8,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 // Import themed components
 import { ThemeView } from "@/components/primitives";
 import { useTheme, useDarkMode, useSpacing } from "@/theme/hooks";
+import { useScrollProgress } from "@/hooks/useScrollProgress";
 
 // Import WatermelonDB components
 import { withObservables } from "@nozbe/watermelondb/react";
@@ -31,41 +32,42 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
   const theme = useTheme();
   const spacing = useSpacing();
   const isDarkMode = useDarkMode();
+  const router = useRouter();
+  const scrollViewRef = useRef<ScrollView>(null);
 
   // State
-  const [progress, setProgress] = useState(item.progress);
-  const [isUserScrolled, setIsUserScrolled] = useState(false);
   const [browserMode, setBrowserMode] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isLoadingComplete, setIsLoadingComplete] = useState(false);
 
-  // Handle progress change from scroll tracking
-  const handleProgressChange = (newProgress: number) => {
-    if (Math.abs(newProgress - (progress ?? 0)) > 0.01) {
-      setProgress(newProgress);
-    }
-  };
+  // Use the scroll progress hook
+  const {
+    progress,
+    isUserScrolled,
+    handleScrollChange,
+    handleContentLoaded,
+    handleContentSizeChange,
+    handleLayoutChange,
+    saveProgress,
+  } = useScrollProgress({
+    item,
+    scrollViewRef,
+  });
 
-  // Handle user scrolled
-  const handleUserScrolled = () => {
-    setIsUserScrolled(true);
-  };
+  // Handle navigation back with saving
+  const handleBack = useCallback(async () => {
+    await saveProgress();
+    router.back();
+  }, [saveProgress, router]);
 
   // Handle toggling between reader and browser views
-  const handleToggleView = () => {
+  const handleToggleView = useCallback(() => {
     setBrowserMode(!browserMode);
-    // Reset loading states when toggling
     if (!browserMode) {
       setLoadingProgress(0);
       setIsLoadingComplete(false);
     }
-  };
-
-  // Reset state when item changes
-  useEffect(() => {
-    setIsUserScrolled(false);
-    setProgress(item.progress);
-  }, [item.id, item.progress]);
+  }, [browserMode]);
 
   const styles = StyleSheet.create({
     browserContainer: {
@@ -106,6 +108,7 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
           onToggleView={handleToggleView}
           progress={progress}
           isUserScrolled={isUserScrolled}
+          onBack={handleBack}
         />
         {browserMode && item.url ? (
           <View style={styles.browserContainer}>
@@ -133,17 +136,17 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
           </View>
         ) : (
           <ScrollView
+            ref={scrollViewRef}
             style={styles.articleContainer}
             contentContainerStyle={styles.articleContent}
             showsVerticalScrollIndicator={true}
+            onScroll={handleScrollChange}
+            onContentSizeChange={handleContentSizeChange}
+            onLayout={handleLayoutChange}
+            scrollEventThrottle={100}
           >
             <ReaderMetaData item={item} content={content} />
-            <ReaderContent
-              item={item}
-              content={content}
-              onProgressChange={handleProgressChange}
-              onUserScrolled={handleUserScrolled}
-            />
+            <ReaderContent item={item} content={content} onLoadComplete={handleContentLoaded} />
             <ReaderAfterReading item={item} />
             <ReaderUpNext item={item} />
           </ScrollView>
