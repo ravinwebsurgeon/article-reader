@@ -19,22 +19,21 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
   ({ content, cssStyles, plugins = [], style, onMessage, onLoadComplete, onContentSizeChange }) => {
     const webViewRef = useRef<WebView>(null);
     const [viewerHeight, setViewerHeight] = useState(600);
+    const [menuVersion, setMenuVersion] = useState(0);
     const isDarkMode = useDarkMode(); // Get real dark mode state
 
-    // Get menu items from all plugins
+    // Get menu items from all plugins (recalculate when menuVersion changes)
     const menuItems = useMemo(() => {
       const allMenuItems: { label: string; key: string }[] = [];
-
-      // Collect menu items from all plugins
       plugins.forEach((plugin) => {
         if (plugin.getMenuItems) {
           const pluginMenuItems = plugin.getMenuItems();
           allMenuItems.push(...pluginMenuItems);
         }
       });
-
       return allMenuItems;
-    }, [plugins]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [plugins, menuVersion]); // menuVersion intentionally triggers recalculation when plugin state changes
 
     // Handle menu selection
     const handleCustomMenuSelection = useCallback(
@@ -97,6 +96,12 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           if (onContentSizeChange) {
             onContentSizeChange(height);
           }
+        },
+        invalidateMenuItems: () => {
+          // Defer state update to next tick to avoid React warnings
+          setTimeout(() => {
+            setMenuVersion((prev) => prev + 1);
+          }, 0);
         },
       }),
       [isDarkMode, onContentSizeChange],

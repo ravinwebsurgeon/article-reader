@@ -896,6 +896,11 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
           this.currentSelection = { text: "", isHighlighted: false };
         }
 
+        // Trigger menu items recalculation
+        if (context.invalidateMenuItems) {
+          context.invalidateMenuItems();
+        }
+
         break;
 
       case "highlight-created":
