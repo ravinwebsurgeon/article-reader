@@ -134,16 +134,17 @@ const EditTagsView: React.FC<EditTagsViewProps> = ({
   );
 
   const handleTextChange = useCallback(
-    (text: string) => {
+    async (text: string) => {
       if (text.includes(",")) {
         const parts = text.split(",");
         const tagsToCreate = parts
           .slice(0, -1)
           .map((part) => part.trim())
           .filter(Boolean);
-        tagsToCreate.forEach((tagName) => {
-          handleCreateTag(tagName);
-        });
+        // Process tags sequentially to avoid race conditions
+        for (const tagName of tagsToCreate) {
+          await handleCreateTag(tagName);
+        }
         setTagText(parts[parts.length - 1].trim());
       } else {
         setTagText(text);

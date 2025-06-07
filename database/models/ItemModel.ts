@@ -57,7 +57,7 @@ export default class Item extends Model {
 
   // Lazy loaded tags
   @lazy
-  tags = this.collections.get<Tag>("item_tags").query();
+  tags = this.collections.get<Tag>("tags").query(Q.on("item_tags", "item_id", this.id));
 
   // Computed properties
   get readTime(): number {

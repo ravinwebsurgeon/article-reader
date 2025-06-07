@@ -18,19 +18,29 @@ export const tagsCollection = database.collections.get<Tag>("tags");
 export const itemTagsCollection = database.collections.get<ItemTag>("item_tags");
 
 /**
- * Creates a new tag in the database.
+ * Creates a new tag in the database, or returns existing tag if one with the same name exists.
  * @param name - The name of the tag to create.
- * @returns The newly created Tag instance.
+ * @returns The newly created or existing Tag instance.
  */
 export const createTag = async (name: string): Promise<Tag> => {
   if (!name.trim()) {
     throw new Error("Tag name cannot be empty.");
   }
-  // Consider checking for existing tag by name to prevent duplicates,
-  // or let the UI/calling code handle this.
+  
   return database.write(async () => {
+    // Check for existing tag first to prevent duplicates
+    const trimmedName = name.trim();
+    const existingTags = await tagsCollection
+      .query(Q.where('name', trimmedName))
+      .fetch();
+    
+    if (existingTags.length > 0) {
+      return existingTags[0];
+    }
+    
+    // Create new tag if none exists
     const newTag = await tagsCollection.create((tag) => {
-      tag.name = name.trim();
+      tag.name = trimmedName;
     });
     return newTag;
   });
@@ -72,11 +82,62 @@ export const removeTagFromItem = async (item: Item, tag: Tag): Promise<void> => 
     if (associations.length > 0) {
       // Typically, there should be only one such association
       for (const association of associations) {
-        await association.destroyPermanently();
+        await association.markAsDeleted();
       }
     } else {
       console.warn(`No association found for item '${item.id}' and tag '${tag.name}'.`);
     }
+  });
+};
+
+/**
+ * Atomically creates a tag (or gets existing) and associates it with an item.
+ * This prevents race conditions and ensures data consistency.
+ * @param item - The Item instance to associate the tag with.
+ * @param tagName - The name of the tag to create and associate.
+ * @returns The tag that was created or found and associated.
+ */
+export const createAndAssociateTag = async (item: Item, tagName: string): Promise<Tag> => {
+  if (!tagName.trim()) {
+    throw new Error("Tag name cannot be empty.");
+  }
+  
+  return database.write(async () => {
+    const trimmedName = tagName.trim();
+    
+    // Check for existing tag first
+    let tag: Tag;
+    const existingTags = await tagsCollection
+      .query(Q.where('name', trimmedName))
+      .fetch();
+    
+    if (existingTags.length > 0) {
+      tag = existingTags[0];
+    } else {
+      // Create new tag if none exists
+      tag = await tagsCollection.create((newTag) => {
+        newTag.name = trimmedName;
+      });
+    }
+    
+    // Check if association already exists to prevent duplicates
+    const existingAssociation = await itemTagsCollection
+      .query(Q.where("item_id", item.id), Q.where("tag_id", tag.id))
+      .fetch();
+    
+    if (existingAssociation.length === 0) {
+      // Create the association
+      await itemTagsCollection.create((itemTag) => {
+        if (itemTag.item) {
+          itemTag.item.set(item);
+        }
+        if (itemTag.tag) {
+          itemTag.tag.set(tag);
+        }
+      });
+    }
+    
+    return tag;
   });
 };
 
@@ -133,7 +194,7 @@ interface WithItemTagsOuterProps {
 
 /**
  * HOC that provides a reactive list of tags associated with a specific item.
- * @param options - Must contain the 'item' to observe tags for.
+ * Uses the item's lazy tags relationship for optimal performance and reactivity.
  * @returns A function that provides 'itemTags' (an array of Tag models) as a prop.
  */
 export const withItemTags = () => {
@@ -148,25 +209,8 @@ export const withItemTags = () => {
       return { itemTags: of$([] as Tag[]) };
     }
 
-    const selectedTagsObservable = item.itemTags
-      ? item.itemTags.observe().pipe(
-          switchMap((itemTagModels: ItemTag[]) => {
-            if (!itemTagModels || itemTagModels.length === 0) {
-              return of$([] as Tag[]); // Emit empty array of Tags
-            }
-            // Create an array of observables, one for each tag
-            const tagObservables = itemTagModels
-              .map((itemTag) => (itemTag.tag ? itemTag.tag.observe() : undefined))
-              .filter((obs): obs is Observable<Tag> => obs !== undefined);
-            // Combine them: emits an array of Tags when all tagObservables have emitted
-            return tagObservables.length > 0 ? combineLatest(tagObservables) : of$([] as Tag[]);
-          }),
-          map((tags) => tags.filter((tag) => !!tag) as Tag[]), // Ensure tags are truthy, changed from tag !== null
-        )
-      : of$([] as Tag[]);
-
     return {
-      itemTags: selectedTagsObservable,
+      itemTags: item.tags.observe(),
     };
   });
 };
