@@ -13,7 +13,7 @@ import Annotation from "./models/AnnotationModel";
 
 setGenerator(() => ulid());
 
-let adapter = getAdapter(schema, migrations);
+const adapter = getAdapter(schema, migrations);
 
 const database = new Database({
   adapter,
