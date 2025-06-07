@@ -137,7 +137,7 @@ class SyncEngine {
     this.itemContentSyncer.token = token;
     // Update token in server changes listener
     this.serverChangesListener.setToken(token);
-    
+
     // Manage server change notifications based on token availability
     if (token) {
       this.listenForServerChanges();
@@ -181,7 +181,7 @@ class SyncEngine {
     if (this.serverChangesListener.isConnectedOrConnecting()) {
       return;
     }
-    
+
     this.serverChangesListener.connect({
       onConnected: () => {
         console.log(`${LOG_PREFIX} Connected to server change notifications`);
@@ -191,12 +191,12 @@ class SyncEngine {
       },
       onMessage: (message: any) => {
         // Handle structured sync messages from server
-        if (typeof message === 'object' && message.type === 'sync') {
+        if (typeof message === "object" && message.type === "sync") {
           console.log(`${LOG_PREFIX} Syncing due to changes from another client`);
           this.sync().catch((error: Error) => {
             console.error(`${LOG_PREFIX} Server change triggered sync failed:`, error);
           });
-        } else if (message === 'sync') {
+        } else if (message === "sync") {
           // Handle legacy 'sync' string messages (fallback)
           console.log(`${LOG_PREFIX} Syncing due to server notification`);
           this.sync().catch((error: Error) => {
@@ -206,7 +206,7 @@ class SyncEngine {
       },
       onError: (error: any) => {
         console.error(`${LOG_PREFIX} Server changes listener error:`, error);
-      }
+      },
     });
   }
 
@@ -227,29 +227,26 @@ class SyncEngine {
    * @returns A Promise resolving to true upon successful sync completion, or rejecting on failure.
    */
   sync(isFirstSync = false): Promise<boolean> {
-    // If we're actually syncing, just return the existing promise without extending the debounce
-    if (this.isSyncing && this.syncState) {
-      console.log(`${LOG_PREFIX} Already actively syncing, returning existing promise.`);
+    // If we already have a sync promise, return it regardless of isSyncing status
+    if (this.syncState) {
+      console.log(`${LOG_PREFIX} Sync already in progress, returning existing promise.`);
       return this.syncState.promise;
     }
 
     // Create a new promise if we don't have one yet
-    if (!this.syncState) {
-      console.log(`${LOG_PREFIX} Creating new sync promise.`);
+    console.log(`${LOG_PREFIX} Creating new sync promise.`);
 
-      let resolve!: (value: boolean) => void;
-      let reject!: (reason?: any) => void;
+    let resolve!: (value: boolean) => void;
+    let reject!: (reason?: any) => void;
 
-      const promise = new Promise<boolean>((res, rej) => {
-        resolve = res;
-        reject = rej;
-      });
+    const promise = new Promise<boolean>((res, rej) => {
+      resolve = res;
+      reject = rej;
+    });
 
-      this.syncState = { promise, resolve, reject };
-    }
+    this.syncState = { promise, resolve, reject };
 
     // Always trigger the debounced function to extend the debounce period
-    // unless we're actively syncing
     console.log(`${LOG_PREFIX} Triggering debounced sync.`);
     this.debouncedSync(isFirstSync);
 
