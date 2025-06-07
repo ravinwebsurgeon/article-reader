@@ -5,6 +5,7 @@ import { useTheme } from "@/theme";
 import { Alert, Share } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "expo-router";
+import { deleteItem } from "@/database/hooks/withItems";
 
 interface ArticleActionMenuProps {
   item: Item;
@@ -95,7 +96,7 @@ const ArticleActionMenu: React.FC<ArticleActionMenuProps> = ({
           style: "destructive",
           onPress: async () => {
             try {
-              await item.markAsDeleted();
+              await deleteItem(item);
             } catch (error) {
               console.error("Error deleting item:", error);
             }
