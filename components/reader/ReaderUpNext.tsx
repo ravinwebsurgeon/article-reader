@@ -47,7 +47,7 @@ export const ReaderUpNext: React.FC<UpNextProps> = ({ item }) => {
       withRecommendedItems({ currentItem: item })(({ recommendedItems }) => (
         <RecommendedItems items={recommendedItems} />
       )),
-    [item], // Include the entire item object in dependencies
+    [item.id], // Use a stable key (item.id) in dependencies
   );
 
   return (

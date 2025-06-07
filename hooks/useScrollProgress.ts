@@ -2,6 +2,9 @@ import { useState, useCallback, useEffect } from "react";
 import { ScrollView } from "react-native";
 import Item from "@/database/models/ItemModel";
 
+const RESTORE_SCROLL_INITIAL_DELAY = 300;
+const RESTORE_SCROLL_RETRY_TIMEOUT = 100;
+
 interface UseScrollProgressProps {
   item: Item;
   scrollViewRef: React.RefObject<ScrollView | null>;
@@ -113,12 +116,12 @@ export const useScrollProgress = ({
           setShouldRestoreScroll(false);
         } else {
           // Try again in a bit if dimensions aren't ready
-          setTimeout(attemptRestore, 100);
+          setTimeout(attemptRestore, RESTORE_SCROLL_RETRY_TIMEOUT);
         }
       };
 
       // Start attempting restoration after a delay
-      setTimeout(attemptRestore, 300);
+      setTimeout(attemptRestore, RESTORE_SCROLL_INITIAL_DELAY);
     } else {
       setShouldRestoreScroll(false);
     }
