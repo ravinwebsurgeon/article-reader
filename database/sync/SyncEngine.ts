@@ -6,6 +6,7 @@ import { debounce, DebouncedFunc } from "lodash-es";
 import { Subscription } from "rxjs";
 import ItemContentSyncer from "./ItemContentSyncer";
 import { Platform } from "react-native";
+import { ServerChangesListener } from "./ServerChangesListener";
 
 // API URL from environment configuration.
 const API_URL = Constants.expoConfig?.extra?.apiUrl || "https://api.pckt.dev/v4";
@@ -43,6 +44,8 @@ class SyncEngine {
   private subscription: Subscription | null = null;
   // Item content syncer
   private itemContentSyncer: ItemContentSyncer;
+  // Listener for real-time server change notifications
+  private serverChangesListener: ServerChangesListener;
 
   constructor(database: Database | null = null) {
     this.database = database;
@@ -51,6 +54,9 @@ class SyncEngine {
     if (database) {
       this.itemContentSyncer.database = database;
     }
+
+    // Create server changes listener
+    this.serverChangesListener = new ServerChangesListener(API_URL);
 
     // Initialize the debounced function.
     // `leading: true` runs the function immediately on the first call within the wait period.
@@ -105,6 +111,14 @@ class SyncEngine {
   }
 
   /**
+   * Cleanup method to disconnect from all services and subscriptions
+   */
+  cleanup(): void {
+    this.stopWatchForChanges();
+    this.stopListeningForServerChanges();
+  }
+
+  /**
    * Sets the database instance and ensures the item content syncer is updated
    * @param database WatermelonDB database instance
    */
@@ -121,6 +135,15 @@ class SyncEngine {
     this.token = token;
     // Update token in itemContentSyncer
     this.itemContentSyncer.token = token;
+    // Update token in server changes listener
+    this.serverChangesListener.setToken(token);
+    
+    // Manage server change notifications based on token availability
+    if (token) {
+      this.listenForServerChanges();
+    } else {
+      this.stopListeningForServerChanges();
+    }
   }
 
   /**
@@ -148,6 +171,50 @@ class SyncEngine {
       return this.loadToken();
     }
     return this.token;
+  }
+
+  /**
+   * Starts listening for server changes via WebSocket for real-time sync notifications.
+   */
+  private listenForServerChanges(): void {
+    // Don't reconnect if already connected or connecting
+    if (this.serverChangesListener.isConnectedOrConnecting()) {
+      return;
+    }
+    
+    this.serverChangesListener.connect({
+      onConnected: () => {
+        console.log(`${LOG_PREFIX} Connected to server change notifications`);
+      },
+      onDisconnected: () => {
+        console.log(`${LOG_PREFIX} Disconnected from server change notifications`);
+      },
+      onMessage: (message: any) => {
+        // Handle structured sync messages from server
+        if (typeof message === 'object' && message.type === 'sync') {
+          console.log(`${LOG_PREFIX} Syncing due to changes from another client`);
+          this.sync().catch((error: Error) => {
+            console.error(`${LOG_PREFIX} Server change triggered sync failed:`, error);
+          });
+        } else if (message === 'sync') {
+          // Handle legacy 'sync' string messages (fallback)
+          console.log(`${LOG_PREFIX} Syncing due to server notification`);
+          this.sync().catch((error: Error) => {
+            console.error(`${LOG_PREFIX} Server change triggered sync failed:`, error);
+          });
+        }
+      },
+      onError: (error: any) => {
+        console.error(`${LOG_PREFIX} Server changes listener error:`, error);
+      }
+    });
+  }
+
+  /**
+   * Stops listening for server changes and cleans up WebSocket connections.
+   */
+  private stopListeningForServerChanges(): void {
+    this.serverChangesListener.disconnect();
   }
 
   /**
