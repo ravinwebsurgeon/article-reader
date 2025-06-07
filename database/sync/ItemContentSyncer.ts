@@ -259,7 +259,8 @@ export default class ItemContentSyncer {
 
       if (orphanedContent.length > 0) {
         console.log(`${LOG_PREFIX} Removing ${orphanedContent.length} orphaned content records`);
-        const operations = orphanedContent.map((content) => content.prepareMarkAsDeleted());
+        // Since we don't sync the item_contents table, we need to destroy the records permanently
+        const operations = orphanedContent.map((content) => content.prepareDestroyPermanently());
         await this.database!.batch(...operations);
       } else {
         console.log(`${LOG_PREFIX} No orphaned content to clean up`);
