@@ -55,7 +55,7 @@ function AuthStart() {
       Alert.alert(t("auth.authStart.loginError"), error);
       dispatch(resetAuthError());
     }
-  }, [error, dispatch]);
+  }, [error, dispatch, t]);
 
   const dynamicStyles: {
     container: ViewStyle;
