@@ -77,13 +77,22 @@ export default class ItemContentSyncer {
       .query(Q.where("content_hash", Q.notEq(null)), Q.where("content_hash", Q.notEq("")))
       .fetch();
 
-    // Filter out items that already have content
+    // Filter to items that need content (no content OR content hash mismatch)
     const itemsNeedingContent = [];
 
     for (const item of itemsWithContentHash) {
       const existingContent = await item.itemContentQuery?.fetch();
+
       if (!existingContent || existingContent.length === 0) {
+        // No content exists - need to fetch
         itemsNeedingContent.push(item);
+      } else {
+        // Content exists - check if hash matches
+        const currentContent = existingContent[0];
+        if (item.contentHash !== currentContent.contentHash) {
+          // Hash mismatch - need to fetch updated content
+          itemsNeedingContent.push(item);
+        }
       }
     }
 
@@ -213,10 +222,7 @@ export default class ItemContentSyncer {
                   );
                 }
               } catch (error) {
-                console.error(
-                  `${LOG_PREFIX} Failed to process content for item ${JSON.parse(line).id}:`,
-                  error,
-                );
+                console.error(`${LOG_PREFIX} Failed to process content line:`, line, error);
               }
             }
 
@@ -235,52 +241,28 @@ export default class ItemContentSyncer {
   }
 
   /**
-   * Efficient cleanup with simple queries
+   * Clean up orphaned content for deleted items
    */
   private async cleanupDatabase(): Promise<void> {
     if (!this.database) return;
 
-    console.log(`${LOG_PREFIX} Starting database cleanup...`);
+    console.log(`${LOG_PREFIX} Starting orphaned content cleanup...`);
     await this.database.write(async () => {
-      // 1. Delete content for items with null/empty content_hash in one query
-      const contentForItemsWithoutHash = await this.database!.get<ItemContent>("item_contents")
-        .query(Q.on("items", Q.or(Q.where("content_hash", null), Q.where("content_hash", ""))))
-        .fetch();
+      // Find orphaned content (content for deleted items)
+      const existingItemIds = await this.database!.get<Item>("items").query().fetchIds();
+      const orphanedContent =
+        existingItemIds.length > 0
+          ? await this.database!.get<ItemContent>("item_contents")
+              .query(Q.where("item_id", Q.notIn(existingItemIds)))
+              .fetch()
+          : await this.database!.get<ItemContent>("item_contents").query().fetch();
 
-      // 2. Find orphaned content (where item doesn't exist)
-      // Since we can't use unsafe SQL queries for web compatibility, we'll check each content record
-      const allContent = await this.database!.get<ItemContent>("item_contents").query().fetch();
-      const orphanedContent: ItemContent[] = [];
-
-      for (const content of allContent) {
-        try {
-          // Try to fetch the related item
-          if (content.item) {
-            await content.item.fetch();
-          } else {
-            // If there's no item relation, this content is orphaned
-            orphanedContent.push(content);
-          }
-        } catch (error) {
-          // If the item doesn't exist, this content is orphaned
-          orphanedContent.push(content);
-        }
-      }
-
-      console.log("orphanedContent", orphanedContent);
-      // Combine all deletions in one batch operation
-      const operations = [
-        ...contentForItemsWithoutHash.map((content) => content.prepareMarkAsDeleted()),
-        ...orphanedContent.map((content) => content.prepareMarkAsDeleted()),
-      ];
-
-      if (operations.length > 0) {
-        console.log(
-          `${LOG_PREFIX} Cleaning up ${operations.length} content records (${contentForItemsWithoutHash.length} without hash, ${orphanedContent.length} orphaned)`,
-        );
+      if (orphanedContent.length > 0) {
+        console.log(`${LOG_PREFIX} Removing ${orphanedContent.length} orphaned content records`);
+        const operations = orphanedContent.map((content) => content.prepareMarkAsDeleted());
         await this.database!.batch(...operations);
       } else {
-        console.log(`${LOG_PREFIX} No content records to clean up`);
+        console.log(`${LOG_PREFIX} No orphaned content to clean up`);
       }
     });
   }
