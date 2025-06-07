@@ -16,6 +16,11 @@ export class ServerChangesListener {
   private token: string | null = null;
   private apiUrl: string;
   private callbacks: ServerChangesListenerCallbacks = {};
+  private shouldBeConnected: boolean = false;
+  private reconnectTimeoutId: number | null = null;
+  private reconnectAttempts: number = 0;
+  private readonly maxReconnectAttempts: number = 5;
+  private readonly baseReconnectDelay: number = 1000; // 1 second
 
   constructor(apiUrl: string, token: string | null = null) {
     this.apiUrl = apiUrl;
@@ -40,6 +45,10 @@ export class ServerChangesListener {
     }
 
     this.callbacks = callbacks;
+    this.shouldBeConnected = true;
+
+    // Clear any pending reconnect attempts
+    this.clearReconnectTimeout();
 
     // Close existing connection if any
     this.disconnect();
@@ -56,6 +65,7 @@ export class ServerChangesListener {
       
       this.webSocket.onopen = () => {
         console.log(`${LOG_PREFIX} Connected to real-time sync`);
+        this.reconnectAttempts = 0; // Reset reconnect attempts on successful connection
         this.callbacks.onConnected?.();
         
         // Subscribe to user-specific sync channel using Action Cable protocol
@@ -116,13 +126,24 @@ export class ServerChangesListener {
         }
       };
       
-      this.webSocket.onclose = () => {
-        console.log(`${LOG_PREFIX} Real-time sync disconnected`);
+      this.webSocket.onclose = (event) => {
+        console.log(`${LOG_PREFIX} Real-time sync disconnected (code: ${event.code}, clean: ${event.wasClean})`);
         this.callbacks.onDisconnected?.();
+        
+        // Only attempt to reconnect if we should be connected and it wasn't a clean close
+        if (this.shouldBeConnected && !event.wasClean) {
+          console.log(`${LOG_PREFIX} Unexpected disconnect detected, will attempt reconnection`);
+          this.scheduleReconnect();
+        } else if (this.shouldBeConnected && event.wasClean) {
+          console.log(`${LOG_PREFIX} Clean disconnect while connected - server may have closed connection`);
+        } else {
+          console.log(`${LOG_PREFIX} Clean disconnect - no reconnection needed`);
+        }
       };
       
       this.webSocket.onerror = (error) => {
         console.error(`${LOG_PREFIX} WebSocket error:`, error);
+        console.log(`${LOG_PREFIX} WebSocket error may trigger reconnection on close`);
         this.callbacks.onError?.(error);
       };
       
@@ -136,10 +157,39 @@ export class ServerChangesListener {
    * Stops listening and closes the WebSocket connection
    */
   disconnect(): void {
+    this.shouldBeConnected = false;
+    this.clearReconnectTimeout();
+    
     if (this.webSocket) {
       this.webSocket.close();
       this.webSocket = null;
     }
+  }
+
+  private clearReconnectTimeout(): void {
+    if (this.reconnectTimeoutId) {
+      clearTimeout(this.reconnectTimeoutId);
+      this.reconnectTimeoutId = null;
+    }
+  }
+
+  private scheduleReconnect(): void {
+    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+      console.error(`${LOG_PREFIX} Max reconnect attempts reached, giving up`);
+      return;
+    }
+
+    this.reconnectAttempts++;
+    const delay = this.baseReconnectDelay * Math.pow(2, this.reconnectAttempts - 1); // Exponential backoff
+    
+    console.log(`${LOG_PREFIX} Scheduling reconnect attempt ${this.reconnectAttempts} in ${delay}ms`);
+    
+    this.reconnectTimeoutId = setTimeout(() => {
+      if (this.shouldBeConnected) {
+        console.log(`${LOG_PREFIX} Attempting to reconnect...`);
+        this.connect(this.callbacks);
+      }
+    }, delay);
   }
 
   /**

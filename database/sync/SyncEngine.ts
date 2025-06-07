@@ -112,10 +112,27 @@ class SyncEngine {
 
   /**
    * Cleanup method to disconnect from all services and subscriptions
+   * Call this when the app is shutting down or the SyncEngine is no longer needed
    */
   cleanup(): void {
+    console.log(`${LOG_PREFIX} Cleaning up SyncEngine`);
+    
+    // Stop watching for local database changes
     this.stopWatchForChanges();
+    
+    // Stop listening for server changes and close WebSocket
     this.stopListeningForServerChanges();
+    
+    // Cancel any pending debounced sync
+    this.debouncedSync.cancel();
+    
+    // Clear any pending sync state (but don't reject the promise if someone is waiting)
+    if (this.syncState && !this.isSyncing) {
+      this.syncState = null;
+    }
+    
+    // Clear token
+    this.token = null;
   }
 
   /**
