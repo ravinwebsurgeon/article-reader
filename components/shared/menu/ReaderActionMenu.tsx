@@ -2,10 +2,11 @@
 import React, { useCallback } from "react";
 import Item from "@/database/models/ItemModel";
 import ReusableActionMenu, { ActionMenuItem, ActionMenuPosition } from "./ReusableActionMenu";
-import { Linking, Share } from "react-native";
+import { Linking, Share, Alert } from "react-native";
 import { useTheme } from "@/theme";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "expo-router";
+import { deleteItem } from "@/database/hooks/withItems";
 
 interface ReaderActionMenuProps {
   item: Item;
@@ -53,6 +54,38 @@ const ReaderActionMenu: React.FC<ReaderActionMenuProps> = ({
     }
     onClose();
   }, [item.url, onClose]);
+
+  // Delete article with confirmation
+  const confirmDelete = useCallback(() => {
+    // Close action menu first
+    onClose();
+
+    // Show confirmation alert
+    Alert.alert(
+      t("menu.deleteConfirmation.title"),
+      t("menu.deleteConfirmation.message"),
+      [
+        {
+          text: t("menu.deleteConfirmation.cancel"),
+          style: "cancel",
+        },
+        {
+          text: t("menu.deleteConfirmation.confirm"),
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteItem(item);
+              // Navigate back to the list after deletion
+              router.back();
+            } catch (error) {
+              console.error("Error deleting item:", error);
+            }
+          },
+        },
+      ],
+      { cancelable: true },
+    );
+  }, [item, onClose, t, router]);
 
   // Generate menu items based on the item state
   const getMenuItems = useCallback((): ActionMenuItem[] => {
@@ -128,16 +161,10 @@ const ReaderActionMenu: React.FC<ReaderActionMenuProps> = ({
         label: t("menu.delete"),
         icon: "trash",
         destructive: true,
-        onPress: async () => {
-          try {
-            await item.markAsDeleted();
-          } catch (error) {
-            console.error("Error deleting item:", error);
-          }
-        },
+        onPress: confirmDelete,
       },
     ];
-  }, [item, handleEditTags, handleOpenInBrowser, theme.colors.favorite, t]);
+  }, [item, handleEditTags, handleOpenInBrowser, theme.colors.favorite, t, confirmDelete]);
 
   return (
     <ReusableActionMenu

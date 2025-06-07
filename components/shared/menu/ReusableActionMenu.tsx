@@ -308,7 +308,6 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
             onPress={() => {
               if (!item.disabled) {
                 item.onPress();
-                handleClose();
               }
             }}
             activeOpacity={item.disabled ? 1 : 0.7}
