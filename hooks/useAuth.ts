@@ -116,7 +116,7 @@ export function useAuth() {
     password: string;
   }) => {
     try {
-      const response = await fetch("https://api.pckt.dev/v4/users", {
+      const response = await fetch("https://api.savewithfolio.com/v4/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -67,7 +67,7 @@ export default function AddArticleScreen() {
       await createItem(formattedUrl);
 
       // Show success alert with options
-      Alert.alert("Article Saved", "The article has been saved to your Pocket.", [
+      Alert.alert("Article Saved", "The article has been saved to your Folio.", [
         {
           text: "Add Another",
           onPress: () => setUrl(""),

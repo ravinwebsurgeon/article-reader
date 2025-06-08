@@ -9,7 +9,7 @@ import { Platform } from "react-native";
 import { ServerChangesListener } from "./ServerChangesListener";
 
 // API URL from environment configuration.
-const API_URL = Constants.expoConfig?.extra?.apiUrl || "https://api.pckt.dev/v4";
+const API_URL = Constants.expoConfig?.extra?.apiUrl || "https://api.savewithfolio.com/v4";
 
 const LOG_PREFIX = "[SyncEngine]";
 

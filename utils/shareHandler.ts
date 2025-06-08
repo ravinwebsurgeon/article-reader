@@ -32,6 +32,6 @@ export class ShareHandler {
 
     // Show success message
     // You can use your existing notification system
-    return { success: true, message: "Saved to Pocket!" };
+    return { success: true, message: "Saved to Folio!" };
   }
 }

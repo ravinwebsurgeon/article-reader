@@ -4,7 +4,7 @@ import Item from "../models/ItemModel";
 import ItemContent from "../models/ItemContentModel";
 
 // Constants
-const API_URL = Constants.expoConfig?.extra?.apiUrl || "https://api.pckt.dev/v4";
+const API_URL = Constants.expoConfig?.extra?.apiUrl || "https://api.savewithfolio.com/v4";
 const BATCH_SIZE = 50;
 const LOG_PREFIX = "[ItemContentSync]";
 

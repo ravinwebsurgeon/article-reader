@@ -1,7 +1,7 @@
 /**
- * Pocket App Component System
+ * Folio App Component System
  *
- * This file exports all UI components for the Pocket app,
+ * This file exports all UI components for the Folio app,
  * including core themed components and higher-level UI components.
  *
  * The component system follows a hierarchical structure:

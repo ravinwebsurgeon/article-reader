@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Pocket",
+    "name": "Folio",
     "tagline": "Save. Read. Grow."
   },
   "navigation": {
@@ -35,8 +35,8 @@
       "signUp": "Sign Up"
     },
     "signup": {
-      "title": "Welcome to Pocket",
-      "welcome": "Welcome to Pocket",
+      "title": "Welcome to Folio",
+      "welcome": "Welcome to Folio",
       "subtitle": "Create your account",
       "email": "Email",
       "password": "Password",
@@ -60,7 +60,7 @@
     },
     "connectExtension": {
       "title": "Extension Connected",
-      "message": "Your browser extension has been successfully connected to Pocket. You can now save items directly from your browser."
+      "message": "Your browser extension has been successfully connected to Folio. You can now save items directly from your browser."
     }
   },
   "search": {
@@ -129,15 +129,15 @@
     "about": "About"
   },
   "addArticle": {
-    "title": "Add to Pocket",
+    "title": "Add to Folio",
     "sectionTitle": "Add a URL",
     "urlPlaceholder": "Enter a URL to save",
-    "saveButton": "Save to Pocket",
-    "infoText": "Save articles, videos, and more to Pocket. Your list syncs across devices so you can view it anywhere."
+    "saveButton": "Save to Folio",
+    "infoText": "Save articles, videos, and more to Folio. Your list syncs across devices so you can view it anywhere."
   },
   "emptyStates": {
     "initialSync": {
-      "message": "Setting up your Pocket",
+      "message": "Setting up your Folio",
       "subMessage": "We're syncing your saved articles. This might take a moment."
     },
     "favorites": {

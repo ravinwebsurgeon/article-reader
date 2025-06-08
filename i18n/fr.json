@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Pocket",
+    "name": "Folio",
     "tagline": "Sauvegardez. Lisez. Grandissez."
   },
   "navigation": {
@@ -35,8 +35,8 @@
       "signUp": "S'inscrire"
     },
     "signup": {
-      "title": "Bienvenue sur Pocket",
-      "welcome": "Bienvenue sur Pocket",
+      "title": "Bienvenue sur Folio",
+      "welcome": "Bienvenue sur Folio",
       "subtitle": "Créez votre compte",
       "email": "E-mail",
       "password": "Mot de passe",
@@ -60,7 +60,7 @@
     },
     "connectExtension": {
       "title": "Extension Connectée",
-      "message": "Votre extension de navigateur a été connectée avec succès à Pocket. Vous pouvez maintenant sauvegarder des éléments directement depuis votre navigateur."
+      "message": "Votre extension de navigateur a été connectée avec succès à Folio. Vous pouvez maintenant sauvegarder des éléments directement depuis votre navigateur."
     }
   },
   "search": {
@@ -129,11 +129,11 @@
     "about": "À propos"
   },
   "addArticle": {
-    "title": "Ajouter à Pocket",
+    "title": "Ajouter à Folio",
     "sectionTitle": "Ajouter une URL",
     "urlPlaceholder": "Entrez une URL à sauvegarder",
-    "saveButton": "Sauvegarder dans Pocket",
-    "infoText": "Sauvegardez des articles, des vidéos et plus encore dans Pocket. Votre liste se synchronise sur tous vos appareils pour que vous puissiez la consulter partout."
+    "saveButton": "Sauvegarder dans Folio",
+    "infoText": "Sauvegardez des articles, des vidéos et plus encore dans Folio. Votre liste se synchronise sur tous vos appareils pour que vous puissiez la consulter partout."
   },
   "emptyStates": {
     "favorites": {

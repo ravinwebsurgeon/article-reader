@@ -1,7 +1,7 @@
 /**
- * Pocket App Theme System
+ * Folio App Theme System
  *
- * This file exports the complete theme system for the Pocket app,
+ * This file exports the complete theme system for the Folio app,
  * including tokens, provider, hooks, and types.
  *
  * This theme system follows SOLID principles:
