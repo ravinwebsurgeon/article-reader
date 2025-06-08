@@ -24,11 +24,49 @@ export default class ItemContentSyncer {
   private pendingSync: boolean = false;
 
   /**
+   * Sync content for a specific item by ID
+   * @param itemId The ID of the item to sync content for
+   */
+  async syncItem(itemId: string): Promise<void> {
+    if (!this.database || !this.token) {
+      console.warn(`${LOG_PREFIX} Database or token not available. Skipping item content sync.`);
+      return;
+    }
+
+    try {
+      console.log(`${LOG_PREFIX} Starting sync for item ${itemId}`);
+      const item = await this.database.get<Item>("items").find(itemId);
+
+      if (!item.contentHash) {
+        console.log(`${LOG_PREFIX} Item ${itemId} has no content hash, skipping sync`);
+        return;
+      }
+
+      const existingContent = await item.itemContentQuery?.fetch();
+      const needsContent =
+        !existingContent ||
+        existingContent.length === 0 ||
+        existingContent[0].contentHash !== item.contentHash;
+
+      if (needsContent) {
+        console.log(`${LOG_PREFIX} Fetching content for item ${itemId}`);
+        await this.fetchAndStoreContent([item]);
+      } else {
+        console.log(`${LOG_PREFIX} Item ${itemId} content is up to date`);
+      }
+    } catch (error) {
+      console.error(`${LOG_PREFIX} Error syncing item ${itemId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
    * Main method to run the item content synchronization process.
    * If a sync is already in progress, it will mark for a retry after
    * the current sync completes.
+   * @param includeArchived Whether to include archived items in sync (default: false)
    */
-  async sync(): Promise<void> {
+  async sync(includeArchived: boolean = false): Promise<void> {
     if (this.isSyncing) {
       console.log(`${LOG_PREFIX} Already syncing content, marking for retry.`);
       this.pendingSync = true;
@@ -45,7 +83,7 @@ export default class ItemContentSyncer {
     console.log(`${LOG_PREFIX} Starting content sync...`);
 
     try {
-      await this._syncInternal();
+      await this._syncInternal(includeArchived);
       const duration = (Date.now() - startTime) / 1000;
       console.log(`${LOG_PREFIX} Sync completed in ${duration}s.`);
     } catch (error) {
@@ -67,14 +105,25 @@ export default class ItemContentSyncer {
 
   /**
    * Internal implementation of the sync process
+   * @param includeArchived Whether to include archived items in sync
    */
-  private async _syncInternal(): Promise<void> {
+  private async _syncInternal(includeArchived: boolean = false): Promise<void> {
     if (!this.database || !this.token) return;
 
     // 1. Find items that need content (have content_hash but no content)
+    const queryConditions = [
+      Q.where("content_hash", Q.notEq(null)),
+      Q.where("content_hash", Q.notEq("")),
+    ];
+
+    // Exclude archived items unless specifically requested
+    if (!includeArchived) {
+      queryConditions.push(Q.where("archived", Q.notEq(true)));
+    }
+
     const itemsWithContentHash = await this.database
       .get<Item>("items")
-      .query(Q.where("content_hash", Q.notEq(null)), Q.where("content_hash", Q.notEq("")))
+      .query(...queryConditions)
       .fetch();
 
     // Filter to items that need content (no content OR content hash mismatch)
@@ -241,14 +290,16 @@ export default class ItemContentSyncer {
   }
 
   /**
-   * Clean up orphaned content for deleted items
+   * Clean up orphaned content for deleted items and old archived content
    */
   private async cleanupDatabase(): Promise<void> {
     if (!this.database) return;
 
-    console.log(`${LOG_PREFIX} Starting orphaned content cleanup...`);
+    console.log(`${LOG_PREFIX} Starting content cleanup...`);
     await this.database.write(async () => {
-      // Find orphaned content (content for deleted items)
+      const operations: ItemContent[] = [];
+
+      // 1. Find orphaned content (content for deleted items)
       const existingItemIds = await this.database!.get<Item>("items").query().fetchIds();
       const orphanedContent =
         existingItemIds.length > 0
@@ -258,12 +309,43 @@ export default class ItemContentSyncer {
           : await this.database!.get<ItemContent>("item_contents").query().fetch();
 
       if (orphanedContent.length > 0) {
-        console.log(`${LOG_PREFIX} Removing ${orphanedContent.length} orphaned content records`);
+        console.log(`${LOG_PREFIX} Found ${orphanedContent.length} orphaned content records`);
+        operations.push(...orphanedContent);
+      }
+
+      // 2. Find content for archived items older than 30 days
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      const oldArchivedItems = await this.database!.get<Item>("items")
+        .query(Q.where("archived", true), Q.where("updated_at", Q.lt(thirtyDaysAgo.getTime())))
+        .fetch();
+
+      if (oldArchivedItems.length > 0) {
+        console.log(
+          `${LOG_PREFIX} Found ${oldArchivedItems.length} archived items older than 30 days`,
+        );
+
+        // Get content for these old archived items
+        const oldArchivedItemIds = oldArchivedItems.map((item) => item.id);
+        const oldArchivedContent = await this.database!.get<ItemContent>("item_contents")
+          .query(Q.where("item_id", Q.oneOf(oldArchivedItemIds)))
+          .fetch();
+
+        if (oldArchivedContent.length > 0) {
+          console.log(
+            `${LOG_PREFIX} Found ${oldArchivedContent.length} content records for old archived items`,
+          );
+          operations.push(...oldArchivedContent);
+        }
+      }
+
+      // 3. Delete all content marked for cleanup
+      if (operations.length > 0) {
+        console.log(`${LOG_PREFIX} Removing ${operations.length} content records`);
         // Since we don't sync the item_contents table, we need to destroy the records permanently
-        const operations = orphanedContent.map((content) => content.prepareDestroyPermanently());
-        await this.database!.batch(...operations);
+        const deleteOperations = operations.map((content) => content.prepareDestroyPermanently());
+        await this.database!.batch(...deleteOperations);
       } else {
-        console.log(`${LOG_PREFIX} No orphaned content to clean up`);
+        console.log(`${LOG_PREFIX} No content to clean up`);
       }
     });
   }
