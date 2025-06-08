@@ -107,9 +107,9 @@ export interface ColorPalette {
 // Define base colors - shared between themes
 const baseColors = {
   primary: {
-    main: "#ef3e55",
-    light: "rgba(239, 62, 85, 0.2)",
-    dark: "#d32f2f",
+    main: "#02807A",
+    light: "rgba(2, 128, 122, 0.2)",
+    dark: "#016961",
     contrast: "#ffffff",
   },
   secondary: {
