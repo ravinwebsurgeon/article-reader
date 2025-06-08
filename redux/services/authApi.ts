@@ -99,7 +99,7 @@ export const authApi = api.injectEndpoints({
           }
 
           // If we have a token, try to get the current user
-          const response = await fetch("https://api.pckt.dev/v4/users/current", {
+          const response = await fetch("https://api.savewithfolio.com/v4/users/current", {
             headers: {
               Authorization: `Bearer ${token}`,
             },

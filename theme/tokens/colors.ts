@@ -1,7 +1,7 @@
 /**
- * Pocket App Color System
+ * Folio App Color System
  *
- * This file defines the color system for the Pocket app, including:
+ * This file defines the color system for the Folio app, including:
  * - ColorScheme type for light/dark mode
  * - ColorPalette interface defining all available colors
  * - Base colors shared between themes

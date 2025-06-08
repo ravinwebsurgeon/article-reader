@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Pocket",
+    "name": "Folio",
     "tagline": "Speichern. Lesen. Wachsen."
   },
   "navigation": {
@@ -35,8 +35,8 @@
       "signUp": "Registrieren"
     },
     "signup": {
-      "title": "Willkommen bei Pocket",
-      "welcome": "Willkommen bei Pocket",
+      "title": "Willkommen bei Folio",
+      "welcome": "Willkommen bei Folio",
       "subtitle": "Erstellen Sie Ihr Konto",
       "email": "E-Mail",
       "password": "Passwort",
@@ -60,7 +60,7 @@
     },
     "connectExtension": {
       "title": "Erweiterung Verbunden",
-      "message": "Ihre Browser-Erweiterung wurde erfolgreich mit Pocket verbunden. Sie können jetzt Elemente direkt aus Ihrem Browser speichern."
+      "message": "Ihre Browser-Erweiterung wurde erfolgreich mit Folio verbunden. Sie können jetzt Elemente direkt aus Ihrem Browser speichern."
     }
   },
   "search": {
@@ -129,11 +129,11 @@
     "about": "Über"
   },
   "addArticle": {
-    "title": "Zu Pocket hinzufügen",
+    "title": "Zu Folio hinzufügen",
     "sectionTitle": "URL hinzufügen",
     "urlPlaceholder": "Geben Sie eine URL zum Speichern ein",
-    "saveButton": "In Pocket speichern",
-    "infoText": "Speichern Sie Artikel, Videos und mehr in Pocket. Ihre Liste synchronisiert sich über alle Geräte hinweg, sodass Sie sie überall ansehen können."
+    "saveButton": "In Folio speichern",
+    "infoText": "Speichern Sie Artikel, Videos und mehr in Folio. Ihre Liste synchronisiert sich über alle Geräte hinweg, sodass Sie sie überall ansehen können."
   },
   "emptyStates": {
     "favorites": {

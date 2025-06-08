@@ -115,7 +115,7 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
    */
   get cssCode(): string {
     return `
-      .pocket-highlight {
+      .folio-highlight {
         background-color: rgba(255, 255, 0, 0.3);
         border-radius: 2px;
       }
@@ -582,7 +582,7 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
           // If the range is entirely within a single node, just surround it
           if (range.startContainer === range.endContainer) {
             const mark = document.createElement('span');
-            mark.className = 'pocket-highlight';
+            mark.className = 'folio-highlight';
             mark.dataset.highlightId = highlightId;
             range.surroundContents(mark);
             return [mark];
@@ -620,7 +620,7 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
           while (node) {
             if (node.nodeType === Node.TEXT_NODE) {
               const mark = document.createElement('span');
-              mark.className = 'pocket-highlight';
+              mark.className = 'folio-highlight';
               mark.dataset.highlightId = highlightId;
               node.parentNode.insertBefore(mark, node);
               mark.appendChild(node);
@@ -631,13 +631,13 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
 
           // Mark start node
           const startMark = document.createElement('span');
-          startMark.className = 'pocket-highlight';
+          startMark.className = 'folio-highlight';
           startMark.dataset.highlightId = highlightId;
           startNodeSubrange.surroundContents(startMark);
           
           // Mark end node
           const endMark = document.createElement('span');
-          endMark.className = 'pocket-highlight';  
+          endMark.className = 'folio-highlight';  
           endMark.dataset.highlightId = highlightId;
           endNodeSubrange.surroundContents(endMark);
 
@@ -692,7 +692,7 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
           console.log('Applying highlights:', highlights.length);
           
           // Clear existing highlights
-          const existingHighlights = document.querySelectorAll('.pocket-highlight');
+          const existingHighlights = document.querySelectorAll('.folio-highlight');
           existingHighlights.forEach(highlight => {
             const parent = highlight.parentNode;
             if (parent) {
@@ -797,7 +797,7 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
                     let node = container;
                     while (node && node !== document.body) {
                       if (node.nodeType === 1 && node.classList && 
-                          node.classList.contains('pocket-highlight')) {
+                          node.classList.contains('folio-highlight')) {
                         selectionData.isHighlighted = true;
                         selectionData.highlightId = node.dataset.highlightId;
                         break;

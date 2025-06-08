@@ -113,7 +113,7 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
               let node = container;
               while (node && node !== document.body) {
                 if (node.nodeType === 1 && node.classList && 
-                    node.classList.contains('pocket-highlight')) {
+                    node.classList.contains('folio-highlight')) {
                   isHighlighted = true;
                   highlightId = node.dataset.highlightId;
                   break;
@@ -131,7 +131,7 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           }), '*');
         },
         hideContextMenu: function() {
-          const menu = document.getElementById('pocket-context-menu');
+          const menu = document.getElementById('folio-context-menu');
           if (menu) {
             menu.style.display = 'none';
           }
@@ -152,10 +152,10 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
       };
 
       // Context menu management
-      window.pocketContextMenu = {
+      window.folioContextMenu = {
         show: function(x, selectionTop, selectionBottom, menuItems, isDark) {
-          const menu = document.getElementById('pocket-context-menu');
-          const menuItemsContainer = document.getElementById('pocket-menu-items');
+          const menu = document.getElementById('folio-context-menu');
+          const menuItemsContainer = document.getElementById('folio-menu-items');
           
           if (!menu || !menuItemsContainer) return;
           
@@ -165,7 +165,7 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           // Add menu items
           menuItems.forEach(function(item) {
             const button = document.createElement('button');
-            button.className = 'pocket-menu-item';
+            button.className = 'folio-menu-item';
             button.textContent = item.label;
             button.onclick = function() {
               window.htmlViewer.postMessage({
@@ -226,7 +226,7 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
         },
         
         hide: function() {
-          const menu = document.getElementById('pocket-context-menu');
+          const menu = document.getElementById('folio-context-menu');
           if (menu) {
             menu.style.display = 'none';
           }
@@ -244,7 +244,7 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
             window.handlePluginCommand({ pluginName, commandType, payload });
           } else if (message && message.type === 'show-context-menu') {
             const { x, selectionTop, selectionBottom, menuItems, isDark } = message.payload;
-            window.pocketContextMenu.show(x, selectionTop, selectionBottom, menuItems, isDark);
+            window.folioContextMenu.show(x, selectionTop, selectionBottom, menuItems, isDark);
           }
         } catch (error) {
           console.error('Error parsing command message:', error);
@@ -253,7 +253,7 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
       
       // Hide menu on clicks outside (but not when selecting text)
       document.addEventListener('mousedown', function(event) {
-        const menu = document.getElementById('pocket-context-menu');
+        const menu = document.getElementById('folio-context-menu');
         if (menu && !menu.contains(event.target)) {
           // Cancel any pending menu display
           if (menuTimeout) {
@@ -341,7 +341,7 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
 
       // Add custom context menu CSS (horizontal mobile-style)
       const contextMenuCSS = `
-        .pocket-context-menu {
+        .folio-context-menu {
           position: fixed;
           z-index: 10000;
           background: rgba(0, 0, 0, 0.9);
@@ -356,19 +356,19 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           -webkit-backdrop-filter: blur(10px);
         }
         
-        .pocket-context-menu.dark {
+        .folio-context-menu.dark {
           background: rgba(0, 0, 0, 0.9);
           color: white;
         }
         
-        .pocket-menu-items {
+        .folio-menu-items {
           display: flex;
           flex-direction: row;
           margin: 0;
           padding: 0;
         }
         
-        .pocket-menu-item {
+        .folio-menu-item {
           padding: 12px 16px;
           cursor: pointer;
           transition: background-color 0.2s ease;
@@ -383,24 +383,24 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
           margin: 4px;
         }
         
-        .pocket-menu-item:hover {
+        .folio-menu-item:hover {
           background-color: rgba(255, 255, 255, 0.2);
         }
         
-        .pocket-context-menu.dark .pocket-menu-item:hover {
+        .folio-context-menu.dark .folio-menu-item:hover {
           background-color: rgba(255, 255, 255, 0.15);
         }
         
-        .pocket-menu-item:first-child {
+        .folio-menu-item:first-child {
           margin-left: 6px;
         }
         
-        .pocket-menu-item:last-child {
+        .folio-menu-item:last-child {
           margin-right: 6px;
         }
         
         /* Arrow pointing down (when menu is above selection) */
-        .pocket-context-menu.above::after {
+        .folio-context-menu.above::after {
           content: '';
           position: absolute;
           top: 100%;
@@ -414,7 +414,7 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
         }
         
         /* Arrow pointing up (when menu is below selection) */
-        .pocket-context-menu.below::before {
+        .folio-context-menu.below::before {
           content: '';
           position: absolute;
           bottom: 100%;
@@ -440,8 +440,8 @@ export const HTMLViewer: React.FC<HTMLViewerProps> = React.memo(
 
       // Add custom context menu HTML
       const contextMenuHTML = `
-        <div id="pocket-context-menu" class="pocket-context-menu" style="display: none;">
-          <div class="pocket-menu-items" id="pocket-menu-items">
+        <div id="folio-context-menu" class="folio-context-menu" style="display: none;">
+          <div class="folio-menu-items" id="folio-menu-items">
             <!-- Menu items will be injected here -->
           </div>
         </div>

@@ -21,7 +21,7 @@ export const ShareSuccess: React.FC<ShareSuccessProps> = ({ visible, onHide }) =
     <View style={styles.container}>
       <View style={styles.card}>
         <Text style={styles.emoji}>❤️</Text>
-        <Text style={styles.text}>Saved to Pocket!</Text>
+        <Text style={styles.text}>Saved to Folio!</Text>
       </View>
     </View>
   );
