@@ -4,10 +4,12 @@ import { ThemeText, ThemeView } from "@/components";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/theme";
+import { useRouter } from "expo-router";
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
+  const router = useRouter();
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background.default }]}>
@@ -45,6 +47,19 @@ export default function SettingsScreen() {
               <Ionicons name="moon-outline" size={24} color={theme.colors.primary.main} />
               <ThemeText style={[styles.settingText, { color: theme.colors.text.primary }]}>
                 {t("settings.appearance")}
+              </ThemeText>
+            </ThemeView>
+            <Ionicons name="chevron-forward" size={20} color={theme.colors.text.secondary} />
+          </Pressable>
+
+          <Pressable
+            style={[styles.settingItem, { borderBottomColor: theme.colors.divider }]}
+            onPress={() => router.push("/import-pocket")}
+          >
+            <ThemeView style={styles.settingContent}>
+              <Ionicons name="download-outline" size={24} color={theme.colors.primary.main} />
+              <ThemeText style={[styles.settingText, { color: theme.colors.text.primary }]}>
+                {t("settings.importFromPocket")}
               </ThemeText>
             </ThemeView>
             <Ionicons name="chevron-forward" size={20} color={theme.colors.text.secondary} />

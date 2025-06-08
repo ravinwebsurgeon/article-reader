@@ -70,6 +70,12 @@ const STACK_CONFIG = {
         presentation: "modal" as const,
       },
     },
+    {
+      name: "import-pocket",
+      options: {
+        presentation: "modal" as const,
+      },
+    },
   ],
 };
 
