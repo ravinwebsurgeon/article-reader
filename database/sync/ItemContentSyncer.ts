@@ -1,5 +1,6 @@
 import { Database, Model, Q } from "@nozbe/watermelondb";
 import Constants from "expo-constants";
+import { debounce, DebouncedFunc } from "lodash-es";
 import Item from "../models/ItemModel";
 import ItemContent from "../models/ItemContentModel";
 
@@ -10,22 +11,65 @@ const LOG_PREFIX = "[ItemContentSync]";
 
 /**
  * ItemContentSyncer handles the synchronization of item content from the API.
- * It ensures that only one sync operation runs at a time and provides
- * functionality to retry sync if a request comes in while syncing.
+ * 
+ * DESIGN PRINCIPLES (same as SyncEngine):
+ * 1. Only one sync can run at a time
+ * 2. Multiple sync requests return the same promise
+ * 3. All state is managed through a single currentSyncPromise
  */
 export default class ItemContentSyncer {
-  // The WatermelonDB database instance
+  // Core dependencies
   public database: Database | null = null;
-  // Authentication token for API requests
   public token: string | null = null;
-  // Flag indicating if a synchronization operation is currently active
-  private isSyncing: boolean = false;
-  // Flag indicating if a sync was requested while one was already in progress
-  private pendingSync: boolean = false;
+
+  // Sync state - SINGLE SOURCE OF TRUTH
+  private currentSyncPromise: Promise<void> | null = null;
+
+  // Debounced sync function
+  private debouncedSync: DebouncedFunc<(includeArchived?: boolean) => Promise<void>>;
+
+  constructor() {
+    // Create debounced sync function - prevents rapid successive syncs
+    this.debouncedSync = debounce(this._performSync.bind(this), 250, {
+      leading: true,
+      trailing: true,
+    });
+  }
+
+  /**
+   * Main sync method - always returns the same promise if sync is in progress
+   */
+  async sync(includeArchived: boolean = false): Promise<void> {
+    // If sync is already running, return the existing promise
+    if (this.currentSyncPromise) {
+      console.log(`${LOG_PREFIX} Sync already in progress, returning existing promise`);
+      // Trigger debounced sync to extend debounce period
+      this.debouncedSync(includeArchived);
+      return this.currentSyncPromise;
+    }
+
+    console.log(`${LOG_PREFIX} Starting new content sync operation`);
+    
+    // Create and store the sync promise
+    const syncPromise = this.debouncedSync(includeArchived);
+    if (!syncPromise) {
+      // This shouldn't happen with our debounce settings, but handle it gracefully
+      throw new Error("Failed to create content sync promise");
+    }
+    
+    this.currentSyncPromise = syncPromise;
+    
+    // Add cleanup when promise completes (success or failure)
+    syncPromise.finally(() => {
+      console.log(`${LOG_PREFIX} Content sync promise completed, clearing state`);
+      this.currentSyncPromise = null;
+    });
+
+    return syncPromise;
+  }
 
   /**
    * Sync content for a specific item by ID
-   * @param itemId The ID of the item to sync content for
    */
   async syncItem(itemId: string): Promise<void> {
     if (!this.database || !this.token) {
@@ -61,56 +105,56 @@ export default class ItemContentSyncer {
   }
 
   /**
-   * Main method to run the item content synchronization process.
-   * If a sync is already in progress, it will mark for a retry after
-   * the current sync completes.
-   * @param includeArchived Whether to include archived items in sync (default: false)
+   * The actual sync implementation - called by debounced function
    */
-  async sync(includeArchived: boolean = false): Promise<void> {
-    if (this.isSyncing) {
-      console.log(`${LOG_PREFIX} Already syncing content, marking for retry.`);
-      this.pendingSync = true;
-      return;
-    }
-
-    if (!this.database || !this.token) {
-      console.warn(`${LOG_PREFIX} Database or token not available. Skipping content sync.`);
-      return;
-    }
-
-    this.isSyncing = true;
-    const startTime = Date.now();
-    console.log(`${LOG_PREFIX} Starting content sync...`);
+  private async _performSync(includeArchived: boolean = false): Promise<void> {
+    console.log(`${LOG_PREFIX} Executing content sync operation`);
+    const syncStartTime = Date.now();
 
     try {
-      await this._syncInternal(includeArchived);
-      const duration = (Date.now() - startTime) / 1000;
-      console.log(`${LOG_PREFIX} Sync completed in ${duration}s.`);
-    } catch (error) {
-      console.error(`${LOG_PREFIX} Error during content sync:`, error);
-    } finally {
-      this.isSyncing = false;
+      // Validate prerequisites
+      this._ensurePrerequisites();
 
-      // If another sync was requested while syncing, perform one more sync
-      if (this.pendingSync) {
-        console.log(`${LOG_PREFIX} Performing pending content sync.`);
-        this.pendingSync = false;
-        // Trigger another sync, but don't await it (non-blocking)
-        this.sync().catch((error) => {
-          console.error(`${LOG_PREFIX} Error during pending sync:`, error);
-        });
+      // Find items that need content
+      const itemsNeedingContent = await this._findItemsNeedingContent(includeArchived);
+
+      // Sync content if needed
+      if (itemsNeedingContent.length > 0) {
+        console.log(`${LOG_PREFIX} Found ${itemsNeedingContent.length} items requiring content`);
+        await this.fetchAndStoreContent(itemsNeedingContent);
+      } else {
+        console.log(`${LOG_PREFIX} No items require content sync`);
       }
+
+      // Clean up orphaned content
+      await this.cleanupDatabase();
+
+      const syncDuration = Date.now() - syncStartTime;
+      console.log(`${LOG_PREFIX} Content sync completed successfully in ${syncDuration}ms`);
+
+    } catch (error) {
+      const syncDuration = Date.now() - syncStartTime;
+      console.error(`${LOG_PREFIX} Content sync failed after ${syncDuration}ms:`, error);
+      throw error;
     }
   }
 
   /**
-   * Internal implementation of the sync process
-   * @param includeArchived Whether to include archived items in sync
+   * Validate that we have necessary prerequisites
    */
-  private async _syncInternal(includeArchived: boolean = false): Promise<void> {
-    if (!this.database || !this.token) return;
+  private _ensurePrerequisites(): void {
+    if (!this.database || !this.token) {
+      throw new Error("Database or token not available");
+    }
+  }
 
-    // 1. Find items that need content (have content_hash but no content)
+  /**
+   * Find items that need content syncing
+   */
+  private async _findItemsNeedingContent(includeArchived: boolean): Promise<Item[]> {
+    if (!this.database) return [];
+
+    // Build query conditions
     const queryConditions = [
       Q.where("content_hash", Q.notEq(null)),
       Q.where("content_hash", Q.notEq("")),
@@ -126,7 +170,7 @@ export default class ItemContentSyncer {
       .query(...queryConditions)
       .fetch();
 
-    // Filter to items that need content (no content OR content hash mismatch)
+    // Filter to items that actually need content
     const itemsNeedingContent = [];
 
     for (const item of itemsWithContentHash) {
@@ -145,7 +189,7 @@ export default class ItemContentSyncer {
       }
     }
 
-    // Sort the results
+    // Sort by priority: unarchived first, unviewed first, newest first
     itemsNeedingContent.sort((a, b) => {
       // Sort by archived (false first)
       if (a.archived !== b.archived) {
@@ -162,17 +206,8 @@ export default class ItemContentSyncer {
       const bDate = b.savedAt ?? b.createdAt ?? 0;
       return new Date(bDate).getTime() - new Date(aDate).getTime();
     });
-    console.log("itemsNeedingContent", itemsNeedingContent);
-    // 2. If items need content, fetch and store it
-    if (itemsNeedingContent.length > 0) {
-      console.log(`${LOG_PREFIX} Found ${itemsNeedingContent.length} items requiring content.`);
-      await this.fetchAndStoreContent(itemsNeedingContent);
-    } else {
-      console.log(`${LOG_PREFIX} No items require content sync.`);
-    }
 
-    // 3. Clean up with a single efficient query
-    await this.cleanupDatabase();
+    return itemsNeedingContent;
   }
 
   /**
@@ -197,6 +232,7 @@ export default class ItemContentSyncer {
         console.log(
           `${LOG_PREFIX} Fetching batch ${batchNumber}/${totalBatches} (${batchIds.length} items)`,
         );
+        
         // Fetch content for this batch
         const response = await fetch(`${API_URL}/items/content_batch`, {
           method: "POST",
@@ -348,5 +384,12 @@ export default class ItemContentSyncer {
         console.log(`${LOG_PREFIX} No content to clean up`);
       }
     });
+  }
+
+  /**
+   * Check if content sync is currently running
+   */
+  isRunning(): boolean {
+    return this.currentSyncPromise !== null;
   }
 }
