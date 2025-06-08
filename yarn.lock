@@ -2865,6 +2865,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/zxcvbn@npm:^4.4.5":
+  version: 4.4.5
+  resolution: "@types/zxcvbn@npm:4.4.5"
+  checksum: 6cef28a9d2c13838edce31b33eb11d6aaadb3fb1d3e90f51c2f2a7280be7c0c32c7a62f5cab05297f742f4c8c8fd07d9d8d6095a3255a6a9f280a5eee6b360b4
+  languageName: node
+  linkType: hard
+
 "@typescript-eslint/eslint-plugin@npm:^8.18.2, @typescript-eslint/eslint-plugin@npm:^8.32.0":
   version: 8.32.1
   resolution: "@typescript-eslint/eslint-plugin@npm:8.32.1"
@@ -6099,6 +6106,7 @@ __metadata:
     "@types/lodash-es": ^4.17.12
     "@types/react": ~19.0.10
     "@types/react-test-renderer": ^18.3.0
+    "@types/zxcvbn": ^4.4.5
     "@typescript-eslint/eslint-plugin": ^8.32.0
     "@typescript-eslint/parser": ^8.32.0
     date-fns: ^4.1.0
@@ -6159,6 +6167,7 @@ __metadata:
     redux-persist: ^6.0.0
     typescript: ^5.3.3
     ulid: ^3.0.0
+    zxcvbn: ^4.4.2
   languageName: unknown
   linkType: soft
 
@@ -12336,5 +12345,12 @@ __metadata:
   version: 0.1.0
   resolution: "yocto-queue@npm:0.1.0"
   checksum: f77b3d8d00310def622123df93d4ee654fc6a0096182af8bd60679ddcdfb3474c56c6c7190817c84a2785648cdee9d721c0154eb45698c62176c322fb46fc700
+  languageName: node
+  linkType: hard
+
+"zxcvbn@npm:^4.4.2":
+  version: 4.4.2
+  resolution: "zxcvbn@npm:4.4.2"
+  checksum: 76ab32c066082ac73491b7cd7f93ad0595c59b6d45ae80a0745e9e1661237388beb2f0c2ba0ae3dc330ca3ecdb87edcb7a21e0c09137ab81d5b32e584cda1e5d
   languageName: node
   linkType: hard
