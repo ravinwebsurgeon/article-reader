@@ -1,5 +1,5 @@
-const { withXcodeProject, withInfoPlist } = require('@expo/config-plugins');
-const path = require('path');
+const { withXcodeProject, withInfoPlist } = require("@expo/config-plugins");
+const path = require("path");
 
 function withIOSShareExtension(config) {
   // Add URL scheme handling
@@ -9,8 +9,8 @@ function withIOSShareExtension(config) {
     }
 
     config.modResults.CFBundleURLTypes.push({
-      CFBundleURLName: 'pocket-share',
-      CFBundleURLSchemes: ['pocket-share'],
+      CFBundleURLName: "pocket-share",
+      CFBundleURLSchemes: ["pocket-share"],
     });
 
     return config;

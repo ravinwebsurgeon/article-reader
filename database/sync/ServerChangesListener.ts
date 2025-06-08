@@ -17,7 +17,7 @@ export class ServerChangesListener {
   private apiUrl: string;
   private callbacks: ServerChangesListenerCallbacks = {};
   private shouldBeConnected: boolean = false;
-  private reconnectTimeoutId: number | null = null;
+  private reconnectTimeoutId: ReturnType<typeof setTimeout> | null = null;
   private reconnectAttempts: number = 0;
   private readonly maxReconnectAttempts: number = 5;
   private readonly baseReconnectDelay: number = 1000; // 1 second
@@ -56,31 +56,31 @@ export class ServerChangesListener {
     try {
       // Create WebSocket URL with auth token - Action Cable is served from root /cable, not versioned
       const wsUrl = this.apiUrl.replace(/^http/, "ws").replace(/\/v4$/, "") + "/cable";
-      
+
       console.log(`${LOG_PREFIX} Connecting to ${wsUrl}`);
-      
+
       // Create WebSocket connection with authentication
       // Try query param first, but we might need to switch to headers
       this.webSocket = new WebSocket(`${wsUrl}?token=${this.token}`);
-      
+
       this.webSocket.onopen = () => {
         console.log(`${LOG_PREFIX} Connected to real-time sync`);
         this.reconnectAttempts = 0; // Reset reconnect attempts on successful connection
         this.callbacks.onConnected?.();
-        
+
         // Subscribe to user-specific sync channel using Action Cable protocol
         const subscribeMessage = {
           command: "subscribe",
-          identifier: JSON.stringify({ channel: "SyncChannel" })
+          identifier: JSON.stringify({ channel: "SyncChannel" }),
         };
-        
+
         this.webSocket?.send(JSON.stringify(subscribeMessage));
       };
-      
+
       this.webSocket.onmessage = (event) => {
         try {
           const message = JSON.parse(event.data);
-          
+
           // Handle different Action Cable message types
           if (message.type === "welcome") {
             // Connection established
@@ -94,17 +94,17 @@ export class ServerChangesListener {
             this.callbacks.onError?.(new Error("Subscription rejected"));
           } else if (message.identifier && message.message !== undefined) {
             // Handle channel messages with identifier (like SyncChannel messages)
-            
+
             // Check if this is a sync message
-            if (typeof message.message === 'object' && message.message.type === 'sync') {
+            if (typeof message.message === "object" && message.message.type === "sync") {
               const syncMessage = message.message;
-              
+
               // Filter out our own sync notifications
               if (this.token?.startsWith(syncMessage.source_token_id)) {
                 console.log(`${LOG_PREFIX} Ignoring own sync`);
                 return; // Ignore our own actions
               }
-              
+
               console.log(`${LOG_PREFIX} Syncing from remote changes`);
               this.callbacks.onMessage?.(syncMessage);
             } else {
@@ -125,28 +125,31 @@ export class ServerChangesListener {
           this.callbacks.onError?.(parseError);
         }
       };
-      
+
       this.webSocket.onclose = (event) => {
-        console.log(`${LOG_PREFIX} Real-time sync disconnected (code: ${event.code}, clean: ${event.wasClean})`);
+        console.log(
+          `${LOG_PREFIX} Real-time sync disconnected (code: ${event.code}, clean: ${event.wasClean})`,
+        );
         this.callbacks.onDisconnected?.();
-        
+
         // Only attempt to reconnect if we should be connected and it wasn't a clean close
         if (this.shouldBeConnected && !event.wasClean) {
           console.log(`${LOG_PREFIX} Unexpected disconnect detected, will attempt reconnection`);
           this.scheduleReconnect();
         } else if (this.shouldBeConnected && event.wasClean) {
-          console.log(`${LOG_PREFIX} Clean disconnect while connected - server may have closed connection`);
+          console.log(
+            `${LOG_PREFIX} Clean disconnect while connected - server may have closed connection`,
+          );
         } else {
           console.log(`${LOG_PREFIX} Clean disconnect - no reconnection needed`);
         }
       };
-      
+
       this.webSocket.onerror = (error) => {
         console.error(`${LOG_PREFIX} WebSocket error:`, error);
         console.log(`${LOG_PREFIX} WebSocket error may trigger reconnection on close`);
         this.callbacks.onError?.(error);
       };
-      
     } catch (error) {
       console.error(`${LOG_PREFIX} Failed to connect:`, error);
       this.callbacks.onError?.(error);
@@ -159,7 +162,7 @@ export class ServerChangesListener {
   disconnect(): void {
     this.shouldBeConnected = false;
     this.clearReconnectTimeout();
-    
+
     if (this.webSocket) {
       this.webSocket.close();
       this.webSocket = null;
@@ -181,9 +184,11 @@ export class ServerChangesListener {
 
     this.reconnectAttempts++;
     const delay = this.baseReconnectDelay * Math.pow(2, this.reconnectAttempts - 1); // Exponential backoff
-    
-    console.log(`${LOG_PREFIX} Scheduling reconnect attempt ${this.reconnectAttempts} in ${delay}ms`);
-    
+
+    console.log(
+      `${LOG_PREFIX} Scheduling reconnect attempt ${this.reconnectAttempts} in ${delay}ms`,
+    );
+
     this.reconnectTimeoutId = setTimeout(() => {
       if (this.shouldBeConnected) {
         console.log(`${LOG_PREFIX} Attempting to reconnect...`);
@@ -203,8 +208,9 @@ export class ServerChangesListener {
    * Returns true if currently connecting or connected
    */
   isConnectedOrConnecting(): boolean {
-    return this.webSocket?.readyState === WebSocket.CONNECTING || 
-           this.webSocket?.readyState === WebSocket.OPEN;
+    return (
+      this.webSocket?.readyState === WebSocket.CONNECTING ||
+      this.webSocket?.readyState === WebSocket.OPEN
+    );
   }
-
 }

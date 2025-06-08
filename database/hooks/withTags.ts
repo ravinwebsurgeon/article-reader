@@ -26,18 +26,16 @@ export const createTag = async (name: string): Promise<Tag> => {
   if (!name.trim()) {
     throw new Error("Tag name cannot be empty.");
   }
-  
+
   return database.write(async () => {
     // Check for existing tag first to prevent duplicates
     const trimmedName = name.trim();
-    const existingTags = await tagsCollection
-      .query(Q.where('name', trimmedName))
-      .fetch();
-    
+    const existingTags = await tagsCollection.query(Q.where("name", trimmedName)).fetch();
+
     if (existingTags.length > 0) {
       return existingTags[0];
     }
-    
+
     // Create new tag if none exists
     const newTag = await tagsCollection.create((tag) => {
       tag.name = trimmedName;
@@ -101,16 +99,14 @@ export const createAndAssociateTag = async (item: Item, tagName: string): Promis
   if (!tagName.trim()) {
     throw new Error("Tag name cannot be empty.");
   }
-  
+
   return database.write(async () => {
     const trimmedName = tagName.trim();
-    
+
     // Check for existing tag first
     let tag: Tag;
-    const existingTags = await tagsCollection
-      .query(Q.where('name', trimmedName))
-      .fetch();
-    
+    const existingTags = await tagsCollection.query(Q.where("name", trimmedName)).fetch();
+
     if (existingTags.length > 0) {
       tag = existingTags[0];
     } else {
@@ -119,12 +115,12 @@ export const createAndAssociateTag = async (item: Item, tagName: string): Promis
         newTag.name = trimmedName;
       });
     }
-    
+
     // Check if association already exists to prevent duplicates
     const existingAssociation = await itemTagsCollection
       .query(Q.where("item_id", item.id), Q.where("tag_id", tag.id))
       .fetch();
-    
+
     if (existingAssociation.length === 0) {
       // Create the association
       await itemTagsCollection.create((itemTag) => {
@@ -136,7 +132,7 @@ export const createAndAssociateTag = async (item: Item, tagName: string): Promis
         }
       });
     }
-    
+
     return tag;
   });
 };

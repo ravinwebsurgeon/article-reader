@@ -9,6 +9,7 @@ import Item from "@/database/models/ItemModel";
 import ItemContent from "@/database/models/ItemContentModel";
 import Annotation from "@/database/models/AnnotationModel";
 import ReaderSkeleton from "./ReaderSkeleton";
+import { useDatabase } from "@/database/provider/DatabaseProvider";
 import { leterataFontBase64 } from "@/constants/leterataFontBase64";
 import { literataBold18base64 } from "@/constants/literateBold18Base64";
 import {
@@ -35,11 +36,13 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
 }) => {
   const theme = useTheme();
   const spacing = useSpacing();
+  const { syncEngine } = useDatabase();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const highlightsPluginRef = useRef<HighlightsPlugin | null>(null);
 
   // State
   const [isHtmlLoaded, setIsHtmlLoaded] = useState(false);
+  const [isFetchingContent, setIsFetchingContent] = useState(false);
 
   // Create styles using theme values
   const styles = StyleSheet.create({
@@ -336,6 +339,26 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
     setIsHtmlLoaded(false);
     fadeAnim.setValue(0);
   }, [item.id, fadeAnim]);
+
+  // Check for missing content and trigger sync
+  useEffect(() => {
+    const fetchMissingContent = async () => {
+      // Only fetch if item has content_hash but no content
+      if (item.contentHash && !content && !isFetchingContent) {
+        console.log(`ReaderContent: Fetching missing content for item ${item.id}`);
+        setIsFetchingContent(true);
+        try {
+          await syncEngine.syncItemContent(item.id);
+        } catch (error) {
+          console.error(`ReaderContent: Failed to fetch content for item ${item.id}:`, error);
+        } finally {
+          setIsFetchingContent(false);
+        }
+      }
+    };
+
+    fetchMissingContent();
+  }, [item, content, isFetchingContent, syncEngine]);
 
   // Show skeleton if content is not ready
   if (!content || !processedContent) {

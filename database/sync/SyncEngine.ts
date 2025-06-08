@@ -116,21 +116,21 @@ class SyncEngine {
    */
   cleanup(): void {
     console.log(`${LOG_PREFIX} Cleaning up SyncEngine`);
-    
+
     // Stop watching for local database changes
     this.stopWatchForChanges();
-    
+
     // Stop listening for server changes and close WebSocket
     this.stopListeningForServerChanges();
-    
+
     // Cancel any pending debounced sync
     this.debouncedSync.cancel();
-    
+
     // Clear any pending sync state (but don't reject the promise if someone is waiting)
     if (this.syncState && !this.isSyncing) {
       this.syncState = null;
     }
-    
+
     // Clear token
     this.token = null;
   }
@@ -142,6 +142,21 @@ class SyncEngine {
   setDatabase(database: Database | null) {
     this.database = database;
     this.itemContentSyncer.database = database;
+  }
+
+  /**
+   * Sync content for a specific item
+   * @param itemId The ID of the item to sync content for
+   */
+  async syncItemContent(itemId: string): Promise<void> {
+    return this.itemContentSyncer.syncItem(itemId);
+  }
+
+  /**
+   * Sync all content including archived items
+   */
+  async syncAllContent(): Promise<void> {
+    return this.itemContentSyncer.sync(true);
   }
 
   /**
@@ -398,7 +413,8 @@ class SyncEngine {
 
       console.log(`${LOG_PREFIX} Sync operation completed successfully.`);
       // Kick off item content sync out-of-band, do not await it.
-      this.itemContentSyncer.sync().catch((error: Error) => {
+      // By default, exclude archived items to improve performance
+      this.itemContentSyncer.sync(false).catch((error: Error) => {
         console.error(`${LOG_PREFIX} Asynchronous content sync failed:`, error);
       });
     } catch (error) {

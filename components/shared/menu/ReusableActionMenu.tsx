@@ -351,7 +351,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
         </React.Fragment>
       );
     },
-    [theme.colors, handleClose, styles, t],
+    [theme.colors, styles, t],
   );
 
   // Animation styles

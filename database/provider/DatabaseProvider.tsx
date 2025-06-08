@@ -13,8 +13,9 @@ syncEngine.watchForChanges();
 // Create a context for database access
 export const DatabaseContext = React.createContext<{
   database: typeof database;
+  syncEngine: typeof syncEngine;
   isReady: boolean;
-}>({ database, isReady: false });
+}>({ database, syncEngine, isReady: false });
 
 export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isReady, setIsReady] = useState(false);
@@ -50,7 +51,9 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }
 
   return (
-    <DatabaseContext.Provider value={{ database, isReady }}>{children}</DatabaseContext.Provider>
+    <DatabaseContext.Provider value={{ database, syncEngine, isReady }}>
+      {children}
+    </DatabaseContext.Provider>
   );
 };
 
