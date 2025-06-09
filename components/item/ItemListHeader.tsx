@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     height: 30,
   },
   logoIcon: {
-    width: 68,
+    width: 71,
     height: 32,
     justifyContent: "center",
     alignItems: "center",
