@@ -16,12 +16,7 @@ const getIcon = (filter: string, theme: Theme): JSX.Element => {
 
   switch (filter) {
     case "initialSync":
-      return (
-        <ActivityIndicator 
-          size="large" 
-          color={theme.colors.gray[500]} 
-        />
-      );
+      return <ActivityIndicator size="large" color={theme.colors.gray[500]} />;
     case "favorites":
       return (
         <Svg width="48" height="48" viewBox="0 0 48 48" fill="none">
