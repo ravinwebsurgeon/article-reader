@@ -6,13 +6,13 @@ import {
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { StatusBar } from "expo-status-bar";
 import { useEffect, useMemo } from "react";
 import "react-native-reanimated";
 import { useAppSelector } from "@/redux/hook";
 import { ReduxProvider } from "@/provider/ReduxProvider";
 import { selectActiveTheme } from "@/redux/utils";
 import { ThemeProvider } from "@/theme";
+import { ThemeStatusBar } from "@/components/primitives";
 import { DatabaseProvider, useDatabase } from "@/database/provider/DatabaseProvider";
 import { NetworkProvider } from "@/provider/NetworkProvider";
 import "@/i18n"; // Import i18n configuration
@@ -156,6 +156,7 @@ function RootLayoutNav() {
   return (
     <ThemeProviderNative value={themeValue}>
       <ThemeProvider>
+        <ThemeStatusBar />
         <Stack {...STACK_CONFIG}>
           {STACK_CONFIG.screens.map((screen) => (
             <Stack.Screen
@@ -166,7 +167,6 @@ function RootLayoutNav() {
             />
           ))}
         </Stack>
-        <StatusBar style={activeTheme === "dark" ? "light" : "dark"} />
       </ThemeProvider>
     </ThemeProviderNative>
   );

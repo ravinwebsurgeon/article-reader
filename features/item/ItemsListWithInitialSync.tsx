@@ -15,9 +15,9 @@ const ItemsListWithInitialSync = ({
   filter: ItemFilter;
   sorted: SortOption;
 }) => {
-  const [isInitialSync, setIsInitialSync] = useState(false);
   const [shouldFetchItems, setShouldFetchItems] = useState(false);
   const [isCheckingSync, setIsCheckingSync] = useState(true);
+  const [isPerformingInitialSync, setIsPerformingInitialSync] = useState(false);
   const ObservableItemsPresenter = memo(
     ({ items, originalFilter }: { items: Item[]; originalFilter: ItemFilter }) => {
       return <ItemsFlatList items={items} filter={originalFilter} />;
@@ -27,45 +27,53 @@ const ItemsListWithInitialSync = ({
 
   useEffect(() => {
     let isMounted = true;
-    const checkFirstSync = async () => {
+
+    const performInitialSync = async () => {
       try {
-        const isFirstSync = await AsyncStorage.getItem("already_synced");
-        console.log("isFirstSync", isFirstSync);
-        if (isMounted) {
-          if (!isFirstSync) {
-            await syncEngine.sync(true);
-            await AsyncStorage.setItem("already_synced", "true");
-            if (isMounted) {
-              setShouldFetchItems(true);
-            }
-          } else {
-            setTimeout(() => {
-              if (isMounted) {
-                setShouldFetchItems(true);
-              }
-            }, 0);
-            syncEngine.sync(false).catch((error) => {
-              console.error("Background sync failed:", error);
-            });
+        const completedFirstSync = await AsyncStorage.getItem("completed_first_sync");
+        const isFirstSync = completedFirstSync !== "true";
+
+        console.log("First sync needed:", isFirstSync);
+
+        if (isFirstSync) {
+          // For first sync: show UI, await sync, then show items
+          if (isMounted) {
+            setIsPerformingInitialSync(true);
+            setIsCheckingSync(false);
+          }
+
+          await syncEngine.sync(true);
+          await AsyncStorage.setItem("completed_first_sync", "true");
+
+          if (isMounted) {
+            setShouldFetchItems(true);
+          }
+        } else {
+          // For subsequent syncs: start background sync, show items immediately
+          syncEngine.sync(false).catch((error) => {
+            console.error("Background sync failed:", error);
+          });
+
+          if (isMounted) {
+            setShouldFetchItems(true);
           }
         }
       } catch (error) {
         console.error("Sync failed:", error);
+        // Show items anyway to prevent blocking the app
         if (isMounted) {
-          setTimeout(() => {
-            if (isMounted) {
-              setShouldFetchItems(true);
-            }
-          }, 0);
+          setShouldFetchItems(true);
         }
       } finally {
         if (isMounted) {
-          setIsInitialSync(false);
           setIsCheckingSync(false);
+          setIsPerformingInitialSync(false);
         }
       }
     };
-    checkFirstSync();
+
+    performInitialSync();
+
     return () => {
       isMounted = false;
     };
@@ -75,7 +83,11 @@ const ItemsListWithInitialSync = ({
     return withItems({ filter, sorted })(ObservableItemsPresenter);
   }, [filter, sorted]);
 
-  if (isCheckingSync || isInitialSync) {
+  if (isCheckingSync) {
+    return null;
+  }
+
+  if (isPerformingInitialSync) {
     return <NoUIFound filter="initialSync" />;
   }
 

@@ -1,11 +1,11 @@
 import React from "react";
-import { StyleSheet, StatusBar } from "react-native";
+import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 
 // Import themed components and hooks
 import { ThemeView, ThemeText, ThemeTouchable } from "@/components/primitives";
-import { useTheme, useDarkMode } from "@/theme/hooks";
+import { useTheme } from "@/theme/hooks";
 
 interface HeaderProps {
   title?: string;
@@ -37,7 +37,6 @@ export const Header: React.FC<HeaderProps> = ({
   elevation = 1,
 }) => {
   const theme = useTheme();
-  const isDarkMode = useDarkMode();
 
   // Default colors from theme if not specified
   const bgColor = backgroundColor ?? theme.colors.background.paper;
@@ -83,11 +82,6 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <SafeAreaView edges={["top"]} style={[styles.safeArea, { backgroundColor: bgColor }]}>
-      <StatusBar
-        barStyle={isDarkMode ? "light-content" : "dark-content"}
-        backgroundColor={bgColor}
-        translucent={false}
-      />
       <ThemeView style={styles.container} row backgroundColor={bgColor} elevation={elevation}>
         <ThemeView style={styles.leftContainer}>{renderLeftContent()}</ThemeView>
 

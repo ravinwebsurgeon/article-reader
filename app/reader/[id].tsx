@@ -1,13 +1,12 @@
 import React, { useState, useRef, useCallback } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 import { WebView } from "react-native-webview";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 // Import themed components
 import { ThemeView } from "@/components/primitives";
-import { useTheme, useDarkMode, useSpacing } from "@/theme/hooks";
+import { useTheme, useSpacing } from "@/theme/hooks";
 import { useScrollProgress } from "@/hooks/useScrollProgress";
 
 // Import WatermelonDB components
@@ -31,7 +30,6 @@ import {
 const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent | null }) => {
   const theme = useTheme();
   const spacing = useSpacing();
-  const isDarkMode = useDarkMode();
   const router = useRouter();
   const scrollViewRef = useRef<ScrollView>(null);
 
@@ -101,7 +99,6 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
   return (
     <ThemeView style={{ flex: 1 }} backgroundColor={theme.colors.background.paper}>
       <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
-        <StatusBar style={isDarkMode ? "light" : "dark"} />
         <ReaderHeader
           item={item}
           browserMode={browserMode}
