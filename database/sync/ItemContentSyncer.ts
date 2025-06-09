@@ -11,7 +11,7 @@ const LOG_PREFIX = "[ItemContentSync]";
 
 /**
  * ItemContentSyncer handles the synchronization of item content from the API.
- * 
+ *
  * DESIGN PRINCIPLES (same as SyncEngine):
  * 1. Only one sync can run at a time
  * 2. Multiple sync requests return the same promise
@@ -49,16 +49,16 @@ export default class ItemContentSyncer {
     }
 
     console.log(`${LOG_PREFIX} Starting new content sync operation`);
-    
+
     // Create and store the sync promise
     const syncPromise = this.debouncedSync(includeArchived);
     if (!syncPromise) {
       // This shouldn't happen with our debounce settings, but handle it gracefully
       throw new Error("Failed to create content sync promise");
     }
-    
+
     this.currentSyncPromise = syncPromise;
-    
+
     // Add cleanup when promise completes (success or failure)
     syncPromise.finally(() => {
       console.log(`${LOG_PREFIX} Content sync promise completed, clearing state`);
@@ -131,7 +131,6 @@ export default class ItemContentSyncer {
 
       const syncDuration = Date.now() - syncStartTime;
       console.log(`${LOG_PREFIX} Content sync completed successfully in ${syncDuration}ms`);
-
     } catch (error) {
       const syncDuration = Date.now() - syncStartTime;
       console.error(`${LOG_PREFIX} Content sync failed after ${syncDuration}ms:`, error);
@@ -232,7 +231,7 @@ export default class ItemContentSyncer {
         console.log(
           `${LOG_PREFIX} Fetching batch ${batchNumber}/${totalBatches} (${batchIds.length} items)`,
         );
-        
+
         // Fetch content for this batch
         const response = await fetch(`${API_URL}/items/content_batch`, {
           method: "POST",

@@ -41,10 +41,10 @@ const ItemsListWithInitialSync = ({
             setIsPerformingInitialSync(true);
             setIsCheckingSync(false);
           }
-          
+
           await syncEngine.sync(true);
           await AsyncStorage.setItem("completed_first_sync", "true");
-          
+
           if (isMounted) {
             setShouldFetchItems(true);
           }
@@ -53,7 +53,7 @@ const ItemsListWithInitialSync = ({
           syncEngine.sync(false).catch((error) => {
             console.error("Background sync failed:", error);
           });
-          
+
           if (isMounted) {
             setShouldFetchItems(true);
           }

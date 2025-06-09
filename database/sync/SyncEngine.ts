@@ -15,7 +15,7 @@ const LOG_PREFIX = "[SyncEngine]";
 /**
  * SyncEngine orchestrates database synchronization between the local device
  * and the remote server using WatermelonDB's sync mechanism.
- * 
+ *
  * DESIGN PRINCIPLES:
  * 1. Only one sync can run at a time
  * 2. Multiple sync requests return the same promise
@@ -41,7 +41,7 @@ class SyncEngine {
 
   constructor(database: Database | null = null) {
     this.database = database;
-    
+
     // Initialize dependencies
     this.itemContentSyncer = new ItemContentSyncer();
     if (database) {
@@ -56,14 +56,18 @@ class SyncEngine {
     });
 
     // Create debounced server notification handler - prevents notification spam
-    this.debouncedServerSync = debounce(() => {
-      this.sync().catch((error: Error) => {
-        console.error(`${LOG_PREFIX} Server notification sync failed:`, error);
-      });
-    }, 1000, {
-      leading: true,
-      trailing: false, // Don't need trailing for server notifications
-    });
+    this.debouncedServerSync = debounce(
+      () => {
+        this.sync().catch((error: Error) => {
+          console.error(`${LOG_PREFIX} Server notification sync failed:`, error);
+        });
+      },
+      1000,
+      {
+        leading: true,
+        trailing: false, // Don't need trailing for server notifications
+      },
+    );
   }
 
   /**
@@ -79,16 +83,16 @@ class SyncEngine {
     }
 
     console.log(`${LOG_PREFIX} Starting new sync operation`);
-    
+
     // Create and store the sync promise
     const syncPromise = this.debouncedSync();
     if (!syncPromise) {
       // This shouldn't happen with our debounce settings, but handle it gracefully
       throw new Error("Failed to create sync promise");
     }
-    
+
     this.currentSyncPromise = syncPromise;
-    
+
     // Add cleanup when promise completes (success or failure)
     syncPromise.finally(() => {
       console.log(`${LOG_PREFIX} Sync promise completed, clearing state`);
@@ -119,7 +123,6 @@ class SyncEngine {
       const syncDuration = Date.now() - syncStartTime;
       console.log(`${LOG_PREFIX} Sync completed successfully in ${syncDuration}ms`);
       return true;
-
     } catch (error) {
       const syncDuration = Date.now() - syncStartTime;
       console.error(`${LOG_PREFIX} Sync failed after ${syncDuration}ms:`, error);
@@ -244,7 +247,7 @@ class SyncEngine {
 
     const tables = ["items", "tags", "item_tags", "annotations"];
     console.log(`${LOG_PREFIX} Watching for changes on: ${tables.join(", ")}`);
-    
+
     this.subscription = this.database.withChangesForTables(tables).subscribe((changes) => {
       if (changes) {
         const hasLocalChanges = changes.some((change) => change.record.syncStatus !== "synced");
@@ -283,7 +286,8 @@ class SyncEngine {
         console.log(`${LOG_PREFIX} Disconnected from server notifications`);
       },
       onMessage: (message: any) => {
-        const isSync = (typeof message === "object" && message.type === "sync") || message === "sync";
+        const isSync =
+          (typeof message === "object" && message.type === "sync") || message === "sync";
         if (isSync) {
           console.log(`${LOG_PREFIX} Server notification received`);
           this.debouncedServerSync();
