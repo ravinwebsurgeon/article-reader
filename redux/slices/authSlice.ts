@@ -50,7 +50,7 @@ const authSlice = createSlice({
     });
     builder.addMatcher(authApi.endpoints.login.matchRejected, (state, action) => {
       state.isLoading = false;
-      state.error = action.error.message || "Login failed";
+      state.error = action.error.message ?? "Login failed";
     });
 
     // Register
@@ -66,7 +66,7 @@ const authSlice = createSlice({
     });
     builder.addMatcher(authApi.endpoints.register.matchRejected, (state, action) => {
       state.isLoading = false;
-      state.error = action.error.message || "Registration failed";
+      state.error = action.error.message ?? "Registration failed";
     });
 
     // Logout

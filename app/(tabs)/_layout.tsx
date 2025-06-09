@@ -12,7 +12,6 @@ export default function TabLayout() {
 
   return (
     <Tabs
-      initialRouteName="saves"
       screenOptions={{
         tabBarActiveTintColor:
           theme.mode === "dark" ? theme.colors.white : theme.colors.primary.main,
@@ -33,7 +32,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="saves"
+        name="index"
         options={{
           title: t("navigation.tabs.saves"),
           tabBarIcon: ({ color }) => <SvgIcon name="saves" color={color} size={24} />,
@@ -51,6 +50,13 @@ export default function TabLayout() {
         options={{
           title: t("navigation.tabs.settings"),
           tabBarIcon: ({ color }) => <SvgIcon name="settings" color={color} size={24} />,
+        }}
+      />
+      <Tabs.Screen
+        name="connect-extension"
+        options={{
+          href: null, // This hides it from the tab bar
+          headerShown: false,
         }}
       />
     </Tabs>

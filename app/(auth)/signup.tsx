@@ -5,7 +5,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  ActivityIndicator,
   ViewStyle,
   TextStyle,
 } from "react-native";
@@ -19,9 +18,10 @@ import { useTheme } from "@/theme";
 import { ThemeText, ThemeView } from "@/components";
 import { SvgIcon } from "@/components/SvgIcon";
 import { useTranslation } from "react-i18next";
+import { sendExtensionAuthToken } from "@/utils/extension";
+import zxcvbn from "zxcvbn";
 
 interface SignUpFormData {
-  username: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -40,8 +40,8 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
   const { t } = useTranslation();
 
   const { control, handleSubmit, watch } = useForm<SignUpFormData>({
+    mode: "onSubmit",
     defaultValues: {
-      username: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -54,13 +54,17 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
     console.log(data);
     setLoader(true);
     try {
-      await register({
+      const result = await register({
         user: {
-          username: data.username,
           email: data.email,
           password: data.password,
         },
       }).unwrap();
+
+      // Send auth token to extension if registration was successful
+      if (result.token) {
+        sendExtensionAuthToken(result.token);
+      }
     } catch (error: unknown) {
       console.error(error);
     } finally {
@@ -113,10 +117,9 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
         style={styles.keyboardAvoidingContainer}
       >
         <ScrollView contentContainerStyle={styles.scrollContainer}>
-          {loader && <ActivityIndicator size="small" color={theme.colors.primary.main} />}
           <ThemeView style={styles.header}>
             <ThemeView style={styles.logoContainer}>
-              <SvgIcon name="pocket-pink" size={48} color={theme.colors.primary.main} />
+              <SvgIcon name="logo" size={48} color={theme.colors.primary.main} />
             </ThemeView>
             <ThemeText variant="h2" style={styles.title}>
               {t("auth.signup.welcome")}
@@ -149,13 +152,12 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
               name="password"
               rules={{
                 required: t("errors.validation.password.required"),
-                minLength: {
-                  value: 8,
-                  message: t("errors.validation.password.minLength"),
-                },
-                pattern: {
-                  value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                  message: t("errors.validation.password.complexity"),
+                validate: (value: string) => {
+                  const result = zxcvbn(value);
+                  if (result.score < 2) {
+                    return result.feedback.warning || "Password is too weak";
+                  }
+                  return true;
                 },
               }}
               placeholder={t("auth.signup.password")}
@@ -179,17 +181,18 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
             />
 
             <Button
-              title={loader ? "Submiting..." : "Create Account"}
+              title={t("auth.signup.button")}
               onPress={handleSubmit(onSubmit)}
               style={dynamicStyles.signUpButton}
               rightIcon={null}
+              loading={loader}
             />
           </View>
 
           <View style={styles.loginContainer}>
-            <ThemeText style={styles.loginText}>Already have an account? </ThemeText>
+            <ThemeText style={styles.loginText}>{t("auth.signup.hasAccount")} </ThemeText>
             <ThemeText style={dynamicStyles.loginLinkText} onPress={navigateToLogin}>
-              Sign in
+              {t("auth.signup.signIn")}
             </ThemeText>
           </View>
         </ScrollView>
@@ -210,11 +213,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 40,
     paddingBottom: 24,
-    alignItems: "center",
   },
   header: {
-    marginBottom: 15,
     alignItems: "flex-start",
+    marginBottom: 20,
     marginTop: 20,
   },
   title: {
@@ -226,8 +228,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   formContainer: {
-    width: "100%",
-    marginBottom: 24,
+    marginTop: 32,
   },
   input: {
     marginBottom: 16,

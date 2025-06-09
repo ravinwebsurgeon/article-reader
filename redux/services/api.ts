@@ -3,7 +3,7 @@ import { RootState } from "../store";
 import Constants from "expo-constants";
 
 // Set the API base URL from environment variables or use a default
-const API_URL = Constants.expoConfig?.extra?.apiUrl || "https://api.pckt.dev/v4";
+const API_URL = Constants.expoConfig?.extra?.apiUrl ?? "https://api.savewithfolio.com/v4";
 
 // Create our API service with a base URL and endpoints
 export const api = createApi({
@@ -45,5 +45,5 @@ export const handleApiError = (error: unknown): string => {
 
 // Add TypeScript definitions for global networkFlipperPlugin
 declare global {
-  var networkFlipperPlugin: any;
+  let networkFlipperPlugin: unknown;
 }

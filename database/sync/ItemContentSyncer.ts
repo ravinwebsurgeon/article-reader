@@ -1,104 +1,213 @@
 import { Database, Model, Q } from "@nozbe/watermelondb";
 import Constants from "expo-constants";
+import { debounce, DebouncedFunc } from "lodash-es";
 import Item from "../models/ItemModel";
 import ItemContent from "../models/ItemContentModel";
 
 // Constants
-const API_URL = Constants.expoConfig?.extra?.apiUrl || "https://api.pckt.dev/v4";
+const API_URL = Constants.expoConfig?.extra?.apiUrl || "https://api.savewithfolio.com/v4";
 const BATCH_SIZE = 50;
 const LOG_PREFIX = "[ItemContentSync]";
 
 /**
  * ItemContentSyncer handles the synchronization of item content from the API.
- * It ensures that only one sync operation runs at a time and provides
- * functionality to retry sync if a request comes in while syncing.
+ * 
+ * DESIGN PRINCIPLES (same as SyncEngine):
+ * 1. Only one sync can run at a time
+ * 2. Multiple sync requests return the same promise
+ * 3. All state is managed through a single currentSyncPromise
  */
 export default class ItemContentSyncer {
-  // The WatermelonDB database instance
+  // Core dependencies
   public database: Database | null = null;
-  // Authentication token for API requests
   public token: string | null = null;
-  // Flag indicating if a synchronization operation is currently active
-  private isSyncing: boolean = false;
-  // Flag indicating if a sync was requested while one was already in progress
-  private pendingSync: boolean = false;
+
+  // Sync state - SINGLE SOURCE OF TRUTH
+  private currentSyncPromise: Promise<void> | null = null;
+
+  // Debounced sync function
+  private debouncedSync: DebouncedFunc<(includeArchived?: boolean) => Promise<void>>;
+
+  constructor() {
+    // Create debounced sync function - prevents rapid successive syncs
+    this.debouncedSync = debounce(this._performSync.bind(this), 250, {
+      leading: true,
+      trailing: true,
+    });
+  }
 
   /**
-   * Main method to run the item content synchronization process.
-   * If a sync is already in progress, it will mark for a retry after
-   * the current sync completes.
+   * Main sync method - always returns the same promise if sync is in progress
    */
-  async sync(): Promise<void> {
-    if (this.isSyncing) {
-      console.log(`${LOG_PREFIX} Already syncing content, marking for retry.`);
-      this.pendingSync = true;
-      return;
+  async sync(includeArchived: boolean = false): Promise<void> {
+    // If sync is already running, return the existing promise
+    if (this.currentSyncPromise) {
+      console.log(`${LOG_PREFIX} Sync already in progress, returning existing promise`);
+      // Trigger debounced sync to extend debounce period
+      this.debouncedSync(includeArchived);
+      return this.currentSyncPromise;
     }
 
+    console.log(`${LOG_PREFIX} Starting new content sync operation`);
+    
+    // Create and store the sync promise
+    const syncPromise = this.debouncedSync(includeArchived);
+    if (!syncPromise) {
+      // This shouldn't happen with our debounce settings, but handle it gracefully
+      throw new Error("Failed to create content sync promise");
+    }
+    
+    this.currentSyncPromise = syncPromise;
+    
+    // Add cleanup when promise completes (success or failure)
+    syncPromise.finally(() => {
+      console.log(`${LOG_PREFIX} Content sync promise completed, clearing state`);
+      this.currentSyncPromise = null;
+    });
+
+    return syncPromise;
+  }
+
+  /**
+   * Sync content for a specific item by ID
+   */
+  async syncItem(itemId: string): Promise<void> {
     if (!this.database || !this.token) {
-      console.warn(`${LOG_PREFIX} Database or token not available. Skipping content sync.`);
+      console.warn(`${LOG_PREFIX} Database or token not available. Skipping item content sync.`);
       return;
     }
-
-    this.isSyncing = true;
-    const startTime = Date.now();
-    console.log(`${LOG_PREFIX} Starting content sync...`);
 
     try {
-      await this._syncInternal();
-      const duration = (Date.now() - startTime) / 1000;
-      console.log(`${LOG_PREFIX} Sync completed in ${duration}s.`);
-    } catch (error) {
-      console.error(`${LOG_PREFIX} Error during content sync:`, error);
-    } finally {
-      this.isSyncing = false;
+      console.log(`${LOG_PREFIX} Starting sync for item ${itemId}`);
+      const item = await this.database.get<Item>("items").find(itemId);
 
-      // If another sync was requested while syncing, perform one more sync
-      if (this.pendingSync) {
-        console.log(`${LOG_PREFIX} Performing pending content sync.`);
-        this.pendingSync = false;
-        // Trigger another sync, but don't await it (non-blocking)
-        this.sync().catch((error) => {
-          console.error(`${LOG_PREFIX} Error during pending sync:`, error);
-        });
+      if (!item.contentHash) {
+        console.log(`${LOG_PREFIX} Item ${itemId} has no content hash, skipping sync`);
+        return;
       }
+
+      const existingContent = await item.itemContentQuery?.fetch();
+      const needsContent =
+        !existingContent ||
+        existingContent.length === 0 ||
+        existingContent[0].contentHash !== item.contentHash;
+
+      if (needsContent) {
+        console.log(`${LOG_PREFIX} Fetching content for item ${itemId}`);
+        await this.fetchAndStoreContent([item]);
+      } else {
+        console.log(`${LOG_PREFIX} Item ${itemId} content is up to date`);
+      }
+    } catch (error) {
+      console.error(`${LOG_PREFIX} Error syncing item ${itemId}:`, error);
+      throw error;
     }
   }
 
   /**
-   * Internal implementation of the sync process
+   * The actual sync implementation - called by debounced function
    */
-  private async _syncInternal(): Promise<void> {
-    if (!this.database || !this.token) return;
+  private async _performSync(includeArchived: boolean = false): Promise<void> {
+    console.log(`${LOG_PREFIX} Executing content sync operation`);
+    const syncStartTime = Date.now();
 
-    // 1. Find items that need content (have content_hash but no content)
-    const itemsNeedingContent = await this.database
-      .get<Item>("items")
-      .query(
-        Q.unsafeSqlQuery(
-          `SELECT items.* FROM items 
-           LEFT JOIN item_contents ON item_contents.item_id = items.id 
-           WHERE items.content_hash IS NOT NULL 
-           AND items.content_hash != ''
-           AND item_contents.id IS NULL
-           ORDER BY 
-             items.archived ASC,
-             items.viewed ASC,
-             COALESCE(items.saved_at, items.created_at) DESC`,
-        ),
-      )
-      .fetch();
+    try {
+      // Validate prerequisites
+      this._ensurePrerequisites();
 
-    // 2. If items need content, fetch and store it
-    if (itemsNeedingContent.length > 0) {
-      console.log(`${LOG_PREFIX} Found ${itemsNeedingContent.length} items requiring content.`);
-      await this.fetchAndStoreContent(itemsNeedingContent);
-    } else {
-      console.log(`${LOG_PREFIX} No items require content sync.`);
+      // Find items that need content
+      const itemsNeedingContent = await this._findItemsNeedingContent(includeArchived);
+
+      // Sync content if needed
+      if (itemsNeedingContent.length > 0) {
+        console.log(`${LOG_PREFIX} Found ${itemsNeedingContent.length} items requiring content`);
+        await this.fetchAndStoreContent(itemsNeedingContent);
+      } else {
+        console.log(`${LOG_PREFIX} No items require content sync`);
+      }
+
+      // Clean up orphaned content
+      await this.cleanupDatabase();
+
+      const syncDuration = Date.now() - syncStartTime;
+      console.log(`${LOG_PREFIX} Content sync completed successfully in ${syncDuration}ms`);
+
+    } catch (error) {
+      const syncDuration = Date.now() - syncStartTime;
+      console.error(`${LOG_PREFIX} Content sync failed after ${syncDuration}ms:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Validate that we have necessary prerequisites
+   */
+  private _ensurePrerequisites(): void {
+    if (!this.database || !this.token) {
+      throw new Error("Database or token not available");
+    }
+  }
+
+  /**
+   * Find items that need content syncing
+   */
+  private async _findItemsNeedingContent(includeArchived: boolean): Promise<Item[]> {
+    if (!this.database) return [];
+
+    // Build query conditions
+    const queryConditions = [
+      Q.where("content_hash", Q.notEq(null)),
+      Q.where("content_hash", Q.notEq("")),
+    ];
+
+    // Exclude archived items unless specifically requested
+    if (!includeArchived) {
+      queryConditions.push(Q.where("archived", Q.notEq(true)));
     }
 
-    // 3. Clean up with a single efficient query
-    await this.cleanupDatabase();
+    const itemsWithContentHash = await this.database
+      .get<Item>("items")
+      .query(...queryConditions)
+      .fetch();
+
+    // Filter to items that actually need content
+    const itemsNeedingContent = [];
+
+    for (const item of itemsWithContentHash) {
+      const existingContent = await item.itemContentQuery?.fetch();
+
+      if (!existingContent || existingContent.length === 0) {
+        // No content exists - need to fetch
+        itemsNeedingContent.push(item);
+      } else {
+        // Content exists - check if hash matches
+        const currentContent = existingContent[0];
+        if (item.contentHash !== currentContent.contentHash) {
+          // Hash mismatch - need to fetch updated content
+          itemsNeedingContent.push(item);
+        }
+      }
+    }
+
+    // Sort by priority: unarchived first, unviewed first, newest first
+    itemsNeedingContent.sort((a, b) => {
+      // Sort by archived (false first)
+      if (a.archived !== b.archived) {
+        return a.archived ? 1 : -1;
+      }
+
+      // Then by viewed (false first)
+      if (a.viewed !== b.viewed) {
+        return a.viewed ? 1 : -1;
+      }
+
+      // Then by saved_at/created_at (desc)
+      const aDate = a.savedAt ?? a.createdAt ?? 0;
+      const bDate = b.savedAt ?? b.createdAt ?? 0;
+      return new Date(bDate).getTime() - new Date(aDate).getTime();
+    });
+
+    return itemsNeedingContent;
   }
 
   /**
@@ -123,6 +232,7 @@ export default class ItemContentSyncer {
         console.log(
           `${LOG_PREFIX} Fetching batch ${batchNumber}/${totalBatches} (${batchIds.length} items)`,
         );
+        
         // Fetch content for this batch
         const response = await fetch(`${API_URL}/items/content_batch`, {
           method: "POST",
@@ -161,11 +271,14 @@ export default class ItemContentSyncer {
                   author,
                 } = JSON.parse(line);
 
-                const item = itemMap.get(id);
+                const item = itemMap.get(id as string);
                 if (!item) continue;
 
                 // Find and mark existing content as deleted
-                const existingContents = await item.itemContentQuery.fetch();
+                let existingContents: ItemContent[] = [];
+                if (item.itemContentQuery) {
+                  existingContents = await item.itemContentQuery.fetch();
+                }
                 existingContents.forEach((content) =>
                   operations.push(content.prepareMarkAsDeleted()),
                 );
@@ -173,7 +286,9 @@ export default class ItemContentSyncer {
                 // Create new content
                 operations.push(
                   this.database!.get<ItemContent>("item_contents").prepareCreate((newContent) => {
-                    newContent.item.set(item);
+                    if (newContent.item) {
+                      newContent.item.set(item);
+                    }
                     newContent.content = content;
                     newContent.contentHash = serverContentHash;
                     newContent.takeaways = takeaways;
@@ -192,10 +307,7 @@ export default class ItemContentSyncer {
                   );
                 }
               } catch (error) {
-                console.error(
-                  `${LOG_PREFIX} Failed to process content for item ${JSON.parse(line).id}:`,
-                  error,
-                );
+                console.error(`${LOG_PREFIX} Failed to process content line:`, line, error);
               }
             }
 
@@ -214,43 +326,70 @@ export default class ItemContentSyncer {
   }
 
   /**
-   * Efficient cleanup with simple queries
+   * Clean up orphaned content for deleted items and old archived content
    */
   private async cleanupDatabase(): Promise<void> {
     if (!this.database) return;
 
-    console.log(`${LOG_PREFIX} Starting database cleanup...`);
+    console.log(`${LOG_PREFIX} Starting content cleanup...`);
     await this.database.write(async () => {
-      // 1. Delete content for items with null/empty content_hash in one query
-      const contentForItemsWithoutHash = await this.database!.get<ItemContent>("item_contents")
-        .query(Q.on("items", Q.or(Q.where("content_hash", null), Q.where("content_hash", ""))))
+      const operations: ItemContent[] = [];
+
+      // 1. Find orphaned content (content for deleted items)
+      const existingItemIds = await this.database!.get<Item>("items").query().fetchIds();
+      const orphanedContent =
+        existingItemIds.length > 0
+          ? await this.database!.get<ItemContent>("item_contents")
+              .query(Q.where("item_id", Q.notIn(existingItemIds)))
+              .fetch()
+          : await this.database!.get<ItemContent>("item_contents").query().fetch();
+
+      if (orphanedContent.length > 0) {
+        console.log(`${LOG_PREFIX} Found ${orphanedContent.length} orphaned content records`);
+        operations.push(...orphanedContent);
+      }
+
+      // 2. Find content for archived items older than 30 days
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      const oldArchivedItems = await this.database!.get<Item>("items")
+        .query(Q.where("archived", true), Q.where("updated_at", Q.lt(thirtyDaysAgo.getTime())))
         .fetch();
 
-      // 2. Find orphaned content (where item doesn't exist)
-      const orphanedContent = await this.database!.get<ItemContent>("item_contents")
-        .query(
-          Q.unsafeSqlQuery(
-            `SELECT item_contents.* FROM item_contents 
-             LEFT JOIN items ON items.id = item_contents.item_id 
-             WHERE items.id IS NULL`,
-          ),
-        )
-        .fetch();
-
-      // Combine all deletions in one batch operation
-      const operations = [
-        ...contentForItemsWithoutHash.map((content) => content.prepareMarkAsDeleted()),
-        ...orphanedContent.map((content) => content.prepareMarkAsDeleted()),
-      ];
-
-      if (operations.length > 0) {
+      if (oldArchivedItems.length > 0) {
         console.log(
-          `${LOG_PREFIX} Cleaning up ${operations.length} content records (${contentForItemsWithoutHash.length} without hash, ${orphanedContent.length} orphaned)`,
+          `${LOG_PREFIX} Found ${oldArchivedItems.length} archived items older than 30 days`,
         );
-        await this.database!.batch(...operations);
+
+        // Get content for these old archived items
+        const oldArchivedItemIds = oldArchivedItems.map((item) => item.id);
+        const oldArchivedContent = await this.database!.get<ItemContent>("item_contents")
+          .query(Q.where("item_id", Q.oneOf(oldArchivedItemIds)))
+          .fetch();
+
+        if (oldArchivedContent.length > 0) {
+          console.log(
+            `${LOG_PREFIX} Found ${oldArchivedContent.length} content records for old archived items`,
+          );
+          operations.push(...oldArchivedContent);
+        }
+      }
+
+      // 3. Delete all content marked for cleanup
+      if (operations.length > 0) {
+        console.log(`${LOG_PREFIX} Removing ${operations.length} content records`);
+        // Since we don't sync the item_contents table, we need to destroy the records permanently
+        const deleteOperations = operations.map((content) => content.prepareDestroyPermanently());
+        await this.database!.batch(...deleteOperations);
       } else {
-        console.log(`${LOG_PREFIX} No content records to clean up`);
+        console.log(`${LOG_PREFIX} No content to clean up`);
       }
     });
+  }
+
+  /**
+   * Check if content sync is currently running
+   */
+  isRunning(): boolean {
+    return this.currentSyncPromise !== null;
   }
 }

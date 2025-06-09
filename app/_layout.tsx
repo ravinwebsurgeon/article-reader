@@ -16,6 +16,8 @@ import { ThemeProvider } from "@/theme";
 import { DatabaseProvider, useDatabase } from "@/database/provider/DatabaseProvider";
 import { NetworkProvider } from "@/provider/NetworkProvider";
 import "@/i18n"; // Import i18n configuration
+import { ShareHandler } from "@/utils/shareHandler";
+import { Alert, Linking } from "react-native";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -42,7 +44,7 @@ const FONTS = {
   "Literata-SemiBoldItalic": require("../assets/fonts/Literata/Literata-SemiBoldItalic.ttf"),
   "Literata-Bold": require("../assets/fonts/Literata/Literata-Bold.ttf"),
   "Literata-BoldItalic": require("../assets/fonts/Literata/Literata-BoldItalic.ttf"),
-  "Literata-ExtraBold": require("../assets/fonts/Literata/Literata-ExtraBold.ttf"),
+  "Literata-ExtraBold": require("../assets/fonts/Literata/Literata_60pt-ExtraBold.ttf"),
   "Literata-ExtraBoldItalic": require("../assets/fonts/Literata/Literata-ExtraBoldItalic.ttf"),
 };
 
@@ -68,6 +70,12 @@ const STACK_CONFIG = {
         presentation: "modal" as const,
       },
     },
+    {
+      name: "import-pocket",
+      options: {
+        presentation: "modal" as const,
+      },
+    },
   ],
 };
 
@@ -86,6 +94,7 @@ function AppContent() {
   const [fontsLoaded] = useFonts(FONTS);
 
   useEffect(() => {
+    console.log("fontsLoaded", fontsLoaded);
     if (fontsLoaded && isDatabaseReady) {
       SplashScreen.hideAsync();
     }
@@ -110,6 +119,33 @@ function AppContent() {
 function RootLayoutNav() {
   const activeTheme = useAppSelector(selectActiveTheme);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+
+  useEffect(() => {
+    // Handle app launch from share
+    const handleInitialShare = async () => {
+      const sharedUrl = await ShareHandler.handleInitialShare();
+      if (sharedUrl) {
+        const result = await ShareHandler.saveLink(sharedUrl);
+        Alert.alert("Success", result.message);
+      }
+    };
+
+    // Handle deep links while app is running
+    const handleDeepLink = (event: { url: string }) => {
+      const url = ShareHandler.extractUrlFromIntent(event.url);
+      if (url) {
+        ShareHandler.saveLink(url).then((result) => {
+          Alert.alert("Success", result.message);
+        });
+      }
+    };
+
+    handleInitialShare();
+
+    const subscription = Linking.addEventListener("url", handleDeepLink);
+
+    return () => subscription?.remove();
+  }, []);
 
   // Memoize theme value to prevent unnecessary re-renders
   const themeValue = useMemo(

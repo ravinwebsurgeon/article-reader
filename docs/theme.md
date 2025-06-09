@@ -1,6 +1,6 @@
-# Pocket App Theming Guidelines
+# Folio App Theming Guidelines
 
-This document provides guidelines and best practices for using the theming and styling system in the Pocket app. Adhering to these guidelines will help maintain a consistent look and feel, improve code readability, and make collaboration easier.
+This document provides guidelines and best practices for using the theming and styling system in the Folio app. Adhering to these guidelines will help maintain a consistent look and feel, improve code readability, and make collaboration easier.
 
 ## Table of Contents
 

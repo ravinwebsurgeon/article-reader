@@ -18,9 +18,9 @@ export default class ItemContent extends Model {
   @text("author") author?: string | null;
 
   // Timestamps
-  @readonly @date("created_at") createdAt!: Date;
-  @readonly @date("updated_at") updatedAt!: Date;
+  @readonly @date("created_at") createdAt?: Date;
+  @readonly @date("updated_at") updatedAt?: Date;
 
   // Relationships
-  @immutableRelation("items", "item_id") item!: Relation<Item>;
+  @immutableRelation("items", "item_id") item?: Relation<Item>;
 }

@@ -2,7 +2,7 @@ import { Q } from "@nozbe/watermelondb";
 import { withObservables } from "@nozbe/watermelondb/react";
 import { map } from "rxjs/operators";
 import Item from "../models/ItemModel";
-import database from "../database";
+import database from "@/database";
 import { ItemFilter } from "@/types/item";
 import { SortOption } from "@/components/shared/menu/SortMenu";
 
@@ -70,34 +70,34 @@ export const withItems = ({ filter = "all", sorted = "newest" }: WithItemsProps 
       query = itemsCollection.query(
         Q.where("favorite", true),
         Q.where("archived", false),
-        Q.sortBy("created_at", sort),
+        Q.sortBy("saved_at", sort),
       );
     } else if (filter === "archived") {
-      query = itemsCollection.query(Q.where("archived", true), Q.sortBy("created_at", sort));
+      query = itemsCollection.query(Q.where("archived", true), Q.sortBy("saved_at", sort));
     } else if (filter === "tagged") {
       query = itemsCollection.query(
         Q.where("archived", false),
         Q.experimentalJoinTables(["item_tags"]),
         Q.on("item_tags", Q.where("tag_id", Q.notEq(null))),
-        Q.sortBy("created_at", sort),
+        Q.sortBy("saved_at", sort),
       );
     } else if (filter === "short") {
       query = itemsCollection.query(
         // 260wpm * 4min = 1040 words
         Q.where("word_count", Q.lte(1040)),
         Q.where("archived", false),
-        Q.sortBy("created_at", sort),
+        Q.sortBy("saved_at", sort),
       );
     } else if (filter === "long") {
       query = itemsCollection.query(
         // 260wpm * 10min = 2600 words
         Q.where("word_count", Q.gte(2600)),
         Q.where("archived", false),
-        Q.sortBy("created_at", sort),
+        Q.sortBy("saved_at", sort),
       );
     } else {
       // Default to unarchived items
-      query = itemsCollection.query(Q.where("archived", false), Q.sortBy("created_at", sort));
+      query = itemsCollection.query(Q.where("archived", false), Q.sortBy("saved_at", sort));
     }
 
     return {
@@ -219,7 +219,7 @@ export const withSearch = ({ query }: WithSearchProps = {}) => {
               }
 
               // Add recency boost for items saved in the last 30 days
-              if (item.savedAt > thirtyDaysAgo) {
+              if (item.savedAt && item.savedAt > thirtyDaysAgo) {
                 // Calculate how recent the item is (0-1 scale, 1 being newest)
                 const ageInDays = (Date.now() - item.savedAt.getTime()) / (1000 * 60 * 60 * 24);
                 const recencyFactor = Math.max(0, (30 - ageInDays) / 30);

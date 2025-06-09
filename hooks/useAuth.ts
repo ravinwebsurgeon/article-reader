@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
+import { sendExtensionLogout } from "@/utils/extension";
 
 interface User {
   id: string;
@@ -30,7 +31,7 @@ export function useAuth() {
       if (token) {
         // In a real app, validate the token with your backend
         const userData = await AsyncStorage.getItem("user_data");
-        setUser(userData ? JSON.parse(userData) : null);
+        setUser(userData ? (JSON.parse(userData) as User) : null);
         setIsAuthenticated(true);
       } else {
         setIsAuthenticated(false);
@@ -57,7 +58,7 @@ export function useAuth() {
       setIsAuthenticated(true);
 
       // Navigate to the home screen
-      router.replace("/saves");
+      router.replace("/");
       return { success: true };
     } catch (error) {
       console.error("Login failed:", error);
@@ -76,6 +77,9 @@ export function useAuth() {
 
       setUser(null);
       setIsAuthenticated(false);
+
+      // Notify extension about logout
+      sendExtensionLogout();
 
       // Navigate to the login screen
       router.replace("/(auth)/login");
@@ -112,7 +116,7 @@ export function useAuth() {
     password: string;
   }) => {
     try {
-      const response = await fetch("https://api.pckt.dev/v4/users", {
+      const response = await fetch("https://api.savewithfolio.com/v4/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -127,10 +131,10 @@ export function useAuth() {
       });
       const resultData = await response.json();
       if (!response.ok) {
-        throw new Error(resultData.errors || "Something went wrong");
+        throw new Error(String(resultData.errors ?? "Something went wrong"));
       }
       return resultData;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
       return error;
     }

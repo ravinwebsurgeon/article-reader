@@ -52,10 +52,10 @@ function AuthStart() {
   // Show error alert if needed
   useEffect(() => {
     if (error) {
-      Alert.alert("Login Error", error);
+      Alert.alert(t("auth.authStart.loginError"), error);
       dispatch(resetAuthError());
     }
-  }, [error, dispatch]);
+  }, [error, dispatch, t]);
 
   const dynamicStyles: {
     container: ViewStyle;
@@ -105,7 +105,7 @@ function AuthStart() {
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <ThemeView style={styles.header}>
             <ThemeView style={styles.logoContainer}>
-              <SvgIcon name="pocket-pink" size={48} color={theme.colors.primary.main} />
+              <SvgIcon name="logo" size={48} color={theme.colors.primary.main} />
             </ThemeView>
             <ThemeText variant="h2" style={styles.title}>
               {t("auth.authStart.title")}

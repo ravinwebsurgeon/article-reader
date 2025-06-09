@@ -9,6 +9,7 @@ interface ButtonProps {
   size?: "small" | "medium" | "large";
   fullWidth?: boolean;
   disabled?: boolean;
+  loading?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   style?: ViewStyle;
@@ -22,6 +23,7 @@ export const Button = ({
   size = "medium",
   fullWidth = true,
   disabled = false,
+  loading = false,
   leftIcon,
   rightIcon,
   style,
@@ -77,7 +79,7 @@ export const Button = ({
         style,
       ]}
       onPress={onPress}
-      disabled={disabled}
+      disabled={disabled || loading}
     >
       {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}
       <Text style={[getButtonTextStyle(), disabled && styles.disabledButtonText]}>{title}</Text>

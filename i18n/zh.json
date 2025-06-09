@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Pocket",
+    "name": "Folio",
     "tagline": "保存。阅读。成长。"
   },
   "common": {
@@ -18,6 +18,7 @@
   "auth": {
     "login": {
       "title": "欢迎回来",
+      "welcome": "欢迎回来",
       "subtitle": "登录您的账户",
       "email": "电子邮箱",
       "password": "密码",
@@ -27,22 +28,32 @@
       "signUp": "注册"
     },
     "signup": {
-      "title": "欢迎使用 Pocket",
+      "title": "欢迎使用 Folio",
+      "welcome": "欢迎使用 Folio",
       "subtitle": "创建您的账户",
       "email": "电子邮箱",
       "password": "密码",
       "confirmPassword": "确认密码",
       "button": "创建账户",
+      "submitting": "提交中...",
       "hasAccount": "已有账户？",
-      "logIn": "登录"
+      "logIn": "登录",
+      "newHere": "新用户？",
+      "signIn": "登录"
     },
     "authStart": {
       "title": "您想如何登录？",
       "subtitle": "选择一种方式开始。",
       "googleSignIn": "使用 Google 继续",
+      "appleSignIn": "使用 Apple 继续",
       "emailSignIn": "使用电子邮箱继续",
       "newHere": "新用户？",
-      "button": "创建账户"
+      "button": "创建账户",
+      "loginError": "登录错误"
+    },
+    "connectExtension": {
+      "title": "扩展已连接",
+      "message": "您的浏览器扩展已成功连接到 Folio。您现在可以直接从浏览器保存内容。"
     }
   },
   "search": {
@@ -78,8 +89,19 @@
       "required": "此字段为必填项",
       "minLength": "必须至少包含 {{count}} 个字符",
       "maxLength": "最多包含 {{count}} 个字符",
-      "email": "请输入有效的电子邮箱地址",
-      "password": "密码必须至少包含 8 个字符",
+      "email": {
+        "required": "电子邮箱为必填项",
+        "invalid": "请输入有效的电子邮箱地址"
+      },
+      "password": {
+        "required": "密码为必填项",
+        "minLength": "密码必须至少包含 8 个字符",
+        "complexity": "密码必须包含至少一个大写字母、一个小写字母、一个数字和一个特殊字符"
+      },
+      "confirmPassword": {
+        "required": "请确认您的密码",
+        "mismatch": "密码不匹配"
+      },
       "passwordMatch": "密码不匹配"
     }
   },
@@ -100,11 +122,11 @@
     "about": "关于"
   },
   "addArticle": {
-    "title": "添加到 Pocket",
+    "title": "添加到 Folio",
     "sectionTitle": "添加 URL",
     "urlPlaceholder": "输入要保存的 URL",
-    "saveButton": "保存到 Pocket",
-    "infoText": "在 Pocket 中保存文章、视频等内容。您的列表会在所有设备上同步，让您随时随地查看。"
+    "saveButton": "保存到 Folio",
+    "infoText": "在 Folio 中保存文章、视频等内容。您的列表会在所有设备上同步，让您随时随地查看。"
   },
   "emptyStates": {
     "favorites": {

@@ -30,6 +30,8 @@ export default appSchema({
         { name: "saved_at", type: "number" },
         { name: "created_at", type: "number" },
         { name: "updated_at", type: "number" },
+        { name: "paywalled", type: "boolean", isOptional: true },
+        { name: "language", type: "string", isOptional: true },
       ],
     }),
     tableSchema({
@@ -59,6 +61,18 @@ export default appSchema({
       columns: [
         { name: "item_id", type: "string", isIndexed: true },
         { name: "tag_id", type: "string", isIndexed: true },
+        { name: "created_at", type: "number" },
+        { name: "updated_at", type: "number" },
+      ],
+    }),
+    tableSchema({
+      name: "annotations",
+      columns: [
+        { name: "item_id", type: "string", isIndexed: true },
+        { name: "text", type: "string" },
+        { name: "prefix", type: "string" },
+        { name: "suffix", type: "string" },
+        { name: "note", type: "string", isOptional: true },
         { name: "created_at", type: "number" },
         { name: "updated_at", type: "number" },
       ],
