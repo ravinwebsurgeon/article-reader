@@ -15,7 +15,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/theme";
 import { isValidUrl } from "@/utils/validation";
@@ -26,7 +25,6 @@ export default function AddArticleScreen() {
   const router = useRouter();
   const theme = useTheme();
   const { t } = useTranslation();
-  const isDarkMode = theme.mode === "dark";
 
   // State
   const [url, setUrl] = useState("");
@@ -145,8 +143,6 @@ export default function AddArticleScreen() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
-        <StatusBar style={isDarkMode ? "light" : "dark"} />
-
         {/* Header */}
         <View style={[styles.header, { borderBottomColor: theme.colors.divider }]}>
           <TouchableOpacity onPress={handleBack}>

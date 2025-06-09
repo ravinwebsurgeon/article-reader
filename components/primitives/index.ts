@@ -4,3 +4,4 @@ export * from "./ThemeTouchable";
 export * from "./ThemeImage";
 export * from "./ThemeButton";
 export * from "./ThemeInput";
+export * from "./ThemeStatusBar";
