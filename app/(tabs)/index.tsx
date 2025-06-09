@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
 import { useTheme } from "@/theme";
 import { ItemFilter } from "@/types/item";
 import { SortOption } from "@/components/shared/menu/SortMenu";
@@ -19,8 +18,6 @@ export default function SavesScreen() {
       style={[styles.container, { backgroundColor: theme.colors.background.default }]}
       edges={["top"]}
     >
-      <StatusBar style={theme.mode === "dark" ? "light" : "dark"} />
-
       <ItemListHeader />
 
       <View>

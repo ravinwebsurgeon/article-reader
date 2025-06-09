@@ -12,7 +12,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/theme";
 import ItemCard from "@/components/item/ItemCard";
@@ -33,7 +32,6 @@ const SearchScreenComponent = ({
   const router = useRouter();
   const theme = useTheme();
   const { t } = useTranslation();
-  const isDarkMode = theme.mode === "dark";
 
   // State
   // Determine if we should show results or empty/no-results state
@@ -87,8 +85,6 @@ const SearchScreenComponent = ({
 
   return (
     <SafeAreaView style={[styles.container, dynamicStyles.container]} edges={["top"]}>
-      <StatusBar style={isDarkMode ? "light" : "dark"} />
-
       {/* Search Header */}
       <View style={styles.searchHeader}>
         <View style={styles.searchInputContainer}>
