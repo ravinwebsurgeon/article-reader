@@ -53,16 +53,16 @@ export const authApi = api.injectEndpoints({
         url: "/sessions",
         method: "DELETE",
       }),
-      // Clear tokens on logout
+      // Clear all data on logout
       async onQueryStarted(_, { queryFulfilled }) {
         try {
           await queryFulfilled;
-          await AsyncStorage.removeItem("auth_token");
+          await AsyncStorage.clear();
           // Notify extension about logout
           sendExtensionLogout();
         } catch {
-          // Force remove token even if API call fails
-          await AsyncStorage.removeItem("auth_token");
+          // Force clear storage even if API call fails
+          await AsyncStorage.clear();
           // Still notify extension about logout even if API call fails
           sendExtensionLogout();
         }

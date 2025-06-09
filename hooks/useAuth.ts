@@ -71,9 +71,8 @@ export function useAuth() {
   const logout = async () => {
     setLoading(true);
     try {
-      // Clear auth data
-      await AsyncStorage.removeItem("auth_token");
-      await AsyncStorage.removeItem("user_data");
+      // Clear all stored data
+      await AsyncStorage.clear();
 
       setUser(null);
       setIsAuthenticated(false);
