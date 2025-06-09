@@ -53,7 +53,7 @@ function ConnectExtension() {
     <SafeAreaView style={[styles.container, dynamicStyles.container]}>
       <ThemeView style={styles.content}>
         <ThemeView style={styles.logoContainer}>
-          <SvgIcon name="pocket-pink" size={48} color={theme.colors.primary.main} />
+          <SvgIcon name="logo" size={48} color={theme.colors.primary.main} />
         </ThemeView>
         <ThemeText variant="h2" style={styles.title}>
           {t("auth.connectExtension.title")}

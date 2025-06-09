@@ -159,7 +159,7 @@ function LoginScreen() {
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <ThemeView style={styles.header}>
             <ThemeView style={styles.logoContainer}>
-              <SvgIcon name="pocket-pink" size={48} color={theme.colors.primary.main} />
+              <SvgIcon name="logo" size={48} color={theme.colors.primary.main} />
             </ThemeView>
             <ThemeText variant="h2" style={styles.title}>
               {t("auth.login.welcome")}

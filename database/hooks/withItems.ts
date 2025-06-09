@@ -70,34 +70,34 @@ export const withItems = ({ filter = "all", sorted = "newest" }: WithItemsProps 
       query = itemsCollection.query(
         Q.where("favorite", true),
         Q.where("archived", false),
-        Q.sortBy("created_at", sort),
+        Q.sortBy("saved_at", sort),
       );
     } else if (filter === "archived") {
-      query = itemsCollection.query(Q.where("archived", true), Q.sortBy("created_at", sort));
+      query = itemsCollection.query(Q.where("archived", true), Q.sortBy("saved_at", sort));
     } else if (filter === "tagged") {
       query = itemsCollection.query(
         Q.where("archived", false),
         Q.experimentalJoinTables(["item_tags"]),
         Q.on("item_tags", Q.where("tag_id", Q.notEq(null))),
-        Q.sortBy("created_at", sort),
+        Q.sortBy("saved_at", sort),
       );
     } else if (filter === "short") {
       query = itemsCollection.query(
         // 260wpm * 4min = 1040 words
         Q.where("word_count", Q.lte(1040)),
         Q.where("archived", false),
-        Q.sortBy("created_at", sort),
+        Q.sortBy("saved_at", sort),
       );
     } else if (filter === "long") {
       query = itemsCollection.query(
         // 260wpm * 10min = 2600 words
         Q.where("word_count", Q.gte(2600)),
         Q.where("archived", false),
-        Q.sortBy("created_at", sort),
+        Q.sortBy("saved_at", sort),
       );
     } else {
       // Default to unarchived items
-      query = itemsCollection.query(Q.where("archived", false), Q.sortBy("created_at", sort));
+      query = itemsCollection.query(Q.where("archived", false), Q.sortBy("saved_at", sort));
     }
 
     return {
