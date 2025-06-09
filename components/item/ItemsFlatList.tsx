@@ -50,7 +50,6 @@ const ItemsFlatList = memo(({ items, filter }: ItemsFlatListProps) => {
     }),
     [],
   );
-
   return (
     <FlatList
       data={items}
@@ -73,7 +72,7 @@ ItemsFlatList.displayName = "ItemsFlatList";
 
 const styles = StyleSheet.create({
   listContainer: {
-    paddingBottom: 20,
+    flexGrow: 1,
   },
 });
 

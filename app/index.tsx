@@ -3,7 +3,7 @@ import { useAppSelector } from "@/redux/hook";
 
 export default function Index() {
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
-  const path = isAuthenticated ? "/saves" : "/auth-start";
+  const path = isAuthenticated ? "/" : "/auth-start";
 
   // Redirect to tabs if authenticated, otherwise to auth login screen
   return <Redirect href={path} />;

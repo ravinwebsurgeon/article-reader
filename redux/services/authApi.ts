@@ -7,7 +7,7 @@ import {
   RefreshTokenRequest,
 } from "../../types/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { syncEngine } from "@/database/sync/SyncEngine";
+import { sendExtensionLogout } from "@/utils/extension";
 
 // Auth API endpoints
 export const authApi = api.injectEndpoints({
@@ -58,9 +58,13 @@ export const authApi = api.injectEndpoints({
         try {
           await queryFulfilled;
           await AsyncStorage.removeItem("auth_token");
+          // Notify extension about logout
+          sendExtensionLogout();
         } catch {
           // Force remove token even if API call fails
           await AsyncStorage.removeItem("auth_token");
+          // Still notify extension about logout even if API call fails
+          sendExtensionLogout();
         }
       },
     }),
@@ -95,7 +99,7 @@ export const authApi = api.injectEndpoints({
           }
 
           // If we have a token, try to get the current user
-          const response = await fetch("https://api.pckt.dev/v4/users/current", {
+          const response = await fetch("https://api.savewithfolio.com/v4/users/current", {
             headers: {
               Authorization: `Bearer ${token}`,
             },

@@ -1,476 +1,157 @@
-import React, { useState, useRef, useMemo, useEffect } from "react";
-import {
-  ScrollView,
-  TouchableOpacity,
-  Share,
-  NativeSyntheticEvent,
-  NativeScrollEvent,
-  StyleSheet,
-  Platform,
-  View,
-} from "react-native";
+import React, { useState, useRef, useCallback } from "react";
+import { View, StyleSheet, ScrollView } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Ionicons } from "@expo/vector-icons";
-import { marked } from "marked";
-import { createMenuPosition } from "@/components/shared/menu/menuAnimationPresents";
 import { WebView } from "react-native-webview";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 // Import themed components
-import { ThemeView, ThemeText } from "@/components/primitives";
-import { useTheme, useDarkMode } from "@/theme/hooks";
+import { ThemeView } from "@/components/primitives";
+import { useTheme, useDarkMode, useSpacing } from "@/theme/hooks";
+import { useScrollProgress } from "@/hooks/useScrollProgress";
 
 // Import WatermelonDB components
 import { withObservables } from "@nozbe/watermelondb/react";
 import { useDatabase } from "@/database/provider/DatabaseProvider";
 import Item from "@/database/models/ItemModel";
 import ItemContent from "@/database/models/ItemContentModel";
-import RecommendedItems from "@/components/item/RecommendedItems";
-import { withRecommendedItems } from "@/database/hooks/withRecommendedItems";
-import { SvgIcon } from "@/components/SvgIcon";
-import { ActionMenuPosition } from "@/components/shared/menu/ReusableActionMenu";
-import ReaderActionMenu from "@/components/shared/menu/ReaderActionMenu";
-import { useTranslation } from "react-i18next";
-import HTMLViewer from "@/components/HTMLviewer";
 import { map, switchMap } from "rxjs/operators";
 import { of as observableOf } from "rxjs";
 
-interface Highlight {
-  id: string;
-  text: string;
-  range: {
-    startContainer: string; // xpath
-    startOffset: number;
-    endContainer: string; // xpath
-    endOffset: number;
-  };
-  color?: string;
-}
+// Import new reader components
+import {
+  ReaderHeader,
+  ReaderMetaData,
+  ReaderContent,
+  ReaderAfterReading,
+  ReaderUpNext,
+} from "@/components/reader";
 
 // Base component that receives the item and its content as props
 const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent | null }) => {
-  const router = useRouter();
   const theme = useTheme();
+  const spacing = useSpacing();
   const isDarkMode = useDarkMode();
-  const { t } = useTranslation();
-
-  // Refs
+  const router = useRouter();
   const scrollViewRef = useRef<ScrollView>(null);
-  const menuButtonRef = useRef<View>(null);
 
   // State
-  const [progress, setProgress] = useState(item.progress);
-  const [menuVisible, setMenuVisible] = useState(false);
-  const [menuPosition, setMenuPosition] = useState<ActionMenuPosition>({});
-  const [contentHeight, setContentHeight] = useState(0);
-  const [scrollViewHeight, setScrollViewHeight] = useState(0);
-  const [hasRestoredPosition, setHasRestoredPosition] = useState(false);
-  //browser state
   const [browserMode, setBrowserMode] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isLoadingComplete, setIsLoadingComplete] = useState(false);
-  const [highlights, setHighlights] = useState<Highlight[]>([]);
-  const [selectedText, setSelectedText] = useState<string>("");
 
-  console.log("Selected text:", selectedText, "Highlights:", highlights);
+  // Use the scroll progress hook
+  const {
+    progress,
+    isUserScrolled,
+    handleScrollChange,
+    handleContentLoaded,
+    handleContentSizeChange,
+    handleLayoutChange,
+    saveProgress,
+  } = useScrollProgress({
+    item,
+    scrollViewRef,
+  });
 
-  // Handle highlight added
-  const handleHighlightAdded = (id: any, text: string, color: string) => {
-    setHighlights((prev: any) => [...prev, { id, text, color }]);
-  };
-
-  // Handle highlight removed
-  const handleHighlightRemoved = (id: any) => {
-    setHighlights((prev) => prev.filter((h) => h.id !== id));
-  };
-
-  // Handle selection change
-  const handleSelectionChange = (text: string) => {
-    setSelectedText(text);
-  };
-
-  const handleShareSelectedText = async (text: any) => {
-    try {
-      await Share.share({
-        message: text,
-      });
-    } catch (error) {
-      console.error("Error sharing text:", error);
-    }
-  };
-
-  // Memoize the EnhancedRecommendedItems component
-  const EnhancedRecommendedItems = useMemo(
-    () =>
-      withRecommendedItems({ currentItem: item })(({ recommendedItems }) => (
-        <RecommendedItems items={recommendedItems} />
-      )),
-    [item], // Include the entire item object in dependencies
-  );
-
-  // Restore scroll position when component mounts
-  useEffect(() => {
-    if (
-      !hasRestoredPosition &&
-      contentHeight > 0 &&
-      scrollViewHeight > 0 &&
-      scrollViewRef.current &&
-      item.progress
-    ) {
-      // Calculate scroll position based on progress
-      const maxScrollPosition = contentHeight - scrollViewHeight;
-      const scrollToPosition = Math.max(
-        0,
-        Math.min(item.progress * maxScrollPosition, maxScrollPosition),
-      );
-
-      // Add a small delay to ensure the content is properly rendered
-      const timer = setTimeout(() => {
-        scrollViewRef.current?.scrollTo({
-          y: scrollToPosition,
-          animated: true,
-        });
-        setHasRestoredPosition(true);
-      }, 100);
-
-      return () => clearTimeout(timer);
-    }
-  }, [contentHeight, scrollViewHeight, item.progress, hasRestoredPosition]);
-
-  // Process markdown content
-  const processedContent = useMemo(() => {
-    return marked.parse(content?.content ?? "") as string;
-  }, [content?.content]);
-
-  // Handle navigation back
-  const handleBack = async () => {
-    // Only save if progress has changed from initial value
-    if (progress !== item.progress) {
-      console.log("Saving progress:", progress);
-      await item
-        .setProgress(progress)
-        .catch((error) => console.error("Error saving progress:", error));
-    }
+  // Handle navigation back with saving
+  const handleBack = useCallback(async () => {
+    await saveProgress();
     router.back();
-  };
-
-  // Handle scroll to track reading progress
-  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
-
-    // Save sizes for scroll position calculation
-    if (scrollViewHeight === 0) {
-      setScrollViewHeight(layoutMeasurement.height);
-    }
-
-    if (contentHeight === 0) {
-      setContentHeight(contentSize.height);
-    }
-
-    if (contentSize.height > 0) {
-      const newProgress = Math.min(
-        Math.max(0, contentOffset.y / (contentSize.height - layoutMeasurement.height)),
-        1,
-      );
-
-      // Only update if significant change (avoid too many database operations)
-      if (Math.abs(newProgress - progress) > 0.01) {
-        setProgress(newProgress);
-      }
-    }
-  };
-
-  // Handle favorite toggle
-  const handleFavoriteToggle = async () => {
-    await item.toggleFavorite();
-  };
-
-  // Handle archive toggle
-  const handleArchiveToggle = async () => {
-    await item.toggleArchived();
-  };
-
-  // Handle share
-  const handleShare = async () => {
-    try {
-      await Share.share({
-        message: `Check out this article: ${item.title} - ${item.url}`,
-        url: item.url,
-      });
-    } catch (error) {
-      console.error("Error sharing article:", error);
-    }
-  };
-
-  // Handle opening the in-app browser
-  // const handleOpenBrowser = async () => {
-  //   if (item.url) {
-  //     try {
-  //       await WebBrowser.openBrowserAsync(item.url);
-  //     } catch (error) {
-  //       console.error("Error opening browser:", error);
-  //     }
-  //   }
-  // };
+  }, [saveProgress, router]);
 
   // Handle toggling between reader and browser views
-  const handleToggleView = () => {
+  const handleToggleView = useCallback(() => {
     setBrowserMode(!browserMode);
-    // Reset loading states when toggling
     if (!browserMode) {
       setLoadingProgress(0);
       setIsLoadingComplete(false);
     }
-  };
+  }, [browserMode]);
 
-  // Handle opening the action menu
-  const handleOpenMenu = () => {
-    if (menuButtonRef.current) {
-      menuButtonRef.current.measure(
-        (
-          x: number,
-          y: number,
-          width: number,
-          height: number,
-          pageX: number,
-          pageY: number,
-        ): void => {
-          setMenuPosition({
-            x: pageX,
-            y: pageY,
-            width,
-            height,
-            ...createMenuPosition("bottomRight"),
-          });
-          setMenuVisible(true);
-          console.log("Menu true or not ", menuVisible);
-        },
-      );
-    }
-  };
-
-  // Custom header rendering for the specific design
-  const renderCustomHeader = () => {
-    return (
-      <ThemeView style={styles.customHeader} row backgroundColor={theme.colors.background.paper}>
-        <ThemeView style={styles.headerLeft} row centered>
-          <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-            <Ionicons name="chevron-back" size={28} color={theme.colors.text.primary} />
-            <ThemeText variant="body1" style={styles.savesText}>
-              Saves
-            </ThemeText>
-          </TouchableOpacity>
-        </ThemeView>
-
-        <ThemeView style={styles.headerRight} row>
-          <TouchableOpacity style={styles.headerIconButton}>
-            <SvgIcon name="listen" size={24} color={theme.colors.text.primary} />
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={handleToggleView} style={styles.headerIconButton}>
-            <SvgIcon
-              name={browserMode ? "reader" : "compass"}
-              size={24}
-              color={theme.colors.text.primary}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            ref={menuButtonRef}
-            style={styles.headerIconButton}
-            onPress={handleOpenMenu}
-          >
-            <Ionicons name="ellipsis-horizontal" size={24} color={theme.colors.text.primary} />
-          </TouchableOpacity>
-        </ThemeView>
-      </ThemeView>
-    );
-  };
+  const styles = StyleSheet.create({
+    browserContainer: {
+      flex: 1,
+      position: "relative",
+    },
+    progressBarContainer: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 3,
+      backgroundColor: theme.colors.gray[200],
+      zIndex: 10,
+    },
+    progressBar: {
+      height: "100%",
+      backgroundColor: theme.colors.primary.main,
+    },
+    webView: {
+      flex: 1,
+    },
+    articleContainer: {
+      flex: 1,
+    },
+    articleContent: {
+      paddingBottom: spacing.lg,
+    },
+  });
 
   return (
     <ThemeView style={{ flex: 1 }} backgroundColor={theme.colors.background.paper}>
-      <StatusBar style={isDarkMode ? "light" : "dark"} />
-      {renderCustomHeader()}
-
-      {browserMode && item.url ? (
-        <View style={styles.browserContainer}>
-          {/* Progress bar */}
-          {!isLoadingComplete && (
-            <View style={styles.progressBarContainer}>
-              <View style={[styles.progressBar, { width: `${loadingProgress * 100}%` }]} />
-            </View>
-          )}
-
-          <WebView
-            source={{ uri: item.url }}
-            style={styles.webView}
-            // startInLoadingState={true}
-            // renderLoading={renderWebViewLoading}
-            pullToRefreshEnabled={true}
-            allowsBackForwardNavigationGestures={true}
-            onLoadProgress={({ nativeEvent }) => {
-              console.log("Loading progress:", nativeEvent.progress);
-              setLoadingProgress(nativeEvent.progress);
-            }}
-            onLoadEnd={() => {
-              setIsLoadingComplete(true);
-            }}
-            onLoadStart={() => {
-              setIsLoadingComplete(false);
-            }}
-          />
-        </View>
-      ) : (
-        <>
-          <ScrollView
-            ref={scrollViewRef}
-            style={styles.scrollView}
-            contentContainerStyle={styles.contentContainer}
-            onScroll={handleScroll}
-            scrollEventThrottle={400}
-            onContentSizeChange={(width, height) => {
-              setContentHeight(height);
-            }}
-            onLayout={(event) => {
-              const { height } = event.nativeEvent.layout;
-              setScrollViewHeight(height);
-            }}
-          >
-            <ThemeText variant="reader.title" style={styles.title}>
-              {item.title}
-            </ThemeText>
-
-            <ThemeView style={styles.metaContainer}>
-              {item.source && (
-                <ThemeText
-                  variant="meta"
-                  color={theme.colors.text.secondary}
-                  style={styles.metaText}
-                >
-                  {item.source}
-                </ThemeText>
-              )}
-            </ThemeView>
-            <HTMLViewer
-              html={processedContent}
+      <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
+        <StatusBar style={isDarkMode ? "light" : "dark"} />
+        <ReaderHeader
+          item={item}
+          browserMode={browserMode}
+          onToggleView={handleToggleView}
+          progress={progress}
+          isUserScrolled={isUserScrolled}
+          onBack={handleBack}
+        />
+        {browserMode && item.url ? (
+          <View style={styles.browserContainer}>
+            {/* Progress bar */}
+            {!isLoadingComplete && (
+              <View style={styles.progressBarContainer}>
+                <View style={[styles.progressBar, { width: `${loadingProgress * 100}%` }]} />
+              </View>
+            )}
+            <WebView
+              source={{ uri: item.url }}
               style={styles.webView}
-              onHighlightAdded={handleHighlightAdded}
-              onHighlightRemoved={handleHighlightRemoved}
-              onSelectionChange={handleSelectionChange}
-              onShare={handleShareSelectedText}
-              onScroll={handleScroll}
-              // scrollEventThrottle={400}
-              onContentSizeChange={(width, height) => {
-                setContentHeight(height);
+              pullToRefreshEnabled={true}
+              allowsBackForwardNavigationGestures={true}
+              onLoadProgress={({ nativeEvent }) => {
+                setLoadingProgress(nativeEvent.progress);
               }}
-              onLayout={(event: any) => {
-                const { height }: { height: number } = event.nativeEvent.layout;
-                setScrollViewHeight(height);
+              onLoadEnd={() => {
+                setIsLoadingComplete(true);
+              }}
+              onLoadStart={() => {
+                setIsLoadingComplete(false);
               }}
             />
-            <ThemeView style={styles.afterReadingSection}>
-              <ThemeView
-                style={styles.afterReadingSec}
-                backgroundColor={theme.colors.background.paper}
-              >
-                <ThemeView
-                  style={styles.afterReading}
-                  backgroundColor={theme.colors.background.paper}
-                  row
-                >
-                  <SvgIcon name="goto" size={18} color={theme.colors.text.secondary} />
-
-                  <ThemeText
-                    variant="guide"
-                    color={theme.colors.text.secondary}
-                    style={styles.afterReadingText}
-                  >
-                    {t("reader.afterReading")}
-                  </ThemeText>
-                </ThemeView>
-              </ThemeView>
-
-              <ThemeView style={styles.footerActions} row centered>
-                <TouchableOpacity
-                  style={[
-                    styles.footerButton,
-                    { backgroundColor: theme.colors.background.default },
-                  ]}
-                  onPress={handleFavoriteToggle}
-                >
-                  <SvgIcon
-                    name={item.favorite ? "favorite" : "favorite"}
-                    size={22}
-                    color={theme.colors.text.primary}
-                    style={styles.footerIcon}
-                  />
-                  <ThemeText variant="body2">
-                    {item.favorite ? t("reader.favorited") : t("reader.favorite")}
-                  </ThemeText>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[
-                    styles.footerButton,
-                    { backgroundColor: theme.colors.background.default, alignItems: "center" },
-                  ]}
-                  onPress={handleArchiveToggle}
-                >
-                  <SvgIcon
-                    name="archive"
-                    size={22}
-                    color={theme.colors.text.primary}
-                    style={styles.footerIcon}
-                  />
-
-                  <ThemeText variant="body2">{t("reader.archive")}</ThemeText>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[
-                    styles.footerButton,
-                    { backgroundColor: theme.colors.background.default },
-                  ]}
-                  onPress={handleShare}
-                >
-                  <SvgIcon
-                    name="share"
-                    size={22}
-                    color={theme.colors.text.primary}
-                    style={styles.footerIcon}
-                  />
-                  <ThemeText variant="body2">{t("menu.share")}</ThemeText>
-                </TouchableOpacity>
-              </ThemeView>
-            </ThemeView>
-            <ThemeView style={styles.upNextSection} backgroundColor={theme.colors.background.paper}>
-              <ThemeView
-                style={styles.upNextHeader}
-                backgroundColor={theme.colors.background.paper}
-                row
-              >
-                <SvgIcon name="up-next" size={18} color={theme.colors.text.secondary} />
-                <ThemeText
-                  variant="guide"
-                  color={theme.colors.text.secondary}
-                  style={styles.upNextText}
-                >
-                  {t("reader.upNext")}
-                </ThemeText>
-              </ThemeView>
-              <EnhancedRecommendedItems />
-            </ThemeView>
+          </View>
+        ) : (
+          <ScrollView
+            ref={scrollViewRef}
+            style={styles.articleContainer}
+            contentContainerStyle={styles.articleContent}
+            showsVerticalScrollIndicator={true}
+            onScroll={handleScrollChange}
+            onContentSizeChange={handleContentSizeChange}
+            onLayout={handleLayoutChange}
+            scrollEventThrottle={100}
+          >
+            <ReaderMetaData item={item} content={content} />
+            <ReaderContent item={item} content={content} onLoadComplete={handleContentLoaded} />
+            <ReaderAfterReading item={item} />
+            <ReaderUpNext item={item} />
           </ScrollView>
-        </>
-      )}
-      <ReaderActionMenu
-        item={item}
-        visible={menuVisible}
-        position={menuPosition}
-        onClose={() => {
-          setMenuVisible(false);
-        }}
-      />
+        )}
+      </SafeAreaView>
     </ThemeView>
   );
 };
@@ -485,208 +166,23 @@ export default function ReaderScreen() {
   }
 
   const EnhancedReader = withObservables(["id"], ({ id }: { id: string }) => {
-    const item$ = database.collections.get<Item>("items").findAndObserve(id);
+    const item$ = database?.collections.get<Item>("items").findAndObserve(id);
+
     return {
       item: item$,
       content: item$.pipe(
         switchMap((item) => {
           if (!item) {
-            // This case should ideally not happen if findAndObserve throws or resolves for a valid id
             return observableOf(null);
           }
-          // item.itemContentQuery is Query<ItemContent>
-          // item.itemContentQuery.observe() is Observable<ItemContent[]>
-          return item.itemContentQuery.observe();
+          return item.itemContentQuery ? item.itemContentQuery.observe() : observableOf([]);
         }),
-        map((contents) => (contents && contents.length > 0 ? contents[0] : null)),
+        map((contents) => {
+          return contents && contents.length > 0 ? contents[0] : null;
+        }),
       ),
     };
   })(ReaderComponent);
 
   return <EnhancedReader id={id} />;
 }
-
-const styles = StyleSheet.create({
-  scrollView: {
-    flex: 1,
-  },
-  webView: {
-    flex: 1,
-  },
-  customHeader: {
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 8,
-    paddingVertical: 12,
-    paddingTop: 50,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0, 0, 0, 0.1)",
-    ...Platform.select({
-      ios: {
-        paddingTop: 50,
-      },
-      android: {
-        paddingTop: 30,
-      },
-    }),
-  },
-  headerLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  backButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 4,
-  },
-  savesText: {
-    marginLeft: 4,
-  },
-  headerRight: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  headerIconButton: {
-    padding: 8,
-    marginLeft: 8,
-  },
-  // Menu styles
-  androidMenu: {
-    position: "absolute",
-    top: 50,
-    right: 10,
-    borderRadius: 8,
-    padding: 8,
-    width: 180,
-    zIndex: 1000,
-  },
-  menuItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 12,
-  },
-  menuItemText: {
-    marginLeft: 12,
-  },
-  contentContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 40,
-  },
-  title: {
-    fontWeight: "700",
-    marginBottom: 16,
-  },
-  metaContainer: {
-    marginBottom: 24,
-  },
-  metaText: {
-    marginBottom: 16,
-  },
-  // After Reading section
-  afterReadingSection: {
-    marginTop: 40,
-    paddingTop: 16,
-  },
-  afterReadingText: {
-    // marginBottom: 16,
-    marginLeft: 8,
-  },
-  footerActions: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    paddingVertical: 12,
-    gap: 8,
-    marginVertical: 16,
-  },
-  footerButton: {
-    paddingVertical: 8,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    flex: 1,
-    flexBasis: "40%",
-    borderRadius: 8,
-  },
-  footerIcon: {
-    // marginBottom: 6,
-  },
-  // Up Next section
-  upNextSection: {
-    marginTop: 40,
-    position: "relative",
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(0, 0, 0, 0.1)",
-  },
-  upNextHeader: {
-    alignItems: "center",
-    marginBottom: 12,
-    position: "absolute",
-    top: -12,
-  },
-  upNextText: {
-    marginLeft: 8,
-  },
-  afterReadingSec: {
-    position: "relative",
-    borderTopWidth: 1,
-    borderTopColor: "rgba(0, 0, 0, 0.1)",
-  },
-  afterReading: {
-    alignItems: "center",
-    marginBottom: 12,
-    position: "absolute",
-    top: -12,
-  },
-  browserContainer: {
-    flex: 1,
-    position: "relative",
-  },
-  progressBarContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 3,
-    backgroundColor: "rgba(0, 0, 0, 0.1)",
-    zIndex: 10,
-  },
-  progressBar: {
-    height: "100%",
-    backgroundColor: "#2196F3", // You can use theme colors
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 8,
-  },
-  clearButton: {
-    backgroundColor: "#ff3b30",
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 4,
-  },
-  clearButtonText: {
-    color: "white",
-    fontWeight: "600",
-    fontSize: 14,
-  },
-  statsContainer: {
-    flexDirection: "column",
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e1e1e1",
-  },
-  statsText: {
-    fontSize: 14,
-    color: "#666",
-    marginVertical: 2,
-  },
-});

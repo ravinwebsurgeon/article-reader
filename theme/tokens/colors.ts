@@ -1,7 +1,7 @@
 /**
- * Pocket App Color System
+ * Folio App Color System
  *
- * This file defines the color system for the Pocket app, including:
+ * This file defines the color system for the Folio app, including:
  * - ColorScheme type for light/dark mode
  * - ColorPalette interface defining all available colors
  * - Base colors shared between themes
@@ -107,9 +107,9 @@ export interface ColorPalette {
 // Define base colors - shared between themes
 const baseColors = {
   primary: {
-    main: "#ef3e55",
-    light: "rgba(239, 62, 85, 0.2)",
-    dark: "#d32f2f",
+    main: "#02807A",
+    light: "rgba(2, 128, 122, 0.2)",
+    dark: "#016961",
     contrast: "#ffffff",
   },
   secondary: {
@@ -142,7 +142,7 @@ const baseColors = {
     dark: "#c32c41",
     contrast: "#ffffff",
   },
-  favorite: "#f8e61b",
+  favorite: "#FCE37D",
   white: "#ffffff",
   black: "#000000",
   transparent: "transparent",
@@ -164,12 +164,12 @@ export const lightColors: ColorPalette = {
     900: "#111827",
   },
   text: {
-    primary: "#2C2F4A",
-    secondary: "#5C768D",
-    secondary2: "#A0AEC0",
+    primary: "#1C1F21",
+    secondary: "#4A4D4F",
+    secondary2: "#6C757D",
     disabled: "#9E9E9E",
-    hint: "#7F7F9C",
-    dark: "#1C1F21",
+    hint: "#6C757D",
+    dark: "#000000",
     subtle: "#6C757D",
   },
   background: {

@@ -1,7 +1,4 @@
-import React, { useMemo } from "react";
-import { View, StyleSheet } from "react-native";
-import { useTheme, Theme } from "@/theme";
-import { ThemeText } from "@/components/primitives";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import ReusableActionMenu, { ActionMenuItem, ActionMenuPosition } from "./ReusableActionMenu";
 
@@ -26,9 +23,7 @@ const SortMenu: React.FC<SortMenuProps> = ({
   onSortChange,
   onClose,
 }) => {
-  const theme = useTheme();
   const { t } = useTranslation();
-  const styles = useMemo(() => makeStyles(theme), [theme]);
 
   // Generate menu items based on current sort
   const getSortItems = (): ActionMenuItem[] => {
@@ -52,31 +47,15 @@ const SortMenu: React.FC<SortMenuProps> = ({
   };
 
   return (
-    <View style={styles.container}>
-      <ThemeText variant="h3" style={styles.title}>
-        {t("sort.title")}
-      </ThemeText>
-      <ReusableActionMenu
-        visible={visible}
-        items={getSortItems()}
-        onClose={onClose}
-        position={position}
-        title="Sort By"
-        width={240}
-      />
-    </View>
+    <ReusableActionMenu
+      visible={visible}
+      items={getSortItems()}
+      onClose={onClose}
+      position={position}
+      title="Sort By"
+      width={240}
+    />
   );
 };
-
-const makeStyles = (theme: Theme) =>
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      padding: theme.spacing.md,
-    },
-    title: {
-      marginBottom: theme.spacing.md,
-    },
-  });
 
 export default SortMenu;

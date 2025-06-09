@@ -1,9 +1,9 @@
 import React from "react";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
-import { View, ActivityIndicator } from "react-native";
+import { View, ActivityIndicator, useColorScheme } from "react-native";
 import { store, persistor } from "@/redux/store";
-import { useColorScheme } from "react-native";
+
 import { setSystemPrefersDark } from "@/redux/slices/themeSlice";
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context";
 import { I18nextProvider } from "react-i18next";
