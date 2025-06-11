@@ -52,7 +52,7 @@ const SortMenu: React.FC<SortMenuProps> = ({
       items={getSortItems()}
       onClose={onClose}
       position={position}
-      title="Sort By"
+      title={t("sort.title")}
       width={240}
     />
   );
