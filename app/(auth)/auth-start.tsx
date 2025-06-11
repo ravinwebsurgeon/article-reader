@@ -139,9 +139,11 @@ function AuthStart() {
           </ThemeView>
 
           <ThemeView style={styles.signUpContainer}>
-            <ThemeText style={styles.signUpText}>{t("auth.signup.newHere")} </ThemeText>
+            <ThemeText style={styles.signUpText}>{t("auth.authStart.newHere")} </ThemeText>
             <TouchableOpacity onPress={navigateToSignUp}>
-              <ThemeText style={dynamicStyles.signUpLinkText}>{t("auth.signup.button")}</ThemeText>
+              <ThemeText style={dynamicStyles.signUpLinkText}>
+                {t("auth.authStart.button")}
+              </ThemeText>
             </TouchableOpacity>
           </ThemeView>
         </ScrollView>

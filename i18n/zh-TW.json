@@ -1,0 +1,238 @@
+{
+  "app": {
+    "name": "Folio",
+    "tagline": "保存。閱讀。成長。"
+  },
+  "navigation": {
+    "tabs": {
+      "discover": "探索",
+      "saves": "收藏",
+      "settings": "設定"
+    }
+  },
+  "common": {
+    "ok": "確定",
+    "cancel": "取消",
+    "yes": "是",
+    "no": "否",
+    "save": "儲存",
+    "delete": "刪除",
+    "edit": "編輯",
+    "loading": "載入中...",
+    "error": "錯誤",
+    "success": "成功"
+  },
+  "auth": {
+    "login": {
+      "title": "歡迎回來",
+      "subtitle": "登入以繼續",
+      "email": "電子郵件",
+      "password": "密碼",
+      "forgotPassword": "忘記密碼？",
+      "button": "登入",
+      "noAccount": "還沒有帳戶？",
+      "signUp": "註冊"
+    },
+    "signup": {
+      "title": "歡迎使用 Folio",
+      "subtitle": "建立您的帳戶以開始使用",
+      "email": "電子郵件",
+      "password": "密碼",
+      "confirmPassword": "確認密碼",
+      "button": "建立帳戶",
+      "submitting": "正在建立帳戶...",
+      "hasAccount": "已有帳戶？",
+      "logIn": "登入"
+    },
+    "authStart": {
+      "title": "歡迎使用 Folio",
+      "subtitle": "選擇您想要的開始方式",
+      "googleSignIn": "使用 Google 繼續",
+      "appleSignIn": "使用 Apple 繼續",
+      "emailSignIn": "使用電子郵件繼續",
+      "newHere": "新用戶？",
+      "button": "建立帳戶",
+      "loginError": "登入失敗"
+    },
+    "connectExtension": {
+      "title": "擴充功能已連線",
+      "message": "您的瀏覽器擴充功能已成功連線到 Folio。現在您可以直接從瀏覽器儲存內容。"
+    }
+  },
+  "search": {
+    "placeholder": "搜尋您的收藏...",
+    "emptyState": "您在尋找什麼？",
+    "noResults": "找不到結果",
+    "tryDifferentQuery": "嘗試不同的搜尋詞",
+    "loading": "搜尋中..."
+  },
+  "reader": {
+    "noArticleId": "未提供文章ID",
+    "afterReading": "閱讀後",
+    "favorited": "已收藏",
+    "favorite": "收藏",
+    "archive": "封存",
+    "unarchive": "取消封存",
+    "markAsRead": "標記為已讀",
+    "markAsUnread": "標記為未讀",
+    "upNext": "接下來"
+  },
+  "errors": {
+    "network": "網路錯誤。請檢查您的連線並重試。",
+    "invalidCredentials": "電子郵件或密碼無效。請重試。",
+    "unknown": "發生問題。請重試。",
+    "validation": {
+      "required": "此欄位為必填",
+      "minLength": "至少需要 {{count}} 個字元",
+      "maxLength": "最多 {{count}} 個字元",
+      "email": {
+        "required": "電子郵件為必填",
+        "invalid": "請輸入有效的電子郵件地址"
+      },
+      "password": {
+        "required": "密碼為必填",
+        "minLength": "密碼至少需要8個字元",
+        "complexity": "密碼必須包含至少一個大寫字母、一個小寫字母、一個數字和一個特殊字元"
+      },
+      "confirmPassword": {
+        "required": "請確認您的密碼",
+        "mismatch": "密碼不符"
+      }
+    }
+  },
+  "notFound": {
+    "title": "糟糕！",
+    "message": "此頁面不存在。",
+    "goHome": "回到主頁！"
+  },
+  "home": {
+    "discover": "探索"
+  },
+  "settings": {
+    "title": "設定",
+    "account": "帳戶",
+    "notifications": "通知",
+    "appearance": "外觀",
+    "importFromPocket": "從 Pocket 匯入",
+    "help": "說明與支援",
+    "about": "關於"
+  },
+  "import": {
+    "pocket": {
+      "title": "從 Pocket 匯入",
+      "description": "連結您的 Pocket 帳戶，將所有儲存的文章匯入到 Folio。此過程將：",
+      "benefits": {
+        "importArticles": "匯入您所有儲存的 Pocket 文章",
+        "preserveProgress": "保留您的閱讀進度和標籤",
+        "keepAccount": "保持您原有的 Pocket 帳戶不變"
+      },
+      "note": "您將被重新導向到 Pocket 以授權匯入。這是安全的——我們只讀取您儲存的文章。",
+      "startImport": "開始匯入",
+      "cancel": "取消",
+      "success": {
+        "title": "匯入已開始！",
+        "description": "您的 Pocket 資料正在背景匯入。這可能需要幾分鐘時間，具體取決於您儲存的文章數量。",
+        "note": "您可以正常使用 Folio。匯入的文章將在處理完成後顯示。"
+      },
+      "done": "完成"
+    }
+  },
+  "addArticle": {
+    "title": "新增到 Folio",
+    "sectionTitle": "新增連結",
+    "urlPlaceholder": "輸入要儲存的連結",
+    "saveButton": "儲存到 Folio",
+    "infoText": "儲存文章、影片等內容以供稍後閱讀。所有內容都會在您的裝置間同步。"
+  },
+  "emptyStates": {
+    "initialSync": {
+      "message": "正在設定您的 Folio",
+      "subMessage": "我們正在同步您儲存的文章。這可能需要一些時間。"
+    },
+    "favorites": {
+      "message": "暫無收藏",
+      "subMessage": "點擊星號將您最喜歡的文章儲存到這裡。"
+    },
+    "tagged": {
+      "message": "使用標籤整理",
+      "subMessage": "新增「旅行」或「食譜」等標籤來整理您的收藏。"
+    },
+    "archived": {
+      "message": "暫無封存",
+      "subMessage": "閱讀完成後，將文章封存以保持整潔。"
+    },
+    "short": {
+      "message": "暫無短篇閱讀",
+      "subMessage": "您儲存的快速閱讀文章將顯示在這裡。"
+    },
+    "long": {
+      "message": "暫無長篇閱讀",
+      "subMessage": "您儲存的深度閱讀文章將顯示在這裡。"
+    },
+    "default": {
+      "message": "準備開始儲存了嗎？",
+      "subMessage": "儲存您想稍後閱讀的文章。它們將顯示在這裡。"
+    },
+    "all": {
+      "message": "準備開始儲存了嗎？",
+      "subMessage": "儲存您想稍後閱讀的文章。它們將顯示在這裡。"
+    },
+    "restoring": {
+      "message": "正在還原您的收藏",
+      "subMessage": "您儲存的文章正在載入中。"
+    }
+  },
+  "tags": {
+    "editTags": "編輯標籤",
+    "done": "完成",
+    "enterTagName": "輸入標籤名稱",
+    "loadingTags": "載入標籤中...",
+    "searchResults": "搜尋結果",
+    "noMatchingTags": "找不到符合的標籤",
+    "recentTags": "最近標籤",
+    "noRecentTags": "找不到最近標籤",
+    "otherTags": "其他標籤",
+    "noOtherTags": "找不到其他標籤"
+  },
+  "sort": {
+    "title": "排序方式",
+    "newest": "最新優先",
+    "oldest": "最舊優先",
+    "titleAZ": "標題 (A-Z)",
+    "titleZA": "標題 (Z-A)",
+    "shortest": "最短優先",
+    "longest": "最長優先"
+  },
+  "menu": {
+    "close": "關閉",
+    "cancel": "取消",
+    "confirm": "確認",
+    "delete": "刪除",
+    "edit": "編輯",
+    "share": "分享",
+    "favorite": "收藏",
+    "unfavorite": "取消收藏",
+    "archive": "封存",
+    "unarchive": "取消封存",
+    "addTags": "新增標籤",
+    "removeTags": "移除標籤",
+    "markAsRead": "標記為已讀",
+    "markAsUnread": "標記為未讀",
+    "editTags": "編輯標籤",
+    "openInBrowser": "在瀏覽器中開啟",
+    "deleteConfirmation": {
+      "title": "刪除文章",
+      "message": "您確定要刪除這篇文章嗎？此動作無法復原。",
+      "cancel": "取消",
+      "confirm": "刪除"
+    }
+  },
+  "filters": {
+    "all": "全部",
+    "favorites": "收藏",
+    "tagged": "已標記",
+    "shortReads": "短篇閱讀",
+    "longReads": "長篇閱讀",
+    "archived": "已封存"
+  }
+}

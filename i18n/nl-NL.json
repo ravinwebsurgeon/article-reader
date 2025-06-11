@@ -1,0 +1,238 @@
+{
+  "app": {
+    "name": "Folio",
+    "tagline": "Bewaar. Lees. Groei."
+  },
+  "navigation": {
+    "tabs": {
+      "discover": "Ontdekken",
+      "saves": "Opgeslagen",
+      "settings": "Instellingen"
+    }
+  },
+  "common": {
+    "ok": "OK",
+    "cancel": "Annuleren",
+    "yes": "Ja",
+    "no": "Nee",
+    "save": "Opslaan",
+    "delete": "Verwijderen",
+    "edit": "Bewerken",
+    "loading": "Laden...",
+    "error": "Fout",
+    "success": "Succes"
+  },
+  "auth": {
+    "login": {
+      "title": "Welkom terug",
+      "subtitle": "Log in om door te gaan",
+      "email": "E-mail",
+      "password": "Wachtwoord",
+      "forgotPassword": "Wachtwoord vergeten?",
+      "button": "Inloggen",
+      "noAccount": "Nog geen account?",
+      "signUp": "Registreren"
+    },
+    "signup": {
+      "title": "Welkom bij Folio",
+      "subtitle": "Maak je account aan om te beginnen",
+      "email": "E-mail",
+      "password": "Wachtwoord",
+      "confirmPassword": "Bevestig wachtwoord",
+      "button": "Account aanmaken",
+      "submitting": "Account aanmaken...",
+      "hasAccount": "Heb je al een account?",
+      "logIn": "Inloggen"
+    },
+    "authStart": {
+      "title": "Welkom bij Folio",
+      "subtitle": "Kies hoe je wilt beginnen",
+      "googleSignIn": "Doorgaan met Google",
+      "appleSignIn": "Doorgaan met Apple",
+      "emailSignIn": "Doorgaan met e-mail",
+      "newHere": "Nieuw hier?",
+      "button": "Een account aanmaken",
+      "loginError": "Inloggen mislukt"
+    },
+    "connectExtension": {
+      "title": "Extensie verbonden",
+      "message": "Je browserextensie is succesvol verbonden met Folio. Je kunt nu items direct vanuit je browser opslaan."
+    }
+  },
+  "search": {
+    "placeholder": "Zoek in je opgeslagen items...",
+    "emptyState": "Waar ben je naar op zoek?",
+    "noResults": "Geen resultaten gevonden",
+    "tryDifferentQuery": "Probeer een andere zoekterm",
+    "loading": "Zoeken..."
+  },
+  "reader": {
+    "noArticleId": "Geen artikel-ID opgegeven",
+    "afterReading": "Na het lezen",
+    "favorited": "Toegevoegd aan favorieten",
+    "favorite": "Favoriet",
+    "archive": "Archiveren",
+    "unarchive": "Uit archief halen",
+    "markAsRead": "Markeren als gelezen",
+    "markAsUnread": "Markeren als ongelezen",
+    "upNext": "Volgende"
+  },
+  "errors": {
+    "network": "Netwerkfout. Controleer je verbinding en probeer opnieuw.",
+    "invalidCredentials": "Ongeldige e-mail of wachtwoord. Probeer opnieuw.",
+    "unknown": "Er is iets misgegaan. Probeer opnieuw.",
+    "validation": {
+      "required": "Dit veld is verplicht",
+      "minLength": "Moet minimaal {{count}} tekens bevatten",
+      "maxLength": "Mag maximaal {{count}} tekens bevatten",
+      "email": {
+        "required": "E-mail is verplicht",
+        "invalid": "Voer een geldig e-mailadres in"
+      },
+      "password": {
+        "required": "Wachtwoord is verplicht",
+        "minLength": "Wachtwoord moet minimaal 8 tekens bevatten",
+        "complexity": "Wachtwoord moet minimaal één hoofdletter, één kleine letter, één cijfer en één speciaal teken bevatten"
+      },
+      "confirmPassword": {
+        "required": "Bevestig je wachtwoord",
+        "mismatch": "Wachtwoorden komen niet overeen"
+      }
+    }
+  },
+  "notFound": {
+    "title": "Oops!",
+    "message": "Dit scherm bestaat niet.",
+    "goHome": "Ga naar het startscherm!"
+  },
+  "home": {
+    "discover": "Ontdekken"
+  },
+  "settings": {
+    "title": "Instellingen",
+    "account": "Account",
+    "notifications": "Meldingen",
+    "appearance": "Uiterlijk",
+    "importFromPocket": "Importeren uit Pocket",
+    "help": "Hulp & Ondersteuning",
+    "about": "Over"
+  },
+  "import": {
+    "pocket": {
+      "title": "Importeren uit Pocket",
+      "description": "Verbind je Pocket-account om al je opgeslagen artikelen naar Folio te importeren. Dit proces zal:",
+      "benefits": {
+        "importArticles": "Al je opgeslagen Pocket-artikelen importeren",
+        "preserveProgress": "Je leesvoortgang en tags behouden",
+        "keepAccount": "Je originele Pocket-account ongewijzigd laten"
+      },
+      "note": "Je wordt doorgestuurd naar Pocket om de import te autoriseren. Dit is veilig — we lezen alleen je opgeslagen artikelen.",
+      "startImport": "Import starten",
+      "cancel": "Annuleren",
+      "success": {
+        "title": "Import gestart!",
+        "description": "Je Pocket-gegevens worden op de achtergrond geïmporteerd. Dit kan enkele minuten duren afhankelijk van hoeveel artikelen je hebt opgeslagen.",
+        "note": "Je kunt Folio normaal blijven gebruiken. Je geïmporteerde artikelen verschijnen terwijl ze worden verwerkt."
+      },
+      "done": "Klaar"
+    }
+  },
+  "addArticle": {
+    "title": "Toevoegen aan Folio",
+    "sectionTitle": "Een URL toevoegen",
+    "urlPlaceholder": "Voer een URL in om op te slaan",
+    "saveButton": "Opslaan in Folio",
+    "infoText": "Sla artikelen, video's en meer op om later te lezen. Alles synchroniseert tussen je apparaten."
+  },
+  "emptyStates": {
+    "initialSync": {
+      "message": "Je Folio instellen",
+      "subMessage": "We synchroniseren je opgeslagen artikelen. Dit kan even duren."
+    },
+    "favorites": {
+      "message": "Nog geen favorieten",
+      "subMessage": "Tik op de ster om je favoriete artikelen hier op te slaan."
+    },
+    "tagged": {
+      "message": "Organiseren met tags",
+      "subMessage": "Voeg tags toe zoals 'reizen' of 'recepten' om je opgeslagen items te organiseren."
+    },
+    "archived": {
+      "message": "Niets gearchiveerd",
+      "subMessage": "Archiveer artikelen na het lezen om alles netjes te houden."
+    },
+    "short": {
+      "message": "Nog geen korte artikelen",
+      "subMessage": "Snelle artikelen die je opslaat verschijnen hier."
+    },
+    "long": {
+      "message": "Nog geen lange artikelen",
+      "subMessage": "Uitgebreide artikelen die je opslaat verschijnen hier."
+    },
+    "default": {
+      "message": "Klaar om te beginnen met opslaan?",
+      "subMessage": "Sla artikelen op die je later wilt lezen. Ze verschijnen hier."
+    },
+    "all": {
+      "message": "Klaar om te beginnen met opslaan?",
+      "subMessage": "Sla artikelen op die je later wilt lezen. Ze verschijnen hier."
+    },
+    "restoring": {
+      "message": "Je opgeslagen items herstellen",
+      "subMessage": "Je opgeslagen artikelen zijn onderweg."
+    }
+  },
+  "tags": {
+    "editTags": "Tags bewerken",
+    "done": "Klaar",
+    "enterTagName": "Voer een tagnaam in",
+    "loadingTags": "Tags laden...",
+    "searchResults": "Zoekresultaten",
+    "noMatchingTags": "Geen overeenkomende tags gevonden",
+    "recentTags": "Recente tags",
+    "noRecentTags": "Geen recente tags gevonden",
+    "otherTags": "Andere tags",
+    "noOtherTags": "Geen andere tags gevonden"
+  },
+  "sort": {
+    "title": "Sorteren op",
+    "newest": "Nieuwste eerst",
+    "oldest": "Oudste eerst",
+    "titleAZ": "Titel (A-Z)",
+    "titleZA": "Titel (Z-A)",
+    "shortest": "Kortste eerst",
+    "longest": "Langste eerst"
+  },
+  "menu": {
+    "close": "Sluiten",
+    "cancel": "Annuleren",
+    "confirm": "Bevestigen",
+    "delete": "Verwijderen",
+    "edit": "Bewerken",
+    "share": "Delen",
+    "favorite": "Favoriet",
+    "unfavorite": "Uit favorieten verwijderen",
+    "archive": "Archiveren",
+    "unarchive": "Uit archief halen",
+    "addTags": "Tags toevoegen",
+    "removeTags": "Tags verwijderen",
+    "markAsRead": "Markeren als gelezen",
+    "markAsUnread": "Markeren als ongelezen",
+    "editTags": "Tags bewerken",
+    "openInBrowser": "Openen in browser",
+    "deleteConfirmation": {
+      "title": "Artikel verwijderen",
+      "message": "Weet je zeker dat je dit artikel wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
+      "cancel": "Annuleren",
+      "confirm": "Verwijderen"
+    }
+  },
+  "filters": {
+    "all": "Alle",
+    "favorites": "Favorieten",
+    "tagged": "Met tags",
+    "shortReads": "Korte artikelen",
+    "longReads": "Lange artikelen",
+    "archived": "Gearchiveerd"
+  }
+}
