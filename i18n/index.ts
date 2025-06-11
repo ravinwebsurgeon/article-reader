@@ -25,7 +25,7 @@ import nlNL from "./nl-NL.json";
 function getUserLanguagePreferences(): string[] {
   const deviceLocales = getLocales();
   const preferences: string[] = [];
-  
+
   // Add user's preferred languages in order
   for (const locale of deviceLocales) {
     if (locale.languageCode) {
@@ -39,49 +39,49 @@ function getUserLanguagePreferences(): string[] {
       }
     }
   }
-  
+
   // English as final fallback
-  if (!preferences.includes('en')) {
-    preferences.push('en');
+  if (!preferences.includes("en")) {
+    preferences.push("en");
   }
-  
-  return preferences.length ? preferences : ['en'];
+
+  return preferences.length ? preferences : ["en"];
 }
 
 const userLanguagePreferences = getUserLanguagePreferences();
 
 i18n.use(initReactI18next).init({
   resources: {
-    'en-US': { translation: enUS },
-    'es-419': { translation: es419 },
-    'zh-CN': { translation: zhCN },
-    'pt-BR': { translation: ptBR },
-    'ja-JP': { translation: jaJP },
-    'ru-RU': { translation: ruRU },
-    'fr-FR': { translation: frFR },
-    'en-GB': { translation: enGB },
-    'es-ES': { translation: esES },
-    'de-DE': { translation: deDE },
-    'zh-TW': { translation: zhTW },
-    'fr-CA': { translation: frCA },
-    'pt-PT': { translation: ptPT },
-    'uk-UA': { translation: ukUA },
-    'it-IT': { translation: itIT },
-    'pl-PL': { translation: plPL },
-    'nl-NL': { translation: nlNL },
+    "en-US": { translation: enUS },
+    "es-419": { translation: es419 },
+    "zh-CN": { translation: zhCN },
+    "pt-BR": { translation: ptBR },
+    "ja-JP": { translation: jaJP },
+    "ru-RU": { translation: ruRU },
+    "fr-FR": { translation: frFR },
+    "en-GB": { translation: enGB },
+    "es-ES": { translation: esES },
+    "de-DE": { translation: deDE },
+    "zh-TW": { translation: zhTW },
+    "fr-CA": { translation: frCA },
+    "pt-PT": { translation: ptPT },
+    "uk-UA": { translation: ukUA },
+    "it-IT": { translation: itIT },
+    "pl-PL": { translation: plPL },
+    "nl-NL": { translation: nlNL },
     // Language-only fallbacks for i18next
-    'en': { translation: enUS },
-    'es': { translation: es419 }, // Default Spanish to Latin America
-    'zh': { translation: zhCN }, // Default Chinese to Simplified
-    'pt': { translation: ptBR }, // Default Portuguese to Brazil
-    'fr': { translation: frFR }, // Default French to France
-    'de': { translation: deDE },
-    'ja': { translation: jaJP },
-    'ru': { translation: ruRU },
-    'uk': { translation: ukUA },
-    'it': { translation: itIT },
-    'pl': { translation: plPL },
-    'nl': { translation: nlNL },
+    "en": { translation: enUS },
+    "es": { translation: es419 }, // Default Spanish to Latin America
+    "zh": { translation: zhCN }, // Default Chinese to Simplified
+    "pt": { translation: ptBR }, // Default Portuguese to Brazil
+    "fr": { translation: frFR }, // Default French to France
+    "de": { translation: deDE },
+    "ja": { translation: jaJP },
+    "ru": { translation: ruRU },
+    "uk": { translation: ukUA },
+    "it": { translation: itIT },
+    "pl": { translation: plPL },
+    "nl": { translation: nlNL },
   },
   lng: userLanguagePreferences[0], // Primary language preference
   fallbackLng: userLanguagePreferences.slice(1), // Remaining preferences as fallbacks
@@ -89,7 +89,7 @@ i18n.use(initReactI18next).init({
     escapeValue: false,
   },
   // Enable clean key separation
-  keySeparator: '.',
+  keySeparator: ".",
   nsSeparator: false, // Disable namespace separator since we're not using namespaces
 });
 
