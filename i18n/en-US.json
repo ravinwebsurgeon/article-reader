@@ -25,38 +25,34 @@
   "auth": {
     "login": {
       "title": "Welcome Back",
-      "welcome": "Welcome Back",
-      "subtitle": "Log in to your account",
+      "subtitle": "Sign in to continue",
       "email": "Email",
       "password": "Password",
       "forgotPassword": "Forgot Password?",
-      "button": "Log In",
+      "button": "Sign In",
       "noAccount": "Don't have an account?",
       "signUp": "Sign Up"
     },
     "signup": {
       "title": "Welcome to Folio",
-      "welcome": "Welcome to Folio",
-      "subtitle": "Create your account",
+      "subtitle": "Create your account to get started",
       "email": "Email",
       "password": "Password",
       "confirmPassword": "Confirm Password",
       "button": "Create Account",
-      "submitting": "Submitting...",
+      "submitting": "Creating account...",
       "hasAccount": "Already have an account?",
-      "logIn": "Log In",
-      "newHere": "New here?",
-      "signIn": "Sign in"
+      "logIn": "Sign In"
     },
     "authStart": {
-      "title": "How would you like to sign in?",
-      "subtitle": "Choose a method to get started.",
+      "title": "Welcome to Folio",
+      "subtitle": "Choose how you'd like to get started",
       "googleSignIn": "Continue with Google",
       "appleSignIn": "Continue with Apple",
       "emailSignIn": "Continue with Email",
-      "newHere": "New Here?",
+      "newHere": "New here?",
       "button": "Create an account",
-      "loginError": "Login Error"
+      "loginError": "Sign in failed"
     },
     "connectExtension": {
       "title": "Extension Connected",
@@ -65,7 +61,7 @@
   },
   "search": {
     "placeholder": "Search your saves...",
-    "emptyState": "Let's find that thing you saved",
+    "emptyState": "What are you looking for?",
     "noResults": "No results found",
     "tryDifferentQuery": "Try a different search term",
     "loading": "Searching..."
@@ -82,16 +78,9 @@
     "upNext": "Up Next"
   },
   "errors": {
-    "network": "Network error. Please check your connection.",
-    "invalidEmail": "Please enter a valid email address",
-    "invalidPassword": "Password must be at least 8 characters",
-    "passwordsDontMatch": "Passwords don't match",
-    "required": "This field is required",
-    "unknown": "An unknown error occurred",
-    "passwordMatch": "Passwords do not match",
-    "invalidCredentials": "Invalid email or password",
-    "networkError": "Network error. Please try again.",
-    "unknownError": "An unexpected error occurred",
+    "network": "Network error. Please check your connection and try again.",
+    "invalidCredentials": "Invalid email or password. Please try again.",
+    "unknown": "Something went wrong. Please try again.",
     "validation": {
       "required": "This field is required",
       "minLength": "Must be at least {{count}} characters",
@@ -108,8 +97,7 @@
       "confirmPassword": {
         "required": "Please confirm your password",
         "mismatch": "Passwords do not match"
-      },
-      "passwordMatch": "Passwords do not match"
+      }
     }
   },
   "notFound": {
@@ -138,13 +126,13 @@
         "preserveProgress": "Preserve your reading progress and tags",
         "keepAccount": "Keep your original Pocket account unchanged"
       },
-      "note": "You'll be redirected to Pocket to authorize the import. This is secure and we only read your saved articles.",
+      "note": "You'll be redirected to Pocket to authorize the import. This is secure — we only read your saved articles.",
       "startImport": "Start Import",
       "cancel": "Cancel",
       "success": {
         "title": "Import Started!",
-        "description": "Your Pocket data is being imported in the background. This may take a few minutes depending on how many articles you have saved.",
-        "note": "You can continue using Folio normally. Your imported articles will appear in your saves as they're processed."
+        "description": "Your Pocket data is being imported in the background. This may take a few minutes depending on how many articles you have.",
+        "note": "You can continue using Folio normally. Your imported articles will appear as they're processed."
       },
       "done": "Done"
     }
@@ -154,7 +142,7 @@
     "sectionTitle": "Add a URL",
     "urlPlaceholder": "Enter a URL to save",
     "saveButton": "Save to Folio",
-    "infoText": "Save articles, videos, and more to Folio. Your list syncs across devices so you can view it anywhere."
+    "infoText": "Save articles, videos, and more to read later. Everything syncs across your devices."
   },
   "emptyStates": {
     "initialSync": {
@@ -162,40 +150,36 @@
       "subMessage": "We're syncing your saved articles. This might take a moment."
     },
     "favorites": {
-      "message": "No Favorites Just Yet",
-      "subMessage": "Use the star to favorite pages you want saved to keep handy."
+      "message": "No favorites yet",
+      "subMessage": "Tap the star to save your favorite articles here."
     },
     "tagged": {
-      "message": "Sort Things Your Way",
-      "subMessage": "Use tags like travel or gift ideas to organize your saves."
+      "message": "Organize with tags",
+      "subMessage": "Add tags like 'travel' or 'recipes' to organize your saves."
     },
     "archived": {
-      "message": "Nothing Archived",
-      "subMessage": "When you're done with a save, move it here to keep things tidy."
+      "message": "Nothing archived",
+      "subMessage": "When you're done reading, archive articles to keep things tidy."
     },
     "short": {
-      "message": "No Short Reads Yet",
-      "subMessage": "When you save something quick to read, it'll show up here."
+      "message": "No short reads yet",
+      "subMessage": "Quick articles you save will appear here."
     },
     "long": {
-      "message": "No Long Reads Yet",
-      "subMessage": "When you save something quick to read, it'll show up here."
+      "message": "No long reads yet",
+      "subMessage": "In-depth articles you save will appear here."
     },
     "default": {
-      "message": "Ready to Start Saving?",
-      "subMessage": "Add pages you want to come back to. They'll appear here when you're ready."
+      "message": "Ready to start saving?",
+      "subMessage": "Save articles you want to read later. They'll appear here."
     },
     "all": {
-      "message": "Ready to Start Saving?",
-      "subMessage": "Add pages you want to come back to. They'll appear here when you're ready."
+      "message": "Ready to start saving?",
+      "subMessage": "Save articles you want to read later. They'll appear here."
     },
     "restoring": {
-      "message": "Restoring Your Saves",
-      "subMessage": "Your saved pages are on the way."
-    },
-    "sort": {
-      "message": "Sort Things Your Way",
-      "subMessage": "Use tags list, filter or gift ideas to keep handy."
+      "message": "Restoring your saves",
+      "subMessage": "Your saved articles are on the way."
     }
   },
   "tags": {

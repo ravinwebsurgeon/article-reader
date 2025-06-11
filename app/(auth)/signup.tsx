@@ -122,7 +122,7 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
               <SvgIcon name="logo" size={48} color={theme.colors.primary.main} />
             </ThemeView>
             <ThemeText variant="h2" style={styles.title}>
-              {t("auth.signup.welcome")}
+              {t("auth.signup.title")}
             </ThemeText>
             <ThemeText style={dynamicStyles.subtitle}>{t("auth.signup.subtitle")}</ThemeText>
           </ThemeView>
@@ -192,7 +192,7 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
           <View style={styles.loginContainer}>
             <ThemeText style={styles.loginText}>{t("auth.signup.hasAccount")} </ThemeText>
             <ThemeText style={dynamicStyles.loginLinkText} onPress={navigateToLogin}>
-              {t("auth.signup.signIn")}
+              {t("auth.signup.logIn")}
             </ThemeText>
           </View>
         </ScrollView>

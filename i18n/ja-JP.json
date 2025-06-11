@@ -1,0 +1,238 @@
+{
+  "app": {
+    "name": "Folio",
+    "tagline": "保存。読む。成長。"
+  },
+  "navigation": {
+    "tabs": {
+      "discover": "発見",
+      "saves": "保存済み",
+      "settings": "設定"
+    }
+  },
+  "common": {
+    "ok": "OK",
+    "cancel": "キャンセル",
+    "yes": "はい",
+    "no": "いいえ",
+    "save": "保存",
+    "delete": "削除",
+    "edit": "編集",
+    "loading": "読み込み中...",
+    "error": "エラー",
+    "success": "成功"
+  },
+  "auth": {
+    "login": {
+      "title": "おかえりなさい",
+      "subtitle": "サインインして続行",
+      "email": "メールアドレス",
+      "password": "パスワード",
+      "forgotPassword": "パスワードをお忘れですか？",
+      "button": "サインイン",
+      "noAccount": "アカウントをお持ちでないですか？",
+      "signUp": "サインアップ"
+    },
+    "signup": {
+      "title": "Folioへようこそ",
+      "subtitle": "始めるためにアカウントを作成してください",
+      "email": "メールアドレス",
+      "password": "パスワード",
+      "confirmPassword": "パスワードを確認",
+      "button": "アカウントを作成",
+      "submitting": "アカウントを作成中...",
+      "hasAccount": "すでにアカウントをお持ちですか？",
+      "logIn": "サインイン"
+    },
+    "authStart": {
+      "title": "Folioへようこそ",
+      "subtitle": "始め方を選択してください",
+      "googleSignIn": "Googleで続行",
+      "appleSignIn": "Appleで続行",
+      "emailSignIn": "メールで続行",
+      "newHere": "初めてのご利用ですか？",
+      "button": "アカウントを作成",
+      "loginError": "サインインに失敗しました"
+    },
+    "connectExtension": {
+      "title": "拡張機能が接続されました",
+      "message": "ブラウザ拡張機能がFolioに正常に接続されました。ブラウザから直接アイテムを保存できるようになりました。"
+    }
+  },
+  "search": {
+    "placeholder": "保存済みアイテムを検索...",
+    "emptyState": "何をお探しですか？",
+    "noResults": "結果が見つかりません",
+    "tryDifferentQuery": "別の検索語句をお試しください",
+    "loading": "検索中..."
+  },
+  "reader": {
+    "noArticleId": "記事IDが提供されていません",
+    "afterReading": "読了後",
+    "favorited": "お気に入りに追加済み",
+    "favorite": "お気に入り",
+    "archive": "アーカイブ",
+    "unarchive": "アーカイブを解除",
+    "markAsRead": "既読にする",
+    "markAsUnread": "未読にする",
+    "upNext": "次に読む"
+  },
+  "errors": {
+    "network": "ネットワークエラーです。接続を確認して再試行してください。",
+    "invalidCredentials": "メールアドレスまたはパスワードが無効です。再試行してください。",
+    "unknown": "問題が発生しました。再試行してください。",
+    "validation": {
+      "required": "この項目は必須です",
+      "minLength": "{{count}}文字以上である必要があります",
+      "maxLength": "{{count}}文字以下である必要があります",
+      "email": {
+        "required": "メールアドレスは必須です",
+        "invalid": "有効なメールアドレスを入力してください"
+      },
+      "password": {
+        "required": "パスワードは必須です",
+        "minLength": "パスワードは8文字以上である必要があります",
+        "complexity": "パスワードには大文字、小文字、数字、特殊文字をそれぞれ少なくとも1つ含める必要があります"
+      },
+      "confirmPassword": {
+        "required": "パスワードを確認してください",
+        "mismatch": "パスワードが一致しません"
+      }
+    }
+  },
+  "notFound": {
+    "title": "おっと！",
+    "message": "この画面は存在しません。",
+    "goHome": "ホーム画面に戻る！"
+  },
+  "home": {
+    "discover": "発見"
+  },
+  "settings": {
+    "title": "設定",
+    "account": "アカウント",
+    "notifications": "通知",
+    "appearance": "外観",
+    "importFromPocket": "Pocketからインポート",
+    "help": "ヘルプとサポート",
+    "about": "このアプリについて"
+  },
+  "import": {
+    "pocket": {
+      "title": "Pocketからインポート",
+      "description": "Pocketアカウントに接続して、保存されたすべての記事をFolioにインポートします。このプロセスは：",
+      "benefits": {
+        "importArticles": "保存されたすべてのPocket記事をインポート",
+        "preserveProgress": "読書の進捗とタグを保持",
+        "keepAccount": "元のPocketアカウントはそのまま維持"
+      },
+      "note": "インポートを認証するためにPocketにリダイレクトされます。これは安全です—保存された記事のみを読み取ります。",
+      "startImport": "インポートを開始",
+      "cancel": "キャンセル",
+      "success": {
+        "title": "インポートが開始されました！",
+        "description": "Pocketデータがバックグラウンドでインポートされています。保存された記事の数によっては数分かかる場合があります。",
+        "note": "Folioを通常通り使い続けることができます。インポートされた記事は処理されると表示されます。"
+      },
+      "done": "完了"
+    }
+  },
+  "addArticle": {
+    "title": "Folioに追加",
+    "sectionTitle": "URLを追加",
+    "urlPlaceholder": "保存するURLを入力",
+    "saveButton": "Folioに保存",
+    "infoText": "記事、動画などを後で読むために保存します。すべてがデバイス間で同期されます。"
+  },
+  "emptyStates": {
+    "initialSync": {
+      "message": "Folioをセットアップ中",
+      "subMessage": "保存された記事を同期しています。しばらくお待ちください。"
+    },
+    "favorites": {
+      "message": "まだお気に入りがありません",
+      "subMessage": "星をタップしてお気に入りの記事をここに保存しましょう。"
+    },
+    "tagged": {
+      "message": "タグで整理",
+      "subMessage": "「旅行」や「レシピ」などのタグを追加して保存アイテムを整理しましょう。"
+    },
+    "archived": {
+      "message": "アーカイブされたものはありません",
+      "subMessage": "読み終わったら、記事をアーカイブして整理しましょう。"
+    },
+    "short": {
+      "message": "まだ短い読み物がありません",
+      "subMessage": "保存した短い記事がここに表示されます。"
+    },
+    "long": {
+      "message": "まだ長い読み物がありません",
+      "subMessage": "保存した長い記事がここに表示されます。"
+    },
+    "default": {
+      "message": "保存を始める準備はできましたか？",
+      "subMessage": "後で読みたい記事を保存してください。ここに表示されます。"
+    },
+    "all": {
+      "message": "保存を始める準備はできましたか？",
+      "subMessage": "後で読みたい記事を保存してください。ここに表示されます。"
+    },
+    "restoring": {
+      "message": "保存アイテムを復元中",
+      "subMessage": "保存された記事が準備中です。"
+    }
+  },
+  "tags": {
+    "editTags": "タグを編集",
+    "done": "完了",
+    "enterTagName": "タグ名を入力",
+    "loadingTags": "タグを読み込み中...",
+    "searchResults": "検索結果",
+    "noMatchingTags": "一致するタグが見つかりません",
+    "recentTags": "最近のタグ",
+    "noRecentTags": "最近のタグが見つかりません",
+    "otherTags": "その他のタグ",
+    "noOtherTags": "その他のタグが見つかりません"
+  },
+  "sort": {
+    "title": "並び順",
+    "newest": "新しい順",
+    "oldest": "古い順",
+    "titleAZ": "タイトル (A-Z)",
+    "titleZA": "タイトル (Z-A)",
+    "shortest": "短い順",
+    "longest": "長い順"
+  },
+  "menu": {
+    "close": "閉じる",
+    "cancel": "キャンセル",
+    "confirm": "確認",
+    "delete": "削除",
+    "edit": "編集",
+    "share": "共有",
+    "favorite": "お気に入り",
+    "unfavorite": "お気に入りを解除",
+    "archive": "アーカイブ",
+    "unarchive": "アーカイブを解除",
+    "addTags": "タグを追加",
+    "removeTags": "タグを削除",
+    "markAsRead": "既読にする",
+    "markAsUnread": "未読にする",
+    "editTags": "タグを編集",
+    "openInBrowser": "ブラウザで開く",
+    "deleteConfirmation": {
+      "title": "記事を削除",
+      "message": "この記事を削除してもよろしいですか？この操作は元に戻せません。",
+      "cancel": "キャンセル",
+      "confirm": "削除"
+    }
+  },
+  "filters": {
+    "all": "すべて",
+    "favorites": "お気に入り",
+    "tagged": "タグ付き",
+    "shortReads": "短い読み物",
+    "longReads": "長い読み物",
+    "archived": "アーカイブ済み"
+  }
+}

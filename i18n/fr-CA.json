@@ -1,0 +1,238 @@
+{
+  "app": {
+    "name": "Folio",
+    "tagline": "Sauvegarder. Lire. Grandir."
+  },
+  "navigation": {
+    "tabs": {
+      "discover": "Découvrir",
+      "saves": "Sauvegardes",
+      "settings": "Paramètres"
+    }
+  },
+  "common": {
+    "ok": "OK",
+    "cancel": "Annuler",
+    "yes": "Oui",
+    "no": "Non",
+    "save": "Sauvegarder",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès"
+  },
+  "auth": {
+    "login": {
+      "title": "Bon retour",
+      "subtitle": "Connectez-vous pour continuer",
+      "email": "Courriel",
+      "password": "Mot de passe",
+      "forgotPassword": "Mot de passe oublié ?",
+      "button": "Se connecter",
+      "noAccount": "Pas encore de compte ?",
+      "signUp": "S'inscrire"
+    },
+    "signup": {
+      "title": "Bienvenue sur Folio",
+      "subtitle": "Créez votre compte pour commencer",
+      "email": "Courriel",
+      "password": "Mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "button": "Créer un compte",
+      "submitting": "Création du compte...",
+      "hasAccount": "Déjà un compte ?",
+      "logIn": "Se connecter"
+    },
+    "authStart": {
+      "title": "Bienvenue sur Folio",
+      "subtitle": "Choisissez comment vous souhaitez commencer",
+      "googleSignIn": "Continuer avec Google",
+      "appleSignIn": "Continuer avec Apple",
+      "emailSignIn": "Continuer avec le courriel",
+      "newHere": "Nouveau ici ?",
+      "button": "Créer un compte",
+      "loginError": "Échec de la connexion"
+    },
+    "connectExtension": {
+      "title": "Extension connectée",
+      "message": "Votre extension de navigateur a été connectée avec succès à Folio. Vous pouvez maintenant sauvegarder des éléments directement depuis votre navigateur."
+    }
+  },
+  "search": {
+    "placeholder": "Rechercher dans vos sauvegardes...",
+    "emptyState": "Que recherchez-vous ?",
+    "noResults": "Aucun résultat trouvé",
+    "tryDifferentQuery": "Essayez un terme de recherche différent",
+    "loading": "Recherche en cours..."
+  },
+  "reader": {
+    "noArticleId": "ID d'article non fourni",
+    "afterReading": "Après la lecture",
+    "favorited": "Ajouté aux favoris",
+    "favorite": "Favori",
+    "archive": "Archiver",
+    "unarchive": "Désarchiver",
+    "markAsRead": "Marquer comme lu",
+    "markAsUnread": "Marquer comme non lu",
+    "upNext": "À suivre"
+  },
+  "errors": {
+    "network": "Erreur réseau. Vérifiez votre connexion et réessayez.",
+    "invalidCredentials": "Courriel ou mot de passe invalide. Veuillez réessayer.",
+    "unknown": "Quelque chose s'est mal passé. Veuillez réessayer.",
+    "validation": {
+      "required": "Ce champ est obligatoire",
+      "minLength": "Doit contenir au moins {{count}} caractères",
+      "maxLength": "Doit contenir au maximum {{count}} caractères",
+      "email": {
+        "required": "Le courriel est obligatoire",
+        "invalid": "Veuillez saisir une adresse courriel valide"
+      },
+      "password": {
+        "required": "Le mot de passe est obligatoire",
+        "minLength": "Le mot de passe doit contenir au moins 8 caractères",
+        "complexity": "Le mot de passe doit contenir au moins une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial"
+      },
+      "confirmPassword": {
+        "required": "Veuillez confirmer votre mot de passe",
+        "mismatch": "Les mots de passe ne correspondent pas"
+      }
+    }
+  },
+  "notFound": {
+    "title": "Oups !",
+    "message": "Cet écran n'existe pas.",
+    "goHome": "Aller à l'écran d'accueil !"
+  },
+  "home": {
+    "discover": "Découvrir"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "account": "Compte",
+    "notifications": "Notifications",
+    "appearance": "Apparence",
+    "importFromPocket": "Importer depuis Pocket",
+    "help": "Aide et soutien",
+    "about": "À propos"
+  },
+  "import": {
+    "pocket": {
+      "title": "Importer depuis Pocket",
+      "description": "Connectez votre compte Pocket pour importer tous vos articles sauvegardés dans Folio. Ce processus va :",
+      "benefits": {
+        "importArticles": "Importer tous vos articles sauvegardés de Pocket",
+        "preserveProgress": "Préserver votre progression de lecture et vos étiquettes",
+        "keepAccount": "Garder votre compte Pocket original inchangé"
+      },
+      "note": "Vous serez redirigé vers Pocket pour autoriser l'importation. C'est sécurisé — nous ne lisons que vos articles sauvegardés.",
+      "startImport": "Commencer l'importation",
+      "cancel": "Annuler",
+      "success": {
+        "title": "Importation commencée !",
+        "description": "Vos données Pocket sont en cours d'importation en arrière-plan. Cela peut prendre quelques minutes selon le nombre d'articles que vous avez sauvegardés.",
+        "note": "Vous pouvez continuer à utiliser Folio normalement. Vos articles importés apparaîtront au fur et à mesure de leur traitement."
+      },
+      "done": "Terminé"
+    }
+  },
+  "addArticle": {
+    "title": "Ajouter à Folio",
+    "sectionTitle": "Ajouter une URL",
+    "urlPlaceholder": "Saisissez une URL à sauvegarder",
+    "saveButton": "Sauvegarder dans Folio",
+    "infoText": "Sauvegardez des articles, vidéos et plus pour les lire plus tard. Tout se synchronise entre vos appareils."
+  },
+  "emptyStates": {
+    "initialSync": {
+      "message": "Configuration de votre Folio",
+      "subMessage": "Nous synchronisons vos articles sauvegardés. Cela peut prendre un moment."
+    },
+    "favorites": {
+      "message": "Aucun favori pour le moment",
+      "subMessage": "Appuyez sur l'étoile pour sauvegarder vos articles favoris ici."
+    },
+    "tagged": {
+      "message": "Organisez avec des étiquettes",
+      "subMessage": "Ajoutez des étiquettes comme 'voyage' ou 'recettes' pour organiser vos sauvegardes."
+    },
+    "archived": {
+      "message": "Rien d'archivé",
+      "subMessage": "Une fois la lecture terminée, archivez les articles pour garder les choses organisées."
+    },
+    "short": {
+      "message": "Aucune lecture courte pour le moment",
+      "subMessage": "Les articles rapides que vous sauvegardez apparaîtront ici."
+    },
+    "long": {
+      "message": "Aucune lecture longue pour le moment",
+      "subMessage": "Les articles approfondis que vous sauvegardez apparaîtront ici."
+    },
+    "default": {
+      "message": "Prêt à commencer à sauvegarder ?",
+      "subMessage": "Sauvegardez les articles que vous voulez lire plus tard. Ils apparaîtront ici."
+    },
+    "all": {
+      "message": "Prêt à commencer à sauvegarder ?",
+      "subMessage": "Sauvegardez les articles que vous voulez lire plus tard. Ils apparaîtront ici."
+    },
+    "restoring": {
+      "message": "Restauration de vos sauvegardes",
+      "subMessage": "Vos articles sauvegardés arrivent."
+    }
+  },
+  "tags": {
+    "editTags": "Modifier les étiquettes",
+    "done": "Terminé",
+    "enterTagName": "Saisissez un nom d'étiquette",
+    "loadingTags": "Chargement des étiquettes...",
+    "searchResults": "Résultats de recherche",
+    "noMatchingTags": "Aucune étiquette correspondante trouvée",
+    "recentTags": "Étiquettes récentes",
+    "noRecentTags": "Aucune étiquette récente trouvée",
+    "otherTags": "Autres étiquettes",
+    "noOtherTags": "Aucune autre étiquette trouvée"
+  },
+  "sort": {
+    "title": "Trier par",
+    "newest": "Plus récent d'abord",
+    "oldest": "Plus ancien d'abord",
+    "titleAZ": "Titre (A-Z)",
+    "titleZA": "Titre (Z-A)",
+    "shortest": "Plus court d'abord",
+    "longest": "Plus long d'abord"
+  },
+  "menu": {
+    "close": "Fermer",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "share": "Partager",
+    "favorite": "Favori",
+    "unfavorite": "Retirer des favoris",
+    "archive": "Archiver",
+    "unarchive": "Désarchiver",
+    "addTags": "Ajouter des étiquettes",
+    "removeTags": "Supprimer les étiquettes",
+    "markAsRead": "Marquer comme lu",
+    "markAsUnread": "Marquer comme non lu",
+    "editTags": "Modifier les étiquettes",
+    "openInBrowser": "Ouvrir dans le navigateur",
+    "deleteConfirmation": {
+      "title": "Supprimer l'article",
+      "message": "Êtes-vous sûr de vouloir supprimer cet article ? Cette action ne peut pas être annulée.",
+      "cancel": "Annuler",
+      "confirm": "Supprimer"
+    }
+  },
+  "filters": {
+    "all": "Tous",
+    "favorites": "Favoris",
+    "tagged": "Avec étiquettes",
+    "shortReads": "Lectures courtes",
+    "longReads": "Lectures longues",
+    "archived": "Archivés"
+  }
+}

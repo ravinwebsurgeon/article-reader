@@ -162,7 +162,7 @@ function LoginScreen() {
               <SvgIcon name="logo" size={48} color={theme.colors.primary.main} />
             </ThemeView>
             <ThemeText variant="h2" style={styles.title}>
-              {t("auth.login.welcome")}
+              {t("auth.login.title")}
             </ThemeText>
             <ThemeText style={dynamicStyles.subtitle}>{t("auth.login.subtitle")}</ThemeText>
           </ThemeView>
@@ -220,9 +220,9 @@ function LoginScreen() {
           </ThemeView>
 
           <ThemeView style={styles.signUpContainer}>
-            <ThemeText style={styles.signUpText}>{t("auth.signup.newHere")} </ThemeText>
+            <ThemeText style={styles.signUpText}>{t("auth.login.noAccount")} </ThemeText>
             <TouchableOpacity onPress={navigateToSignUp}>
-              <ThemeText style={dynamicStyles.signUpLinkText}>{t("auth.signup.button")}</ThemeText>
+              <ThemeText style={dynamicStyles.signUpLinkText}>{t("auth.login.signUp")}</ThemeText>
             </TouchableOpacity>
           </ThemeView>
         </ScrollView>
