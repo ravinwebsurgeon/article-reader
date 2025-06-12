@@ -44,8 +44,8 @@ const ItemsFlatList = memo(({ items, filter }: ItemsFlatListProps) => {
 
   const getItemLayout = useCallback(
     (_data: ArrayLike<Item> | null | undefined, index: number) => ({
-      length: ITEM_CARD_HEIGHT,
-      offset: ITEM_CARD_HEIGHT * index,
+      length: ITEM_CARD_HEIGHT + 0.5, // Include border height
+      offset: (ITEM_CARD_HEIGHT + 0.5) * index,
       index,
     }),
     [],
@@ -58,12 +58,11 @@ const ItemsFlatList = memo(({ items, filter }: ItemsFlatListProps) => {
       contentContainerStyle={styles.listContainer}
       refreshControl={<RefreshControl refreshing={isSyncing} onRefresh={handleRefresh} />}
       ListEmptyComponent={<NoUIFound filter={filter} />}
-      windowSize={5}
-      maxToRenderPerBatch={10}
-      initialNumToRender={10}
-      removeClippedSubviews={true}
+      windowSize={10}
+      maxToRenderPerBatch={5}
+      initialNumToRender={15}
+      removeClippedSubviews={false}
       getItemLayout={getItemLayout}
-      updateCellsBatchingPeriod={50}
     />
   );
 });

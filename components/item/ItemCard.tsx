@@ -281,9 +281,8 @@ const ItemCardComponent = ({ item, itemTags, onPress, style }: ItemCardProps) =>
     setMenuVisible(false);
   }, []);
 
-  if (!item?.title) {
-    return null;
-  }
+  // Show URL as fallback if no title
+  const displayTitle = item?.title || item?.url || "Untitled";
 
   const readTime = item.readTime;
 
@@ -295,7 +294,7 @@ const ItemCardComponent = ({ item, itemTags, onPress, style }: ItemCardProps) =>
             <View style={styles.cardTopLeft}>
               <View style={styles.header}>
                 <ThemeText numberOfLines={2} variant="h6">
-                  {item.title}
+                  {displayTitle}
                 </ThemeText>
               </View>
               <View style={styles.metaContainer}>
