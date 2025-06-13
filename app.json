@@ -45,8 +45,7 @@
           "dark": {
             "image": "./assets/images/splash-icon-dark.png",
             "backgroundColor": "#1F1F1F"
-          },
-          "imageWidth": 192
+          }
         }
       ],
       ["@lovesworking/watermelondb-expo-plugin-sdk-52-plus"],
