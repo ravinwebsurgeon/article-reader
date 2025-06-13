@@ -13,9 +13,9 @@ export default function AuthLayout() {
       }}
     >
       <Stack.Screen
-        name="auth-start"
+        name="signup"
         options={{
-          title: "Auth Start",
+          title: "Create Account",
           headerShown: false,
         }}
       />
@@ -27,23 +27,10 @@ export default function AuthLayout() {
         }}
       />
       <Stack.Screen
-        name="signup"
+        name="auth-start"
         options={{
-          title: "Create Account",
+          title: "Auth Start",
           headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="reset-password"
-        options={{
-          title: "Reset Password",
-        }}
-      />
-      <Stack.Screen
-        name="otp-verification"
-        options={{
-          title: "Verify Code",
-          headerBackVisible: false,
         }}
       />
     </Stack>
