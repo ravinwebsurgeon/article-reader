@@ -5,7 +5,7 @@ import { ThemeView, ThemeText } from "@/components/primitives";
 import { SvgIcon } from "@/components/SvgIcon";
 import { useTheme, useSpacing } from "@/theme/hooks";
 import RecommendedItems from "@/components/item/RecommendedItems";
-import { withRecommendedItems } from "@/database/hooks/withRecommendedItems";
+import { withNextItems } from "@/database/hooks/withRecommendedItems";
 import Item from "@/database/models/ItemModel";
 
 interface UpNextProps {
@@ -41,28 +41,41 @@ export const ReaderUpNext: React.FC<UpNextProps> = ({ item }) => {
     },
   });
 
-  // Memoize the EnhancedRecommendedItems component
-  const EnhancedRecommendedItems = useMemo(
+  // Memoize the EnhancedNextItems component
+  const EnhancedNextItems = useMemo(
     () =>
-      withRecommendedItems({ currentItem: item })(({ recommendedItems }) => (
-        <RecommendedItems items={recommendedItems} />
-      )),
-    [item],
+      withNextItems(item)(({ nextItems }: { nextItems: Item[] }) => {
+        // Hide the entire section if there are no next items
+        if (!nextItems || nextItems.length === 0) {
+          return null;
+        }
+
+        return (
+          <ThemeView style={styles.container}>
+            <ThemeView style={styles.sectionHeader} backgroundColor={theme.colors.background.paper}>
+              <ThemeView
+                style={styles.headerContent}
+                backgroundColor={theme.colors.background.paper}
+                row
+              >
+                <SvgIcon name="up-next" size={18} color={theme.colors.text.secondary} />
+                <ThemeText
+                  variant="guide"
+                  color={theme.colors.text.secondary}
+                  style={styles.headerText}
+                >
+                  {t("reader.upNext")}
+                </ThemeText>
+              </ThemeView>
+            </ThemeView>
+            <RecommendedItems items={nextItems} />
+          </ThemeView>
+        );
+      }),
+    [item, styles, theme, t],
   );
 
-  return (
-    <ThemeView style={styles.container}>
-      <ThemeView style={styles.sectionHeader} backgroundColor={theme.colors.background.paper}>
-        <ThemeView style={styles.headerContent} backgroundColor={theme.colors.background.paper} row>
-          <SvgIcon name="up-next" size={18} color={theme.colors.text.secondary} />
-          <ThemeText variant="guide" color={theme.colors.text.secondary} style={styles.headerText}>
-            {t("reader.upNext")}
-          </ThemeText>
-        </ThemeView>
-      </ThemeView>
-      <EnhancedRecommendedItems />
-    </ThemeView>
-  );
+  return <EnhancedNextItems />;
 };
 
 export default ReaderUpNext;

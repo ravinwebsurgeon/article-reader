@@ -203,3 +203,37 @@ export const withUnreadItems = (currentItem: Item, limit: number = 3) => {
     };
   });
 };
+
+/**
+ * Creates a reactive subscription to get the next items from the main list after the current item
+ * Uses the same ordering as the main list (saved_at descending - newest first)
+ *
+ * @param currentItem - The current item being viewed
+ * @param limit - Maximum number of items to fetch (default: 3)
+ * @returns A function that provides the next items as props to components
+ */
+export const withNextItems = (currentItem: Item, limit: number = 3) => {
+  return withObservables(["currentItem"], () => {
+    const itemsCollection = currentItem.database.collections.get<Item>("items");
+
+    // Get items that were saved before the current item (older in the list)
+    // Since the main list is sorted by saved_at desc (newest first),
+    // "next" items are those with saved_at < current item's saved_at
+    const query = itemsCollection.query(
+      // Not archived
+      Q.where("archived", false),
+      // Not the current item
+      Q.where("id", Q.notEq(currentItem.id)),
+      // Items saved before the current item (older in the main list)
+      Q.where("saved_at", Q.lt(currentItem.savedAt?.getTime() || 0)),
+      // Sort by saved_at descending (same as main list)
+      Q.sortBy("saved_at", Q.desc),
+      // Limit results
+      Q.take(limit),
+    );
+
+    return {
+      nextItems: query.observe(),
+    };
+  });
+};

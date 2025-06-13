@@ -50,13 +50,8 @@ export const userApi = api.injectEndpoints({
         body: passwordData,
       }),
     }),
-
   }),
 });
 
 // Export hooks for usage in functional components
-export const {
-  useGetProfileQuery,
-  useUpdateProfileMutation,
-  useChangePasswordMutation,
-} = userApi;
+export const { useGetProfileQuery, useUpdateProfileMutation, useChangePasswordMutation } = userApi;
