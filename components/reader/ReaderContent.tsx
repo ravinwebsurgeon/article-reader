@@ -244,6 +244,7 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
         height: auto; 
         display: block;
         margin: ${spacing.lg - spacing.xs}px 0; /* 20px 0 */
+        border-radius: 8px;
       }
       
       blockquote {

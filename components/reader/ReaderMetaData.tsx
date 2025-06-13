@@ -71,14 +71,14 @@ export const ReaderMetaData: React.FC<MetaDataProps> = ({
     imageContainer: {
       marginBottom: spacing.sm + spacing.xs, // 10px equivalent
       width: "100%",
-      borderRadius: 0,
+      borderRadius: 8,
       overflow: "hidden",
     },
     featureImage: {
       width: "100%",
       aspectRatio: 16 / 9,
       resizeMode: "cover",
-      borderRadius: 0,
+      borderRadius: 8,
     },
   });
 
