@@ -1,0 +1,238 @@
+{
+  "app": {
+    "name": "Folio",
+    "tagline": "Zapisz. Czytaj. Rozwijaj się."
+  },
+  "navigation": {
+    "tabs": {
+      "discover": "Odkryj",
+      "saves": "Zapisane",
+      "settings": "Ustawienia"
+    }
+  },
+  "common": {
+    "ok": "OK",
+    "cancel": "Anuluj",
+    "yes": "Tak",
+    "no": "Nie",
+    "save": "Zapisz",
+    "delete": "Usuń",
+    "edit": "Edytuj",
+    "loading": "Ładowanie...",
+    "error": "Błąd",
+    "success": "Sukces"
+  },
+  "auth": {
+    "login": {
+      "title": "Witaj ponownie",
+      "subtitle": "Zaloguj się, aby kontynuować",
+      "email": "E-mail",
+      "password": "Hasło",
+      "forgotPassword": "Zapomniałeś hasła?",
+      "button": "Zaloguj się",
+      "noAccount": "Nie masz konta?",
+      "signUp": "Zarejestruj się"
+    },
+    "signup": {
+      "title": "Witaj w Folio",
+      "subtitle": "Utwórz swoje konto, aby rozpocząć",
+      "email": "E-mail",
+      "password": "Hasło",
+      "confirmPassword": "Potwierdź hasło",
+      "button": "Utwórz konto",
+      "submitting": "Tworzenie konta...",
+      "hasAccount": "Masz już konto?",
+      "logIn": "Zaloguj się"
+    },
+    "authStart": {
+      "title": "Witaj w Folio",
+      "subtitle": "Wybierz sposób, w jaki chcesz rozpocząć",
+      "googleSignIn": "Kontynuuj z Google",
+      "appleSignIn": "Kontynuuj z Apple",
+      "emailSignIn": "Kontynuuj z e-mailem",
+      "newHere": "Nowy tutaj?",
+      "button": "Utwórz konto",
+      "loginError": "Logowanie nie powiodło się"
+    },
+    "connectExtension": {
+      "title": "Rozszerzenie połączone",
+      "message": "Twoje rozszerzenie przeglądarki zostało pomyślnie połączone z Folio. Możesz teraz zapisywać elementy bezpośrednio z przeglądarki."
+    }
+  },
+  "search": {
+    "placeholder": "Szukaj w zapisanych...",
+    "emptyState": "Czego szukasz?",
+    "noResults": "Nie znaleziono wyników",
+    "tryDifferentQuery": "Spróbuj innego terminu wyszukiwania",
+    "loading": "Wyszukiwanie..."
+  },
+  "reader": {
+    "noArticleId": "Nie podano ID artykułu",
+    "afterReading": "Po przeczytaniu",
+    "favorited": "Dodano do ulubionych",
+    "favorite": "Ulubione",
+    "archive": "Archiwizuj",
+    "unarchive": "Cofnij archiwizację",
+    "markAsRead": "Oznacz jako przeczytane",
+    "markAsUnread": "Oznacz jako nieprzeczytane",
+    "upNext": "Następne"
+  },
+  "errors": {
+    "network": "Błąd sieci. Sprawdź połączenie i spróbuj ponownie.",
+    "invalidCredentials": "Nieprawidłowy e-mail lub hasło. Spróbuj ponownie.",
+    "unknown": "Coś poszło nie tak. Spróbuj ponownie.",
+    "validation": {
+      "required": "To pole jest wymagane",
+      "minLength": "Musi mieć co najmniej {{count}} znaków",
+      "maxLength": "Może mieć maksymalnie {{count}} znaków",
+      "email": {
+        "required": "E-mail jest wymagany",
+        "invalid": "Wprowadź prawidłowy adres e-mail"
+      },
+      "password": {
+        "required": "Hasło jest wymagane",
+        "minLength": "Hasło musi mieć co najmniej 8 znaków",
+        "complexity": "Hasło musi zawierać co najmniej jedną wielką literę, jedną małą literę, jedną cyfrę i jeden znak specjalny"
+      },
+      "confirmPassword": {
+        "required": "Potwierdź swoje hasło",
+        "mismatch": "Hasła nie pasują do siebie"
+      }
+    }
+  },
+  "notFound": {
+    "title": "Ups!",
+    "message": "Ten ekran nie istnieje.",
+    "goHome": "Przejdź do ekranu głównego!"
+  },
+  "home": {
+    "discover": "Odkryj"
+  },
+  "settings": {
+    "title": "Ustawienia",
+    "account": "Konto",
+    "notifications": "Powiadomienia",
+    "appearance": "Wygląd",
+    "importFromPocket": "Importuj z Pocket",
+    "help": "Pomoc i wsparcie",
+    "about": "O aplikacji"
+  },
+  "import": {
+    "pocket": {
+      "title": "Importuj z Pocket",
+      "description": "Połącz swoje konto Pocket, aby zaimportować wszystkie zapisane artykuły do Folio. Ten proces:",
+      "benefits": {
+        "importArticles": "Zaimportuje wszystkie zapisane artykuły z Pocket",
+        "preserveProgress": "Zachowa postęp czytania i tagi",
+        "keepAccount": "Pozostawi oryginalne konto Pocket bez zmian"
+      },
+      "note": "Zostaniesz przekierowany do Pocket, aby autoryzować import. To jest bezpieczne — czytamy tylko zapisane artykuły.",
+      "startImport": "Rozpocznij import",
+      "cancel": "Anuluj",
+      "success": {
+        "title": "Import rozpoczęty!",
+        "description": "Twoje dane z Pocket są importowane w tle. Może to potrwać kilka minut w zależności od liczby zapisanych artykułów.",
+        "note": "Możesz nadal normalnie korzystać z Folio. Zaimportowane artykuły pojawią się w miarę przetwarzania."
+      },
+      "done": "Gotowe"
+    }
+  },
+  "addArticle": {
+    "title": "Dodaj do Folio",
+    "sectionTitle": "Dodaj URL",
+    "urlPlaceholder": "Wprowadź URL do zapisania",
+    "saveButton": "Zapisz w Folio",
+    "infoText": "Zapisuj artykuły, filmy i więcej do późniejszego czytania. Wszystko synchronizuje się między urządzeniami."
+  },
+  "emptyStates": {
+    "initialSync": {
+      "message": "Konfigurowanie Folio",
+      "subMessage": "Synchronizujemy zapisane artykuły. To może chwilę potrwać."
+    },
+    "favorites": {
+      "message": "Jeszcze brak ulubionych",
+      "subMessage": "Dotknij gwiazdki, aby zapisać ulubione artykuły tutaj."
+    },
+    "tagged": {
+      "message": "Organizuj za pomocą tagów",
+      "subMessage": "Dodaj tagi takie jak 'podróże' lub 'przepisy', aby uporządkować zapisane."
+    },
+    "archived": {
+      "message": "Nic nie zarchiwizowano",
+      "subMessage": "Po przeczytaniu zarchiwizuj artykuły, aby utrzymać porządek."
+    },
+    "short": {
+      "message": "Jeszcze brak krótkich artykułów",
+      "subMessage": "Szybkie artykuły, które zapiszesz, pojawią się tutaj."
+    },
+    "long": {
+      "message": "Jeszcze brak długich artykułów",
+      "subMessage": "Dogłębne artykuły, które zapiszesz, pojawią się tutaj."
+    },
+    "default": {
+      "message": "Gotowy, aby zacząć zapisywać?",
+      "subMessage": "Zapisuj artykuły, które chcesz przeczytać później. Pojawią się tutaj."
+    },
+    "all": {
+      "message": "Gotowy, aby zacząć zapisywać?",
+      "subMessage": "Zapisuj artykuły, które chcesz przeczytać później. Pojawią się tutaj."
+    },
+    "restoring": {
+      "message": "Przywracanie zapisanych",
+      "subMessage": "Twoje zapisane artykuły są w drodze."
+    }
+  },
+  "tags": {
+    "editTags": "Edytuj tagi",
+    "done": "Gotowe",
+    "enterTagName": "Wprowadź nazwę tagu",
+    "loadingTags": "Ładowanie tagów...",
+    "searchResults": "Wyniki wyszukiwania",
+    "noMatchingTags": "Nie znaleziono pasujących tagów",
+    "recentTags": "Ostatnie tagi",
+    "noRecentTags": "Nie znaleziono ostatnich tagów",
+    "otherTags": "Inne tagi",
+    "noOtherTags": "Nie znaleziono innych tagów"
+  },
+  "sort": {
+    "title": "Sortuj według",
+    "newest": "Najnowsze pierwsze",
+    "oldest": "Najstarsze pierwsze",
+    "titleAZ": "Tytuł (A-Z)",
+    "titleZA": "Tytuł (Z-A)",
+    "shortest": "Najkrótsze pierwsze",
+    "longest": "Najdłuższe pierwsze"
+  },
+  "menu": {
+    "close": "Zamknij",
+    "cancel": "Anuluj",
+    "confirm": "Potwierdź",
+    "delete": "Usuń",
+    "edit": "Edytuj",
+    "share": "Udostępnij",
+    "favorite": "Ulubione",
+    "unfavorite": "Usuń z ulubionych",
+    "archive": "Archiwizuj",
+    "unarchive": "Cofnij archiwizację",
+    "addTags": "Dodaj tagi",
+    "removeTags": "Usuń tagi",
+    "markAsRead": "Oznacz jako przeczytane",
+    "markAsUnread": "Oznacz jako nieprzeczytane",
+    "editTags": "Edytuj tagi",
+    "openInBrowser": "Otwórz w przeglądarce",
+    "deleteConfirmation": {
+      "title": "Usuń artykuł",
+      "message": "Czy na pewno chcesz usunąć ten artykuł? Tej czynności nie można cofnąć.",
+      "cancel": "Anuluj",
+      "confirm": "Usuń"
+    }
+  },
+  "filters": {
+    "all": "Wszystkie",
+    "favorites": "Ulubione",
+    "tagged": "Z tagami",
+    "shortReads": "Krótkie artykuły",
+    "longReads": "Długie artykuły",
+    "archived": "Zarchiwizowane"
+  }
+}

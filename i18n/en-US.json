@@ -1,0 +1,238 @@
+{
+  "app": {
+    "name": "Folio",
+    "tagline": "Save. Read. Grow."
+  },
+  "navigation": {
+    "tabs": {
+      "discover": "Discover",
+      "saves": "Saves",
+      "settings": "Settings"
+    }
+  },
+  "common": {
+    "ok": "OK",
+    "cancel": "Cancel",
+    "yes": "Yes",
+    "no": "No",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome Back",
+      "subtitle": "Sign in to continue",
+      "email": "Email",
+      "password": "Password",
+      "forgotPassword": "Forgot Password?",
+      "button": "Sign In",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign Up"
+    },
+    "signup": {
+      "title": "Welcome to Folio",
+      "subtitle": "Create your account to get started",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "button": "Create Account",
+      "submitting": "Creating account...",
+      "hasAccount": "Already have an account?",
+      "logIn": "Sign In"
+    },
+    "authStart": {
+      "title": "Welcome to Folio",
+      "subtitle": "Choose how you'd like to get started",
+      "googleSignIn": "Continue with Google",
+      "appleSignIn": "Continue with Apple",
+      "emailSignIn": "Continue with Email",
+      "newHere": "New here?",
+      "button": "Create an account",
+      "loginError": "Sign in failed"
+    },
+    "connectExtension": {
+      "title": "Extension Connected",
+      "message": "Your browser extension has been successfully connected to Folio. You can now save items directly from your browser."
+    }
+  },
+  "search": {
+    "placeholder": "Search your saves...",
+    "emptyState": "What are you looking for?",
+    "noResults": "No results found",
+    "tryDifferentQuery": "Try a different search term",
+    "loading": "Searching..."
+  },
+  "reader": {
+    "noArticleId": "No article ID provided",
+    "afterReading": "After Reading",
+    "favorited": "Favorited",
+    "favorite": "Favorite",
+    "archive": "Archive",
+    "unarchive": "Unarchive",
+    "markAsRead": "Mark as Read",
+    "markAsUnread": "Mark as Unread",
+    "upNext": "Up Next"
+  },
+  "errors": {
+    "network": "Network error. Please check your connection and try again.",
+    "invalidCredentials": "Invalid email or password. Please try again.",
+    "unknown": "Something went wrong. Please try again.",
+    "validation": {
+      "required": "This field is required",
+      "minLength": "Must be at least {{count}} characters",
+      "maxLength": "Must be at most {{count}} characters",
+      "email": {
+        "required": "Email is required",
+        "invalid": "Please enter a valid email address"
+      },
+      "password": {
+        "required": "Password is required",
+        "minLength": "Password must be at least 8 characters",
+        "complexity": "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+      },
+      "confirmPassword": {
+        "required": "Please confirm your password",
+        "mismatch": "Passwords do not match"
+      }
+    }
+  },
+  "notFound": {
+    "title": "Oops!",
+    "message": "This screen doesn't exist.",
+    "goHome": "Go to home screen!"
+  },
+  "home": {
+    "discover": "Discover"
+  },
+  "settings": {
+    "title": "Settings",
+    "account": "Account",
+    "notifications": "Notifications",
+    "appearance": "Appearance",
+    "importFromPocket": "Import from Pocket",
+    "help": "Help & Support",
+    "about": "About"
+  },
+  "import": {
+    "pocket": {
+      "title": "Import from Pocket",
+      "description": "Connect your Pocket account to import all your saved articles to Folio. This process will:",
+      "benefits": {
+        "importArticles": "Import all your saved Pocket articles",
+        "preserveProgress": "Preserve your reading progress and tags",
+        "keepAccount": "Keep your original Pocket account unchanged"
+      },
+      "note": "You'll be redirected to Pocket to authorize the import. This is secure — we only read your saved articles.",
+      "startImport": "Start Import",
+      "cancel": "Cancel",
+      "success": {
+        "title": "Import Started!",
+        "description": "Your Pocket data is being imported in the background. This may take a few minutes depending on how many articles you have.",
+        "note": "You can continue using Folio normally. Your imported articles will appear as they're processed."
+      },
+      "done": "Done"
+    }
+  },
+  "addArticle": {
+    "title": "Add to Folio",
+    "sectionTitle": "Add a URL",
+    "urlPlaceholder": "Enter a URL to save",
+    "saveButton": "Save to Folio",
+    "infoText": "Save articles, videos, and more to read later. Everything syncs across your devices."
+  },
+  "emptyStates": {
+    "initialSync": {
+      "message": "Setting up your Folio",
+      "subMessage": "We're syncing your saved articles. This might take a moment."
+    },
+    "favorites": {
+      "message": "No favorites yet",
+      "subMessage": "Tap the star to save your favorite articles here."
+    },
+    "tagged": {
+      "message": "Organize with tags",
+      "subMessage": "Add tags like 'travel' or 'recipes' to organize your saves."
+    },
+    "archived": {
+      "message": "Nothing archived",
+      "subMessage": "When you're done reading, archive articles to keep things tidy."
+    },
+    "short": {
+      "message": "No short reads yet",
+      "subMessage": "Quick articles you save will appear here."
+    },
+    "long": {
+      "message": "No long reads yet",
+      "subMessage": "In-depth articles you save will appear here."
+    },
+    "default": {
+      "message": "Ready to start saving?",
+      "subMessage": "Save articles you want to read later. They'll appear here."
+    },
+    "all": {
+      "message": "Ready to start saving?",
+      "subMessage": "Save articles you want to read later. They'll appear here."
+    },
+    "restoring": {
+      "message": "Restoring your saves",
+      "subMessage": "Your saved articles are on the way."
+    }
+  },
+  "tags": {
+    "editTags": "Edit Tags",
+    "done": "Done",
+    "enterTagName": "Enter a Tag Name",
+    "loadingTags": "Loading tags...",
+    "searchResults": "Search Results",
+    "noMatchingTags": "No matching tags found",
+    "recentTags": "Recent Tags",
+    "noRecentTags": "No recent tags found",
+    "otherTags": "Other Tags",
+    "noOtherTags": "No other tags found"
+  },
+  "sort": {
+    "title": "Sort By",
+    "newest": "Newest First",
+    "oldest": "Oldest First",
+    "titleAZ": "Title (A-Z)",
+    "titleZA": "Title (Z-A)",
+    "shortest": "Shortest First",
+    "longest": "Longest First"
+  },
+  "menu": {
+    "close": "Close",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "share": "Share",
+    "favorite": "Favorite",
+    "unfavorite": "Unfavorite",
+    "archive": "Archive",
+    "unarchive": "Unarchive",
+    "addTags": "Add Tags",
+    "removeTags": "Remove Tags",
+    "markAsRead": "Mark as Read",
+    "markAsUnread": "Mark as Unread",
+    "editTags": "Edit Tags",
+    "openInBrowser": "Open in Browser",
+    "deleteConfirmation": {
+      "title": "Delete Article",
+      "message": "Are you sure you want to delete this article? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    }
+  },
+  "filters": {
+    "all": "All",
+    "favorites": "Favorites",
+    "tagged": "Tagged",
+    "shortReads": "Short Reads",
+    "longReads": "Long Reads",
+    "archived": "Archived"
+  }
+}
