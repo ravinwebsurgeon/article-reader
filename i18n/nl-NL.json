@@ -75,7 +75,20 @@
     "unarchive": "Uit archief halen",
     "markAsRead": "Markeren als gelezen",
     "markAsUnread": "Markeren als ongelezen",
-    "upNext": "Volgende"
+    "upNext": "Volgende",
+    "content": {
+      "extracting": "Inhoud wordt geëxtraheerd...",
+      "pageNotAvailable": "Pagina niet beschikbaar.",
+      "pageNoLongerAvailable": "Pagina is niet meer beschikbaar.",
+      "contentTypeNotSupported": "Inhoudstype wordt niet ondersteund.",
+      "contentBestViewedOnWeb": "Inhoud wordt het best bekeken op het web.",
+      "paywallNotice": "Dit lijkt betaalde inhoud te zijn.",
+      "switchToWebView": "Overschakelen naar webweergave",
+      "viewFullArticleOnWeb": "Volledig artikel bekijken op het web",
+      "viewInWaybackMachine": "Bekijken in Wayback Machine",
+      "checkingArchive": "Archief controleren...",
+      "noArchivedVersion": "Geen gearchiveerde versie beschikbaar"
+    }
   },
   "errors": {
     "network": "Netwerkfout. Controleer je verbinding en probeer opnieuw.",

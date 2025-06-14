@@ -75,7 +75,20 @@
     "unarchive": "Dearchivieren",
     "markAsRead": "Als gelesen markieren",
     "markAsUnread": "Als ungelesen markieren",
-    "upNext": "Als nächstes"
+    "upNext": "Als nächstes",
+    "content": {
+      "extracting": "Inhalt wird extrahiert...",
+      "pageNotAvailable": "Seite nicht verfügbar.",
+      "pageNoLongerAvailable": "Seite nicht mehr verfügbar.",
+      "contentTypeNotSupported": "Inhaltstyp nicht unterstützt.",
+      "contentBestViewedOnWeb": "Inhalt am besten im Web anzusehen.",
+      "paywallNotice": "Dies scheint kostenpflichtiger Inhalt zu sein.",
+      "switchToWebView": "Zur Webansicht wechseln",
+      "viewFullArticleOnWeb": "Vollständigen Artikel im Web ansehen",
+      "viewInWaybackMachine": "In der Wayback Machine ansehen",
+      "checkingArchive": "Archiv wird überprüft...",
+      "noArchivedVersion": "Keine archivierte Version verfügbar"
+    }
   },
   "errors": {
     "network": "Netzwerkfehler. Überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.",

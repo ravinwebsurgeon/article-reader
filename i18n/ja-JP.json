@@ -75,7 +75,20 @@
     "unarchive": "アーカイブを解除",
     "markAsRead": "既読にする",
     "markAsUnread": "未読にする",
-    "upNext": "次に読む"
+    "upNext": "次に読む",
+    "content": {
+      "extracting": "コンテンツを抽出中...",
+      "pageNotAvailable": "ページが利用できません。",
+      "pageNoLongerAvailable": "ページは利用できなくなりました。",
+      "contentTypeNotSupported": "コンテンツタイプがサポートされていません。",
+      "contentBestViewedOnWeb": "コンテンツはウェブで最適に表示されます。",
+      "paywallNotice": "これは有料コンテンツのようです。",
+      "switchToWebView": "ウェブビューに切り替え",
+      "viewFullArticleOnWeb": "ウェブで完全な記事を表示",
+      "viewInWaybackMachine": "Wayback Machineで表示",
+      "checkingArchive": "アーカイブを確認中...",
+      "noArchivedVersion": "アーカイブ版は利用できません"
+    }
   },
   "errors": {
     "network": "ネットワークエラーです。接続を確認して再試行してください。",

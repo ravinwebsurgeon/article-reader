@@ -75,7 +75,20 @@
     "unarchive": "取消归档",
     "markAsRead": "标记为已读",
     "markAsUnread": "标记为未读",
-    "upNext": "接下来"
+    "upNext": "接下来",
+    "content": {
+      "extracting": "正在提取内容...",
+      "pageNotAvailable": "页面不可用。",
+      "pageNoLongerAvailable": "页面不再可用。",
+      "contentTypeNotSupported": "不支持的内容类型。",
+      "contentBestViewedOnWeb": "内容在网页上查看效果更佳。",
+      "paywallNotice": "这似乎是付费内容。",
+      "switchToWebView": "切换到网页视图",
+      "viewFullArticleOnWeb": "在网页上查看完整文章",
+      "viewInWaybackMachine": "在 Wayback Machine 中查看",
+      "checkingArchive": "正在检查存档...",
+      "noArchivedVersion": "没有可用的存档版本"
+    }
   },
   "errors": {
     "network": "网络错误。请检查您的连接并重试。",
