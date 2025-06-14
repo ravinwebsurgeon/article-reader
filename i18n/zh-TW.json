@@ -75,7 +75,20 @@
     "unarchive": "取消封存",
     "markAsRead": "標記為已讀",
     "markAsUnread": "標記為未讀",
-    "upNext": "接下來"
+    "upNext": "接下來",
+    "content": {
+      "extracting": "正在提取內容...",
+      "pageNotAvailable": "頁面不可用。",
+      "pageNoLongerAvailable": "頁面不再可用。",
+      "contentTypeNotSupported": "不支援的內容類型。",
+      "contentBestViewedOnWeb": "內容在網頁上查看效果更佳。",
+      "paywallNotice": "這似乎是付費內容。",
+      "switchToWebView": "切換到網頁視圖",
+      "viewFullArticleOnWeb": "在網頁上查看完整文章",
+      "viewInWaybackMachine": "在 Wayback Machine 中查看",
+      "checkingArchive": "正在檢查存檔...",
+      "noArchivedVersion": "沒有可用的存檔版本"
+    }
   },
   "errors": {
     "network": "網路錯誤。請檢查您的連線並重試。",

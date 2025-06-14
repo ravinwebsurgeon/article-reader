@@ -75,7 +75,20 @@
     "unarchive": "Unarchive",
     "markAsRead": "Mark as Read",
     "markAsUnread": "Mark as Unread",
-    "upNext": "Up Next"
+    "upNext": "Up Next",
+    "content": {
+      "extracting": "Content is being extracted...",
+      "pageNotAvailable": "Page not available.",
+      "pageNoLongerAvailable": "Page no longer available.",
+      "contentTypeNotSupported": "Content type not supported.",
+      "contentBestViewedOnWeb": "Content best viewed on web.",
+      "paywallNotice": "This appears to be paywalled content.",
+      "switchToWebView": "Switch to web view",
+      "viewFullArticleOnWeb": "View full article on web",
+      "viewInWaybackMachine": "View in Wayback Machine",
+      "checkingArchive": "Checking archive...",
+      "noArchivedVersion": "No archived version available"
+    }
   },
   "errors": {
     "network": "Network error. Please check your connection and try again.",

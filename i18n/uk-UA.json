@@ -75,7 +75,20 @@
     "unarchive": "Розархівувати",
     "markAsRead": "Позначити як прочитане",
     "markAsUnread": "Позначити як непрочитане",
-    "upNext": "Далі"
+    "upNext": "Далі",
+    "content": {
+      "extracting": "Контент витягується...",
+      "pageNotAvailable": "Сторінка недоступна.",
+      "pageNoLongerAvailable": "Сторінка більше не доступна.",
+      "contentTypeNotSupported": "Тип контенту не підтримується.",
+      "contentBestViewedOnWeb": "Контент краще переглядати в браузері.",
+      "paywallNotice": "Це схоже на платний контент.",
+      "switchToWebView": "Перемкнути на веб-перегляд",
+      "viewFullArticleOnWeb": "Переглянути повну статтю в браузері",
+      "viewInWaybackMachine": "Переглянути в Wayback Machine",
+      "checkingArchive": "Перевірка архіву...",
+      "noArchivedVersion": "Архівна версія недоступна"
+    }
   },
   "errors": {
     "network": "Помилка мережі. Перевірте підключення та спробуйте знову.",

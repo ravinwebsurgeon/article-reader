@@ -75,7 +75,20 @@
     "unarchive": "Rimuovi dall'archivio",
     "markAsRead": "Segna come Letto",
     "markAsUnread": "Segna come Non Letto",
-    "upNext": "Prossimo"
+    "upNext": "Prossimo",
+    "content": {
+      "extracting": "Il contenuto è in fase di estrazione...",
+      "pageNotAvailable": "Pagina non disponibile.",
+      "pageNoLongerAvailable": "La pagina non è più disponibile.",
+      "contentTypeNotSupported": "Tipo di contenuto non supportato.",
+      "contentBestViewedOnWeb": "Il contenuto è meglio visualizzato sul web.",
+      "paywallNotice": "Questo contenuto sembra essere dietro un paywall.",
+      "switchToWebView": "Passa alla vista web",
+      "viewFullArticleOnWeb": "Visualizza articolo completo sul web",
+      "viewInWaybackMachine": "Visualizza in Wayback Machine",
+      "checkingArchive": "Controllo archivio...",
+      "noArchivedVersion": "Nessuna versione archiviata disponibile"
+    }
   },
   "errors": {
     "network": "Errore di rete. Controlla la tua connessione e riprova.",
