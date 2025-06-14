@@ -33,6 +33,9 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
   const router = useRouter();
   const scrollViewRef = useRef<ScrollView>(null);
 
+  // Determine the recommended display mode
+  const recommendedMode = item.getDisplayMode(content);
+
   // State
   const [browserMode, setBrowserMode] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -51,6 +54,11 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
     item,
     scrollViewRef,
   });
+
+  // Set initial browser mode based on recommended display mode
+  useEffect(() => {
+    setBrowserMode(recommendedMode === "webview");
+  }, [recommendedMode]);
 
   // Mark item as viewed when component mounts
   useEffect(() => {
@@ -153,7 +161,12 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
             scrollEventThrottle={100}
           >
             <ReaderMetaData item={item} content={content} />
-            <ReaderContent item={item} content={content} onLoadComplete={handleContentLoaded} />
+            <ReaderContent
+              item={item}
+              content={content}
+              onLoadComplete={handleContentLoaded}
+              onSwitchToWebView={() => setBrowserMode(true)}
+            />
             <ReaderAfterReading item={item} />
             <ReaderUpNext item={item} />
           </ScrollView>

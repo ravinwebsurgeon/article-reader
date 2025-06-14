@@ -13,6 +13,8 @@ import Tag from "./TagModel";
 import ItemContent from "./ItemContentModel";
 import Annotation from "./AnnotationModel";
 
+export type DisplayMode = "reader" | "webview" | "error";
+
 export enum ExtractStatus {
   PENDING = 0,
   EXTRACTING = 1,
@@ -86,9 +88,9 @@ export default class Item extends Model {
   @readonly @date("published_at") publishedAt?: Date | null;
   @readonly @field("word_count") wordCount?: number | null;
   @readonly @text("content_hash") contentHash?: string | null;
-  @readonly @text("kind") kind?: string | null;
+  @readonly @field("kind") kind?: number | null;
   @readonly @text("custom_title") customTitle?: string | null;
-  @readonly @text("category") category?: string | null;
+  @readonly @field("category") category?: number | null;
   @readonly @field("clickbait") clickbait?: boolean | null;
   @readonly @field("paywalled") paywalled?: boolean | null;
   @readonly @text("language") language?: string | null;
@@ -124,6 +126,76 @@ export default class Item extends Model {
     return this.siteName || this.domain || null;
   }
 
+  // Content display logic helpers
+  get isReadable(): boolean {
+    if (!this.kind) return false; // Default to not readable if kind is null (probably WEBPAGE)
+    return [
+      ItemKind.ARTICLE,
+      ItemKind.NEWSLETTER,
+      ItemKind.THREAD,
+      ItemKind.DISCUSSION,
+      ItemKind.REFERENCE,
+      ItemKind.DOCUMENT,
+      ItemKind.RECIPE,
+    ].includes(this.kind);
+  }
+
+  get isWebOnly(): boolean {
+    const kind = this.kind || ItemKind.WEBPAGE;
+    return [
+      ItemKind.WEBPAGE,
+      ItemKind.VIDEO,
+      ItemKind.AUDIO,
+      ItemKind.MAP,
+      ItemKind.GALLERY,
+      ItemKind.PRODUCT,
+      ItemKind.EVENT,
+      ItemKind.HOMEPAGE,
+      ItemKind.PROFILE,
+    ].includes(kind);
+  }
+
+  get isPending(): boolean {
+    return (
+      this.extractStatus === ExtractStatus.PENDING ||
+      this.extractStatus === ExtractStatus.EXTRACTING ||
+      this.extractStatus === ExtractStatus.RETRYING
+    );
+  }
+
+  getDisplayMode(content: ItemContent | null): DisplayMode {
+    // Error cases first
+    if (this.extractStatus === ExtractStatus.UNAVAILABLE) {
+      return "error";
+    }
+
+    // FAILED extraction should show reader with error message first
+    if (this.extractStatus === ExtractStatus.FAILED) {
+      return "reader"; // Show reader view with error message and web view button
+    }
+
+    // WebView cases
+    if (this.isPending) {
+      return this.url ? "webview" : "error";
+    }
+
+    if (this.extractStatus === ExtractStatus.UNSUPPORTED) {
+      return this.url ? "webview" : "error";
+    }
+
+    if (this.isWebOnly) {
+      return this.url ? "webview" : "error";
+    }
+
+    // Reader cases
+    if (this.extractStatus === ExtractStatus.COMPLETED && content?.content && this.isReadable) {
+      return "reader";
+    }
+
+    // Fallback to webview if we have URL, otherwise error
+    return this.url ? "webview" : "error";
+  }
+
   // Writer methods
   @writer async toggleArchived() {
     await this.update((item) => {
@@ -142,7 +214,11 @@ export default class Item extends Model {
     await this.update((item) => {
       item.progress = clampedValue;
       // Update maxProgress if this is the furthest we've scrolled
-      if (item.maxProgress === null || item.maxProgress === undefined || clampedValue > item.maxProgress) {
+      if (
+        item.maxProgress === null ||
+        item.maxProgress === undefined ||
+        clampedValue > item.maxProgress
+      ) {
         item.maxProgress = clampedValue;
       }
     });
