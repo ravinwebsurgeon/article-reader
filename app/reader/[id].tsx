@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { WebView } from "react-native-webview";
@@ -51,6 +51,16 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
     item,
     scrollViewRef,
   });
+
+  // Mark item as viewed when component mounts
+  useEffect(() => {
+    const markAsViewed = async () => {
+      if (!item.viewed) {
+        await item.setViewed(true);
+      }
+    };
+    markAsViewed();
+  }, [item]);
 
   // Handle navigation back with saving
   const handleBack = useCallback(async () => {

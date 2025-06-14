@@ -25,6 +25,7 @@ export default appSchema({
         { name: "archived", type: "boolean", isIndexed: true },
         { name: "favorite", type: "boolean", isIndexed: true },
         { name: "progress", type: "number" },
+        { name: "max_progress", type: "number", isOptional: true },
         { name: "notes", type: "string", isOptional: true },
         { name: "viewed", type: "boolean" },
         { name: "saved_at", type: "number" },
@@ -32,6 +33,7 @@ export default appSchema({
         { name: "updated_at", type: "number" },
         { name: "paywalled", type: "boolean", isOptional: true },
         { name: "language", type: "string", isOptional: true },
+        { name: "extract_status", type: "number", isOptional: true },
       ],
     }),
     tableSchema({

@@ -148,11 +148,6 @@ export const ReaderMetaData: React.FC<MetaDataProps> = ({
           <Image
             source={{ uri: item.imageUrl }}
             style={styles.featureImage}
-            placeholder={
-              item.imageThumbHash
-                ? { uri: `data:image/png;base64,${item.imageThumbHash}` }
-                : undefined
-            }
           />
         </ThemeView>
       )}
