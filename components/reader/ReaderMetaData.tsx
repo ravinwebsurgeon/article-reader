@@ -114,41 +114,46 @@ export const ReaderMetaData: React.FC<MetaDataProps> = ({
       )}
 
       {/* Title */}
-      <ThemeText variant="reader.title" style={styles.title}>
-        {item.title}
-      </ThemeText>
+      {item.title && (
+        <ThemeText variant="reader.title" style={styles.title}>
+          {item.title}
+        </ThemeText>
+      )}
 
       {/* Article metadata */}
-      <ThemeView style={styles.metaContainer}>
-        {/* Dek/Subtitle */}
-        {content?.dek && (
-          <ThemeText variant="meta" color={theme.colors.text.primary} style={styles.dek}>
-            {content.dek}
-          </ThemeText>
-        )}
+      {(content?.dek || content?.author || item.publishedAt) && (
+        <ThemeView style={styles.metaContainer}>
+          {/* Dek/Subtitle */}
+          {content?.dek && (
+            <ThemeText variant="meta" color={theme.colors.text.primary} style={styles.dek}>
+              {content.dek}
+            </ThemeText>
+          )}
 
-        {/* Author */}
-        {content?.author && (
-          <ThemeText variant="meta" color={theme.colors.text.primary} style={styles.author}>
-            {content.author}
-          </ThemeText>
-        )}
+          {/* Author */}
+          {content?.author && (
+            <ThemeText variant="meta" color={theme.colors.text.primary} style={styles.author}>
+              {content.author}
+            </ThemeText>
+          )}
 
-        {/* Published date and read time */}
-        {item.publishedAt && (
-          <ThemeText variant="meta" color={theme.colors.text.secondary} style={styles.publishedAt}>
-            {formatDate(item.publishedAt)} {item.readTime && `• ${item.readTime} min`}
-          </ThemeText>
-        )}
-      </ThemeView>
+          {/* Published date and read time */}
+          {item.publishedAt && (
+            <ThemeText
+              variant="meta"
+              color={theme.colors.text.secondary}
+              style={styles.publishedAt}
+            >
+              {formatDate(item.publishedAt)} {item.readTime && `• ${item.readTime} min`}
+            </ThemeText>
+          )}
+        </ThemeView>
+      )}
 
       {/* Feature image */}
       {shouldShowFeatureImage && item.imageUrl && (
         <ThemeView style={styles.imageContainer}>
-          <Image
-            source={{ uri: item.imageUrl }}
-            style={styles.featureImage}
-          />
+          <Image source={{ uri: item.imageUrl }} style={styles.featureImage} />
         </ThemeView>
       )}
     </ThemeView>
