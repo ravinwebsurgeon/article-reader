@@ -190,6 +190,14 @@
       "message": "保存を始める準備はできましたか？",
       "subMessage": "後で読みたい記事を保存してください。ここに表示されます。"
     },
+    "allClear": {
+      "message": "お疲れさまでした",
+      "subMessage": "リストがすっきりしました。"
+    },
+    "discover": {
+      "message": "まだ発見するものがありません",
+      "subMessage": "素晴らしいコンテンツが準備中です。お楽しみに。"
+    },
     "restoring": {
       "message": "保存アイテムを復元中",
       "subMessage": "保存された記事が準備中です。"

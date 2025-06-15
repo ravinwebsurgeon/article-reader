@@ -190,6 +190,14 @@
       "message": "Klaar om te beginnen met opslaan?",
       "subMessage": "Sla artikelen op die je later wilt lezen. Ze verschijnen hier."
     },
+    "allClear": {
+      "message": "Goed gedaan",
+      "subMessage": "Je lijst is voorlopig leeg."
+    },
+    "discover": {
+      "message": "Nog niets te ontdekken",
+      "subMessage": "Er komt iets goeds aan. Blijf kijken."
+    },
     "restoring": {
       "message": "Je opgeslagen items herstellen",
       "subMessage": "Je opgeslagen artikelen zijn onderweg."

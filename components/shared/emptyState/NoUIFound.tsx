@@ -7,7 +7,7 @@ import Svg, { Path } from "react-native-svg";
 import { useTranslation } from "react-i18next";
 
 interface NoItemsFoundProps {
-  filter: ItemFilter | "initialSync";
+  filter: ItemFilter | "initialSync" | "allClear" | "discover";
 }
 
 const getIcon = (filter: string, theme: Theme): JSX.Element => {
@@ -99,6 +99,8 @@ const getIcon = (filter: string, theme: Theme): JSX.Element => {
           />
         </Svg>
       );
+    case "allClear":
+    case "discover":
     default:
       return (
         <Svg width="48" height="48" viewBox="0 0 48 48" fill="none">

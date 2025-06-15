@@ -190,6 +190,14 @@
       "message": "Gotowy, aby zacząć zapisywać?",
       "subMessage": "Zapisuj artykuły, które chcesz przeczytać później. Pojawią się tutaj."
     },
+    "allClear": {
+      "message": "Świetna robota",
+      "subMessage": "Twoja lista jest teraz pusta."
+    },
+    "discover": {
+      "message": "Jeszcze nic do odkrycia",
+      "subMessage": "Coś dobrego już nadchodzi. Bądź na bieżąco."
+    },
     "restoring": {
       "message": "Przywracanie zapisanych",
       "subMessage": "Twoje zapisane artykuły są w drodze."

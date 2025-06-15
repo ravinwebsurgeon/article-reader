@@ -190,6 +190,14 @@
       "message": "准备开始保存了吗？",
       "subMessage": "保存您想稍后阅读的文章。它们将显示在这里。"
     },
+    "allClear": {
+      "message": "做得很好",
+      "subMessage": "您的列表现在已清空。"
+    },
+    "discover": {
+      "message": "暂无发现内容",
+      "subMessage": "好内容即将到来。敬请期待。"
+    },
     "restoring": {
       "message": "正在恢复您的收藏",
       "subMessage": "您保存的文章正在加载中。"

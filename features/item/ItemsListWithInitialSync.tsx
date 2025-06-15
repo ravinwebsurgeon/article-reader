@@ -20,8 +20,16 @@ const ItemsListWithInitialSync = ({
   const [isCheckingSync, setIsCheckingSync] = useState(true);
   const [isPerformingInitialSync, setIsPerformingInitialSync] = useState(false);
   const ObservableItemsPresenter = memo(
-    ({ items, originalFilter }: { items: Item[]; originalFilter: ItemFilter }) => {
-      return <ItemsFlatList items={items} filter={originalFilter} />;
+    ({
+      items,
+      archivedCount,
+      originalFilter,
+    }: {
+      items: Item[];
+      archivedCount?: number;
+      originalFilter: ItemFilter;
+    }) => {
+      return <ItemsFlatList items={items} filter={originalFilter} archivedCount={archivedCount} />;
     },
   );
   ObservableItemsPresenter.displayName = "ObservableItemsPresenter";
