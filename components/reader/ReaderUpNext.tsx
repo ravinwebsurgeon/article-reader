@@ -17,29 +17,33 @@ export const ReaderUpNext: React.FC<UpNextProps> = ({ item }) => {
   const spacing = useSpacing();
   const { t } = useTranslation();
 
-  // Create styles using theme values
-  const styles = StyleSheet.create({
-    container: {
-      marginTop: spacing.xl + spacing.sm, // 40px equivalent
-      paddingTop: spacing.md,
-      paddingHorizontal: spacing.lg - spacing.xs, // 20px equivalent
-    },
-    sectionHeader: {
-      position: "relative",
-      borderTopWidth: StyleSheet.hairlineWidth,
-      borderTopColor: theme.colors.divider,
-    },
-    headerContent: {
-      alignItems: "center",
-      marginBottom: spacing.md - spacing.xs, // 12px equivalent
-      position: "absolute",
-      top: -(spacing.md - spacing.xs), // -12px equivalent
-      paddingRight: spacing.md, // Add more space on the right
-    },
-    headerText: {
-      marginLeft: spacing.sm,
-    },
-  });
+  // Memoize styles to prevent recreation on every render
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          marginTop: spacing.xl + spacing.sm, // 40px equivalent
+          paddingTop: spacing.md,
+          paddingHorizontal: spacing.lg - spacing.xs, // 20px equivalent
+        },
+        sectionHeader: {
+          position: "relative",
+          borderTopWidth: StyleSheet.hairlineWidth,
+          borderTopColor: theme.colors.divider,
+        },
+        headerContent: {
+          alignItems: "center",
+          marginBottom: spacing.md - spacing.xs, // 12px equivalent
+          position: "absolute",
+          top: -(spacing.md - spacing.xs), // -12px equivalent
+          paddingRight: spacing.md, // Add more space on the right
+        },
+        headerText: {
+          marginLeft: spacing.sm,
+        },
+      }),
+    [theme.colors.divider, spacing],
+  );
 
   // Memoize the EnhancedNextItems component
   const EnhancedNextItems = useMemo(
@@ -72,7 +76,7 @@ export const ReaderUpNext: React.FC<UpNextProps> = ({ item }) => {
           </ThemeView>
         );
       }),
-    [item, styles, theme, t],
+    [item, styles, theme.colors, t],
   );
 
   return <EnhancedNextItems />;
