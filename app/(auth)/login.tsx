@@ -243,6 +243,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 40,
     paddingBottom: 24,
+    maxWidth: 500,
+    alignSelf: "center",
+    width: "100%",
   },
   header: {
     alignItems: "flex-start",
