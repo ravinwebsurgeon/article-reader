@@ -29,19 +29,9 @@ export enum ItemKind {
   WEBPAGE = 0,
   ARTICLE = 1,
   VIDEO = 2,
-  AUDIO = 3,
-  DOCUMENT = 4,
-  THREAD = 5,
-  DISCUSSION = 6,
-  PRODUCT = 7,
-  REFERENCE = 8,
-  NEWSLETTER = 9,
-  HOMEPAGE = 10,
-  RECIPE = 11,
-  PROFILE = 12,
-  EVENT = 13,
-  MAP = 14,
-  GALLERY = 15,
+  PRODUCT = 3,
+  HOMEPAGE = 4,
+  RECIPE = 5,
 }
 
 export enum ItemCategory {
@@ -127,32 +117,26 @@ export default class Item extends Model {
   }
 
   // Content display logic helpers
+  get hasSubstantialContent(): boolean {
+    return (this.wordCount || 0) >= 150;
+  }
+
   get isReadable(): boolean {
     if (!this.kind) return false; // Default to not readable if kind is null (probably WEBPAGE)
-    return [
-      ItemKind.ARTICLE,
-      ItemKind.NEWSLETTER,
-      ItemKind.THREAD,
-      ItemKind.DISCUSSION,
-      ItemKind.REFERENCE,
-      ItemKind.DOCUMENT,
-      ItemKind.RECIPE,
-    ].includes(this.kind);
+
+    // Videos should always use webview regardless of content
+    if (this.kind === ItemKind.VIDEO) return false;
+
+    // Traditional readable types are always readable
+    if ([ItemKind.ARTICLE, ItemKind.RECIPE].includes(this.kind)) return true;
+
+    // For other types, check if we have substantial content
+    return this.hasSubstantialContent;
   }
 
   get isWebOnly(): boolean {
     const kind = this.kind || ItemKind.WEBPAGE;
-    return [
-      ItemKind.WEBPAGE,
-      ItemKind.VIDEO,
-      ItemKind.AUDIO,
-      ItemKind.MAP,
-      ItemKind.GALLERY,
-      ItemKind.PRODUCT,
-      ItemKind.EVENT,
-      ItemKind.HOMEPAGE,
-      ItemKind.PROFILE,
-    ].includes(kind);
+    return [ItemKind.WEBPAGE, ItemKind.VIDEO, ItemKind.PRODUCT, ItemKind.HOMEPAGE].includes(kind);
   }
 
   get isPending(): boolean {
