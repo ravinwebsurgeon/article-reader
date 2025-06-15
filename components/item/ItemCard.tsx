@@ -282,7 +282,7 @@ const ItemCardComponent = ({ item, itemTags, onPress, style }: ItemCardProps) =>
   }, []);
 
   // Show URL as fallback if no title
-  const displayTitle = item?.title || item?.url || "Untitled";
+  const displayTitle = item?.title ?? item?.url ?? "Untitled";
 
   const readTime = item.readTime;
 
@@ -297,7 +297,7 @@ const ItemCardComponent = ({ item, itemTags, onPress, style }: ItemCardProps) =>
                   {displayTitle}
                 </ThemeText>
               </View>
-              {(item.source || readTime > 0) && (
+              {(item.source ?? readTime > 0) && (
                 <View style={styles.metaContainer}>
                   {item.source && (
                     <ThemeText numberOfLines={1} style={styles.sourceText} variant="caption2">
