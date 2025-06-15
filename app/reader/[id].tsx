@@ -117,8 +117,11 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
         articleContainer: {
           flex: 1,
         },
-        articleContent: {
+        articleWrapper: {
           paddingBottom: spacing.lg,
+          maxWidth: 700,
+          alignSelf: "center",
+          width: "100%",
         },
       }),
     [theme.colors, spacing],
@@ -180,7 +183,7 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
           <ScrollView
             ref={scrollViewRef}
             style={styles.articleContainer}
-            contentContainerStyle={styles.articleContent}
+            contentContainerStyle={styles.articleWrapper}
             showsVerticalScrollIndicator={true}
             onScroll={handleScrollChange}
             onContentSizeChange={handleContentSizeChange}
