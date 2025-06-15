@@ -7,6 +7,7 @@ import { ItemFilter } from "@/types/item";
 import { SortOption } from "@/components/shared/menu/SortMenu";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ItemsFlatList from "@/components/item/ItemsFlatList";
+import { router } from "expo-router";
 
 const ItemsListWithInitialSync = ({
   filter,
@@ -47,6 +48,17 @@ const ItemsListWithInitialSync = ({
 
           if (isMounted) {
             setShouldFetchItems(true);
+          }
+
+          // Check if we should show Pocket import prompt for new users
+          const showPocketImport = await AsyncStorage.getItem("show_pocket_import");
+          if (showPocketImport === "true") {
+            // Remove the flag immediately to prevent showing again
+            await AsyncStorage.removeItem("show_pocket_import");
+            // Wait for main screen to load, then show import modal
+            setTimeout(() => {
+              router.push("/import-pocket");
+            }, 500);
           }
         } else {
           // For subsequent syncs: start background sync, show items immediately
