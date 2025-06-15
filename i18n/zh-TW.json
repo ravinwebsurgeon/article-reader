@@ -135,13 +135,13 @@
       "title": "從 Pocket 匯入",
       "description": "連結您的 Pocket 帳戶，將所有儲存的文章匯入到 Folio。此過程將：",
       "benefits": {
-        "importArticles": "匯入您所有儲存的 Pocket 文章",
-        "preserveProgress": "保留您的閱讀進度和標籤",
+        "importArticles": "匯入您所有的 Pocket 收藏",
+        "preserveProgress": "保留您的標籤和重點標示",
         "keepAccount": "保持您原有的 Pocket 帳戶不變"
       },
       "note": "您將被重新導向到 Pocket 以授權匯入。這是安全的——我們只讀取您儲存的文章。",
       "startImport": "開始匯入",
-      "cancel": "取消",
+      "notNow": "暫不",
       "success": {
         "title": "匯入已開始！",
         "description": "您的 Pocket 資料正在背景匯入。這可能需要幾分鐘時間，具體取決於您儲存的文章數量。",

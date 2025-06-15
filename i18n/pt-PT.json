@@ -135,13 +135,13 @@
       "title": "Importar do Pocket",
       "description": "Ligue a sua conta do Pocket para importar todos os seus artigos guardados para o Folio. Este processo irá:",
       "benefits": {
-        "importArticles": "Importar todos os seus artigos guardados do Pocket",
-        "preserveProgress": "Preservar o seu progresso de leitura e etiquetas",
+        "importArticles": "Importar todos os seus guardados do Pocket",
+        "preserveProgress": "Preservar as suas etiquetas e destaques",
         "keepAccount": "Manter a sua conta original do Pocket inalterada"
       },
       "note": "Será redirecionado para o Pocket para autorizar a importação. Isto é seguro — apenas lemos os seus artigos guardados.",
       "startImport": "Iniciar importação",
-      "cancel": "Cancelar",
+      "notNow": "Agora não",
       "success": {
         "title": "Importação iniciada!",
         "description": "Os seus dados do Pocket estão a ser importados em segundo plano. Isto pode demorar alguns minutos dependendo de quantos artigos tem guardados.",
