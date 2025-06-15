@@ -266,7 +266,6 @@ export default class ItemContentSyncer {
                   content_hash: serverContentHash,
                   takeaways,
                   description,
-                  dek,
                   author,
                 } = JSON.parse(line);
 
@@ -292,7 +291,6 @@ export default class ItemContentSyncer {
                     newContent.contentHash = serverContentHash;
                     newContent.takeaways = takeaways;
                     newContent.description = description;
-                    newContent.dek = dek;
                     newContent.author = author;
                   }),
                 );

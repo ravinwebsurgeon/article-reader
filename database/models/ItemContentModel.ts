@@ -14,7 +14,6 @@ export default class ItemContent extends Model {
   @text("content_hash") contentHash?: string | null;
   @text("takeaways") takeaways?: string | null;
   @text("description") description?: string | null;
-  @text("dek") dek?: string | null;
   @text("author") author?: string | null;
 
   // Timestamps
@@ -23,4 +22,16 @@ export default class ItemContent extends Model {
 
   // Relationships
   @immutableRelation("items", "item_id") item?: Relation<Item>;
+
+  // Virtual/computed fields
+  get dek(): string | null {
+    if (!this.description) return null;
+
+    // Only return descriptions that end with a single period
+    if (this.description.endsWith(".") && !this.description.endsWith("..")) {
+      return this.description;
+    }
+
+    return null;
+  }
 }

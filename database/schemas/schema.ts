@@ -44,7 +44,6 @@ export default appSchema({
         { name: "content_hash", type: "string", isOptional: true, isIndexed: true },
         { name: "takeaways", type: "string", isOptional: true },
         { name: "description", type: "string", isOptional: true },
-        { name: "dek", type: "string", isOptional: true },
         { name: "author", type: "string", isOptional: true },
         { name: "created_at", type: "number" },
         { name: "updated_at", type: "number" },
