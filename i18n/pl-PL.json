@@ -135,13 +135,13 @@
       "title": "Importuj z Pocket",
       "description": "Połącz swoje konto Pocket, aby zaimportować wszystkie zapisane artykuły do Folio. Ten proces:",
       "benefits": {
-        "importArticles": "Zaimportuje wszystkie zapisane artykuły z Pocket",
-        "preserveProgress": "Zachowa postęp czytania i tagi",
+        "importArticles": "Zaimportuje wszystkie zapisane z Pocket",
+        "preserveProgress": "Zachowa tagi i zaznaczenia",
         "keepAccount": "Pozostawi oryginalne konto Pocket bez zmian"
       },
       "note": "Zostaniesz przekierowany do Pocket, aby autoryzować import. To jest bezpieczne — czytamy tylko zapisane artykuły.",
       "startImport": "Rozpocznij import",
-      "cancel": "Anuluj",
+      "notNow": "Nie teraz",
       "success": {
         "title": "Import rozpoczęty!",
         "description": "Twoje dane z Pocket są importowane w tle. Może to potrwać kilka minut w zależności od liczby zapisanych artykułów.",

@@ -135,13 +135,13 @@
       "title": "Pocketからインポート",
       "description": "Pocketアカウントに接続して、保存されたすべての記事をFolioにインポートします。このプロセスは：",
       "benefits": {
-        "importArticles": "保存されたすべてのPocket記事をインポート",
-        "preserveProgress": "読書の進捗とタグを保持",
+        "importArticles": "すべてのPocket保存をインポート",
+        "preserveProgress": "タグとハイライトを保持",
         "keepAccount": "元のPocketアカウントはそのまま維持"
       },
       "note": "インポートを認証するためにPocketにリダイレクトされます。これは安全です—保存された記事のみを読み取ります。",
       "startImport": "インポートを開始",
-      "cancel": "キャンセル",
+      "notNow": "今はしない",
       "success": {
         "title": "インポートが開始されました！",
         "description": "Pocketデータがバックグラウンドでインポートされています。保存された記事の数によっては数分かかる場合があります。",

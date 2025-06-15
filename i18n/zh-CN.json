@@ -135,13 +135,13 @@
       "title": "从 Pocket 导入",
       "description": "连接您的 Pocket 账户，将所有保存的文章导入到 Folio。此过程将：",
       "benefits": {
-        "importArticles": "导入您所有保存的 Pocket 文章",
-        "preserveProgress": "保留您的阅读进度和标签",
+        "importArticles": "导入您所有的 Pocket 收藏",
+        "preserveProgress": "保留您的标签和高亮",
         "keepAccount": "保持您原有的 Pocket 账户不变"
       },
       "note": "您将被重定向到 Pocket 以授权导入。这是安全的——我们只读取您保存的文章。",
       "startImport": "开始导入",
-      "cancel": "取消",
+      "notNow": "暂不",
       "success": {
         "title": "导入已开始！",
         "description": "您的 Pocket 数据正在后台导入。这可能需要几分钟时间，具体取决于您保存的文章数量。",
