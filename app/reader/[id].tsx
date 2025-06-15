@@ -17,6 +17,9 @@ import ItemContent from "@/database/models/ItemContentModel";
 import { map, switchMap } from "rxjs/operators";
 import { of as observableOf } from "rxjs";
 
+// Import network status
+import { useNetworkStatus } from "@/utils/hooks";
+
 // Import new reader components
 import {
   ReaderHeader,
@@ -32,9 +35,10 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
   const spacing = useSpacing();
   const router = useRouter();
   const scrollViewRef = useRef<ScrollView>(null);
+  const { isConnected } = useNetworkStatus();
 
   // Determine the recommended display mode
-  const recommendedMode = item.getDisplayMode(content);
+  const recommendedMode = item.getDisplayMode(content, isConnected);
 
   // State
   const [browserMode, setBrowserMode] = useState(false);

@@ -136,7 +136,9 @@ export default class Item extends Model {
 
   get isWebOnly(): boolean {
     const kind = this.kind || ItemKind.WEBPAGE;
-    return [ItemKind.WEBPAGE, ItemKind.VIDEO, ItemKind.PRODUCT, ItemKind.HOMEPAGE].includes(kind);
+
+    // Only videos and homepages are always web-only
+    return [ItemKind.VIDEO, ItemKind.HOMEPAGE].includes(kind);
   }
 
   get isPending(): boolean {
@@ -147,7 +149,7 @@ export default class Item extends Model {
     );
   }
 
-  getDisplayMode(content: ItemContent | null): DisplayMode {
+  getDisplayMode(content: ItemContent | null, isConnected?: boolean): DisplayMode {
     // Error cases first
     if (this.extractStatus === ExtractStatus.UNAVAILABLE) {
       return "error";
@@ -158,16 +160,37 @@ export default class Item extends Model {
       return "reader"; // Show reader view with error message and web view button
     }
 
+    // If offline, prefer reader view when we have content, even for web-only types
+    if (
+      isConnected === false &&
+      content?.content &&
+      this.extractStatus === ExtractStatus.COMPLETED
+    ) {
+      return "reader";
+    }
+
     // WebView cases
     if (this.isPending) {
+      // If offline and pending, show reader if we have any content, otherwise error
+      if (isConnected === false) {
+        return content?.content ? "reader" : "error";
+      }
       return this.url ? "webview" : "error";
     }
 
     if (this.extractStatus === ExtractStatus.UNSUPPORTED) {
+      // If offline and unsupported, show reader if we have any content, otherwise error
+      if (isConnected === false) {
+        return content?.content ? "reader" : "error";
+      }
       return this.url ? "webview" : "error";
     }
 
     if (this.isWebOnly) {
+      // If offline and web-only, show reader if we have any content, otherwise error
+      if (isConnected === false) {
+        return content?.content ? "reader" : "error";
+      }
       return this.url ? "webview" : "error";
     }
 
