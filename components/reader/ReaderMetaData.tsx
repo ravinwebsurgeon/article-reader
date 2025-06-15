@@ -121,7 +121,7 @@ export const ReaderMetaData: React.FC<MetaDataProps> = ({
       )}
 
       {/* Article metadata */}
-      {(content?.dek || content?.author || item.publishedAt) && (
+      {(content?.dek ?? content?.author ?? item.publishedAt) && (
         <ThemeView style={styles.metaContainer}>
           {/* Dek/Subtitle */}
           {content?.dek && (

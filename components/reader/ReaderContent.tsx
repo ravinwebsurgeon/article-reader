@@ -1,8 +1,8 @@
 import React, { useState, useRef, useMemo, useEffect, useCallback } from "react";
-import { StyleSheet, View, Animated, TouchableOpacity, Linking } from "react-native";
+import { StyleSheet, View, Animated, TouchableOpacity } from "react-native";
 import { marked } from "marked";
 import { useTheme, useSpacing } from "@/theme/hooks";
-import { ThemeView, ThemeText } from "@/components/primitives";
+import { ThemeText } from "@/components/primitives";
 import { useTranslation } from "react-i18next";
 import ContentStateMessage from "./ContentStateMessage";
 import HTMLViewer from "./htmlviewer/HTMLViewer";
@@ -371,7 +371,7 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
   const extractStatus = item.extractStatus;
 
   // Check if we have any fallback content to show
-  const hasFallbackContent = content && content.description;
+  const hasFallbackContent = content?.description;
 
   // Show appropriate message based on extract status and content availability
   if (!content || (!content.content && !hasFallbackContent)) {
