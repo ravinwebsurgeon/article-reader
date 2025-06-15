@@ -190,6 +190,14 @@
       "message": "準備開始儲存了嗎？",
       "subMessage": "儲存您想稍後閱讀的文章。它們將顯示在這裡。"
     },
+    "allClear": {
+      "message": "做得很棒",
+      "subMessage": "您的清單現在已清空。"
+    },
+    "discover": {
+      "message": "暫無探索內容",
+      "subMessage": "精彩內容即將到來。敬請期待。"
+    },
     "restoring": {
       "message": "正在還原您的收藏",
       "subMessage": "您儲存的文章正在載入中。"

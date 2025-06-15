@@ -190,6 +190,14 @@
       "message": "Ready to start saving?",
       "subMessage": "Save articles you want to read later. They'll appear here."
     },
+    "allClear": {
+      "message": "Nicely done",
+      "subMessage": "Your list is clear for now."
+    },
+    "discover": {
+      "message": "Nothing to discover yet",
+      "subMessage": "Something good is on the way. Stay tuned."
+    },
     "restoring": {
       "message": "Restoring your saves",
       "subMessage": "Your saved articles are on the way."

@@ -190,6 +190,14 @@
       "message": "Prêt à commencer à sauvegarder ?",
       "subMessage": "Sauvegardez les articles que vous voulez lire plus tard. Ils apparaîtront ici."
     },
+    "allClear": {
+      "message": "Excellent travail",
+      "subMessage": "Votre liste est vide pour l'instant."
+    },
+    "discover": {
+      "message": "Rien à découvrir pour l'instant",
+      "subMessage": "Quelque chose de bien s'en vient. Restez à l'écoute."
+    },
     "restoring": {
       "message": "Restauration de vos sauvegardes",
       "subMessage": "Vos articles sauvegardés arrivent."

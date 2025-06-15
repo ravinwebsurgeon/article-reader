@@ -190,6 +190,14 @@
       "message": "Bereit zum Speichern?",
       "subMessage": "Speichern Sie Artikel, die Sie später lesen möchten. Sie erscheinen hier."
     },
+    "allClear": {
+      "message": "Gut gemacht",
+      "subMessage": "Ihre Liste ist im Moment leer."
+    },
+    "discover": {
+      "message": "Noch nichts zu entdecken",
+      "subMessage": "Etwas Gutes kommt auf Sie zu. Bleiben Sie dran."
+    },
     "restoring": {
       "message": "Ihre gespeicherten Artikel werden wiederhergestellt",
       "subMessage": "Ihre gespeicherten Artikel sind unterwegs."

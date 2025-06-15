@@ -190,6 +190,14 @@
       "message": "Pronto para começar a salvar?",
       "subMessage": "Salve artigos que você quer ler depois. Eles aparecerão aqui."
     },
+    "allClear": {
+      "message": "Muito bem feito",
+      "subMessage": "Sua lista está limpa por enquanto."
+    },
+    "discover": {
+      "message": "Ainda nada para descobrir",
+      "subMessage": "Algo bom está chegando. Fique ligado."
+    },
     "restoring": {
       "message": "Restaurando seus salvos",
       "subMessage": "Seus artigos salvos estão a caminho."

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from "react";
+import React, { memo, useCallback, useState, useMemo } from "react";
 import { FlatList, StyleSheet, RefreshControl } from "react-native";
 import { useRouter } from "expo-router";
 import NoUIFound from "@/components/shared/emptyState/NoUIFound";
@@ -10,9 +10,10 @@ import ItemCard, { ITEM_CARD_HEIGHT } from "@/components/item/ItemCard";
 interface ItemsFlatListProps {
   items: Item[];
   filter: ItemFilter;
+  archivedCount?: number;
 }
 
-const ItemsFlatList = memo(({ items, filter }: ItemsFlatListProps) => {
+const ItemsFlatList = memo(({ items, filter, archivedCount }: ItemsFlatListProps) => {
   const router = useRouter();
   const [isSyncing, setIsSyncing] = useState(false);
 
@@ -50,6 +51,15 @@ const ItemsFlatList = memo(({ items, filter }: ItemsFlatListProps) => {
     }),
     [],
   );
+
+  // Show "allClear" message for users who have archived items but current list is empty
+  const emptyStateFilter = useMemo(() => {
+    if (filter === "all" && archivedCount && archivedCount > 0) {
+      return "allClear";
+    }
+    return filter;
+  }, [filter, archivedCount]);
+
   return (
     <FlatList
       data={items}
@@ -57,7 +67,12 @@ const ItemsFlatList = memo(({ items, filter }: ItemsFlatListProps) => {
       keyExtractor={(item) => item.id}
       contentContainerStyle={styles.listContainer}
       refreshControl={<RefreshControl refreshing={isSyncing} onRefresh={handleRefresh} />}
-      ListEmptyComponent={<NoUIFound filter={filter} />}
+      ListEmptyComponent={
+        // Show empty state immediately for non-"all" filters, or for "all" filter once archivedCount is loaded
+        filter !== "all" || archivedCount !== undefined ? (
+          <NoUIFound filter={emptyStateFilter} />
+        ) : null
+      }
       windowSize={10}
       maxToRenderPerBatch={5}
       initialNumToRender={15}

@@ -190,6 +190,14 @@
       "message": "¿Listo para empezar a guardar?",
       "subMessage": "Guarda artículos que quieras leer después. Aparecerán aquí."
     },
+    "allClear": {
+      "message": "Excelente trabajo",
+      "subMessage": "Tu lista está vacía por ahora."
+    },
+    "discover": {
+      "message": "Aún no hay nada que descubrir",
+      "subMessage": "Algo bueno viene en camino. Mantente atento."
+    },
     "restoring": {
       "message": "Restaurando tus guardados",
       "subMessage": "Tus artículos guardados están en camino."
