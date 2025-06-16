@@ -19,61 +19,10 @@ class ShareViewController: UIViewController {
         handleSharedContent()
     }
 
-    // func setupCustomUI() {
-    //     // Dimmed background
-    //     view.backgroundColor = UIColor.white.withAlphaComponent(1)
-
-    //     // Dialog view
-    //     dialogView.translatesAutoresizingMaskIntoConstraints = false
-    //     dialogView.backgroundColor = .systemBackground
-    //     dialogView.layer.cornerRadius = 16
-    //     dialogView.layer.masksToBounds = true
-    //     view.addSubview(dialogView)
-
-    //     NSLayoutConstraint.activate([
-    //         dialogView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-    //         dialogView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-    //         dialogView.widthAnchor.constraint(equalToConstant: 280),
-    //         dialogView.heightAnchor.constraint(equalToConstant: 160),
-    //     ])
-
-    //     // Spinner
-    //     spinner.translatesAutoresizingMaskIntoConstraints = false
-    //     dialogView.addSubview(spinner)
-    //     NSLayoutConstraint.activate([
-    //         spinner.topAnchor.constraint(equalTo: dialogView.topAnchor, constant: 24),
-    //         spinner.centerXAnchor.constraint(equalTo: dialogView.centerXAnchor),
-    //     ])
-
-    //     // Icon View (initially hidden)
-    //     iconView.translatesAutoresizingMaskIntoConstraints = false
-    //     iconView.isHidden = true
-    //     dialogView.addSubview(iconView)
-    //     NSLayoutConstraint.activate([
-    //         iconView.centerXAnchor.constraint(equalTo: dialogView.centerXAnchor),
-    //         iconView.topAnchor.constraint(equalTo: dialogView.topAnchor, constant: 24),
-    //         iconView.widthAnchor.constraint(equalToConstant: 44),
-    //         iconView.heightAnchor.constraint(equalToConstant: 44),
-    //     ])
-
-    //     // Message Label
-    //     messageLabel.translatesAutoresizingMaskIntoConstraints = false
-    //     messageLabel.font = UIFont.boldSystemFont(ofSize: 18)
-    //     messageLabel.textAlignment = .center
-    //     messageLabel.numberOfLines = 2
-    //     dialogView.addSubview(messageLabel)
-    //     NSLayoutConstraint.activate([
-    //         messageLabel.topAnchor.constraint(equalTo: spinner.bottomAnchor, constant: 18),
-    //         messageLabel.leadingAnchor.constraint(equalTo: dialogView.leadingAnchor, constant: 16),
-    //         messageLabel.trailingAnchor.constraint(
-    //             equalTo: dialogView.trailingAnchor, constant: -16),
-    //         messageLabel.bottomAnchor.constraint(equalTo: dialogView.bottomAnchor, constant: -24),
-    //     ])
-    // }
 
     func setupCustomUI() {
-        // Dimmed background that adapts to dark/light mode
-        view.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.5)
+        // Solid background that adapts to dark/light mode
+        view.backgroundColor = UIColor.systemBackground
 
         // Dialog view
         dialogView.translatesAutoresizingMaskIntoConstraints = false
@@ -125,20 +74,9 @@ class ShareViewController: UIViewController {
     }
 
     func setStateSaving() {
-        spinner.stopAnimating()
-        spinner.isHidden = true
-        iconView.isHidden = false
-
-        // Load image with original colors
-        if let image = UIImage(named: "folio.loading") {
-            iconView.image = image
-        } else {
-            print("Failed to load image: folio.loading")
-            spinner.isHidden = false
-            spinner.startAnimating()
-            iconView.isHidden = true
-        }
-
+        spinner.isHidden = false
+        spinner.startAnimating()
+        iconView.isHidden = true
         messageLabel.text = "Saving..."
     }
 
@@ -146,16 +84,15 @@ class ShareViewController: UIViewController {
         spinner.stopAnimating()
         spinner.isHidden = true
         iconView.isHidden = false
-
-        // Load image with original colors
+        
+        // Try to load custom image, fallback to system icon
         if let image = UIImage(named: "folio.success") {
             iconView.image = image
         } else {
-            print("Failed to load image: folio.success")
             iconView.image = UIImage(systemName: "checkmark.circle.fill")?.withTintColor(
                 .systemGreen, renderingMode: .alwaysOriginal)
         }
-
+        
         messageLabel.text = "Saved to Folio!"
     }
 
