@@ -7,20 +7,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Core Commands
 
 - `yarn install` - Install dependencies
-- `npx expo start` - Start development server
-- `yarn android` - Run on Android
-- `yarn ios` - Run on iOS
+- `npx expo start` - Start development server (uses dev client)
+- `yarn start` - Alternative start command with dev client
+- `yarn android` - Run on Android device/emulator
+- `yarn ios` - Run on iOS device/simulator
 - `yarn web` - Start web version
 - `yarn test` - Run Jest tests with watch mode
 - `yarn lint` - Run ESLint
 - `yarn type-check` - Run TypeScript compiler check (no emit)
-- `yarn lint-type-check` - Run both lint and type check
+- `yarn lint-type-check` - Run both lint and type check (run before commits)
 - `yarn format` - Format code with Prettier
 - `yarn format:check` - Check formatting without writing
 
-### Build Commands
+### Build and Deploy Commands
 
 - `eas build` - Build with EAS (Expo Application Services)
+- `yarn deploy` - Main deployment script
+- `yarn deploy:submit` - Deploy and submit to app stores
+- `yarn deploy:web` - Deploy web version
+- `yarn release:major` / `yarn release:minor` / `yarn release:patch` - Version bump and release
+- `yarn release:build` - Build release version
 
 ## Architecture Overview
 
@@ -165,3 +171,20 @@ Custom fonts (Inter, Literata) loaded in app/\_layout.tsx. Base64 encoded versio
 ### Share Functionality
 
 App supports receiving shared URLs via `ShareHandler` - handles both cold starts and hot links.
+
+### Share Extension
+
+iOS and Android share extensions are available for saving articles directly from other apps. Extension code is located in `/ios/FolioShare/` and uses a separate build process. The `postprebuild:ios` script restores share extension code after prebuild.
+
+## Development Guidelines
+
+### File Creation Policy
+- NEVER create files unless absolutely necessary for achieving the goal
+- ALWAYS prefer editing existing files over creating new ones  
+- NEVER proactively create documentation files (*.md) or README files unless explicitly requested
+
+### Code Standards
+- Always run `yarn lint-type-check` before committing changes
+- Follow existing code patterns and conventions in the codebase
+- Use theme system components and tokens instead of hardcoded values
+- Maintain TypeScript strict mode compliance
