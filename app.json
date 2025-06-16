@@ -27,7 +27,6 @@
         "backgroundColor": "#FFFFFF"
       },
       "package": "co.lessisbetter.folio",
-      "supportsTablet": true,
       "edgeToEdgeEnabled": true
     },
     "web": {
