@@ -15,6 +15,7 @@
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "eas-build-pre-install": "corepack enable && corepack prepare yarn@3.6.4 --activate",
+    "postprebuild:ios": "node ./scripts/restore-share-extension.js",
     "deploy": "node ./scripts/deploy.js",
     "deploy:submit": "node ./scripts/deploy.js submit",
     "deploy:web": "node ./scripts/deploy.js web",
