@@ -173,7 +173,7 @@ export const lightColors: ColorPalette = {
     subtle: "#6C757D",
   },
   background: {
-    default: "#ffffff",
+    default: "#fafafa",
     paper: "#ffffff",
     elevated: "#ffffff",
   },
