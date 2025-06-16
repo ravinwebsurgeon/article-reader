@@ -6,7 +6,7 @@ import { ThemeText, ThemeView } from "@/components";
 import { SvgIcon } from "@/components/SvgIcon";
 import { useTranslation } from "react-i18next";
 import { sendExtensionAuthToken } from "@/utils/extension";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { TokenStorage } from "@/utils/storage";
 
 function ConnectExtension() {
   const theme = useTheme();
@@ -16,7 +16,7 @@ function ConnectExtension() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const storedToken = await AsyncStorage.getItem("auth_token");
+        const storedToken = TokenStorage.get();
         if (storedToken) {
           sendExtensionAuthToken(storedToken);
         }

@@ -73,8 +73,8 @@ export const ReaderHeader: React.FC<HeaderProps> = ({
     if (menuButtonRef.current) {
       menuButtonRef.current.measure(
         (
-          x: number,
-          y: number,
+          _x: number,
+          _y: number,
           width: number,
           height: number,
           pageX: number,
@@ -99,7 +99,7 @@ export const ReaderHeader: React.FC<HeaderProps> = ({
 
   return (
     <>
-      <ThemeView style={styles.header} row backgroundColor={theme.colors.background.paper}>
+      <ThemeView style={styles.header} row backgroundColor={theme.colors.background.default}>
         <ThemeView style={styles.headerLeft} row centered>
           <TouchableOpacity
             onPress={onBack}

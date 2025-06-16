@@ -1,97 +1,58 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { MMKV } from "react-native-mmkv";
+import { NativeModules } from "react-native";
+
+const { TokenManager } = NativeModules;
 
 /**
- * Wrapper for AsyncStorage with type safety and error handling
+ * MMKV Storage - Fast, synchronous storage with App Group support
  */
-export const storage = {
-  /**
-   * Stores a value in AsyncStorage
-   * @param key Storage key
-   * @param value Value to store
-   */
-  async set<T>(key: string, value: T): Promise<void> {
-    try {
-      const jsonValue = JSON.stringify(value);
-      await AsyncStorage.setItem(key, jsonValue);
-    } catch (error) {
-      console.error("AsyncStorage set error:", error);
-      throw error;
+export const storage = new MMKV({
+  id: "folio-shared",
+  // iOS App Groups are configured via Info.plist, not here
+});
+
+/**
+ * Token management with native bridge for extensions
+ */
+export const TokenStorage = {
+  set: (token: string): void => {
+    // Store in MMKV for main app
+    storage.set("auth_token", token);
+
+    // Store via native modules for extensions
+    if (TokenManager) {
+      TokenManager.saveToken(token);
+    } else {
+      console.warn("⚠️ TokenManager not available - extension won't have token access");
     }
   },
 
-  /**
-   * Retrieves a value from AsyncStorage
-   * @param key Storage key
-   * @param defaultValue Default value if not found
-   */
-  async get<T>(key: string, defaultValue?: T): Promise<T | undefined> {
-    try {
-      const jsonValue = await AsyncStorage.getItem(key);
-      if (jsonValue === null) return defaultValue;
-      return JSON.parse(jsonValue) as T;
-    } catch (error) {
-      console.error("AsyncStorage get error:", error);
-      return defaultValue;
-    }
+  get: (): string | undefined => {
+    return storage.getString("auth_token");
   },
 
-  /**
-   * Removes a value from AsyncStorage
-   * @param key Storage key
-   */
-  async remove(key: string): Promise<void> {
-    try {
-      await AsyncStorage.removeItem(key);
-    } catch (error) {
-      console.error("AsyncStorage remove error:", error);
-      throw error;
+  delete: (): void => {
+    // Clear from MMKV
+    storage.delete("auth_token");
+
+    // Clear from native modules
+    if (TokenManager) {
+      TokenManager.removeToken();
     }
   },
+};
 
-  /**
-   * Clears all values from AsyncStorage
-   */
-  async clear(): Promise<void> {
-    try {
-      await AsyncStorage.clear();
-    } catch (error) {
-      console.error("AsyncStorage clear error:", error);
-      throw error;
-    }
+/**
+ * AsyncStorage-compatible interface for Redux Persist
+ */
+export const reduxStorage = {
+  setItem: async (key: string, value: string): Promise<void> => {
+    storage.set(key, value);
   },
-
-  /**
-   * Gets all keys from AsyncStorage
-   */
-  async getAllKeys(): Promise<string[]> {
-    try {
-      const keys = await AsyncStorage.getAllKeys();
-      return [...keys]; // Convert readonly array to mutable array
-    } catch (error) {
-      console.error("AsyncStorage getAllKeys error:", error);
-      return [];
-    }
+  getItem: async (key: string): Promise<string | null> => {
+    return storage.getString(key) ?? null;
   },
-
-  /**
-   * Gets multiple values from AsyncStorage
-   * @param keys Storage keys
-   */
-  async multiGet<T>(keys: string[]): Promise<Record<string, T>> {
-    try {
-      const result = await AsyncStorage.multiGet(keys);
-      return result.reduce(
-        (acc, [key, value]) => {
-          if (value) {
-            acc[key] = JSON.parse(value);
-          }
-          return acc;
-        },
-        {} as Record<string, T>,
-      );
-    } catch (error) {
-      console.error("AsyncStorage multiGet error:", error);
-      return {};
-    }
+  removeItem: async (key: string): Promise<void> => {
+    storage.delete(key);
   },
 };

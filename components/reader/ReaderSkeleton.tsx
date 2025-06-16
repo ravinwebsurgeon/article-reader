@@ -12,7 +12,7 @@ export const ReaderSkeleton: React.FC = () => {
     container: {
       flex: 1,
       padding: spacing.lg - spacing.xs, // 20px equivalent
-      backgroundColor: theme.colors.background.paper,
+      backgroundColor: theme.colors.background.default,
     },
     skeletonLine: {
       height: spacing.md - spacing.xs, // 12px equivalent

@@ -151,7 +151,7 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
   const handleSwitchToWebView = useCallback(() => setBrowserMode(true), []);
 
   return (
-    <ThemeView style={{ flex: 1 }} backgroundColor={theme.colors.background.paper}>
+    <ThemeView style={{ flex: 1 }} backgroundColor={theme.colors.background.default}>
       <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
         <ReaderHeader
           item={item}

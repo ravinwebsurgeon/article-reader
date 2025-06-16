@@ -8,8 +8,8 @@ export function getAdapter(schema: AppSchema, migrations: SchemaMigrations) {
     migrations,
     useWebWorker: false,
     useIncrementalIndexedDB: true,
-    onQuotaExceededError: (error) => {},
-    onSetUpError: (error) => {},
+    onQuotaExceededError: (_error) => {},
+    onSetUpError: (_error) => {},
     extraIncrementalIDBOptions: {
       onDidOverwrite: () => {},
       onversionchange: () => {

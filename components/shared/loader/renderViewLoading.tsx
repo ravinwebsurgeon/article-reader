@@ -7,7 +7,7 @@ export const RenderWebViewLoading = () => {
   return (
     <ThemeView
       style={styles.webViewLoadingContainer}
-      backgroundColor={theme.colors.background.paper}
+      backgroundColor={theme.colors.background.default}
     >
       {/* Skeleton for header */}
       <ThemeView style={styles.skeletonHeader} backgroundColor={theme.colors.background.default} />

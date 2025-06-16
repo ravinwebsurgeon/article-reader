@@ -1,6 +1,6 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { reduxStorage } from "@/utils/storage";
 import {
   persistReducer,
   persistStore,
@@ -24,7 +24,7 @@ import { tokenRefreshMiddleware } from "./middleware/tokenRefresh";
 // Persistence configuration
 const persistConfig = {
   key: "root",
-  storage: AsyncStorage,
+  storage: reduxStorage,
   whitelist: ["auth", "theme"], // Only persist these reducers
   blacklist: [api.reducerPath, "network"], // Don't persist API cache
 };

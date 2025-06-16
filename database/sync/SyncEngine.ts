@@ -1,11 +1,10 @@
 import { synchronize } from "@nozbe/watermelondb/sync";
 import { Database } from "@nozbe/watermelondb";
 import Constants from "expo-constants";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { TokenStorage } from "@/utils/storage";
 import { debounce, DebouncedFunc } from "lodash-es";
 import { Subscription } from "rxjs";
 import ItemContentSyncer from "./ItemContentSyncer";
-import { Platform } from "react-native";
 import { ServerChangesListener } from "./ServerChangesListener";
 
 // API URL from environment configuration.
@@ -47,7 +46,7 @@ class SyncEngine {
     if (database) {
       this.itemContentSyncer.database = database;
     }
-    this.serverChangesListener = new ServerChangesListener(API_URL);
+    this.serverChangesListener = new ServerChangesListener(API_URL as string);
 
     // Create debounced sync function - this is the core sync logic
     this.debouncedSync = debounce(this._performSync.bind(this), 250, {
@@ -73,7 +72,7 @@ class SyncEngine {
   /**
    * Main sync method - always returns the same promise if sync is in progress
    */
-  sync(isFirstSync = false): Promise<boolean> {
+  sync(_isFirstSync = false): Promise<boolean> {
     // If sync is already running, return the existing promise
     if (this.currentSyncPromise) {
       console.log(`${LOG_PREFIX} Sync already in progress, returning existing promise`);
@@ -136,7 +135,7 @@ class SyncEngine {
   private async _ensureToken(): Promise<void> {
     if (!this.token) {
       console.log(`${LOG_PREFIX} Loading auth token from storage`);
-      this.token = await AsyncStorage.getItem("auth_token");
+      this.token = TokenStorage.get() ?? null;
       if (!this.token) {
         throw new Error("Authentication token not available");
       }
@@ -157,7 +156,7 @@ class SyncEngine {
    */
   private async _syncWithServer(): Promise<void> {
     console.log(`${LOG_PREFIX} Syncing with server`);
-    const isWeb = Platform.OS === "web";
+
     const useTurbo = false; // Disable turbo for now to avoid complications
 
     await synchronize({
@@ -326,7 +325,7 @@ class SyncEngine {
 
   async loadToken(): Promise<string | null> {
     try {
-      const token = await AsyncStorage.getItem("auth_token");
+      const token = TokenStorage.get() ?? null;
       this.setToken(token);
       return token;
     } catch (error) {

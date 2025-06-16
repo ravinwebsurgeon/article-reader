@@ -40,7 +40,7 @@ interface ItemCardProps {
   onPress: () => void;
 }
 
-const makeStyles = (theme: Theme, isDarkMode: boolean) =>
+const makeStyles = (theme: Theme, _isDarkMode: boolean) =>
   StyleSheet.create({
     container: {
       paddingVertical: 16,
