@@ -35,7 +35,7 @@ function LoginScreen() {
 
   const { error } = useAppSelector((state) => state.auth);
   const [login] = useLoginMutation();
-  const { control, handleSubmit } = useForm<LoginFormData>({
+  const { control, handleSubmit, setFocus } = useForm<LoginFormData>({
     defaultValues: {
       email: "",
       password: "",
@@ -185,6 +185,10 @@ function LoginScreen() {
               spellCheck={false}
               icon={<SvgIcon name="envelope" size={24} color={theme.colors.primary.main} />}
               style={styles.input}
+              onSubmitEditing={() => setFocus("password")}
+              returnKeyType="next"
+              autoComplete="email"
+              textContentType="emailAddress"
             />
             <Input
               control={control}
@@ -200,6 +204,10 @@ function LoginScreen() {
               secureTextEntry
               icon={<SvgIcon name="key" size={24} color={theme.colors.primary.main} />}
               style={styles.input}
+              onSubmitEditing={handleSubmit(onSubmit)}
+              returnKeyType="go"
+              autoComplete="current-password"
+              textContentType="password"
             />
 
             <TouchableOpacity
