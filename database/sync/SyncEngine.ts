@@ -72,7 +72,7 @@ class SyncEngine {
   /**
    * Main sync method - always returns the same promise if sync is in progress
    */
-  sync(isFirstSync = false): Promise<boolean> {
+  sync(_isFirstSync = false): Promise<boolean> {
     // If sync is already running, return the existing promise
     if (this.currentSyncPromise) {
       console.log(`${LOG_PREFIX} Sync already in progress, returning existing promise`);

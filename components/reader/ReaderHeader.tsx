@@ -73,8 +73,8 @@ export const ReaderHeader: React.FC<HeaderProps> = ({
     if (menuButtonRef.current) {
       menuButtonRef.current.measure(
         (
-          x: number,
-          y: number,
+          _x: number,
+          _y: number,
           width: number,
           height: number,
           pageX: number,

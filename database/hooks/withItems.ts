@@ -125,7 +125,7 @@ interface WithSearchProps {
  * @param query - Optional search term to filter items
  * @returns A function that provides the search results as props to components
  */
-export const withSearch = ({ query }: WithSearchProps = {}) => {
+export const withSearch = ({ query: _query }: WithSearchProps = {}) => {
   return withObservables(["query"], ({ query: searchQuery }: { query?: string }) => {
     const searchInput = searchQuery || "";
 

@@ -22,7 +22,7 @@ interface AlertProps extends AlertConfig {
 }
 
 export const Alert: React.FC<AlertProps> = ({
-  id,
+  id: _id,
   type,
   title,
   message,
@@ -242,7 +242,7 @@ export const Alert: React.FC<AlertProps> = ({
   );
 };
 
-const getStyles = (theme: ReturnType<typeof useTheme>, type: string): AlertStyles => {
+const getStyles = (theme: ReturnType<typeof useTheme>, _type: string): AlertStyles => {
   return StyleSheet.create({
     container: {
       position: "absolute",

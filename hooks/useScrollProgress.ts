@@ -151,7 +151,7 @@ export const useScrollProgress = ({
   }, [isUserScrolled, progress, item]);
 
   // Better content size handling
-  const handleContentSizeChange = useCallback((width: number, height: number) => {
+  const handleContentSizeChange = useCallback((_width: number, height: number) => {
     console.log("Content size changed:", height);
     setContentHeight(height);
   }, []);
