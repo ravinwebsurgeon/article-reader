@@ -72,8 +72,8 @@
       "expo-web-browser",
       "expo-localization",
       "./plugins/withLargeHeap",
-      "./plugins/withShareIntent",
-      "./plugins/withIOShareExtension"
+      "./plugins/withFolioShareAndroid",
+      "./plugins/withFolioShareiOS"
     ],
     "experiments": {
       "typedRoutes": true

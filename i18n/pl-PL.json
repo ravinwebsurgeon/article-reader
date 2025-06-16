@@ -20,7 +20,8 @@
     "edit": "Edytuj",
     "loading": "Ładowanie...",
     "error": "Błąd",
-    "success": "Sukces"
+    "success": "Sukces",
+    "logout": "Wyloguj"
   },
   "auth": {
     "login": {
@@ -128,7 +129,9 @@
     "appearance": "Wygląd",
     "importFromPocket": "Importuj z Pocket",
     "help": "Pomoc i wsparcie",
-    "about": "O aplikacji"
+    "about": "O aplikacji",
+    "logout": "Wyloguj",
+    "logoutConfirmMessage": "Czy na pewno chcesz się wylogować?"
   },
   "import": {
     "pocket": {

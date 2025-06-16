@@ -5,7 +5,7 @@ import { withItems } from "@/database/hooks/withItems";
 import Item from "@/database/models/ItemModel";
 import { ItemFilter } from "@/types/item";
 import { SortOption } from "@/components/shared/menu/SortMenu";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { storage } from "@/utils/storage";
 import ItemsFlatList from "@/components/item/ItemsFlatList";
 import { router } from "expo-router";
 
@@ -39,8 +39,8 @@ const ItemsListWithInitialSync = ({
 
     const performInitialSync = async () => {
       try {
-        const completedFirstSync = await AsyncStorage.getItem("completed_first_sync");
-        const isFirstSync = completedFirstSync !== "true";
+        const completedFirstSync = storage.getBoolean("completed_first_sync");
+        const isFirstSync = !completedFirstSync;
 
         console.log("First sync needed:", isFirstSync);
 
@@ -52,17 +52,17 @@ const ItemsListWithInitialSync = ({
           }
 
           await syncEngine.sync(true);
-          await AsyncStorage.setItem("completed_first_sync", "true");
+          storage.set("completed_first_sync", true);
 
           if (isMounted) {
             setShouldFetchItems(true);
           }
 
           // Check if we should show Pocket import prompt for new users
-          const showPocketImport = await AsyncStorage.getItem("show_pocket_import");
-          if (showPocketImport === "true") {
+          const showPocketImport = storage.getBoolean("show_pocket_import");
+          if (showPocketImport) {
             // Remove the flag immediately to prevent showing again
-            await AsyncStorage.removeItem("show_pocket_import");
+            storage.delete("show_pocket_import");
             // Wait for main screen to load, then show import modal
             setTimeout(() => {
               router.push("/import-pocket");

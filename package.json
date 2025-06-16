@@ -3,7 +3,7 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "start": "expo start",
+    "start": "expo start --dev-client",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo run:android",
     "ios": "expo run:ios",
@@ -75,6 +75,7 @@
     "react-native": "0.79.3",
     "react-native-gesture-handler": "~2.24.0",
     "react-native-get-random-values": "^1.11.0",
+    "react-native-mmkv": "3.3.0",
     "react-native-reanimated": "^3.17.5",
     "react-native-render-html": "^6.3.4",
     "react-native-safe-area-context": "^5.4.0",

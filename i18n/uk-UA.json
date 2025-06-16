@@ -20,7 +20,8 @@
     "edit": "Редагувати",
     "loading": "Завантаження...",
     "error": "Помилка",
-    "success": "Успіх"
+    "success": "Успіх",
+    "logout": "Вийти"
   },
   "auth": {
     "login": {
@@ -128,7 +129,9 @@
     "appearance": "Зовнішній вигляд",
     "importFromPocket": "Імпорт з Pocket",
     "help": "Допомога та підтримка",
-    "about": "Про додаток"
+    "about": "Про додаток",
+    "logout": "Вийти",
+    "logoutConfirmMessage": "Ви впевнені, що хочете вийти?"
   },
   "import": {
     "pocket": {
