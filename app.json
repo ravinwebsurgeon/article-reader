@@ -83,7 +83,22 @@
         "origin": false
       },
       "eas": {
-        "projectId": "75579236-282c-4bc2-9f72-bc9ebe2f4ce2"
+        "projectId": "75579236-282c-4bc2-9f72-bc9ebe2f4ce2",
+        "build": {
+          "experimental": {
+            "ios": {
+              "appExtensions": [
+                {
+                  "targetName": "FolioShare",
+                  "bundleIdentifier": "co.lessisbetter.folio.FolioShare",
+                  "entitlements": {
+                    "com.apple.security.application-groups": ["group.co.lessisbetter.folio.share"]
+                  }
+                }
+              ]
+            }
+          }
+        }
       }
     },
     "owner": "lessisbetter"
