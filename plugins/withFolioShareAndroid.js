@@ -53,7 +53,7 @@ function addAccentColors(projectRoot) {
  * Expo Config Plugin for Folio Share functionality
  * Automatically creates ShareActivity, SimpleTokenManager, and required resources
  */
-const withFolioShare = (config, options = {}) => {
+const withFolioShareAndroid = (config, options = {}) => {
   // Add Android Manifest modifications
   config = withAndroidManifest(config, (config) => {
     const androidManifest = config.modResults;
@@ -828,4 +828,4 @@ async function createDrawableResources(projectRoot) {
   }
 }
 
-module.exports = withFolioShare;
+module.exports = withFolioShareAndroid;

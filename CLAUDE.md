@@ -179,11 +179,13 @@ iOS and Android share extensions are available for saving articles directly from
 ## Development Guidelines
 
 ### File Creation Policy
+
 - NEVER create files unless absolutely necessary for achieving the goal
-- ALWAYS prefer editing existing files over creating new ones  
-- NEVER proactively create documentation files (*.md) or README files unless explicitly requested
+- ALWAYS prefer editing existing files over creating new ones
+- NEVER proactively create documentation files (\*.md) or README files unless explicitly requested
 
 ### Code Standards
+
 - Always run `yarn lint-type-check` before committing changes
 - Follow existing code patterns and conventions in the codebase
 - Use theme system components and tokens instead of hardcoded values
