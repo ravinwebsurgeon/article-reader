@@ -84,7 +84,7 @@ export class HighlightsPlugin implements HTMLViewerPlugin {
   /**
    * Handle menu selection events
    */
-  handleMenuSelection(key: string, selectedText: string) {
+  handleMenuSelection(key: string, _selectedText: string) {
     switch (key) {
       case "highlight":
         // Send command to get selection context and create highlight

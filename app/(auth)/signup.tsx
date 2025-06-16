@@ -21,7 +21,7 @@ import { SvgIcon } from "@/components/SvgIcon";
 import { useTranslation } from "react-i18next";
 import { sendExtensionAuthToken } from "@/utils/extension";
 import zxcvbn from "zxcvbn";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { storage } from "@/utils/storage";
 
 interface SignUpFormData {
   email: string;
@@ -63,7 +63,7 @@ const SignUpScreen = () => {
       }
 
       // Set flag to show Pocket import prompt for new users
-      await AsyncStorage.setItem("show_pocket_import", "true");
+      storage.set("show_pocket_import", true);
     } catch (error: unknown) {
       console.error(error);
     } finally {

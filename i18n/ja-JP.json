@@ -20,7 +20,8 @@
     "edit": "編集",
     "loading": "読み込み中...",
     "error": "エラー",
-    "success": "成功"
+    "success": "成功",
+    "logout": "ログアウト"
   },
   "auth": {
     "login": {
@@ -128,7 +129,9 @@
     "appearance": "外観",
     "importFromPocket": "Pocketからインポート",
     "help": "ヘルプとサポート",
-    "about": "このアプリについて"
+    "about": "このアプリについて",
+    "logout": "ログアウト",
+    "logoutConfirmMessage": "ログアウトしますか？"
   },
   "import": {
     "pocket": {

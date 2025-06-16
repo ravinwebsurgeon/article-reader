@@ -168,7 +168,7 @@ export const useActionMenu = () => {
         return;
       }
 
-      targetRef.current.measure((x, y, width, height, pageX, pageY) => {
+      targetRef.current.measure((_x, _y, width, height, pageX, pageY) => {
         showMenu(
           items,
           {

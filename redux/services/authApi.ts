@@ -6,7 +6,7 @@ import {
   RefreshTokenResponse,
   RefreshTokenRequest,
 } from "../../types/api";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { storage, TokenStorage } from "@/utils/storage";
 import { sendExtensionLogout } from "@/utils/extension";
 
 // Auth API endpoints
@@ -22,7 +22,7 @@ export const authApi = api.injectEndpoints({
       async onQueryStarted(_, { queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          await AsyncStorage.setItem("auth_token", data.token);
+          TokenStorage.set(data.token);
         } catch {
           // Handle error if needed
         }
@@ -39,8 +39,7 @@ export const authApi = api.injectEndpoints({
       async onQueryStarted(_, { queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          console.log("is it coming here successful", data);
-          await AsyncStorage.setItem("auth_token", data.token);
+          TokenStorage.set(data.token);
         } catch {
           // Handle error if needed
         }
@@ -57,13 +56,13 @@ export const authApi = api.injectEndpoints({
       async onQueryStarted(_, { queryFulfilled }) {
         try {
           await queryFulfilled;
-          await AsyncStorage.clear();
-          // Notify extension about logout
+          TokenStorage.delete();
+          storage.clearAll();
           sendExtensionLogout();
         } catch {
-          // Force clear storage even if API call fails
-          await AsyncStorage.clear();
-          // Still notify extension about logout even if API call fails
+          // Force remove token even if API call fails
+          TokenStorage.delete();
+          storage.clearAll();
           sendExtensionLogout();
         }
       },
@@ -80,7 +79,7 @@ export const authApi = api.injectEndpoints({
       async onQueryStarted(_, { queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          await AsyncStorage.setItem("auth_token", data.token);
+          TokenStorage.set(data.token);
         } catch {
           // Handle error if needed
         }
@@ -92,7 +91,7 @@ export const authApi = api.injectEndpoints({
     initializeAuth: builder.query<any | null, void>({
       queryFn: async () => {
         try {
-          const token = await AsyncStorage.getItem("auth_token");
+          const token = TokenStorage.get();
 
           if (!token) {
             return { data: null };
@@ -107,11 +106,12 @@ export const authApi = api.injectEndpoints({
 
           if (!response.ok) {
             // Token is invalid, clear it
-            await AsyncStorage.removeItem("auth_token");
+            TokenStorage.delete();
             return { data: null };
           }
 
           const data = await response.json();
+          TokenStorage.set(token);
           return { data: { user: data.user, token } };
         } catch {
           return {

@@ -181,7 +181,7 @@ const FilterTabs: React.FC<FilterTabsProps> = ({
   );
 };
 
-const makeStyles = (theme: Theme, isDarkMode: boolean) =>
+const makeStyles = (theme: Theme, _isDarkMode: boolean) =>
   StyleSheet.create({
     container: {
       borderBottomWidth: 1,

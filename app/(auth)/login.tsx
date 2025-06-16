@@ -5,7 +5,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
   ViewStyle,
   TextStyle,
 } from "react-native";
@@ -22,6 +21,8 @@ import { SvgIcon } from "@/components/SvgIcon";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { sendExtensionAuthToken } from "@/utils/extension";
+import { useAlert } from "@/provider/AlertProvider";
+import { AlertPresets } from "@/utils/alert";
 
 interface LoginFormData {
   email: string;
@@ -32,7 +33,7 @@ function LoginScreen() {
   const dispatch = useAppDispatch();
   const theme = useTheme();
   const { t } = useTranslation();
-
+  const alert = useAlert();
   const { error } = useAppSelector((state) => state.auth);
   const [login] = useLoginMutation();
   const { control, handleSubmit, setFocus } = useForm<LoginFormData>({
@@ -57,6 +58,14 @@ function LoginScreen() {
       }
     } catch (err) {
       console.error("Login failed", err);
+      alert.show(
+        AlertPresets.error(
+          "Login Failed",
+          typeof err === "object" && err !== null && "error" in err
+            ? (err as { error: string }).error
+            : "An error occurred",
+        ),
+      );
     }
   };
 
@@ -71,7 +80,6 @@ function LoginScreen() {
   // Show error alert if needed
   useEffect(() => {
     if (error) {
-      Alert.alert("Login Error", error);
       dispatch(resetAuthError());
     }
   }, [error, dispatch]);

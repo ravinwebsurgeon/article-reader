@@ -99,7 +99,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
   title,
   width = DEFAULT_MENU_WIDTH,
   maxHeight = DEFAULT_MAX_HEIGHT,
-  animationType = "none",
+  animationType: _animationType = "none",
   headerComponent,
   footerComponent,
   animationDuration = 300,
@@ -481,7 +481,7 @@ const ReusableActionMenu: React.FC<ActionMenuProps> = ({
   );
 };
 
-const makeStyles = (theme: Theme, isDarkMode: boolean) =>
+const makeStyles = (theme: Theme, _isDarkMode: boolean) =>
   StyleSheet.create({
     modalOverlay: {
       flex: 1,
@@ -494,7 +494,7 @@ const makeStyles = (theme: Theme, isDarkMode: boolean) =>
       paddingHorizontal: MENU_PADDING,
       elevation: 8,
       backfaceVisibility: "hidden",
-      backgroundColor: theme.colors.background.paper,
+      backgroundColor: theme.colors.background.default,
       shadowColor: "rgba(0, 0, 0, 0.4)",
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.4,

@@ -245,7 +245,12 @@ class DeployScript {
     const currentBuildInfo = await this.getEASBuildNumbers();
     const nextIosBuild = parseInt(currentBuildInfo.buildNumber) + 1;
     const nextAndroidBuild = parseInt(currentBuildInfo.versionCode) + 1;
-    const buildTag = `${newVersion}+ios${nextIosBuild}+and${nextAndroidBuild}`;
+
+    // Use simple format if build numbers match, compound if different
+    const buildTag =
+      nextIosBuild === nextAndroidBuild
+        ? `${newVersion}+${nextIosBuild}`
+        : `${newVersion}+ios${nextIosBuild}+and${nextAndroidBuild}`;
 
     log.info(`Predicted build tag: ${buildTag}`);
 
@@ -286,7 +291,12 @@ class DeployScript {
     const currentBuildInfo = await this.getEASBuildNumbers();
     const nextIosBuild = parseInt(currentBuildInfo.buildNumber) + 1;
     const nextAndroidBuild = parseInt(currentBuildInfo.versionCode) + 1;
-    const buildTag = `${currentVersion}+ios${nextIosBuild}+and${nextAndroidBuild}`;
+
+    // Use simple format if build numbers match, compound if different
+    const buildTag =
+      nextIosBuild === nextAndroidBuild
+        ? `${currentVersion}+${nextIosBuild}`
+        : `${currentVersion}+ios${nextIosBuild}+and${nextAndroidBuild}`;
 
     log.info(`Predicted build tag: ${buildTag}`);
 

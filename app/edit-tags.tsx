@@ -183,7 +183,7 @@ const EditTagsView: React.FC<EditTagsViewProps> = ({
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.modalContainer} // This will be the screen's root container
       >
-        <View style={[styles.container, { backgroundColor: colors.background.paper }]}>
+        <View style={[styles.container, { backgroundColor: colors.background.default }]}>
           <View style={styles.topBar}>
             <View style={styles.topBarIndicator} />
           </View>

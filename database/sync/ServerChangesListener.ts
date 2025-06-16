@@ -79,7 +79,9 @@ export class ServerChangesListener {
 
       this.webSocket.onmessage = (event) => {
         try {
-          const message = JSON.parse(event.data);
+          const message = JSON.parse(
+            typeof event.data === "string" ? event.data : String(event.data),
+          );
 
           // Handle different Action Cable message types
           if (message.type === "welcome") {
@@ -100,7 +102,7 @@ export class ServerChangesListener {
               const syncMessage = message.message;
 
               // Filter out our own sync notifications
-              if (this.token?.startsWith(syncMessage.source_token_id)) {
+              if (this.token?.startsWith(syncMessage.source_token_id as string)) {
                 console.log(`${LOG_PREFIX} Ignoring own sync`);
                 return; // Ignore our own actions
               }
@@ -117,7 +119,7 @@ export class ServerChangesListener {
         } catch (parseError) {
           // Handle raw timestamp pings that aren't JSON
           const rawData = event.data;
-          if (/^\d+$/.test(rawData)) {
+          if (/^\d+$/.test(rawData as string)) {
             // Raw timestamp ping - ignore silently
             return;
           }
