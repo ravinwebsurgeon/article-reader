@@ -65,14 +65,14 @@ export const useScrollProgress = ({
   const handleScrollChange = useCallback(
     (event: any) => {
       const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
-      const scrollY = contentOffset.y;
+      const scrollY = Number(contentOffset.y);
 
       // Update content dimensions if they changed
-      if (contentSize.height !== contentHeight) {
-        setContentHeight(contentSize.height);
+      if (typeof contentSize.height === "number" && contentSize.height !== contentHeight) {
+        setContentHeight(Number(contentSize.height));
       }
       if (layoutMeasurement.height !== scrollViewHeight) {
-        setScrollViewHeight(layoutMeasurement.height);
+        setScrollViewHeight(Number(layoutMeasurement.height));
       }
 
       // Calculate and update progress
@@ -156,11 +156,14 @@ export const useScrollProgress = ({
     setContentHeight(height);
   }, []);
 
-  const handleLayoutChange = useCallback((event: any) => {
-    const { height } = event.nativeEvent.layout;
-    console.log("ScrollView layout changed:", height);
-    setScrollViewHeight(height);
-  }, []);
+  const handleLayoutChange = useCallback(
+    (event: { nativeEvent: { layout: { height: number } } }) => {
+      const { height } = event.nativeEvent.layout;
+      console.log("ScrollView layout changed:", height);
+      setScrollViewHeight(height);
+    },
+    [],
+  );
 
   // Reset state when item changes
   useEffect(() => {

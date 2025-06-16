@@ -5,7 +5,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { debounce, DebouncedFunc } from "lodash-es";
 import { Subscription } from "rxjs";
 import ItemContentSyncer from "./ItemContentSyncer";
-import { Platform } from "react-native";
 import { ServerChangesListener } from "./ServerChangesListener";
 
 // API URL from environment configuration.
@@ -47,7 +46,7 @@ class SyncEngine {
     if (database) {
       this.itemContentSyncer.database = database;
     }
-    this.serverChangesListener = new ServerChangesListener(API_URL);
+    this.serverChangesListener = new ServerChangesListener(API_URL as string);
 
     // Create debounced sync function - this is the core sync logic
     this.debouncedSync = debounce(this._performSync.bind(this), 250, {
@@ -157,7 +156,7 @@ class SyncEngine {
    */
   private async _syncWithServer(): Promise<void> {
     console.log(`${LOG_PREFIX} Syncing with server`);
-    const isWeb = Platform.OS === "web";
+
     const useTurbo = false; // Disable turbo for now to avoid complications
 
     await synchronize({
