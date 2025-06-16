@@ -37,7 +37,7 @@ function AuthStart() {
     },
   });
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (_data: LoginFormData) => {
     try {
       router.push("/(auth)/login");
     } catch (err) {

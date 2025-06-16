@@ -6,7 +6,7 @@ export class AutoResizePlugin implements HTMLViewerPlugin {
   /**
    * Initialize the plugin (called by HTMLViewer when WebView is ready)
    */
-  initialize(context: PluginContext) {
+  initialize(_context: PluginContext) {
     // AutoResizePlugin doesn't need any initialization
     // The JavaScript will start working immediately
   }
