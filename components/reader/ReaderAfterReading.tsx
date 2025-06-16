@@ -90,8 +90,12 @@ export const ReaderAfterReading: React.FC<ReaderAfterReadingProps> = ({ item }) 
 
   return (
     <ThemeView style={styles.container}>
-      <ThemeView style={styles.sectionHeader} backgroundColor={theme.colors.background.paper}>
-        <ThemeView style={styles.headerContent} backgroundColor={theme.colors.background.paper} row>
+      <ThemeView style={styles.sectionHeader} backgroundColor={theme.colors.background.default}>
+        <ThemeView
+          style={styles.headerContent}
+          backgroundColor={theme.colors.background.default}
+          row
+        >
           <SvgIcon name="goto" size={18} color={theme.colors.text.secondary} />
           <ThemeText variant="guide" color={theme.colors.text.secondary} style={styles.headerText}>
             {t("reader.afterReading")}

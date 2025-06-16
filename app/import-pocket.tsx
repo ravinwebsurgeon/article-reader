@@ -225,7 +225,7 @@ export default function ImportPocketScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background.default }]}>
-      <View style={[styles.modalContainer, { backgroundColor: colors.background.paper }]}>
+      <View style={[styles.modalContainer, { backgroundColor: colors.background.default }]}>
         {/* Modal indicator bar */}
         <View style={styles.topBar}>
           <View style={[styles.topBarIndicator, { backgroundColor: colors.divider }]} />

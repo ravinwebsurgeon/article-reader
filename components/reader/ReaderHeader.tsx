@@ -99,7 +99,7 @@ export const ReaderHeader: React.FC<HeaderProps> = ({
 
   return (
     <>
-      <ThemeView style={styles.header} row backgroundColor={theme.colors.background.paper}>
+      <ThemeView style={styles.header} row backgroundColor={theme.colors.background.default}>
         <ThemeView style={styles.headerLeft} row centered>
           <TouchableOpacity
             onPress={onBack}

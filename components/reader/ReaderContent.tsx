@@ -158,7 +158,7 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
 
       :root {
         --text-color: ${theme.colors.text.primary};
-        --bg-color: ${theme.colors.background.paper};
+        --bg-color: ${theme.colors.background.default};
         --link-color: ${theme.colors.primary.main};
         --blockquote-border: ${theme.colors.gray[300]};
         --blockquote-color: ${theme.colors.text.secondary};

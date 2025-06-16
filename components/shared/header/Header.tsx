@@ -39,7 +39,7 @@ export const Header: React.FC<HeaderProps> = ({
   const theme = useTheme();
 
   // Default colors from theme if not specified
-  const bgColor = backgroundColor ?? theme.colors.background.paper;
+  const bgColor = backgroundColor ?? theme.colors.background.default;
   const txtColor = titleColor ?? theme.colors.text.primary;
 
   const renderLeftContent = () => {

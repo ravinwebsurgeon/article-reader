@@ -87,7 +87,7 @@ export default function SettingsScreen() {
         </ThemeText>
 
         <ThemeView
-          style={[styles.section, { backgroundColor: theme.colors.background.paper }]}
+          style={[styles.section, { backgroundColor: theme.colors.background.default }]}
           rounded="md"
         >
           <Pressable style={[styles.settingItem, { borderBottomColor: theme.colors.divider }]}>
@@ -138,7 +138,7 @@ export default function SettingsScreen() {
           style={[
             styles.section,
             styles.secondSection,
-            { backgroundColor: theme.colors.background.paper },
+            { backgroundColor: theme.colors.background.default },
           ]}
           rounded="md"
         >
