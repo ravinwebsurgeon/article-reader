@@ -18,6 +18,7 @@ import { NetworkProvider } from "@/provider/NetworkProvider";
 import "@/i18n"; // Import i18n configuration
 import { ShareHandler } from "@/utils/shareHandler";
 import { Alert, Linking } from "react-native";
+import { AlertProvider } from "@/provider/AlertProvider";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -156,17 +157,19 @@ function RootLayoutNav() {
   return (
     <ThemeProviderNative value={themeValue}>
       <ThemeProvider>
-        <ThemeStatusBar />
-        <Stack {...STACK_CONFIG}>
-          {STACK_CONFIG.screens.map((screen) => (
-            <Stack.Screen
-              key={screen.name}
-              name={screen.name}
-              redirect={screen.redirect?.(isAuthenticated)}
-              options={screen.options}
-            />
-          ))}
-        </Stack>
+        <AlertProvider>
+          <ThemeStatusBar />
+          <Stack {...STACK_CONFIG}>
+            {STACK_CONFIG.screens.map((screen) => (
+              <Stack.Screen
+                key={screen.name}
+                name={screen.name}
+                redirect={screen.redirect?.(isAuthenticated)}
+                options={screen.options}
+              />
+            ))}
+          </Stack>
+        </AlertProvider>
       </ThemeProvider>
     </ThemeProviderNative>
   );

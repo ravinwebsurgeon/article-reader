@@ -101,14 +101,16 @@ const ReaderActionMenu: React.FC<ReaderActionMenuProps> = ({
             onClose();
 
             // Prepare share content
-            const title = item.title ?? "Article";
-            const url = item.url;
+            setTimeout(async () => {
+              const title = item.title ?? "Article";
+              const url = item.url;
 
-            await Share.share({
-              message: url as string,
-              title: title,
-              url: url,
-            });
+              await Share.share({
+                message: url as string,
+                title: title,
+                url: url,
+              });
+            }, 300);
           } catch (error) {
             console.error("Error sharing article:", error);
           }

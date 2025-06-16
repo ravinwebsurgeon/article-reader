@@ -8,6 +8,77 @@ import {
 } from "../../types/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { sendExtensionLogout } from "@/utils/extension";
+import { Platform, NativeModules } from "react-native";
+import { clearAuthTokenForSharing, saveAuthTokenForSharing } from "@/utils/ShareTokenManager";
+import { saveTokenToNativeFile } from "@/utils/saveTokenToNative";
+import { saveToken } from "@/utils/saveTokenIos";
+
+const storeTokenForNativeExtensions = async (token: string) => {
+  try {
+    console.log("Storing token for native extensions:", token.substring(0, 10) + "...");
+
+    // Store in multiple locations to ensure compatibility
+    await AsyncStorage.setItem("auth_token", token);
+    await AsyncStorage.setItem("folio_auth_token", token); // Additional key for safety
+
+    if (Platform.OS === "ios") {
+      // For iOS, we need to store in App Group UserDefaults
+      if (NativeModules.SharedStorage) {
+        await NativeModules.SharedStorage.setItem("auth_token", token);
+        await NativeModules.SharedStorage.setItem("folio_auth_token", token);
+        console.log("✅ Token stored in iOS shared storage");
+      } else {
+        console.warn("⚠️ SharedStorage module not available for iOS");
+      }
+    }
+
+    // For Android, also try to store in a location that matches SharedPreferences access pattern
+    // if (Platform.OS === 'android') {
+    //   // AsyncStorage on Android typically maps to SharedPreferences with "ReactNative" name
+    //   // Let's also store it in the exact format the Android code expects
+    //   try {
+    //     const currentState = await AsyncStorage.getItem("persist:root");
+    //     if (currentState) {
+    //       const parsed = JSON.parse(currentState);
+    //       if (parsed.auth) {
+    //         let authState = parsed.auth;
+    //         if (typeof authState === 'string') {
+    //           authState = JSON.parse(authState.replace(/\\"/g, '"'));
+    //         }
+    //         authState.token = token;
+    //         parsed.auth = JSON.stringify(authState).replace(/"/g, '\\"');
+    //         await AsyncStorage.setItem("persist:root", JSON.stringify(parsed));
+    //         console.log("✅ Token updated in Redux persist store");
+    //       }
+    //     }
+    //   } catch (e) {
+    //     console.warn("Could not update Redux persist store:", e);
+    //   }
+    // }
+
+    console.log("✅ Token storage completed");
+  } catch (error) {
+    console.error("❌ Error storing token for native extensions:", error);
+  }
+};
+
+const removeTokenFromNativeExtensions = async () => {
+  try {
+    await AsyncStorage.removeItem("auth_token");
+    await AsyncStorage.removeItem("folio_auth_token");
+
+    if (Platform.OS === "ios") {
+      if (NativeModules.SharedStorage) {
+        await NativeModules.SharedStorage.removeItem("auth_token");
+        await NativeModules.SharedStorage.removeItem("folio_auth_token");
+      }
+
+      console.log("✅ Token removed from native extensions");
+    }
+  } catch (error) {
+    console.error("❌ Error removing token from native extensions:", error);
+  }
+};
 
 // Auth API endpoints
 export const authApi = api.injectEndpoints({
@@ -22,7 +93,8 @@ export const authApi = api.injectEndpoints({
       async onQueryStarted(_, { queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          await AsyncStorage.setItem("auth_token", data.token);
+          // await AsyncStorage.setItem("auth_token", data.token);
+          await storeTokenForNativeExtensions(data.token);
         } catch {
           // Handle error if needed
         }
@@ -41,6 +113,9 @@ export const authApi = api.injectEndpoints({
           const { data } = await queryFulfilled;
           console.log("is it coming here successful", data);
           await AsyncStorage.setItem("auth_token", data.token);
+          await saveAuthTokenForSharing(data.token);
+          await saveTokenToNativeFile(data.token);
+          saveToken(data.token);
         } catch {
           // Handle error if needed
         }
@@ -57,13 +132,15 @@ export const authApi = api.injectEndpoints({
       async onQueryStarted(_, { queryFulfilled }) {
         try {
           await queryFulfilled;
+          await removeTokenFromNativeExtensions();
           await AsyncStorage.clear();
+          await clearAuthTokenForSharing();
           // Notify extension about logout
           sendExtensionLogout();
         } catch {
-          // Force clear storage even if API call fails
+          // Force remove token even if API call fails
+          await removeTokenFromNativeExtensions();
           await AsyncStorage.clear();
-          // Still notify extension about logout even if API call fails
           sendExtensionLogout();
         }
       },
@@ -80,7 +157,8 @@ export const authApi = api.injectEndpoints({
       async onQueryStarted(_, { queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          await AsyncStorage.setItem("auth_token", data.token);
+          // await AsyncStorage.setItem("auth_token", data.token);
+          await storeTokenForNativeExtensions(data.token);
         } catch {
           // Handle error if needed
         }
@@ -107,11 +185,13 @@ export const authApi = api.injectEndpoints({
 
           if (!response.ok) {
             // Token is invalid, clear it
-            await AsyncStorage.removeItem("auth_token");
+            await removeTokenFromNativeExtensions();
+            // await AsyncStorage.removeItem("auth_token");
             return { data: null };
           }
 
           const data = await response.json();
+          await storeTokenForNativeExtensions(token);
           return { data: { user: data.user, token } };
         } catch {
           return {

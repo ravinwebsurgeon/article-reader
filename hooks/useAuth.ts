@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { sendExtensionLogout } from "@/utils/extension";
+import { clearAuthTokenForSharing, saveAuthTokenForSharing } from "@/utils/ShareTokenManager";
+import { saveTokenToNativeFile } from "@/utils/saveTokenToNative";
+import { saveToken } from "@/utils/saveTokenIos";
 
 interface User {
   id: string;
@@ -52,6 +55,9 @@ export function useAuth() {
 
       // Store auth data
       await AsyncStorage.setItem("auth_token", response.token);
+      await saveAuthTokenForSharing(response.token);
+      await saveTokenToNativeFile(response.token);
+      saveToken(response.token);
       await AsyncStorage.setItem("user_data", JSON.stringify(response.user));
 
       setUser(response.user);
@@ -73,7 +79,7 @@ export function useAuth() {
     try {
       // Clear all stored data
       await AsyncStorage.clear();
-
+      await clearAuthTokenForSharing();
       setUser(null);
       setIsAuthenticated(false);
 
