@@ -1,7 +1,6 @@
 import { Q } from "@nozbe/watermelondb";
 import { withObservables } from "@nozbe/watermelondb/react";
-import { switchMap, map } from "rxjs/operators";
-import { combineLatest, of as of$, Observable } from "rxjs";
+import { of as of$, Observable } from "rxjs";
 import Tag from "../models/TagModel";
 import Item from "../models/ItemModel";
 import ItemTag from "../models/ItemTagModel";

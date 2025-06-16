@@ -20,7 +20,8 @@
     "edit": "Bewerken",
     "loading": "Laden...",
     "error": "Fout",
-    "success": "Succes"
+    "success": "Succes",
+    "logout": "Uitloggen"
   },
   "auth": {
     "login": {
@@ -128,7 +129,9 @@
     "appearance": "Uiterlijk",
     "importFromPocket": "Importeren uit Pocket",
     "help": "Hulp & Ondersteuning",
-    "about": "Over"
+    "about": "Over",
+    "logout": "Uitloggen",
+    "logoutConfirmMessage": "Weet je zeker dat je wilt uitloggen?"
   },
   "import": {
     "pocket": {

@@ -20,7 +20,8 @@
     "edit": "Редактировать",
     "loading": "Загрузка...",
     "error": "Ошибка",
-    "success": "Успех"
+    "success": "Успех",
+    "logout": "Выйти"
   },
   "auth": {
     "login": {
@@ -128,7 +129,9 @@
     "appearance": "Внешний вид",
     "importFromPocket": "Импорт из Pocket",
     "help": "Помощь и поддержка",
-    "about": "О приложении"
+    "about": "О приложении",
+    "logout": "Выйти",
+    "logoutConfirmMessage": "Вы уверены, что хотите выйти?"
   },
   "import": {
     "pocket": {

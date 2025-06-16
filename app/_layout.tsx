@@ -16,8 +16,7 @@ import { ThemeStatusBar } from "@/components/primitives";
 import { DatabaseProvider, useDatabase } from "@/database/provider/DatabaseProvider";
 import { NetworkProvider } from "@/provider/NetworkProvider";
 import "@/i18n"; // Import i18n configuration
-import { ShareHandler } from "@/utils/shareHandler";
-import { Alert, Linking } from "react-native";
+import { AlertProvider } from "@/provider/AlertProvider";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -120,33 +119,6 @@ function RootLayoutNav() {
   const activeTheme = useAppSelector(selectActiveTheme);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
-  useEffect(() => {
-    // Handle app launch from share
-    const handleInitialShare = async () => {
-      const sharedUrl = await ShareHandler.handleInitialShare();
-      if (sharedUrl) {
-        const result = await ShareHandler.saveLink(sharedUrl);
-        Alert.alert("Success", result.message);
-      }
-    };
-
-    // Handle deep links while app is running
-    const handleDeepLink = (event: { url: string }) => {
-      const url = ShareHandler.extractUrlFromIntent(event.url);
-      if (url) {
-        ShareHandler.saveLink(url).then((result) => {
-          Alert.alert("Success", result.message);
-        });
-      }
-    };
-
-    handleInitialShare();
-
-    const subscription = Linking.addEventListener("url", handleDeepLink);
-
-    return () => subscription?.remove();
-  }, []);
-
   // Memoize theme value to prevent unnecessary re-renders
   const themeValue = useMemo(
     () => (activeTheme === "dark" ? DarkTheme : DefaultTheme),
@@ -156,17 +128,19 @@ function RootLayoutNav() {
   return (
     <ThemeProviderNative value={themeValue}>
       <ThemeProvider>
-        <ThemeStatusBar />
-        <Stack {...STACK_CONFIG}>
-          {STACK_CONFIG.screens.map((screen) => (
-            <Stack.Screen
-              key={screen.name}
-              name={screen.name}
-              redirect={screen.redirect?.(isAuthenticated)}
-              options={screen.options}
-            />
-          ))}
-        </Stack>
+        <AlertProvider>
+          <ThemeStatusBar />
+          <Stack {...STACK_CONFIG}>
+            {STACK_CONFIG.screens.map((screen) => (
+              <Stack.Screen
+                key={screen.name}
+                name={screen.name}
+                redirect={screen.redirect?.(isAuthenticated)}
+                options={screen.options}
+              />
+            ))}
+          </Stack>
+        </AlertProvider>
       </ThemeProvider>
     </ThemeProviderNative>
   );
