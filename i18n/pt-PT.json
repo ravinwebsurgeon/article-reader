@@ -20,7 +20,8 @@
     "edit": "Editar",
     "loading": "A carregar...",
     "error": "Erro",
-    "success": "Sucesso"
+    "success": "Sucesso",
+    "logout": "Terminar sessão"
   },
   "auth": {
     "login": {
@@ -128,7 +129,9 @@
     "appearance": "Aparência",
     "importFromPocket": "Importar do Pocket",
     "help": "Ajuda e suporte",
-    "about": "Acerca"
+    "about": "Acerca",
+    "logout": "Terminar sessão",
+    "logoutConfirmMessage": "Tem a certeza de que quer terminar a sessão?"
   },
   "import": {
     "pocket": {

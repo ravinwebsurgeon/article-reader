@@ -131,7 +131,7 @@
     "help": "Help & Support",
     "about": "About",
     "logout": "Logout",
-    "logoutConfirmMessage": "Are you sure you want to logout? This will clear all your local data."
+    "logoutConfirmMessage": "Are you sure you want to sign out?"
   },
   "import": {
     "pocket": {

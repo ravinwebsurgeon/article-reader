@@ -20,7 +20,8 @@
     "edit": "Edit",
     "loading": "Loading...",
     "error": "Error",
-    "success": "Success"
+    "success": "Success",
+    "logout": "Logout"
   },
   "auth": {
     "login": {
@@ -128,7 +129,9 @@
     "appearance": "Appearance",
     "importFromPocket": "Import from Pocket",
     "help": "Help & Support",
-    "about": "About"
+    "about": "About",
+    "logout": "Logout",
+    "logoutConfirmMessage": "Are you sure you want to sign out?"
   },
   "import": {
     "pocket": {
