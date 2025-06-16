@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ViewStyle,
   KeyboardTypeOptions,
+  TextInputProps,
 } from "react-native";
 import { Controller, Control, FieldValues, Path, RegisterOptions } from "react-hook-form";
 import { Ionicons } from "@expo/vector-icons";
@@ -29,6 +30,10 @@ interface InputProps<T extends FieldValues> {
   multiline?: boolean;
   numberOfLines?: number;
   style?: ViewStyle;
+  onSubmitEditing?: () => void;
+  returnKeyType?: "done" | "go" | "next" | "search" | "send" | "default";
+  autoComplete?: TextInputProps["autoComplete"];
+  textContentType?: TextInputProps["textContentType"];
 }
 
 // Reusable Input Component
@@ -47,6 +52,10 @@ export const Input = <T extends FieldValues>({
   multiline = false,
   numberOfLines = 1,
   style,
+  onSubmitEditing,
+  returnKeyType = "next",
+  autoComplete,
+  textContentType,
 }: InputProps<T>) => {
   const [isSecureTextVisible, setIsSecureTextVisible] = useState(false);
   const theme = useTheme();
@@ -84,11 +93,18 @@ export const Input = <T extends FieldValues>({
               multiline={multiline}
               numberOfLines={multiline ? numberOfLines : 1}
               textAlignVertical={multiline ? "top" : "center"}
+              onSubmitEditing={onSubmitEditing}
+              returnKeyType={returnKeyType}
+              autoComplete={autoComplete}
+              textContentType={textContentType}
             />
             {secureTextEntry && (
               <TouchableOpacity
                 style={styles.secureTextToggle}
                 onPress={() => setIsSecureTextVisible(!isSecureTextVisible)}
+                accessibilityLabel={isSecureTextVisible ? "Hide password" : "Show password"}
+                accessibilityRole="button"
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
                 <Ionicons
                   name={isSecureTextVisible ? "eye-off-outline" : "eye-outline"}
@@ -143,10 +159,15 @@ const makeStyles = (theme: Theme) =>
     },
     secureTextToggle: {
       position: "absolute",
-      right: 16,
+      right: 8,
       top: "50%",
-      transform: [{ translateY: -10 }],
+      transform: [{ translateY: -12 }],
       zIndex: 1,
+      width: 32,
+      height: 32,
+      justifyContent: "center",
+      alignItems: "center",
+      borderRadius: 16,
     },
     errorText: {
       color: theme.colors.error.main,

@@ -75,7 +75,20 @@
     "unarchive": "取消归档",
     "markAsRead": "标记为已读",
     "markAsUnread": "标记为未读",
-    "upNext": "接下来"
+    "upNext": "接下来",
+    "content": {
+      "extracting": "正在提取内容...",
+      "pageNotAvailable": "页面不可用。",
+      "pageNoLongerAvailable": "页面不再可用。",
+      "contentTypeNotSupported": "不支持的内容类型。",
+      "contentBestViewedOnWeb": "内容在网页上查看效果更佳。",
+      "paywallNotice": "这似乎是付费内容。",
+      "switchToWebView": "切换到网页视图",
+      "viewFullArticleOnWeb": "在网页上查看完整文章",
+      "viewInWaybackMachine": "在 Wayback Machine 中查看",
+      "checkingArchive": "正在检查存档...",
+      "noArchivedVersion": "没有可用的存档版本"
+    }
   },
   "errors": {
     "network": "网络错误。请检查您的连接并重试。",
@@ -122,13 +135,13 @@
       "title": "从 Pocket 导入",
       "description": "连接您的 Pocket 账户，将所有保存的文章导入到 Folio。此过程将：",
       "benefits": {
-        "importArticles": "导入您所有保存的 Pocket 文章",
-        "preserveProgress": "保留您的阅读进度和标签",
+        "importArticles": "导入您所有的 Pocket 收藏",
+        "preserveProgress": "保留您的标签和高亮",
         "keepAccount": "保持您原有的 Pocket 账户不变"
       },
       "note": "您将被重定向到 Pocket 以授权导入。这是安全的——我们只读取您保存的文章。",
       "startImport": "开始导入",
-      "cancel": "取消",
+      "notNow": "暂不",
       "success": {
         "title": "导入已开始！",
         "description": "您的 Pocket 数据正在后台导入。这可能需要几分钟时间，具体取决于您保存的文章数量。",
@@ -176,6 +189,14 @@
     "all": {
       "message": "准备开始保存了吗？",
       "subMessage": "保存您想稍后阅读的文章。它们将显示在这里。"
+    },
+    "allClear": {
+      "message": "做得很好",
+      "subMessage": "您的列表现在已清空。"
+    },
+    "discover": {
+      "message": "暂无发现内容",
+      "subMessage": "好内容即将到来。敬请期待。"
     },
     "restoring": {
       "message": "正在恢复您的收藏",

@@ -281,9 +281,8 @@ const ItemCardComponent = ({ item, itemTags, onPress, style }: ItemCardProps) =>
     setMenuVisible(false);
   }, []);
 
-  if (!item?.title) {
-    return null;
-  }
+  // Show URL as fallback if no title
+  const displayTitle = item?.title ?? item?.url ?? "Untitled";
 
   const readTime = item.readTime;
 
@@ -294,21 +293,29 @@ const ItemCardComponent = ({ item, itemTags, onPress, style }: ItemCardProps) =>
           <View style={styles.cardTop}>
             <View style={styles.cardTopLeft}>
               <View style={styles.header}>
-                <ThemeText numberOfLines={2} variant="h6">
-                  {item.title}
+                <ThemeText numberOfLines={item.title ? 2 : 3} variant="h6">
+                  {displayTitle}
                 </ThemeText>
               </View>
-              <View style={styles.metaContainer}>
-                <ThemeText numberOfLines={1} style={styles.sourceText} variant="caption2">
-                  {item.source}
-                </ThemeText>
-                <ThemeText variant="caption2" style={styles.dotText}>
-                  •
-                </ThemeText>
-                <ThemeText variant="caption2" style={styles.readTimeText}>
-                  {formatReadTime(readTime)}
-                </ThemeText>
-              </View>
+              {(item.source ?? readTime > 0) && (
+                <View style={styles.metaContainer}>
+                  {item.source && (
+                    <ThemeText numberOfLines={1} style={styles.sourceText} variant="caption2">
+                      {item.source}
+                    </ThemeText>
+                  )}
+                  {item.source && readTime > 0 && (
+                    <ThemeText variant="caption2" style={styles.dotText}>
+                      •
+                    </ThemeText>
+                  )}
+                  {readTime > 0 && (
+                    <ThemeText variant="caption2" style={styles.readTimeText}>
+                      {formatReadTime(readTime)}
+                    </ThemeText>
+                  )}
+                </View>
+              )}
             </View>
             {item.imageUrl && (
               <Image

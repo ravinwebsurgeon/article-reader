@@ -7,6 +7,7 @@ import {
   ScrollView,
   ViewStyle,
   TextStyle,
+  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useForm } from "react-hook-form";
@@ -20,6 +21,7 @@ import { SvgIcon } from "@/components/SvgIcon";
 import { useTranslation } from "react-i18next";
 import { sendExtensionAuthToken } from "@/utils/extension";
 import zxcvbn from "zxcvbn";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface SignUpFormData {
   email: string;
@@ -27,19 +29,13 @@ interface SignUpFormData {
   confirmPassword: string;
 }
 
-interface SignUpScreenProps {
-  navigation: {
-    navigate: (screen: string) => void;
-  };
-}
-
-const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
+const SignUpScreen = () => {
   const [loader, setLoader] = useState(false);
   const [register] = useRegisterMutation();
   const theme = useTheme();
   const { t } = useTranslation();
 
-  const { control, handleSubmit, watch } = useForm<SignUpFormData>({
+  const { control, handleSubmit, watch, setFocus } = useForm<SignUpFormData>({
     mode: "onSubmit",
     defaultValues: {
       email: "",
@@ -65,6 +61,9 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
       if (result.token) {
         sendExtensionAuthToken(result.token);
       }
+
+      // Set flag to show Pocket import prompt for new users
+      await AsyncStorage.setItem("show_pocket_import", "true");
     } catch (error: unknown) {
       console.error(error);
     } finally {
@@ -145,6 +144,10 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
               spellCheck={false}
               icon={<SvgIcon name="envelope" size={24} color={theme.colors.primary.main} />}
               style={styles.input}
+              onSubmitEditing={() => setFocus("password")}
+              returnKeyType="next"
+              autoComplete="email"
+              textContentType="emailAddress"
             />
 
             <Input
@@ -164,6 +167,10 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
               secureTextEntry
               icon={<SvgIcon name="key" size={24} color={theme.colors.primary.main} />}
               style={styles.input}
+              onSubmitEditing={() => setFocus("confirmPassword")}
+              returnKeyType="next"
+              autoComplete="new-password"
+              textContentType="newPassword"
             />
 
             <Input
@@ -178,6 +185,10 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
               secureTextEntry
               icon={<SvgIcon name="key-renter" size={24} color={theme.colors.primary.main} />}
               style={styles.input}
+              onSubmitEditing={handleSubmit(onSubmit)}
+              returnKeyType="go"
+              autoComplete="new-password"
+              textContentType="newPassword"
             />
 
             <Button
@@ -191,9 +202,9 @@ const SignUpScreen = ({ navigation }: SignUpScreenProps) => {
 
           <View style={styles.loginContainer}>
             <ThemeText style={styles.loginText}>{t("auth.signup.hasAccount")} </ThemeText>
-            <ThemeText style={dynamicStyles.loginLinkText} onPress={navigateToLogin}>
-              {t("auth.signup.logIn")}
-            </ThemeText>
+            <TouchableOpacity onPress={navigateToLogin}>
+              <ThemeText style={dynamicStyles.loginLinkText}>{t("auth.signup.logIn")}</ThemeText>
+            </TouchableOpacity>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -213,6 +224,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 40,
     paddingBottom: 24,
+    maxWidth: 500,
+    alignSelf: "center",
+    width: "100%",
   },
   header: {
     alignItems: "flex-start",

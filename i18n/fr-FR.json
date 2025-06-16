@@ -75,7 +75,20 @@
     "unarchive": "Désarchiver",
     "markAsRead": "Marquer comme lu",
     "markAsUnread": "Marquer comme non lu",
-    "upNext": "À suivre"
+    "upNext": "À suivre",
+    "content": {
+      "extracting": "Le contenu est en cours d'extraction...",
+      "pageNotAvailable": "Page non disponible.",
+      "pageNoLongerAvailable": "Page n'est plus disponible.",
+      "contentTypeNotSupported": "Type de contenu non pris en charge.",
+      "contentBestViewedOnWeb": "Contenu mieux consulté sur le web.",
+      "paywallNotice": "Ceci semble être du contenu payant.",
+      "switchToWebView": "Basculer vers la vue web",
+      "viewFullArticleOnWeb": "Voir l'article complet sur le web",
+      "viewInWaybackMachine": "Voir dans Wayback Machine",
+      "checkingArchive": "Vérification de l'archive...",
+      "noArchivedVersion": "Aucune version archivée disponible"
+    }
   },
   "errors": {
     "network": "Erreur réseau. Vérifiez votre connexion et réessayez.",
@@ -122,13 +135,13 @@
       "title": "Importer depuis Pocket",
       "description": "Connectez votre compte Pocket pour importer tous vos articles sauvegardés dans Folio. Ce processus va :",
       "benefits": {
-        "importArticles": "Importer tous vos articles sauvegardés de Pocket",
-        "preserveProgress": "Préserver votre progression de lecture et vos tags",
+        "importArticles": "Importer toutes vos sauvegardes Pocket",
+        "preserveProgress": "Préserver vos tags et surlignages",
         "keepAccount": "Garder votre compte Pocket original inchangé"
       },
       "note": "Vous serez redirigé vers Pocket pour autoriser l'importation. C'est sécurisé — nous ne lisons que vos articles sauvegardés.",
       "startImport": "Commencer l'importation",
-      "cancel": "Annuler",
+      "notNow": "Pas maintenant",
       "success": {
         "title": "Importation commencée !",
         "description": "Vos données Pocket sont en cours d'importation en arrière-plan. Cela peut prendre quelques minutes selon le nombre d'articles que vous avez sauvegardés.",
@@ -176,6 +189,14 @@
     "all": {
       "message": "Prêt à commencer à sauvegarder ?",
       "subMessage": "Sauvegardez les articles que vous voulez lire plus tard. Ils apparaîtront ici."
+    },
+    "allClear": {
+      "message": "Bien joué",
+      "subMessage": "Votre liste est vide pour le moment."
+    },
+    "discover": {
+      "message": "Rien à découvrir pour le moment",
+      "subMessage": "Quelque chose de bien arrive. Restez connecté."
     },
     "restoring": {
       "message": "Restauration de vos sauvegardes",

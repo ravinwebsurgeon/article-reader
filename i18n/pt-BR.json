@@ -75,7 +75,20 @@
     "unarchive": "Desarquivar",
     "markAsRead": "Marcar como lido",
     "markAsUnread": "Marcar como não lido",
-    "upNext": "Próximo"
+    "upNext": "Próximo",
+    "content": {
+      "extracting": "O conteúdo está sendo extraído...",
+      "pageNotAvailable": "Página não disponível.",
+      "pageNoLongerAvailable": "A página não está mais disponível.",
+      "contentTypeNotSupported": "Tipo de conteúdo não suportado.",
+      "contentBestViewedOnWeb": "Conteúdo melhor visualizado na web.",
+      "paywallNotice": "Este parece ser conteúdo pago.",
+      "switchToWebView": "Alternar para visualização web",
+      "viewFullArticleOnWeb": "Ver artigo completo na web",
+      "viewInWaybackMachine": "Ver no Wayback Machine",
+      "checkingArchive": "Verificando arquivo...",
+      "noArchivedVersion": "Nenhuma versão arquivada disponível"
+    }
   },
   "errors": {
     "network": "Erro de rede. Verifique sua conexão e tente novamente.",
@@ -122,13 +135,13 @@
       "title": "Importar do Pocket",
       "description": "Conecte sua conta do Pocket para importar todos os seus artigos salvos para o Folio. Este processo irá:",
       "benefits": {
-        "importArticles": "Importar todos os seus artigos salvos do Pocket",
-        "preserveProgress": "Preservar seu progresso de leitura e tags",
+        "importArticles": "Importar todos os seus salvos do Pocket",
+        "preserveProgress": "Preservar suas tags e destaques",
         "keepAccount": "Manter sua conta original do Pocket inalterada"
       },
       "note": "Você será redirecionado para o Pocket para autorizar a importação. Isso é seguro — só lemos seus artigos salvos.",
       "startImport": "Iniciar importação",
-      "cancel": "Cancelar",
+      "notNow": "Agora não",
       "success": {
         "title": "Importação iniciada!",
         "description": "Seus dados do Pocket estão sendo importados em segundo plano. Isso pode levar alguns minutos dependendo de quantos artigos você tem salvos.",
@@ -176,6 +189,14 @@
     "all": {
       "message": "Pronto para começar a salvar?",
       "subMessage": "Salve artigos que você quer ler depois. Eles aparecerão aqui."
+    },
+    "allClear": {
+      "message": "Muito bem feito",
+      "subMessage": "Sua lista está limpa por enquanto."
+    },
+    "discover": {
+      "message": "Ainda nada para descobrir",
+      "subMessage": "Algo bom está chegando. Fique ligado."
     },
     "restoring": {
       "message": "Restaurando seus salvos",

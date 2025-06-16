@@ -6161,7 +6161,7 @@ __metadata:
     react-native-size-matters: ^0.4.2
     react-native-svg: 15.11.2
     react-native-web: ^0.20.0
-    react-native-webview: 13.13.5
+    react-native-webview: 13.15.0
     react-redux: ^9.2.0
     react-test-renderer: 18.3.1
     redux-persist: ^6.0.0
@@ -9955,16 +9955,29 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-webview@npm:13.13.5":
-  version: 13.13.5
-  resolution: "react-native-webview@npm:13.13.5"
+"react-native-webview@npm:13.15.0":
+  version: 13.15.0
+  resolution: "react-native-webview@npm:13.15.0"
   dependencies:
     escape-string-regexp: ^4.0.0
     invariant: 2.2.4
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 7f3bce1b37d6be9b2f07f0f7481181d5344f9e58022645b0d20dc58cd66056bb6efecacb231963959db6283cc66d977593db62a403c7c151f83568f83041c2eb
+  checksum: 1c843206108358faef5cd8e25834de729a90319c3fa3f765923536fdd99b86b07a3e850b89ebe6503725a022dd9dddd5de76ef6e102d290cc5935dcf9c60198d
+  languageName: node
+  linkType: hard
+
+"react-native-webview@patch:react-native-webview@npm%3A13.15.0#./.yarn/patches/react-native-webview-npm-13.15.0-38cbb4c90f.patch::locator=folio-app%40workspace%3A.":
+  version: 13.15.0
+  resolution: "react-native-webview@patch:react-native-webview@npm%3A13.15.0#./.yarn/patches/react-native-webview-npm-13.15.0-38cbb4c90f.patch::version=13.15.0&hash=6a624b&locator=folio-app%40workspace%3A."
+  dependencies:
+    escape-string-regexp: ^4.0.0
+    invariant: 2.2.4
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 31ea4c8a82cb5c2538193d110504156b28dcd035af14bb00732e74d4279fec02586b65fca4734b1487702ff5af784cd969209761d769daed35babc3ba4e13b6c
   languageName: node
   linkType: hard
 

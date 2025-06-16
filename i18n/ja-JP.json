@@ -75,7 +75,20 @@
     "unarchive": "アーカイブを解除",
     "markAsRead": "既読にする",
     "markAsUnread": "未読にする",
-    "upNext": "次に読む"
+    "upNext": "次に読む",
+    "content": {
+      "extracting": "コンテンツを抽出中...",
+      "pageNotAvailable": "ページが利用できません。",
+      "pageNoLongerAvailable": "ページは利用できなくなりました。",
+      "contentTypeNotSupported": "コンテンツタイプがサポートされていません。",
+      "contentBestViewedOnWeb": "コンテンツはウェブで最適に表示されます。",
+      "paywallNotice": "これは有料コンテンツのようです。",
+      "switchToWebView": "ウェブビューに切り替え",
+      "viewFullArticleOnWeb": "ウェブで完全な記事を表示",
+      "viewInWaybackMachine": "Wayback Machineで表示",
+      "checkingArchive": "アーカイブを確認中...",
+      "noArchivedVersion": "アーカイブ版は利用できません"
+    }
   },
   "errors": {
     "network": "ネットワークエラーです。接続を確認して再試行してください。",
@@ -122,13 +135,13 @@
       "title": "Pocketからインポート",
       "description": "Pocketアカウントに接続して、保存されたすべての記事をFolioにインポートします。このプロセスは：",
       "benefits": {
-        "importArticles": "保存されたすべてのPocket記事をインポート",
-        "preserveProgress": "読書の進捗とタグを保持",
+        "importArticles": "すべてのPocket保存をインポート",
+        "preserveProgress": "タグとハイライトを保持",
         "keepAccount": "元のPocketアカウントはそのまま維持"
       },
       "note": "インポートを認証するためにPocketにリダイレクトされます。これは安全です—保存された記事のみを読み取ります。",
       "startImport": "インポートを開始",
-      "cancel": "キャンセル",
+      "notNow": "今はしない",
       "success": {
         "title": "インポートが開始されました！",
         "description": "Pocketデータがバックグラウンドでインポートされています。保存された記事の数によっては数分かかる場合があります。",
@@ -176,6 +189,14 @@
     "all": {
       "message": "保存を始める準備はできましたか？",
       "subMessage": "後で読みたい記事を保存してください。ここに表示されます。"
+    },
+    "allClear": {
+      "message": "お疲れさまでした",
+      "subMessage": "リストがすっきりしました。"
+    },
+    "discover": {
+      "message": "まだ発見するものがありません",
+      "subMessage": "素晴らしいコンテンツが準備中です。お楽しみに。"
     },
     "restoring": {
       "message": "保存アイテムを復元中",

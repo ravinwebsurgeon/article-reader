@@ -75,7 +75,20 @@
     "unarchive": "Desarchivar",
     "markAsRead": "Marcar como leído",
     "markAsUnread": "Marcar como no leído",
-    "upNext": "A continuación"
+    "upNext": "A continuación",
+    "content": {
+      "extracting": "Se está extrayendo el contenido...",
+      "pageNotAvailable": "Página no disponible.",
+      "pageNoLongerAvailable": "La página ya no está disponible.",
+      "contentTypeNotSupported": "Tipo de contenido no admitido.",
+      "contentBestViewedOnWeb": "El contenido se ve mejor en la web.",
+      "paywallNotice": "Este contenido parece estar detrás de un muro de pago.",
+      "switchToWebView": "Cambiar a vista web",
+      "viewFullArticleOnWeb": "Ver artículo completo en la web",
+      "viewInWaybackMachine": "Ver en Wayback Machine",
+      "checkingArchive": "Verificando archivo...",
+      "noArchivedVersion": "No hay versión archivada disponible"
+    }
   },
   "errors": {
     "network": "Error de red. Verifica tu conexión e intenta de nuevo.",
@@ -122,13 +135,13 @@
       "title": "Importar desde Pocket",
       "description": "Conecta tu cuenta de Pocket para importar todos tus artículos guardados a Folio. Este proceso:",
       "benefits": {
-        "importArticles": "Importará todos tus artículos guardados de Pocket",
-        "preserveProgress": "Preservará tu progreso de lectura y etiquetas",
+        "importArticles": "Importar todos tus guardados de Pocket",
+        "preserveProgress": "Preservar tus etiquetas y marcadores",
         "keepAccount": "Mantendrá tu cuenta original de Pocket sin cambios"
       },
       "note": "Serás redirigido a Pocket para autorizar la importación. Esto es seguro — solo leemos tus artículos guardados.",
       "startImport": "Iniciar importación",
-      "cancel": "Cancelar",
+      "notNow": "Ahora no",
       "success": {
         "title": "¡Importación iniciada!",
         "description": "Tus datos de Pocket se están importando en segundo plano. Esto puede tomar unos minutos dependiendo de cuántos artículos tienes guardados.",
@@ -176,6 +189,14 @@
     "all": {
       "message": "¿Listo para empezar a guardar?",
       "subMessage": "Guarda artículos que quieras leer después. Aparecerán aquí."
+    },
+    "allClear": {
+      "message": "Excelente trabajo",
+      "subMessage": "Tu lista está vacía por ahora."
+    },
+    "discover": {
+      "message": "Aún no hay nada que descubrir",
+      "subMessage": "Algo bueno viene en camino. Mantente atento."
     },
     "restoring": {
       "message": "Restaurando tus guardados",

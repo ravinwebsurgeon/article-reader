@@ -13,6 +13,52 @@ import Tag from "./TagModel";
 import ItemContent from "./ItemContentModel";
 import Annotation from "./AnnotationModel";
 
+export type DisplayMode = "reader" | "webview" | "error";
+
+export enum ExtractStatus {
+  PENDING = 0,
+  EXTRACTING = 1,
+  RETRYING = 2,
+  COMPLETED = 3,
+  FAILED = 4,
+  UNAVAILABLE = 5,
+  UNSUPPORTED = 6,
+}
+
+export enum ItemKind {
+  WEBPAGE = 0,
+  ARTICLE = 1,
+  VIDEO = 2,
+  PRODUCT = 3,
+  HOMEPAGE = 4,
+  RECIPE = 5,
+}
+
+export enum ItemCategory {
+  UNKNOWN = -1,
+  BUSINESS = 0,
+  CAREER = 1,
+  CULTURE = 2,
+  DESIGN = 3,
+  EDUCATION = 4,
+  ENTERTAINMENT = 5,
+  FOOD = 6,
+  GAMING = 7,
+  HEALTH_FITNESS = 8,
+  PARENTING = 9,
+  PERSONAL_FINANCE = 10,
+  POLITICS = 11,
+  PRODUCTIVITY = 12,
+  PSYCHOLOGY = 13,
+  RELATIONSHIPS = 14,
+  SCIENCE = 15,
+  SELF_IMPROVEMENT = 16,
+  SPORTS = 17,
+  STYLE = 18,
+  TECHNOLOGY = 19,
+  TRAVEL = 20,
+}
+
 export default class Item extends Model {
   static table = "items";
 
@@ -27,21 +73,22 @@ export default class Item extends Model {
   @readonly @text("canonical_url") canonicalUrl?: string | null;
   @readonly @text("domain") domain?: string | null;
   @readonly @text("title") title?: string | null;
-  @readonly @text("author") author?: string | null;
-  @readonly @text("dek") dek?: string | null;
   @readonly @text("site_name") siteName?: string | null;
   @readonly @text("image_url") imageUrl?: string | null;
-  @readonly @text("image_thumb_hash") imageThumbHash?: string | null;
   @readonly @date("published_at") publishedAt?: Date | null;
   @readonly @field("word_count") wordCount?: number | null;
   @readonly @text("content_hash") contentHash?: string | null;
-  @readonly @text("kind") kind?: string | null;
+  @readonly @field("kind") kind?: number | null;
   @readonly @text("custom_title") customTitle?: string | null;
-  @readonly @text("category") category?: string | null;
+  @readonly @field("category") category?: number | null;
   @readonly @field("clickbait") clickbait?: boolean | null;
+  @readonly @field("paywalled") paywalled?: boolean | null;
+  @readonly @text("language") language?: string | null;
+  @readonly @field("extract_status") extractStatus?: number | null;
   @field("archived") archived?: boolean;
   @field("favorite") favorite?: boolean;
   @field("progress") progress?: number;
+  @field("max_progress") maxProgress?: number | null;
   @field("viewed") viewed?: boolean;
   @text("notes") notes?: string | null;
 
@@ -62,11 +109,98 @@ export default class Item extends Model {
   // Computed properties
   get readTime(): number {
     if (!this.wordCount) return 0;
-    return Math.ceil(this.wordCount / 260); // Assuming 200 words per minute
+    return Math.ceil(this.wordCount / 260); // Assuming 260 words per minute
   }
 
   get source(): string | null {
     return this.siteName || this.domain || null;
+  }
+
+  // Content display logic helpers
+  get hasSubstantialContent(): boolean {
+    return (this.wordCount || 0) >= 150;
+  }
+
+  get isReadable(): boolean {
+    if (!this.kind) return false; // Default to not readable if kind is null (probably WEBPAGE)
+
+    // Videos should always use webview regardless of content
+    if (this.kind === ItemKind.VIDEO) return false;
+
+    // Traditional readable types are always readable
+    if ([ItemKind.ARTICLE, ItemKind.RECIPE].includes(this.kind)) return true;
+
+    // For other types, check if we have substantial content
+    return this.hasSubstantialContent;
+  }
+
+  get isWebOnly(): boolean {
+    const kind = this.kind || ItemKind.WEBPAGE;
+
+    // Only videos and homepages are always web-only
+    return [ItemKind.VIDEO, ItemKind.HOMEPAGE].includes(kind);
+  }
+
+  get isPending(): boolean {
+    return (
+      this.extractStatus === ExtractStatus.PENDING ||
+      this.extractStatus === ExtractStatus.EXTRACTING ||
+      this.extractStatus === ExtractStatus.RETRYING
+    );
+  }
+
+  getDisplayMode(content: ItemContent | null, isConnected?: boolean): DisplayMode {
+    // Error cases first
+    if (this.extractStatus === ExtractStatus.UNAVAILABLE) {
+      return "error";
+    }
+
+    // FAILED extraction should show reader with error message first
+    if (this.extractStatus === ExtractStatus.FAILED) {
+      return "reader"; // Show reader view with error message and web view button
+    }
+
+    // If offline, prefer reader view when we have content, even for web-only types
+    if (
+      isConnected === false &&
+      content?.content &&
+      this.extractStatus === ExtractStatus.COMPLETED
+    ) {
+      return "reader";
+    }
+
+    // WebView cases
+    if (this.isPending) {
+      // If offline and pending, show reader if we have any content, otherwise error
+      if (isConnected === false) {
+        return content?.content ? "reader" : "error";
+      }
+      return this.url ? "webview" : "error";
+    }
+
+    if (this.extractStatus === ExtractStatus.UNSUPPORTED) {
+      // If offline and unsupported, show reader if we have any content, otherwise error
+      if (isConnected === false) {
+        return content?.content ? "reader" : "error";
+      }
+      return this.url ? "webview" : "error";
+    }
+
+    if (this.isWebOnly) {
+      // If offline and web-only, show reader if we have any content, otherwise error
+      if (isConnected === false) {
+        return content?.content ? "reader" : "error";
+      }
+      return this.url ? "webview" : "error";
+    }
+
+    // Reader cases
+    if (this.extractStatus === ExtractStatus.COMPLETED && content?.content && this.isReadable) {
+      return "reader";
+    }
+
+    // Fallback to webview if we have URL, otherwise error
+    return this.url ? "webview" : "error";
   }
 
   // Writer methods
@@ -83,8 +217,30 @@ export default class Item extends Model {
   }
 
   @writer async setProgress(value: number) {
+    const clampedValue = Number(Math.min(1.0, Math.max(0.0, value)).toFixed(3));
     await this.update((item) => {
-      item.progress = value;
+      item.progress = clampedValue;
+      // Update maxProgress if this is the furthest we've scrolled
+      if (
+        item.maxProgress === null ||
+        item.maxProgress === undefined ||
+        clampedValue > item.maxProgress
+      ) {
+        item.maxProgress = clampedValue;
+      }
+    });
+  }
+
+  @writer async setViewed(value: boolean = true) {
+    await this.update((item) => {
+      item.viewed = value;
+    });
+  }
+
+  @writer async setMaxProgress(value: number) {
+    const clampedValue = Number(Math.min(1.0, Math.max(0.0, value)).toFixed(3));
+    await this.update((item) => {
+      item.maxProgress = clampedValue;
     });
   }
 

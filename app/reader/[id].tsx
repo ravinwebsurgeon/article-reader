@@ -1,5 +1,5 @@
-import React, { useState, useRef, useCallback } from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
+import React, { useState, useRef, useCallback, useEffect, useMemo } from "react";
+import { View, StyleSheet, ScrollView, DimensionValue } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { WebView } from "react-native-webview";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -17,6 +17,9 @@ import ItemContent from "@/database/models/ItemContentModel";
 import { map, switchMap } from "rxjs/operators";
 import { of as observableOf } from "rxjs";
 
+// Import network status
+import { useNetworkStatus } from "@/utils/hooks";
+
 // Import new reader components
 import {
   ReaderHeader,
@@ -32,6 +35,12 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
   const spacing = useSpacing();
   const router = useRouter();
   const scrollViewRef = useRef<ScrollView>(null);
+  const { isConnected } = useNetworkStatus();
+
+  // Determine the recommended display mode (memoized to avoid repeated calculations)
+  const recommendedMode = useMemo(() => {
+    return item.getDisplayMode(content, isConnected ?? undefined);
+  }, [item, content, isConnected]);
 
   // State
   const [browserMode, setBrowserMode] = useState(false);
@@ -52,6 +61,21 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
     scrollViewRef,
   });
 
+  // Set initial browser mode based on recommended display mode
+  useEffect(() => {
+    setBrowserMode(recommendedMode === "webview");
+  }, [recommendedMode]);
+
+  // Mark item as viewed when component mounts
+  useEffect(() => {
+    const markAsViewed = async () => {
+      if (!item.viewed) {
+        await item.setViewed(true);
+      }
+    };
+    markAsViewed();
+  }, [item]);
+
   // Handle navigation back with saving
   const handleBack = useCallback(async () => {
     await saveProgress();
@@ -67,34 +91,64 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
     }
   }, [browserMode]);
 
-  const styles = StyleSheet.create({
-    browserContainer: {
-      flex: 1,
-      position: "relative",
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        browserContainer: {
+          flex: 1,
+          position: "relative",
+        },
+        progressBarContainer: {
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 3,
+          backgroundColor: theme.colors.gray[200],
+          zIndex: 10,
+        },
+        progressBar: {
+          height: "100%",
+          backgroundColor: theme.colors.primary.main,
+        },
+        webView: {
+          flex: 1,
+        },
+        articleContainer: {
+          flex: 1,
+        },
+        articleWrapper: {
+          paddingBottom: spacing.lg,
+          maxWidth: 600,
+          alignSelf: "center",
+          width: "100%",
+        },
+      }),
+    [theme.colors, spacing],
+  );
+
+  const progressBarStyle = useMemo(
+    () => [styles.progressBar, { width: `${loadingProgress * 100}%` as DimensionValue }],
+    [styles.progressBar, loadingProgress],
+  );
+
+  // WebView callbacks (must be outside conditional rendering to avoid hook order issues)
+  const handleLoadProgress = useCallback(
+    ({ nativeEvent }: { nativeEvent: { progress: number } }) => {
+      setLoadingProgress(Number(nativeEvent.progress));
     },
-    progressBarContainer: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      height: 3,
-      backgroundColor: theme.colors.gray[200],
-      zIndex: 10,
-    },
-    progressBar: {
-      height: "100%",
-      backgroundColor: theme.colors.primary.main,
-    },
-    webView: {
-      flex: 1,
-    },
-    articleContainer: {
-      flex: 1,
-    },
-    articleContent: {
-      paddingBottom: spacing.lg,
-    },
-  });
+    [],
+  );
+
+  const handleLoadEnd = useCallback(() => {
+    setIsLoadingComplete(true);
+  }, []);
+
+  const handleLoadStart = useCallback(() => {
+    setIsLoadingComplete(false);
+  }, []);
+
+  const handleSwitchToWebView = useCallback(() => setBrowserMode(true), []);
 
   return (
     <ThemeView style={{ flex: 1 }} backgroundColor={theme.colors.background.paper}>
@@ -112,7 +166,7 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
             {/* Progress bar */}
             {!isLoadingComplete && (
               <View style={styles.progressBarContainer}>
-                <View style={[styles.progressBar, { width: `${loadingProgress * 100}%` }]} />
+                <View style={progressBarStyle} />
               </View>
             )}
             <WebView
@@ -120,22 +174,16 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
               style={styles.webView}
               pullToRefreshEnabled={true}
               allowsBackForwardNavigationGestures={true}
-              onLoadProgress={({ nativeEvent }) => {
-                setLoadingProgress(nativeEvent.progress);
-              }}
-              onLoadEnd={() => {
-                setIsLoadingComplete(true);
-              }}
-              onLoadStart={() => {
-                setIsLoadingComplete(false);
-              }}
+              onLoadProgress={handleLoadProgress}
+              onLoadEnd={handleLoadEnd}
+              onLoadStart={handleLoadStart}
             />
           </View>
         ) : (
           <ScrollView
             ref={scrollViewRef}
             style={styles.articleContainer}
-            contentContainerStyle={styles.articleContent}
+            contentContainerStyle={styles.articleWrapper}
             showsVerticalScrollIndicator={true}
             onScroll={handleScrollChange}
             onContentSizeChange={handleContentSizeChange}
@@ -143,7 +191,12 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
             scrollEventThrottle={100}
           >
             <ReaderMetaData item={item} content={content} />
-            <ReaderContent item={item} content={content} onLoadComplete={handleContentLoaded} />
+            <ReaderContent
+              item={item}
+              content={content}
+              onLoadComplete={handleContentLoaded}
+              onSwitchToWebView={handleSwitchToWebView}
+            />
             <ReaderAfterReading item={item} />
             <ReaderUpNext item={item} />
           </ScrollView>
