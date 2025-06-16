@@ -75,7 +75,20 @@
     "unarchive": "Unarchive",
     "markAsRead": "Mark as Read",
     "markAsUnread": "Mark as Unread",
-    "upNext": "Up Next"
+    "upNext": "Up Next",
+    "content": {
+      "extracting": "Content is being extracted...",
+      "pageNotAvailable": "Page not available.",
+      "pageNoLongerAvailable": "Page no longer available.",
+      "contentTypeNotSupported": "Content type not supported.",
+      "contentBestViewedOnWeb": "Content best viewed on web.",
+      "paywallNotice": "This appears to be paywalled content.",
+      "switchToWebView": "Switch to web view",
+      "viewFullArticleOnWeb": "View full article on web",
+      "viewInWaybackMachine": "View in Wayback Machine",
+      "checkingArchive": "Checking archive...",
+      "noArchivedVersion": "No archived version available"
+    }
   },
   "errors": {
     "network": "Network error. Please check your connection and try again.",
@@ -122,13 +135,13 @@
       "title": "Import from Pocket",
       "description": "Connect your Pocket account to import all your saved articles to Folio. This process will:",
       "benefits": {
-        "importArticles": "Import all your saved Pocket articles",
-        "preserveProgress": "Preserve your reading progress and tags",
+        "importArticles": "Import all your Pocket saves",
+        "preserveProgress": "Preserve your tags and highlights",
         "keepAccount": "Keep your original Pocket account unchanged"
       },
       "note": "You'll be redirected to Pocket to authorize the import. This is secure — we only read your saved articles.",
       "startImport": "Start Import",
-      "cancel": "Cancel",
+      "notNow": "Not now",
       "success": {
         "title": "Import Started!",
         "description": "Your Pocket data is being imported in the background. This may take a few minutes depending on how many articles you have.",
@@ -176,6 +189,14 @@
     "all": {
       "message": "Ready to start saving?",
       "subMessage": "Save articles you want to read later. They'll appear here."
+    },
+    "allClear": {
+      "message": "Nicely done",
+      "subMessage": "Your list is clear for now."
+    },
+    "discover": {
+      "message": "Nothing to discover yet",
+      "subMessage": "Something good is on the way. Stay tuned."
     },
     "restoring": {
       "message": "Restoring your saves",

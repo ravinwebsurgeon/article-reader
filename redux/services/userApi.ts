@@ -50,45 +50,8 @@ export const userApi = api.injectEndpoints({
         body: passwordData,
       }),
     }),
-
-    // Request password reset
-    requestPasswordReset: builder.mutation<{ success: boolean }, { email: string }>({
-      query: (data) => ({
-        url: "/auth/reset-password",
-        method: "POST",
-        body: data,
-      }),
-    }),
-
-    // Verify OTP
-    verifyOtp: builder.mutation<
-      { success: boolean; token: string },
-      { email: string; otp: string }
-    >({
-      query: (data) => ({
-        url: "/auth/verify-otp",
-        method: "POST",
-        body: data,
-      }),
-    }),
-
-    // Reset password with token
-    resetPassword: builder.mutation<{ success: boolean }, { token: string; newPassword: string }>({
-      query: (data) => ({
-        url: "/auth/reset-password/confirm",
-        method: "POST",
-        body: data,
-      }),
-    }),
   }),
 });
 
 // Export hooks for usage in functional components
-export const {
-  useGetProfileQuery,
-  useUpdateProfileMutation,
-  useChangePasswordMutation,
-  useRequestPasswordResetMutation,
-  useVerifyOtpMutation,
-  useResetPasswordMutation,
-} = userApi;
+export const { useGetProfileQuery, useUpdateProfileMutation, useChangePasswordMutation } = userApi;

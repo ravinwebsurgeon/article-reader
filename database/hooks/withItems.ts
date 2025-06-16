@@ -100,9 +100,19 @@ export const withItems = ({ filter = "all", sorted = "newest" }: WithItemsProps 
       query = itemsCollection.query(Q.where("archived", false), Q.sortBy("saved_at", sort));
     }
 
-    return {
+    const baseReturn = {
       items: query.observe(),
     };
+
+    // For "all" filter, also provide archived count for empty state logic
+    if (filter === "all") {
+      return {
+        ...baseReturn,
+        archivedCount: itemsCollection.query(Q.where("archived", true)).observeCount(),
+      };
+    }
+
+    return baseReturn;
   });
 };
 

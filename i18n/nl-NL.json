@@ -75,7 +75,20 @@
     "unarchive": "Uit archief halen",
     "markAsRead": "Markeren als gelezen",
     "markAsUnread": "Markeren als ongelezen",
-    "upNext": "Volgende"
+    "upNext": "Volgende",
+    "content": {
+      "extracting": "Inhoud wordt geëxtraheerd...",
+      "pageNotAvailable": "Pagina niet beschikbaar.",
+      "pageNoLongerAvailable": "Pagina is niet meer beschikbaar.",
+      "contentTypeNotSupported": "Inhoudstype wordt niet ondersteund.",
+      "contentBestViewedOnWeb": "Inhoud wordt het best bekeken op het web.",
+      "paywallNotice": "Dit lijkt betaalde inhoud te zijn.",
+      "switchToWebView": "Overschakelen naar webweergave",
+      "viewFullArticleOnWeb": "Volledig artikel bekijken op het web",
+      "viewInWaybackMachine": "Bekijken in Wayback Machine",
+      "checkingArchive": "Archief controleren...",
+      "noArchivedVersion": "Geen gearchiveerde versie beschikbaar"
+    }
   },
   "errors": {
     "network": "Netwerkfout. Controleer je verbinding en probeer opnieuw.",
@@ -122,13 +135,13 @@
       "title": "Importeren uit Pocket",
       "description": "Verbind je Pocket-account om al je opgeslagen artikelen naar Folio te importeren. Dit proces zal:",
       "benefits": {
-        "importArticles": "Al je opgeslagen Pocket-artikelen importeren",
-        "preserveProgress": "Je leesvoortgang en tags behouden",
+        "importArticles": "Al je Pocket-opgeslagen importeren",
+        "preserveProgress": "Je tags en highlights behouden",
         "keepAccount": "Je originele Pocket-account ongewijzigd laten"
       },
       "note": "Je wordt doorgestuurd naar Pocket om de import te autoriseren. Dit is veilig — we lezen alleen je opgeslagen artikelen.",
       "startImport": "Import starten",
-      "cancel": "Annuleren",
+      "notNow": "Niet nu",
       "success": {
         "title": "Import gestart!",
         "description": "Je Pocket-gegevens worden op de achtergrond geïmporteerd. Dit kan enkele minuten duren afhankelijk van hoeveel artikelen je hebt opgeslagen.",
@@ -176,6 +189,14 @@
     "all": {
       "message": "Klaar om te beginnen met opslaan?",
       "subMessage": "Sla artikelen op die je later wilt lezen. Ze verschijnen hier."
+    },
+    "allClear": {
+      "message": "Goed gedaan",
+      "subMessage": "Je lijst is voorlopig leeg."
+    },
+    "discover": {
+      "message": "Nog niets te ontdekken",
+      "subMessage": "Er komt iets goeds aan. Blijf kijken."
     },
     "restoring": {
       "message": "Je opgeslagen items herstellen",

@@ -1,11 +1,14 @@
 import React, { useState, useRef, useMemo, useEffect, useCallback } from "react";
-import { StyleSheet, View, Animated } from "react-native";
+import { StyleSheet, View, Animated, TouchableOpacity } from "react-native";
 import { marked } from "marked";
 import { useTheme, useSpacing } from "@/theme/hooks";
+import { ThemeText } from "@/components/primitives";
+import { useTranslation } from "react-i18next";
+import ContentStateMessage from "./ContentStateMessage";
 import HTMLViewer from "./htmlviewer/HTMLViewer";
 import { AutoResizePlugin } from "./htmlviewer/plugins/AutoResizePlugin";
 import { HighlightsPlugin, HighlightsPluginCallbacks } from "./htmlviewer/plugins/HighlightsPlugin";
-import Item from "@/database/models/ItemModel";
+import Item, { ExtractStatus } from "@/database/models/ItemModel";
 import ItemContent from "@/database/models/ItemContentModel";
 import Annotation from "@/database/models/AnnotationModel";
 import ReaderSkeleton from "./ReaderSkeleton";
@@ -20,12 +23,14 @@ import {
   annotationToHighlightData,
   HighlightData,
 } from "@/database/hooks/withAnnotations";
+import { useLazyCheckWaybackAvailableQuery } from "@/redux/services/waybackApi";
 
 interface ContentProps {
   item: Item;
   content: ItemContent | null;
   annotations: Annotation[]; // Provided by HOC
   onLoadComplete?: () => void;
+  onSwitchToWebView?: () => void;
 }
 
 const ReaderContentComponent: React.FC<ContentProps> = ({
@@ -33,16 +38,23 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
   content,
   annotations,
   onLoadComplete,
+  onSwitchToWebView,
 }) => {
   const theme = useTheme();
   const spacing = useSpacing();
   const { syncEngine } = useDatabase();
+  const { t } = useTranslation();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const highlightsPluginRef = useRef<HighlightsPlugin | null>(null);
 
   // State
   const [isHtmlLoaded, setIsHtmlLoaded] = useState(false);
   const [isFetchingContent, setIsFetchingContent] = useState(false);
+  const [waybackData, setWaybackData] = useState<{ available: boolean; url?: string } | null>(null);
+
+  // Wayback API
+  const [checkWaybackAvailable, { isLoading: isCheckingWayback }] =
+    useLazyCheckWaybackAvailableQuery();
 
   // Create styles using theme values
   const styles = StyleSheet.create({
@@ -64,26 +76,11 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
 
   // Convert annotations to highlight data
   const highlights = useMemo((): HighlightData[] => {
-    console.log(
-      "ReaderContent: Converting annotations to highlights:",
-      annotations.length,
-      annotations,
-    );
     return annotations.map(annotationToHighlightData);
-  }, [annotations]);
-
-  // Debug log when annotations prop changes
-  useEffect(() => {
-    console.log("ReaderContent: Annotations prop changed:", annotations.length, annotations);
   }, [annotations]);
 
   // Update plugin highlights whenever they change
   useEffect(() => {
-    console.log(
-      "ReaderContent: Highlights changed, updating plugin:",
-      highlights.length,
-      highlights,
-    );
     if (highlightsPluginRef.current) {
       highlightsPluginRef.current.setHighlights(highlights);
     }
@@ -95,18 +92,14 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
       if (!item?.id) return;
 
       try {
-        console.log("ReaderContent: Creating highlight:", { text, prefix, suffix });
-
         // Check if annotation already exists
         const existing = await findAnnotationByText(item.id, text, prefix, suffix);
         if (existing) {
-          console.log("ReaderContent: Annotation already exists:", existing);
           return;
         }
 
         // Create new annotation (database update will trigger highlights re-render via HOC)
         await createAnnotation(item.id, text, prefix, suffix);
-        console.log("ReaderContent: Highlight created successfully");
       } catch (error) {
         console.error("ReaderContent: Error creating highlight:", error);
       }
@@ -117,11 +110,8 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
   // Handle highlight removal
   const handleHighlightRemoved = useCallback(async (highlightId: string) => {
     try {
-      console.log("ReaderContent: Removing highlight:", highlightId);
-
       // Remove from database (database update will trigger highlights re-render via HOC)
       await deleteAnnotationById(highlightId);
-      console.log("ReaderContent: Highlight removed successfully");
     } catch (error) {
       console.error("ReaderContent: Error removing highlight:", error);
     }
@@ -138,9 +128,15 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
 
   // Process markdown content
   const processedContent = useMemo(() => {
-    const raw = content?.content ?? "";
+    let raw = content?.content ?? "";
+
+    // If no main content, use description as fallback
+    if (!raw && content?.description) {
+      raw = content.description;
+    }
+
     return marked.parse(raw) as string;
-  }, [content?.content]);
+  }, [content?.content, content?.description]);
 
   // Base styles for the article content using theme colors
   const baseCSS = useMemo(
@@ -244,6 +240,7 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
         height: auto; 
         display: block;
         margin: ${spacing.lg - spacing.xs}px 0; /* 20px 0 */
+        border-radius: 8px;
       }
       
       blockquote {
@@ -320,7 +317,6 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
   }, [highlightsCallbacks]);
 
   const handleLoadComplete = () => {
-    console.log("Content: handleLoadComplete called, setting isHtmlLoaded to true");
     setIsHtmlLoaded(true);
     // Fade in the content
     Animated.timing(fadeAnim, {
@@ -329,7 +325,6 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
       useNativeDriver: true,
     }).start();
     if (onLoadComplete) {
-      console.log("Content: calling parent onLoadComplete");
       onLoadComplete();
     }
   };
@@ -345,7 +340,6 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
     const fetchMissingContent = async () => {
       // Only fetch if item has content_hash but no content
       if (item.contentHash && !content && !isFetchingContent) {
-        console.log(`ReaderContent: Fetching missing content for item ${item.id}`);
         setIsFetchingContent(true);
         try {
           await syncEngine.syncItemContent(item.id);
@@ -360,8 +354,78 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
     fetchMissingContent();
   }, [item, content, isFetchingContent, syncEngine]);
 
-  // Show skeleton if content is not ready
-  if (!content || !processedContent) {
+  // Check wayback availability when needed
+  const checkWayback = useCallback(async () => {
+    if (!item.url || waybackData !== null) return;
+
+    try {
+      const result = await checkWaybackAvailable(item.url).unwrap();
+      setWaybackData(result);
+    } catch (error) {
+      console.error("Failed to check wayback availability:", error);
+      setWaybackData({ available: false });
+    }
+  }, [item.url, waybackData, checkWaybackAvailable]);
+
+  // Handle different content states
+  const extractStatus = item.extractStatus;
+
+  // Check if we have any fallback content to show
+  const hasFallbackContent = content?.description;
+
+  // Show appropriate message based on extract status and content availability
+  if (!content || (!content.content && !hasFallbackContent)) {
+    if (
+      extractStatus === ExtractStatus.PENDING ||
+      extractStatus === ExtractStatus.EXTRACTING ||
+      extractStatus === ExtractStatus.RETRYING
+    ) {
+      return <ContentStateMessage message={t("reader.content.extracting")} />;
+    }
+    if (extractStatus === ExtractStatus.FAILED) {
+      return (
+        <ContentStateMessage
+          message={t("reader.content.pageNotAvailable")}
+          showWaybackLink={true}
+          waybackData={waybackData}
+          isCheckingWayback={isCheckingWayback}
+          onCheckWayback={checkWayback}
+          itemUrl={item.url}
+        />
+      );
+    }
+    if (extractStatus === ExtractStatus.UNAVAILABLE) {
+      return (
+        <ContentStateMessage
+          message={t("reader.content.pageNoLongerAvailable")}
+          showWaybackLink={true}
+          waybackData={waybackData}
+          isCheckingWayback={isCheckingWayback}
+          onCheckWayback={checkWayback}
+          itemUrl={item.url}
+        />
+      );
+    }
+    if (extractStatus === ExtractStatus.UNSUPPORTED) {
+      return <ContentStateMessage message={t("reader.content.contentTypeNotSupported")} />;
+    }
+    if (extractStatus === ExtractStatus.COMPLETED && item.isWebOnly) {
+      return (
+        <ContentStateMessage
+          message={t("reader.content.contentBestViewedOnWeb")}
+          showWebLink={true}
+          onSwitchToWebView={onSwitchToWebView}
+          itemUrl={item.url}
+        />
+      );
+    }
+
+    // Fallback for missing content
+    return <ReaderSkeleton />;
+  }
+
+  // Show skeleton if content exists but processed content is not ready
+  if (!processedContent) {
     return <ReaderSkeleton />;
   }
 
@@ -374,6 +438,44 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
           plugins={plugins}
           onLoadComplete={handleLoadComplete}
         />
+        {item.paywalled && (
+          <View
+            style={{
+              padding: spacing.lg,
+              backgroundColor: theme.colors.gray[50],
+              borderRadius: 8,
+              margin: spacing.md,
+              alignItems: "center",
+            }}
+          >
+            <ThemeText
+              variant="caption"
+              style={{
+                textAlign: "center",
+                marginBottom: spacing.md,
+                color: theme.colors.text.subtle,
+                fontStyle: "italic",
+              }}
+            >
+              {t("reader.content.paywallNotice")}
+            </ThemeText>
+            {onSwitchToWebView && (
+              <TouchableOpacity
+                onPress={onSwitchToWebView}
+                style={{
+                  backgroundColor: theme.colors.primary.main,
+                  paddingHorizontal: spacing.md,
+                  paddingVertical: spacing.sm,
+                  borderRadius: 8,
+                }}
+              >
+                <ThemeText variant="button" style={{ color: theme.colors.white }}>
+                  {t("reader.content.viewFullArticleOnWeb")}
+                </ThemeText>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
       </Animated.View>
       {!isHtmlLoaded && (
         <View style={styles.loading}>

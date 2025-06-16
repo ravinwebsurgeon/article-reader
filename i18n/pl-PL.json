@@ -75,7 +75,20 @@
     "unarchive": "Cofnij archiwizację",
     "markAsRead": "Oznacz jako przeczytane",
     "markAsUnread": "Oznacz jako nieprzeczytane",
-    "upNext": "Następne"
+    "upNext": "Następne",
+    "content": {
+      "extracting": "Zawartość jest ekstraktowana...",
+      "pageNotAvailable": "Strona niedostępna.",
+      "pageNoLongerAvailable": "Strona nie jest już dostępna.",
+      "contentTypeNotSupported": "Typ zawartości nie jest obsługiwany.",
+      "contentBestViewedOnWeb": "Zawartość najlepiej oglądać w przeglądarce.",
+      "paywallNotice": "To wygląda na płatną zawartość.",
+      "switchToWebView": "Przełącz na widok przeglądarki",
+      "viewFullArticleOnWeb": "Zobacz pełny artykuł w przeglądarce",
+      "viewInWaybackMachine": "Zobacz w Wayback Machine",
+      "checkingArchive": "Sprawdzanie archiwum...",
+      "noArchivedVersion": "Brak dostępnej zarchiwizowanej wersji"
+    }
   },
   "errors": {
     "network": "Błąd sieci. Sprawdź połączenie i spróbuj ponownie.",
@@ -122,13 +135,13 @@
       "title": "Importuj z Pocket",
       "description": "Połącz swoje konto Pocket, aby zaimportować wszystkie zapisane artykuły do Folio. Ten proces:",
       "benefits": {
-        "importArticles": "Zaimportuje wszystkie zapisane artykuły z Pocket",
-        "preserveProgress": "Zachowa postęp czytania i tagi",
+        "importArticles": "Zaimportuje wszystkie zapisane z Pocket",
+        "preserveProgress": "Zachowa tagi i zaznaczenia",
         "keepAccount": "Pozostawi oryginalne konto Pocket bez zmian"
       },
       "note": "Zostaniesz przekierowany do Pocket, aby autoryzować import. To jest bezpieczne — czytamy tylko zapisane artykuły.",
       "startImport": "Rozpocznij import",
-      "cancel": "Anuluj",
+      "notNow": "Nie teraz",
       "success": {
         "title": "Import rozpoczęty!",
         "description": "Twoje dane z Pocket są importowane w tle. Może to potrwać kilka minut w zależności od liczby zapisanych artykułów.",
@@ -176,6 +189,14 @@
     "all": {
       "message": "Gotowy, aby zacząć zapisywać?",
       "subMessage": "Zapisuj artykuły, które chcesz przeczytać później. Pojawią się tutaj."
+    },
+    "allClear": {
+      "message": "Świetna robota",
+      "subMessage": "Twoja lista jest teraz pusta."
+    },
+    "discover": {
+      "message": "Jeszcze nic do odkrycia",
+      "subMessage": "Coś dobrego już nadchodzi. Bądź na bieżąco."
     },
     "restoring": {
       "message": "Przywracanie zapisanych",

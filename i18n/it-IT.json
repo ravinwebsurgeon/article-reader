@@ -75,7 +75,20 @@
     "unarchive": "Rimuovi dall'archivio",
     "markAsRead": "Segna come Letto",
     "markAsUnread": "Segna come Non Letto",
-    "upNext": "Prossimo"
+    "upNext": "Prossimo",
+    "content": {
+      "extracting": "Il contenuto è in fase di estrazione...",
+      "pageNotAvailable": "Pagina non disponibile.",
+      "pageNoLongerAvailable": "La pagina non è più disponibile.",
+      "contentTypeNotSupported": "Tipo di contenuto non supportato.",
+      "contentBestViewedOnWeb": "Il contenuto è meglio visualizzato sul web.",
+      "paywallNotice": "Questo contenuto sembra essere dietro un paywall.",
+      "switchToWebView": "Passa alla vista web",
+      "viewFullArticleOnWeb": "Visualizza articolo completo sul web",
+      "viewInWaybackMachine": "Visualizza in Wayback Machine",
+      "checkingArchive": "Controllo archivio...",
+      "noArchivedVersion": "Nessuna versione archiviata disponibile"
+    }
   },
   "errors": {
     "network": "Errore di rete. Controlla la tua connessione e riprova.",
@@ -122,13 +135,13 @@
       "title": "Importa da Pocket",
       "description": "Collega il tuo account Pocket per importare tutti i tuoi articoli salvati su Folio. Questo processo:",
       "benefits": {
-        "importArticles": "Importerà tutti i tuoi articoli salvati di Pocket",
-        "preserveProgress": "Preserverà i tuoi progressi di lettura e i tag",
+        "importArticles": "Importare tutti i tuoi salvataggi Pocket",
+        "preserveProgress": "Preservare i tuoi tag e annotazioni",
         "keepAccount": "Manterrà il tuo account Pocket originale invariato"
       },
       "note": "Verrai reindirizzato a Pocket per autorizzare l'importazione. È sicuro — leggiamo solo i tuoi articoli salvati.",
       "startImport": "Inizia Importazione",
-      "cancel": "Annulla",
+      "notNow": "Non ora",
       "success": {
         "title": "Importazione Iniziata!",
         "description": "I tuoi dati di Pocket vengono importati in background. Potrebbe richiedere alcuni minuti a seconda di quanti articoli hai salvato.",
@@ -176,6 +189,14 @@
     "all": {
       "message": "Pronto per iniziare a salvare?",
       "subMessage": "Salva articoli che vuoi leggere dopo. Appariranno qui."
+    },
+    "allClear": {
+      "message": "Ottimo lavoro",
+      "subMessage": "La tua lista è pulita per ora."
+    },
+    "discover": {
+      "message": "Ancora niente da scoprire",
+      "subMessage": "Qualcosa di buono sta arrivando. Resta sintonizzato."
     },
     "restoring": {
       "message": "Ripristinando i tuoi salvati",
