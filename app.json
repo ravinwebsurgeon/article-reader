@@ -7,7 +7,7 @@
     "orientation": "default",
     "scheme": "folio",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": false,
+    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "co.lessisbetter.folio",

@@ -9,7 +9,7 @@ import { useDatabase } from "@/database/provider/DatabaseProvider";
 import { useLogoutMutation } from "@/redux/services/authApi";
 import { useState } from "react";
 import { syncEngine } from "@/database/sync/SyncEngine";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { storage } from "@/utils/storage";
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
@@ -58,8 +58,8 @@ export default function SettingsScreen() {
         });
       }
 
-      // 4. Clear all AsyncStorage data
-      await AsyncStorage.clear();
+      // 4. Clear all storage data
+      storage.clearAll();
 
       // 5. Reset sync engine state
       syncEngine.setToken(null);

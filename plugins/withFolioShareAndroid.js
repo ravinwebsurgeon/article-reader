@@ -2,6 +2,7 @@ const {
   withAndroidManifest,
   withAppBuildGradle,
   withDangerousMod,
+  withMainApplication,
 } = require("@expo/config-plugins");
 const fs = require("fs");
 const path = require("path");
@@ -153,6 +154,40 @@ const withFolioShareAndroid = (config, options = {}) => {
     return config;
   });
 
+  // Add TokenManager to MainApplication.kt
+  config = withMainApplication(config, (config) => {
+    const { modResults } = config;
+    let content = modResults.contents;
+
+    // Add import if missing
+    if (!content.includes("import co.lessisbetter.folio.TokenManagerPackage")) {
+      content = content.replace(
+        /(import com\.facebook\.soloader\.SoLoader)/,
+        "$1\nimport co.lessisbetter.folio.TokenManagerPackage",
+      );
+    }
+
+    // Add package registration if missing - target the return packages line
+    if (!content.includes("packages.add(TokenManagerPackage())")) {
+      console.log("🔍 TokenManager package not found, attempting to add it...");
+      const beforeReplace = content;
+      content = content.replace(
+        /(\s+)return packages/,
+        "$1// Add our custom TokenManager package\n$1packages.add(TokenManagerPackage())\n$1return packages",
+      );
+      if (beforeReplace === content) {
+        console.log("❌ Regex replacement failed - 'return packages' pattern didn't match");
+      } else {
+        console.log("✅ TokenManager package added successfully before return statement");
+      }
+    } else {
+      console.log("ℹ️ TokenManager package already present");
+    }
+
+    config.modResults.contents = content;
+    return config;
+  });
+
   config = withDangerousMod(config, [
     "android",
     async (modConfig) => {
@@ -167,9 +202,10 @@ const withFolioShareAndroid = (config, options = {}) => {
 };
 
 /**
- * Creates ShareActivity.kt and SimpleTokenManager.kt
+ * Copies Android template files to project
  */
 async function createKotlinFiles(projectRoot) {
+  const templateDir = path.join(__dirname, "folio-share-android-template");
   const kotlinDir = path.join(
     projectRoot,
     "android",
@@ -182,561 +218,41 @@ async function createKotlinFiles(projectRoot) {
     "folio",
   );
 
+  console.log("🔧 Adding Android share functionality from template...");
+  console.log("📍 Template source:", templateDir);
+  console.log("📍 Android target:", kotlinDir);
+
   // Create directory if it doesn't exist
   if (!fs.existsSync(kotlinDir)) {
     fs.mkdirSync(kotlinDir, { recursive: true });
   }
 
-  // ShareActivity.kt content
-  const shareActivityContent = `package co.lessisbetter.folio
-
-import android.app.Activity
-import android.app.AlertDialog
-import android.content.Intent
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
-import android.os.Bundle
-import android.util.Log
-import android.view.View
-import android.webkit.URLUtil
-import android.widget.TextView
-import android.widget.ProgressBar
-import kotlinx.coroutines.*
-import okhttp3.*
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.RequestBody.Companion.toRequestBody
-import org.json.JSONObject
-import java.util.concurrent.TimeUnit
-import android.graphics.Typeface
-import android.graphics.drawable.GradientDrawable
-import android.view.Gravity
-import android.widget.ImageView
-import android.widget.LinearLayout
-import androidx.core.content.ContextCompat
-import com.bumptech.glide.Glide
-import android.view.WindowManager
-import android.app.Dialog
-import android.widget.PopupWindow
-import android.os.Handler
-import android.os.Looper
-import android.content.Context
-import android.widget.FrameLayout
-import android.os.Build
-import android.os.VibrationEffect
-import android.os.Vibrator
-import android.os.VibratorManager
-import android.animation.ValueAnimator
-import android.animation.ObjectAnimator
-import android.view.animation.LinearInterpolator
-import android.content.res.Configuration
-
-enum class DialogState {
-    LOADING,
-    SUCCESS,
-    ERROR
-}
-
-class ShareActivity : Activity() {
-    
-    private val TAG = "ShareActivity"
-    private val API_BASE_URL = "https://api.savewithfolio.com/v4" 
-    private lateinit var httpClient: OkHttpClient
-    private lateinit var tokenManager: SimpleTokenManager
-    private var unifiedDialog: PopupWindow? = null
-    private var dialogIconView: ImageView? = null
-    private var dialogTextView: TextView? = null
-    private var animationRect: View? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        
-        httpClient = OkHttpClient.Builder()
-            .connectTimeout(10, TimeUnit.SECONDS)
-            .readTimeout(10, TimeUnit.SECONDS)
-            .writeTimeout(10, TimeUnit.SECONDS)
-            .build()
-        
-        tokenManager = SimpleTokenManager(this)
-        
-        // Debug token locations
-        tokenManager.debugInfo()
-        
-        handleSharedContent()
-    }
-    
-    private fun handleSharedContent() {
-        val intent = intent
-        val action = intent.action
-        val type = intent.type
-        
-        Log.d(TAG, "Share intent: action=$action, type=$type")
-        
-        if (Intent.ACTION_SEND == action && type != null) {
-            when {
-                type.startsWith("text/") -> handleSharedText(intent)
-                else -> showUnifiedDialog(DialogState.ERROR, "Unsupported content type")
-            }
-        } else {
-            showUnifiedDialog(DialogState.ERROR, "No content to share")
-        }
-    }
-    
-    private fun handleSharedText(intent: Intent) {
-        val sharedText = intent.getStringExtra(Intent.EXTRA_TEXT)
-        val sharedSubject = intent.getStringExtra(Intent.EXTRA_SUBJECT)
-        
-        Log.d(TAG, "Shared text: $sharedText")
-        Log.d(TAG, "Shared subject: $sharedSubject")
-        
-        if (sharedText.isNullOrEmpty()) {
-            showUnifiedDialog(DialogState.ERROR, "No URL found")
-            return
-        }
-        
-        val url = extractUrl(sharedText)
-        if (url.isNullOrEmpty()) {
-            showUnifiedDialog(DialogState.ERROR, "No valid URL found")
-            return
-        }
-        
-        Log.d(TAG, "Extracted URL: $url")
-        showUnifiedDialog(DialogState.LOADING, "Saving...")
-        saveUrlToDatabase(url, sharedSubject)
-    }
-    
-    private fun extractUrl(text: String): String? {
-        if (URLUtil.isValidUrl(text)) {
-            return text
-        }
-        
-        val urlPattern = Regex("""(https?://[^\s]+)""", RegexOption.IGNORE_CASE)
-        return urlPattern.find(text)?.value
-    }
-    
-    private fun saveUrlToDatabase(url: String, title: String?) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val authToken = tokenManager.getToken()
-                
-                         
-                if (authToken.isNullOrEmpty()) {
-                    Log.w(TAG, "No auth token found - user needs to login")
-                    withContext(Dispatchers.Main) {
-                        showUnifiedDialog(DialogState.ERROR, "Please login to Folio first")
-                    }
-                    return@launch
-                }
-                
-                Log.d(TAG, "Auth token found, proceeding with API call")
-                
-                val requestBody = createRequestBody(url, title)
-                val request = createApiRequest(requestBody, authToken)
-                
-                   
-                httpClient.newCall(request).execute().use { response ->
-                    withContext(Dispatchers.Main) {
-                                handleApiResponse(response)
-                    }
-                }
-                
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    Log.e(TAG, "Error saving URL", e)
-                    showUnifiedDialog(DialogState.ERROR, "Network error: \${e.message}")
-                }
-            }
-        }
-    }
-    
-    private fun createRequestBody(url: String, title: String?): RequestBody {
-        val itemObject = JSONObject().apply {
-            put("url", url)
-            put("archived", false)
-            put("favorite", false)
-            put("progress", 0.0)
-            put("notes", title ?: "")
-        }
-
-        val payload = JSONObject().apply {
-            put("item", itemObject)
-        }
-
-        val jsonString = payload.toString()
-        Log.d(TAG, "Request body: $jsonString")
-
-        val mediaType = "application/json; charset=utf-8".toMediaType()
-        return jsonString.toRequestBody(mediaType)
-    }
-
-    private fun createApiRequest(requestBody: RequestBody, authToken: String): Request {
-        return Request.Builder()
-            .url("$API_BASE_URL/items")
-            .post(requestBody)
-            .addHeader("Authorization", "Bearer $authToken")
-            .addHeader("Content-Type", "application/json")
-            .addHeader("User-Agent", "Folio-Android-Share/1.0")
-            .build()
-    }
-    
-    private fun handleApiResponse(response: Response) {
-        if (response.isSuccessful) {
-            try {
-                val responseBody = response.body?.string()
-                Log.d(TAG, "API response body: $responseBody")
-                
-                val jsonResponse = JSONObject(responseBody ?: "{}")
-                val success = jsonResponse.optBoolean("success", true)
-                
-                if (success) {
-                    showUnifiedDialog(DialogState.SUCCESS, "Saved to Folio.")
-                } else {
-                    val message = jsonResponse.optString("message", "Failed to save")
-                    showUnifiedDialog(DialogState.ERROR, message)
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error parsing response", e)
-                showUnifiedDialog(DialogState.SUCCESS, "Saved to Folio.") 
-            }
-        } else {
-            val errorMsg = when (response.code) {
-            401 -> "Authentication expired. Please login to Folio again"
-            403 -> "Access denied. Check your account permissions"
-            429 -> "Rate limit exceeded. Please wait before trying again"
-            500, 502, 503 -> "Folio servers are temporarily unavailable"
-                else -> "Failed to save"
-            }
-            Log.e(TAG, "API error: $errorMsg")
-            showUnifiedDialog(DialogState.ERROR, errorMsg)
-        }
-    }
-    
-private fun showUnifiedDialog(state: DialogState, message: String) {
-    if (isFinishing || isDestroyed) return
-    
-    if (unifiedDialog?.isShowing == true) {
-        // Dialog already exists, just update content
-        updateDialogContent(state, message)
-        
-        when (state) {
-            DialogState.SUCCESS -> {
-                triggerHapticFeedback()
-                Handler(Looper.getMainLooper()).postDelayed({
-                    unifiedDialog?.dismiss()
-                    finish()
-                }, 2000)
-            }
-            DialogState.ERROR -> {
-                stopLoadingAnimation()
-                Handler(Looper.getMainLooper()).postDelayed({
-                    unifiedDialog?.dismiss()
-                    finish()
-                }, 3000)
-            }
-            else -> {
-                // LOADING: stay until next state
-            }
-        }
-        return
-    }
-
-    Handler(Looper.getMainLooper()).postDelayed({
-        if (isFinishing || isDestroyed) return@postDelayed
-
-        // Background overlay
-        val popupView = FrameLayout(this).apply {
-            layoutParams = FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            )
-            setBackgroundColor(Color.parseColor("#80000000"))
-        }
-
-        // Create your dialog content view
-        val dialogView = createUnifiedDialogView(state, message)
-
-        // Calculate 90% of screen width
-        val width90 = (resources.displayMetrics.widthPixels * 0.9).toInt()
-
-        // Centered params with fixed width
-        val dialogParams = FrameLayout.LayoutParams(
-            width90,
-            FrameLayout.LayoutParams.WRAP_CONTENT
-        ).apply {
-            gravity = Gravity.CENTER
-        }
-
-        popupView.addView(dialogView, dialogParams)
-
-        unifiedDialog = PopupWindow(
-            popupView,
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.MATCH_PARENT,
-            true
-        ).apply {
-            isOutsideTouchable = true
-            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        }
-
-        unifiedDialog?.showAtLocation(
-            window.decorView.rootView,
-            Gravity.CENTER,
-            0, 0
-        )
-
-        if (state == DialogState.LOADING) {
-            startLoadingAnimation()
-        }
-
-        when (state) {
-            DialogState.SUCCESS -> {
-                triggerHapticFeedback()
-                Handler(Looper.getMainLooper()).postDelayed({
-                    unifiedDialog?.dismiss()
-                    finish()
-                }, 3000)
-            }
-            DialogState.ERROR -> {
-                stopLoadingAnimation()
-                Handler(Looper.getMainLooper()).postDelayed({
-                    unifiedDialog?.dismiss()
-                    finish()
-                }, 3000)
-            }
-            else -> {
-                // LOADING: stay until next state
-            }
-        }
-
-        popupView.setOnClickListener {
-            if (state != DialogState.LOADING) {
-                unifiedDialog?.dismiss()
-                finish()
-            }
-        }
-
-    }, 100)
-}
-
-    
-  private fun createUnifiedDialogView(state: DialogState, message: String): View {
-    // Detect dark mode
-    val isDarkMode = (resources.configuration.uiMode
-        and Configuration.UI_MODE_NIGHT_MASK
-    ) == Configuration.UI_MODE_NIGHT_YES
-
-    // Choose light or dark colors
-    val bgColor   = if (isDarkMode) Color.BLACK else Color.WHITE
-    val textColor = if (isDarkMode) Color.WHITE else Color.BLACK
-    val accentColor = if (isDarkMode)
-        ContextCompat.getColor(this, R.color.accent_dark)
-    else
-        ContextCompat.getColor(this, R.color.accent_light)
-
-    // 90% of screen width
-    val width90 = (resources.displayMetrics.widthPixels * 0.9).toInt()
-
-    // Container
-    val container = LinearLayout(this).apply {
-        orientation = LinearLayout.VERTICAL
-        setPadding(dpToPx(24), dpToPx(16), dpToPx(24), dpToPx(16))
-        setBackgroundColor(bgColor)
-        layoutParams = LinearLayout.LayoutParams(width90, LinearLayout.LayoutParams.WRAP_CONTENT)
-        gravity = Gravity.CENTER_HORIZONTAL
-        background = GradientDrawable().apply {
-            cornerRadius = dpToPx(16).toFloat()
-            setColor(bgColor)
-        }
-    }
-
-    // Icon + animation overlay
-    val iconContainer = FrameLayout(this).apply {
-        layoutParams = LinearLayout.LayoutParams(dpToPx(64), dpToPx(64)).apply {
-            gravity = Gravity.CENTER_HORIZONTAL
-            bottomMargin = dpToPx(8)
-        }
-    }
-
-    dialogIconView = ImageView(this).apply {
-        layoutParams = FrameLayout.LayoutParams(dpToPx(64), dpToPx(64))
-        scaleType = ImageView.ScaleType.CENTER_INSIDE
-    }
-    iconContainer.addView(dialogIconView)
-
-    animationRect = View(this).apply {
-        layoutParams = FrameLayout.LayoutParams(dpToPx(64), 0).apply {
-            gravity = Gravity.BOTTOM
-        }
-        setBackgroundColor(accentColor)
-        visibility = View.GONE
-    }
-    // iconContainer.addView(animationRect)
-
-    // Message text
-    dialogTextView = TextView(this).apply {
-        text = message
-        setTextColor(textColor)
-        textSize = 22f
-        typeface = Typeface.create("sans-serif", Typeface.BOLD)
-        gravity = Gravity.CENTER
-        layoutParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        ).apply { topMargin = dpToPx(4) }
-    }
-
-    // Assemble
-    container.addView(iconContainer)
-    container.addView(dialogTextView)
-
-    // Populate icon & start animation if needed
-    updateDialogContent(state, message)
-    if (state == DialogState.LOADING) {
-        startLoadingAnimation()
-    }
-
-    return container
-}
-    
-    private fun updateDialogContent(state: DialogState, message: String) {
-        dialogTextView?.text = message
-        
-        when (state) {
-            DialogState.LOADING -> {
-                dialogIconView?.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_folio_loading))
-                animationRect?.visibility = View.VISIBLE
-                animationRect?.setBackgroundColor(Color.parseColor("#02807A"))
-            }
-            DialogState.SUCCESS -> {
-                dialogIconView?.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_folio_success))
-                animationRect?.visibility = View.GONE
-            }
-            DialogState.ERROR -> {
-                dialogIconView?.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_error))
-                animationRect?.visibility = View.GONE
-            }
-        }
-    }
-    
-    private fun startLoadingAnimation() {
-        animationRect?.let { rect ->
-            val animator = ValueAnimator.ofInt(0, dpToPx(64))
-            animator.duration = 2000
-            animator.repeatCount = ValueAnimator.INFINITE
-            animator.repeatMode = ValueAnimator.RESTART
-            animator.interpolator = LinearInterpolator()
-            
-            animator.addUpdateListener { animation ->
-                val height = animation.animatedValue as Int
-                val layoutParams = rect.layoutParams as FrameLayout.LayoutParams
-                layoutParams.height = height
-                layoutParams.gravity = Gravity.BOTTOM
-                rect.layoutParams = layoutParams
-                rect.requestLayout()
-            }
-            
-            animator.start()
-            
-            // Store animator to cancel it later if needed
-            rect.tag = animator
-        }
-    }
-    
-    private fun stopLoadingAnimation() {
-        animationRect?.let { rect ->
-            val animator = rect.tag as? ValueAnimator
-            animator?.cancel()
-            rect.tag = null
-        }
-    }
-    
-    private fun triggerHapticFeedback() {
-        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val vm = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-            vm.defaultVibrator
-        } else {
-            @Suppress("DEPRECATION")
-            getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
-        } else {
-            @Suppress("DEPRECATION")
-            vibrator.vibrate(50)
-        }
-    }
-    
-    private fun dpToPx(dp: Int): Int {
-        return (dp * resources.displayMetrics.density).toInt()
-    }
-    
-    override fun onDestroy() {
-        super.onDestroy()
-        stopLoadingAnimation()
-        unifiedDialog?.dismiss()
-    }
-}`;
-
-  // SimpleTokenManager.kt content
-  const simpleTokenManagerContent = `package co.lessisbetter.folio
-import android.content.Context
-import android.util.Log
-import java.io.File
-class SimpleTokenManager(private val context: Context) {
-    private val TAG = "SimpleTokenManager"
-    private val TOKEN_FILE_NAME = "folio_share_token.txt"
-    private fun getTokenFile(): File {
-        val file = File(context.filesDir, TOKEN_FILE_NAME)
-        Log.d(TAG, "Token file path: \${file.absolutePath}")
-        return file
-    }
-    fun getToken(): String? {
-        return try {
-            val file = getTokenFile()
-            Log.d(TAG, "Checking if token file exists: \${file.exists()}")
-            if (!file.exists()) {
-                Log.w(TAG, "Token file does not exist.")
-                return null
-            }
-            val token = file.readText().trim()
-            Log.d(TAG, "Token read from file: \${if (token.isNotEmpty()) token.take(10) + "..." else "empty"}")
-            if (token.isNotEmpty()) token else null
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to read token file", e)
-            null
-        }
-    }
-    fun hasToken(): Boolean {
-        val token = getToken()
-        val hasToken = !token.isNullOrEmpty()
-        Log.d(TAG, "hasToken(): \$hasToken")
-        return hasToken
-    }
-    fun debugInfo() {
-        val file = getTokenFile()
-        Log.d(TAG, "=== TOKEN DEBUG INFO ===")
-        Log.d(TAG, "File exists: \${file.exists()}")
-        Log.d(TAG, "File path: \${file.absolutePath}")
-        Log.d(TAG, "File canRead: \${file.canRead()}")
-        Log.d(TAG, "App filesDir: \${context.filesDir.absolutePath}")
-        val allFiles = context.filesDir.listFiles()
-        Log.d(TAG, "Files in filesDir: \${allFiles?.map { it.name }}")
-        Log.d(TAG, "=========================")
-    }
-}`;
-
-  // Write the files
-  const shareActivityPath = path.join(kotlinDir, "ShareActivity.kt");
-  const tokenManagerPath = path.join(kotlinDir, "SimpleTokenManager.kt");
-
-  try {
-    fs.writeFileSync(shareActivityPath, shareActivityContent);
-    fs.writeFileSync(tokenManagerPath, simpleTokenManagerContent);
-    console.log("✅ Created Kotlin source files in:", kotlinDir);
-  } catch (error) {
-    console.error("❌ Failed to create Kotlin files:", error);
-    throw error;
+  // Verify template exists
+  if (!fs.existsSync(templateDir)) {
+    throw new Error(`Android template not found at: ${templateDir}`);
   }
+
+  // Copy template files to target directory
+  const templateFiles = [
+    "ShareActivity.kt",
+    "SimpleTokenManager.kt",
+    "TokenManager.kt",
+    "TokenManagerPackage.kt",
+  ];
+
+  for (const fileName of templateFiles) {
+    const templateFile = path.join(templateDir, fileName);
+    const targetFile = path.join(kotlinDir, fileName);
+
+    if (!fs.existsSync(templateFile)) {
+      throw new Error(`Template file not found: ${templateFile}`);
+    }
+
+    console.log(`📄 Copying ${fileName}...`);
+    fs.copyFileSync(templateFile, targetFile);
+  }
+
+  console.log("✅ Created Kotlin source files from templates in:", kotlinDir);
 }
 
 /**
