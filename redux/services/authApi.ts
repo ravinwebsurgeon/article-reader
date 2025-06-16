@@ -39,7 +39,6 @@ export const authApi = api.injectEndpoints({
       async onQueryStarted(_, { queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          console.log("✅ Login successful", data.user?.email);
           TokenStorage.set(data.token);
         } catch {
           // Handle error if needed
