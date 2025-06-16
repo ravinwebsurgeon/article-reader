@@ -6162,6 +6162,7 @@ __metadata:
     react-native: 0.79.3
     react-native-gesture-handler: ~2.24.0
     react-native-get-random-values: ^1.11.0
+    react-native-mmkv: 3.3.0
     react-native-performance: ^5.1.2
     react-native-reanimated: ^3.17.5
     react-native-render-html: ^6.3.4
@@ -9850,6 +9851,16 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 4cdf2b2fb5b131f2015c26d2cb7688b4a0c5f3c8474b1bf0ddfa9eabb0263df440c87262ae8f812a6ecab0d5310df0373bddad4b51f53dabb2ffee01e9ef0f44
+  languageName: node
+  linkType: hard
+
+"react-native-mmkv@npm:3.3.0":
+  version: 3.3.0
+  resolution: "react-native-mmkv@npm:3.3.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 2544e4a2d37429a17fba14bc12140b45d8da3e2b4a3d4cf884c355cca8d57dd425fd45160c5552e4b725978b037f3dfadd408db05735bb21341eea92e0c2a869
   languageName: node
   linkType: hard
 

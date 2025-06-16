@@ -1,10 +1,7 @@
 import { useState, useEffect } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { sendExtensionLogout } from "@/utils/extension";
-import { clearAuthTokenForSharing, saveAuthTokenForSharing } from "@/utils/ShareTokenManager";
-import { saveTokenToNativeFile } from "@/utils/saveTokenToNative";
-import { saveToken } from "@/utils/saveTokenIos";
+import { storage, TokenStorage } from "@/utils/storage";
 
 interface User {
   id: string;
@@ -30,10 +27,10 @@ export function useAuth() {
 
   const checkAuthStatus = async () => {
     try {
-      const token = await AsyncStorage.getItem("auth_token");
+      const token = TokenStorage.get();
       if (token) {
         // In a real app, validate the token with your backend
-        const userData = await AsyncStorage.getItem("user_data");
+        const userData = storage.getString("user_data");
         setUser(userData ? (JSON.parse(userData) as User) : null);
         setIsAuthenticated(true);
       } else {
@@ -54,11 +51,8 @@ export function useAuth() {
       const response = (await mockLoginApi(email, password)) as LoginResponse;
 
       // Store auth data
-      await AsyncStorage.setItem("auth_token", response.token);
-      await saveAuthTokenForSharing(response.token);
-      await saveTokenToNativeFile(response.token);
-      saveToken(response.token);
-      await AsyncStorage.setItem("user_data", JSON.stringify(response.user));
+      TokenStorage.set(response.token);
+      storage.set("user_data", JSON.stringify(response.user));
 
       setUser(response.user);
       setIsAuthenticated(true);
@@ -78,8 +72,8 @@ export function useAuth() {
     setLoading(true);
     try {
       // Clear all stored data
-      await AsyncStorage.clear();
-      await clearAuthTokenForSharing();
+      storage.clearAll();
+      TokenStorage.delete();
       setUser(null);
       setIsAuthenticated(false);
 

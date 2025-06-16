@@ -1,7 +1,7 @@
 import { synchronize } from "@nozbe/watermelondb/sync";
 import { Database } from "@nozbe/watermelondb";
 import Constants from "expo-constants";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { TokenStorage } from "@/utils/storage";
 import { debounce, DebouncedFunc } from "lodash-es";
 import { Subscription } from "rxjs";
 import ItemContentSyncer from "./ItemContentSyncer";
@@ -135,7 +135,7 @@ class SyncEngine {
   private async _ensureToken(): Promise<void> {
     if (!this.token) {
       console.log(`${LOG_PREFIX} Loading auth token from storage`);
-      this.token = await AsyncStorage.getItem("auth_token");
+      this.token = TokenStorage.get() ?? null;
       if (!this.token) {
         throw new Error("Authentication token not available");
       }
@@ -325,7 +325,7 @@ class SyncEngine {
 
   async loadToken(): Promise<string | null> {
     try {
-      const token = await AsyncStorage.getItem("auth_token");
+      const token = TokenStorage.get() ?? null;
       this.setToken(token);
       return token;
     } catch (error) {
