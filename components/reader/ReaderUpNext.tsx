@@ -56,10 +56,13 @@ export const ReaderUpNext: React.FC<UpNextProps> = ({ item }) => {
 
         return (
           <ThemeView style={styles.container}>
-            <ThemeView style={styles.sectionHeader} backgroundColor={theme.colors.background.paper}>
+            <ThemeView
+              style={styles.sectionHeader}
+              backgroundColor={theme.colors.background.default}
+            >
               <ThemeView
                 style={styles.headerContent}
-                backgroundColor={theme.colors.background.paper}
+                backgroundColor={theme.colors.background.default}
                 row
               >
                 <SvgIcon name="up-next" size={18} color={theme.colors.text.secondary} />
