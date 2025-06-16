@@ -119,7 +119,7 @@ const ReaderComponent = ({ item, content }: { item: Item; content: ItemContent |
         },
         articleWrapper: {
           paddingBottom: spacing.lg,
-          maxWidth: 700,
+          maxWidth: 600,
           alignSelf: "center",
           width: "100%",
         },
