@@ -16,8 +16,6 @@ import { ThemeStatusBar } from "@/components/primitives";
 import { DatabaseProvider, useDatabase } from "@/database/provider/DatabaseProvider";
 import { NetworkProvider } from "@/provider/NetworkProvider";
 import "@/i18n"; // Import i18n configuration
-import { ShareHandler } from "@/utils/shareHandler";
-import { Alert, Linking } from "react-native";
 import { AlertProvider } from "@/provider/AlertProvider";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.

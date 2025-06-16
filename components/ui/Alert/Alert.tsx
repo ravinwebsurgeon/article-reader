@@ -100,9 +100,20 @@ export const Alert: React.FC<AlertProps> = ({
 
     // Announce to screen readers
     if (Platform.OS === "ios") {
-      AccessibilityInfo.announceForAccessibility(`${type} alert: ${title}. ${message || ""}`);
+      AccessibilityInfo.announceForAccessibility(`${type} alert: ${title}. ${message ?? ""}`);
     }
-  }, [positionOffset]);
+  }, [
+    positionOffset,
+    insets.bottom,
+    insets.top,
+    message,
+    opacity,
+    position,
+    scale,
+    title,
+    translateY,
+    type,
+  ]);
 
   // Dismiss animation
   const dismissAlert = useCallback(() => {
@@ -127,7 +138,7 @@ export const Alert: React.FC<AlertProps> = ({
       onDismiss?.();
       onRemove();
     });
-  }, [onDismiss, onRemove]);
+  }, [onDismiss, onRemove, opacity, scale, screenWidth, translateX]);
 
   const handlePress = () => {
     if (onPress) {
@@ -169,8 +180,12 @@ export const Alert: React.FC<AlertProps> = ({
         >
           {showIcon && (
             <View style={styles.iconContainer}>
-              {customIcon || (
-                <Feather name={ALERT_ICONS[type] as any} size={24} color={iconColor} />
+              {customIcon ?? (
+                <Feather
+                  name={ALERT_ICONS[type] as keyof typeof Feather.glyphMap}
+                  size={24}
+                  color={iconColor}
+                />
               )}
             </View>
           )}
@@ -227,7 +242,7 @@ export const Alert: React.FC<AlertProps> = ({
   );
 };
 
-const getStyles = (theme: any, type: string): AlertStyles => {
+const getStyles = (theme: ReturnType<typeof useTheme>, type: string): AlertStyles => {
   return StyleSheet.create({
     container: {
       position: "absolute",

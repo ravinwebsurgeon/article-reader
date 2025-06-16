@@ -20,8 +20,6 @@ import { ThemeText, ThemeView } from "@/components";
 import { SvgIcon } from "@/components/SvgIcon";
 import { useTranslation } from "react-i18next";
 import { sendExtensionAuthToken } from "@/utils/extension";
-import { AlertPresets } from "@/utils/alert";
-import { useAlert } from "@/provider/AlertProvider";
 import zxcvbn from "zxcvbn";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -36,7 +34,6 @@ const SignUpScreen = () => {
   const [register] = useRegisterMutation();
   const theme = useTheme();
   const { t } = useTranslation();
-  const alert = useAlert();
 
   const { control, handleSubmit, watch, setFocus } = useForm<SignUpFormData>({
     mode: "onSubmit",
