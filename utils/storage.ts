@@ -16,21 +16,15 @@ export const storage = new MMKV({
  */
 export const TokenStorage = {
   set: (token: string): void => {
-    console.log("💾 Storing auth token:", token.substring(0, 10) + "...");
-    console.log("🔍 TokenManager available:", !!TokenManager);
-
     // Store in MMKV for main app
     storage.set("auth_token", token);
 
     // Store via native modules for extensions
     if (TokenManager) {
-      console.log("📱 Calling TokenManager.saveToken...");
       TokenManager.saveToken(token);
     } else {
       console.warn("⚠️ TokenManager not available - extension won't have token access");
     }
-
-    console.log("✅ Token stored in MMKV and native storage");
   },
 
   get: (): string | undefined => {
@@ -38,8 +32,6 @@ export const TokenStorage = {
   },
 
   delete: (): void => {
-    console.log("🗑️ Clearing auth token");
-
     // Clear from MMKV
     storage.delete("auth_token");
 
@@ -47,8 +39,6 @@ export const TokenStorage = {
     if (TokenManager) {
       TokenManager.removeToken();
     }
-
-    console.log("✅ Token cleared from all storages");
   },
 };
 
