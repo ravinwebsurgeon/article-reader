@@ -20,7 +20,8 @@
     "edit": "編輯",
     "loading": "載入中...",
     "error": "錯誤",
-    "success": "成功"
+    "success": "成功",
+    "logout": "登出"
   },
   "auth": {
     "login": {
@@ -128,7 +129,9 @@
     "appearance": "外觀",
     "importFromPocket": "從 Pocket 匯入",
     "help": "說明與支援",
-    "about": "關於"
+    "about": "關於",
+    "logout": "登出",
+    "logoutConfirmMessage": "您確定要登出嗎？"
   },
   "import": {
     "pocket": {
