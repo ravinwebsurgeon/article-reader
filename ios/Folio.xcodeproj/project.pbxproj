@@ -3,12 +3,12 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		05CF3E5F711E0951207D58E6 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 12A74C82DF96A8906514CA5D /* PrivacyInfo.xcprivacy */; };
-		1084A5C62DFC81810099C27D /* FolioShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 1084A5BC2DFC81810099C27D /* FolioShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		1000278C2DFFEF9A00D61F84 /* FolioShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 100027822DFFEF9A00D61F84 /* FolioShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		1084A5E42DFC8A550099C27D /* TokenManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1084A5E32DFC8A550099C27D /* TokenManager.swift */; };
 		1084A5E52DFC8A550099C27D /* TokenManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1084A5E22DFC8A550099C27D /* TokenManager.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
@@ -20,12 +20,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		1084A5C42DFC81810099C27D /* PBXContainerItemProxy */ = {
+		1000278A2DFFEF9A00D61F84 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 1084A5BB2DFC81810099C27D;
-			remoteInfo = FolioShareExtension;
+			remoteGlobalIDString = 100027812DFFEF9A00D61F84;
+			remoteInfo = FolioShare;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -36,7 +36,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				1084A5C62DFC81810099C27D /* FolioShareExtension.appex in Embed Foundation Extensions */,
+				1000278C2DFFEF9A00D61F84 /* FolioShare.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -44,7 +44,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		1084A5BC2DFC81810099C27D /* FolioShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = FolioShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		100027822DFFEF9A00D61F84 /* FolioShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = FolioShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		1084A5E22DFC8A550099C27D /* TokenManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TokenManager.m; sourceTree = "<group>"; };
 		1084A5E32DFC8A550099C27D /* TokenManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenManager.swift; sourceTree = "<group>"; };
 		12A74C82DF96A8906514CA5D /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Folio/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -63,21 +63,43 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		1084A5D72DFC82010099C27D /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		1000279D2DFFF21100D61F84 /* Exceptions for "FolioShare" folder in "FolioShare" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 1084A5BB2DFC81810099C27D /* FolioShareExtension */;
+			target = 100027812DFFEF9A00D61F84 /* FolioShare */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		1084A5BD2DFC81810099C27D /* FolioShareExtension */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (1084A5D72DFC82010099C27D /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = FolioShareExtension; sourceTree = "<group>"; };
+		100027832DFFEF9A00D61F84 /* FolioShare */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				1000279D2DFFF21100D61F84 /* Exceptions for "FolioShare" folder in "FolioShare" target */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = FolioShare;
+			sourceTree = "<group>";
+		};
+		1084A5BD2DFC81810099C27D /* FolioShareExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = FolioShareExtension;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		1084A5B92DFC81810099C27D /* Frameworks */ = {
+		1000277F2DFFEF9A00D61F84 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -158,6 +180,7 @@
 				13B07FAE1A68108700A75B9A /* Folio */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				1084A5BD2DFC81810099C27D /* FolioShareExtension */,
+				100027832DFFEF9A00D61F84 /* FolioShare */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				2014D78C62741804B6BBE513 /* Pods */,
@@ -172,7 +195,7 @@
 			isa = PBXGroup;
 			children = (
 				13B07F961A680F5B00A75B9A /* Folio.app */,
-				1084A5BC2DFC81810099C27D /* FolioShareExtension.appex */,
+				100027822DFFEF9A00D61F84 /* FolioShare.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -189,26 +212,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		1084A5BB2DFC81810099C27D /* FolioShareExtension */ = {
+		100027812DFFEF9A00D61F84 /* FolioShare */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1084A5C82DFC81810099C27D /* Build configuration list for PBXNativeTarget "FolioShareExtension" */;
+			buildConfigurationList = 1000278E2DFFEF9A00D61F84 /* Build configuration list for PBXNativeTarget "FolioShare" */;
 			buildPhases = (
-				1084A5B82DFC81810099C27D /* Sources */,
-				1084A5B92DFC81810099C27D /* Frameworks */,
-				1084A5BA2DFC81810099C27D /* Resources */,
+				1000277E2DFFEF9A00D61F84 /* Sources */,
+				1000277F2DFFEF9A00D61F84 /* Frameworks */,
+				100027802DFFEF9A00D61F84 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				1084A5BD2DFC81810099C27D /* FolioShareExtension */,
+				100027832DFFEF9A00D61F84 /* FolioShare */,
 			);
-			name = FolioShareExtension;
-			packageProductDependencies = (
-			);
-			productName = FolioShareExtension;
-			productReference = 1084A5BC2DFC81810099C27D /* FolioShareExtension.appex */;
+			name = FolioShare;
+			productName = FolioShare;
+			productReference = 100027822DFFEF9A00D61F84 /* FolioShare.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		13B07F861A680F5B00A75B9A /* Folio */ = {
@@ -228,7 +249,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				1084A5C52DFC81810099C27D /* PBXTargetDependency */,
+				1000278B2DFFEF9A00D61F84 /* PBXTargetDependency */,
 			);
 			name = Folio;
 			productName = Folio;
@@ -241,10 +262,11 @@
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1630;
 				LastUpgradeCheck = 1130;
 				TargetAttributes = {
-					1084A5BB2DFC81810099C27D = {
+					100027812DFFEF9A00D61F84 = {
 						CreatedOnToolsVersion = 16.3;
 						LastSwiftMigration = 1630;
 					};
@@ -268,13 +290,13 @@
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* Folio */,
-				1084A5BB2DFC81810099C27D /* FolioShareExtension */,
+				100027812DFFEF9A00D61F84 /* FolioShare */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		1084A5BA2DFC81810099C27D /* Resources */ = {
+		100027802DFFEF9A00D61F84 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -418,7 +440,7 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		1084A5B82DFC81810099C27D /* Sources */ = {
+		1000277E2DFFEF9A00D61F84 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -439,15 +461,15 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		1084A5C52DFC81810099C27D /* PBXTargetDependency */ = {
+		1000278B2DFFEF9A00D61F84 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 1084A5BB2DFC81810099C27D /* FolioShareExtension */;
-			targetProxy = 1084A5C42DFC81810099C27D /* PBXContainerItemProxy */;
+			target = 100027812DFFEF9A00D61F84 /* FolioShare */;
+			targetProxy = 1000278A2DFFEF9A00D61F84 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		1084A5C92DFC81810099C27D /* Debug */ = {
+		1000278F2DFFEF9A00D61F84 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -459,17 +481,17 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = FolioShareExtension/FolioShareExtension.entitlements;
+				CODE_SIGN_ENTITLEMENTS = FolioShare/FolioShare.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = V4YK5G65CG;
+				DEVELOPMENT_TEAM = JT58CQQW9S;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = FolioShareExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = FolioShareExtension;
+				INFOPLIST_FILE = FolioShare/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = FolioShare;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -481,19 +503,20 @@
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = co.lessisbetter.folio.FolioShareExtension;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
+				PRODUCT_BUNDLE_IDENTIFIER = co.lessisbetter.folio.FolioShare;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "FolioShareExtension/FolioShareExtension-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "FolioShare/FolioShare-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
-		1084A5CA2DFC81810099C27D /* Release */ = {
+		100027902DFFEF9A00D61F84 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -505,18 +528,18 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = FolioShareExtension/FolioShareExtension.entitlements;
+				CODE_SIGN_ENTITLEMENTS = FolioShare/FolioShare.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = V4YK5G65CG;
+				DEVELOPMENT_TEAM = JT58CQQW9S;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = FolioShareExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = FolioShareExtension;
+				INFOPLIST_FILE = FolioShare/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = FolioShare;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -527,12 +550,13 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = co.lessisbetter.folio.FolioShareExtension;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
+				PRODUCT_BUNDLE_IDENTIFIER = co.lessisbetter.folio.FolioShare;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "FolioShareExtension/FolioShareExtension-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "FolioShare/FolioShare-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -548,7 +572,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = V4YK5G65CG;
+				DEVELOPMENT_TEAM = JT58CQQW9S;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -587,7 +611,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = V4YK5G65CG;
+				DEVELOPMENT_TEAM = JT58CQQW9S;
 				INFOPLIST_FILE = Folio/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -665,7 +689,10 @@
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -720,7 +747,10 @@
 				);
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -731,11 +761,11 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1084A5C82DFC81810099C27D /* Build configuration list for PBXNativeTarget "FolioShareExtension" */ = {
+		1000278E2DFFEF9A00D61F84 /* Build configuration list for PBXNativeTarget "FolioShare" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				1084A5C92DFC81810099C27D /* Debug */,
-				1084A5CA2DFC81810099C27D /* Release */,
+				1000278F2DFFEF9A00D61F84 /* Debug */,
+				100027902DFFEF9A00D61F84 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
