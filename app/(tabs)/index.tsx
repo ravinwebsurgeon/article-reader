@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@/theme";
-import { ItemFilter } from "@/types/item";
+import { ItemFilter } from "@/database/hooks/withItems";
 import { SortOption } from "@/components/shared/menu/SortMenu";
 import ItemListHeader from "@/components/item/ItemListHeader";
 import ItemFilterTabs from "@/components/item/ItemFilterTabs";

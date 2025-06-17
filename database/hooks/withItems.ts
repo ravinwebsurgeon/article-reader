@@ -3,8 +3,10 @@ import { withObservables } from "@nozbe/watermelondb/react";
 import { map } from "rxjs/operators";
 import Item from "../models/ItemModel";
 import database from "@/database";
-import { ItemFilter } from "@/types/item";
 import { SortOption } from "@/components/shared/menu/SortMenu";
+
+// Filter types
+export type ItemFilter = "all" | "favorites" | "tagged" | "short" | "long" | "archived";
 
 /**
  * Access to the items collection in the WatermelonDB database

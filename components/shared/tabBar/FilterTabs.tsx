@@ -1,7 +1,7 @@
 import React, { useRef, useState, useMemo, useCallback } from "react";
 import { Text, StyleSheet, ScrollView, TouchableOpacity, View } from "react-native";
 import { useTheme, useDarkMode, type Theme } from "@/theme";
-import { ItemFilter } from "@/types/item";
+import { ItemFilter } from "@/database/hooks/withItems";
 import SortMenu, { SortOption } from "../menu/SortMenu";
 import { ActionMenuPosition } from "../menu/ReusableActionMenu";
 import { SvgIcon } from "@/components/SvgIcon";
