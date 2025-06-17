@@ -273,8 +273,8 @@ git checkout develop
 eas build:version:get -p all
 
 # Manually align to highest + 1
-eas build:version:set --platform ios --build-number {number}
-eas build:version:set --platform android --build-number {number}
+eas build:version:set --platform ios
+eas build:version:set --platform android
 ```
 
 ### If Tags Are Incorrect

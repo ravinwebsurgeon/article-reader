@@ -5,13 +5,14 @@ class ShareViewController: UIViewController {
 
     // UI Elements
     let dialogView = UIView()
+    let contentContainer = UIView()
     let iconView = UIImageView()
     let messageLabel = UILabel()
-    let spinner = UIActivityIndicatorView(style: .large)
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupCustomUI()
+        setStateSaving() // Set loading state immediately
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -38,51 +39,58 @@ class ShareViewController: UIViewController {
             dialogView.heightAnchor.constraint(equalToConstant: 160),
         ])
 
-        // Spinner
-        spinner.translatesAutoresizingMaskIntoConstraints = false
-        dialogView.addSubview(spinner)
-        NSLayoutConstraint.activate([
-            spinner.topAnchor.constraint(equalTo: dialogView.topAnchor, constant: 24),
-            spinner.centerXAnchor.constraint(equalTo: dialogView.centerXAnchor),
-        ])
-
-        // Icon View (initially hidden)
+        // Content container - holds icon and text
+        contentContainer.translatesAutoresizingMaskIntoConstraints = false
+        dialogView.addSubview(contentContainer)
+        
+        // Icon View
         iconView.translatesAutoresizingMaskIntoConstraints = false
-        iconView.isHidden = true
-        dialogView.addSubview(iconView)
-        NSLayoutConstraint.activate([
-            iconView.centerXAnchor.constraint(equalTo: dialogView.centerXAnchor),
-            iconView.topAnchor.constraint(equalTo: dialogView.topAnchor, constant: 24),
-            iconView.widthAnchor.constraint(equalToConstant: 44),
-            iconView.heightAnchor.constraint(equalToConstant: 44),
-        ])
-
+        iconView.contentMode = .center
+        contentContainer.addSubview(iconView)
+        
         // Message Label
         messageLabel.translatesAutoresizingMaskIntoConstraints = false
-        messageLabel.font = UIFont.boldSystemFont(ofSize: 18)
+        messageLabel.font = UIFont.boldSystemFont(ofSize: 22)
         messageLabel.textAlignment = .center
         messageLabel.numberOfLines = 2
-        messageLabel.textColor = .label  // Ensure text adapts to dark/light mode
-        dialogView.addSubview(messageLabel)
+        messageLabel.textColor = .label
+        contentContainer.addSubview(messageLabel)
+        
         NSLayoutConstraint.activate([
-            messageLabel.topAnchor.constraint(equalTo: spinner.bottomAnchor, constant: 18),
-            messageLabel.leadingAnchor.constraint(equalTo: dialogView.leadingAnchor, constant: 16),
-            messageLabel.trailingAnchor.constraint(
-                equalTo: dialogView.trailingAnchor, constant: -16),
-            messageLabel.bottomAnchor.constraint(equalTo: dialogView.bottomAnchor, constant: -24),
+            // Center the container in the dialog
+            contentContainer.centerXAnchor.constraint(equalTo: dialogView.centerXAnchor),
+            contentContainer.centerYAnchor.constraint(equalTo: dialogView.centerYAnchor),
+            contentContainer.leadingAnchor.constraint(greaterThanOrEqualTo: dialogView.leadingAnchor, constant: 16),
+            contentContainer.trailingAnchor.constraint(lessThanOrEqualTo: dialogView.trailingAnchor, constant: -16),
+            
+            // Icon within container
+            iconView.topAnchor.constraint(equalTo: contentContainer.topAnchor),
+            iconView.centerXAnchor.constraint(equalTo: contentContainer.centerXAnchor),
+            iconView.widthAnchor.constraint(equalToConstant: 64),
+            iconView.heightAnchor.constraint(equalToConstant: 64),
+            
+            // Text within container
+            messageLabel.topAnchor.constraint(equalTo: iconView.bottomAnchor, constant: 18),
+            messageLabel.leadingAnchor.constraint(equalTo: contentContainer.leadingAnchor),
+            messageLabel.trailingAnchor.constraint(equalTo: contentContainer.trailingAnchor),
+            messageLabel.bottomAnchor.constraint(equalTo: contentContainer.bottomAnchor),
         ])
     }
 
     func setStateSaving() {
-        spinner.isHidden = false
-        spinner.startAnimating()
-        iconView.isHidden = true
+        // Load and display the folio.loading image
+        if let image = UIImage(named: "folio.loading") {
+            iconView.image = image
+        } else {
+            // Fallback to a system loading indicator
+            iconView.image = UIImage(systemName: "arrow.triangle.2.circlepath")?.withTintColor(
+                .systemBlue, renderingMode: .alwaysOriginal)
+        }
+        iconView.isHidden = false
         messageLabel.text = "Saving..."
     }
 
     func setStateSaved() {
-        spinner.stopAnimating()
-        spinner.isHidden = true
         iconView.isHidden = false
         
         // Try to load custom image, fallback to system icon
@@ -93,49 +101,74 @@ class ShareViewController: UIViewController {
                 .systemGreen, renderingMode: .alwaysOriginal)
         }
         
-        messageLabel.text = "Saved to Folio!"
+        messageLabel.text = "Saved to Folio."
     }
 
     private func handleSharedContent() {
-        setStateSaving()
-
-        guard let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem,
-            let itemProvider = extensionItem.attachments?.first
-        else {
-            setStateSavedWithError("No content to share")
+        Task {
+            await processSharedContent()
+        }
+    }
+    
+    private func processSharedContent() async {
+        guard let inputItems = extensionContext?.inputItems as? [NSExtensionItem] else {
+            await MainActor.run { setStateSavedWithError("No content to share") }
             return
         }
-
-        // Look for a URL in attachments
-        if itemProvider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
-            itemProvider.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) {
-                (data, error) in
+        
+        // Collect all providers
+        var allProviders: [NSItemProvider] = []
+        for extensionItem in inputItems {
+            if let attachments = extensionItem.attachments {
+                allProviders.append(contentsOf: attachments)
+            }
+        }
+        
+        // Our predicate guarantees public.url exists, so just find it
+        for itemProvider in allProviders {
+            if itemProvider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
+                if let url = await loadURL(from: itemProvider) {
+                    await MainActor.run {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            self.saveUrlToServer(url)
+                        }
+                    }
+                    return
+                }
+            }
+        }
+        
+        // If we get here, the predicate lied to us
+        await MainActor.run { setStateSavedWithError("URL type found but failed to load") }
+    }
+    
+    private func loadURL(from itemProvider: NSItemProvider) async -> String? {
+        return await withCheckedContinuation { continuation in
+            itemProvider.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { data, error in
                 if let url = data as? URL {
-                    self.saveUrlToServer(url.absoluteString)
+                    continuation.resume(returning: url.absoluteString)
                 } else {
-                    self.setStateSavedWithError("Failed to get URL")
+                    continuation.resume(returning: nil)
                 }
             }
-            return
-        } else if itemProvider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
-            itemProvider.loadItem(forTypeIdentifier: UTType.plainText.identifier, options: nil) {
-                (data, error) in
-                if let text = data as? String, let url = self.extractURL(from: text) {
-                    self.saveUrlToServer(url)
-                } else {
-                    self.setStateSavedWithError("No valid URL found")
-                }
-            }
-            return
         }
-
-        setStateSavedWithError("Unsupported content type")
+    }
+    
+    private func loadText(from itemProvider: NSItemProvider) async -> String? {
+        return await withCheckedContinuation { continuation in
+            itemProvider.loadItem(forTypeIdentifier: UTType.plainText.identifier, options: nil) { data, error in
+                continuation.resume(returning: data as? String)
+            }
+        }
     }
 
     private func extractURL(from text: String) -> String? {
-        if let url = URL(string: text), url.scheme != nil {
-            return text
+        let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let url = URL(string: trimmedText), url.scheme != nil {
+            return trimmedText
         }
+        
+        // Use NSDataDetector to find URLs in the text
         let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
         let matches = detector?.matches(
             in: text, options: [], range: NSRange(location: 0, length: text.utf16.count))
@@ -169,7 +202,7 @@ class ShareViewController: UIViewController {
                     self.setStateSavedWithError("Failed (\(httpResp.statusCode))")
                 } else {
                     self.setStateSaved()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                         self.extensionContext?.completeRequest(
                             returningItems: [], completionHandler: nil)
                     }
@@ -180,15 +213,12 @@ class ShareViewController: UIViewController {
     }
 
     func setStateSavedWithError(_ message: String) {
-        spinner.stopAnimating()
-        spinner.isHidden = true
         iconView.isHidden = false
+        iconView.contentMode = .scaleAspectFit // Scale error icon to fit
         iconView.image = UIImage(systemName: "xmark.circle.fill")?.withTintColor(
             .systemRed, renderingMode: .alwaysOriginal)
         messageLabel.text = message
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
-        }
+        // No auto-close - user must swipe to dismiss
     }
 
     // Shared token if needed
