@@ -5,9 +5,9 @@ import { withItems } from "@/database/hooks/withItems";
 import Item from "@/database/models/ItemModel";
 import { ItemFilter } from "@/types/item";
 import { SortOption } from "@/components/shared/menu/SortMenu";
-import { storage } from "@/utils/storage";
 import ItemsFlatList from "@/components/item/ItemsFlatList";
 import { router } from "expo-router";
+import { useSetupStore } from "@/stores/setupStore";
 
 const ItemsListWithInitialSync = ({
   filter,
@@ -19,6 +19,13 @@ const ItemsListWithInitialSync = ({
   const [shouldFetchItems, setShouldFetchItems] = useState(false);
   const [isCheckingSync, setIsCheckingSync] = useState(true);
   const [isPerformingInitialSync, setIsPerformingInitialSync] = useState(false);
+
+  const {
+    hasCompletedFirstSync,
+    shouldShowPocketImport,
+    markFirstSyncCompleted,
+    completePocketImport,
+  } = useSetupStore();
   const ObservableItemsPresenter = memo(
     ({
       items,
@@ -39,8 +46,7 @@ const ItemsListWithInitialSync = ({
 
     const performInitialSync = async () => {
       try {
-        const completedFirstSync = storage.getBoolean("completed_first_sync");
-        const isFirstSync = !completedFirstSync;
+        const isFirstSync = !hasCompletedFirstSync;
 
         console.log("First sync needed:", isFirstSync);
 
@@ -52,17 +58,16 @@ const ItemsListWithInitialSync = ({
           }
 
           await syncEngine.sync(true);
-          storage.set("completed_first_sync", true);
+          markFirstSyncCompleted();
 
           if (isMounted) {
             setShouldFetchItems(true);
           }
 
           // Check if we should show Pocket import prompt for new users
-          const showPocketImport = storage.getBoolean("show_pocket_import");
-          if (showPocketImport) {
+          if (shouldShowPocketImport) {
             // Remove the flag immediately to prevent showing again
-            storage.delete("show_pocket_import");
+            completePocketImport();
             // Wait for main screen to load, then show import modal
             setTimeout(() => {
               router.push("/import-pocket");

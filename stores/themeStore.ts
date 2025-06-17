@@ -1,30 +1,7 @@
 import { create } from "zustand";
-import { persist, createJSONStorage, StateStorage } from "zustand/middleware";
-import { storage } from "@/utils/storage";
+import { persist } from "zustand/middleware";
 import { Appearance } from "react-native";
-
-// Custom MMKV storage adapter for Zustand following StateStorage interface
-const mmkvStorage: StateStorage = {
-  getItem: (name: string): string | null => {
-    try {
-      return storage.getString(name) ?? null;
-    } catch (error) {
-      console.warn(`Failed to get data for key "${name}":`, error);
-      storage.delete(name);
-      return null;
-    }
-  },
-  setItem: (name: string, value: string): void => {
-    try {
-      storage.set(name, value);
-    } catch (error) {
-      console.error(`Failed to store data for key "${name}":`, error);
-    }
-  },
-  removeItem: (name: string): void => {
-    storage.delete(name);
-  },
-};
+import { mmkvJSONStateStorage } from "./mmkvStateStorage";
 
 export type ThemeMode = "light" | "dark" | "system";
 
@@ -66,7 +43,7 @@ export const useThemeStore = create<ThemeState>()(
     }),
     {
       name: "theme-store",
-      storage: createJSONStorage(() => mmkvStorage),
+      storage: mmkvJSONStateStorage,
     },
   ),
 );
