@@ -1,6 +1,6 @@
 const LOG_PREFIX = "[SyncEngine]";
 
-interface ServerChangesListenerCallbacks {
+interface ServerChangesWatcherCallbacks {
   onConnected?: () => void;
   onDisconnected?: () => void;
   onMessage?: (message: any) => void;
@@ -9,13 +9,13 @@ interface ServerChangesListenerCallbacks {
 
 /**
  * Handles WebSocket connection to Action Cable for real-time server change notifications.
- * Provides a simple interface for connecting to and listening for server-side changes.
+ * Provides a simple interface for connecting to and watching for server-side changes.
  */
-export class ServerChangesListener {
+export class ServerChangesWatcher {
   private webSocket: WebSocket | null = null;
   private token: string | null = null;
   private apiUrl: string;
-  private callbacks: ServerChangesListenerCallbacks = {};
+  private callbacks: ServerChangesWatcherCallbacks = {};
   private shouldBeConnected: boolean = false;
   private reconnectTimeoutId: ReturnType<typeof setTimeout> | null = null;
   private reconnectAttempts: number = 0;
@@ -37,7 +37,7 @@ export class ServerChangesListener {
   /**
    * Starts listening for server changes by establishing WebSocket connection
    */
-  connect(callbacks: ServerChangesListenerCallbacks = {}): void {
+  connect(callbacks: ServerChangesWatcherCallbacks = {}): void {
     if (!this.token) {
       console.warn(`${LOG_PREFIX} Cannot connect: No auth token available`);
       callbacks.onError?.(new Error("No auth token available"));

@@ -6,15 +6,16 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "@/theme";
 import { useRouter } from "expo-router";
 import { useDatabase } from "@/database/provider/DatabaseProvider";
+import { useSync } from "@/database/provider/SyncProvider";
 import { useAuthStore } from "@/stores/authStore";
 import { useState } from "react";
-import { syncEngine } from "@/database/sync/SyncEngine";
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
   const { database } = useDatabase();
+  const { syncEngine } = useSync();
   const { logout } = useAuthStore();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -45,7 +46,7 @@ export default function SettingsScreen() {
 
     try {
       // 1. Stop watching for database changes
-      syncEngine.stopWatchForChanges();
+      syncEngine.stopWatching();
 
       // 2. Reset the WatermelonDB database
       if (database) {
@@ -54,10 +55,7 @@ export default function SettingsScreen() {
         });
       }
 
-      // 3. Reset sync engine state
-      syncEngine.setToken(null);
-
-      // 4. Logout (this handles API call, storage clearing, and should trigger navigation)
+      // 3. Logout (this handles API call, storage clearing, and should trigger navigation)
       await logout();
     } catch (error) {
       console.error("Logout error:", error);

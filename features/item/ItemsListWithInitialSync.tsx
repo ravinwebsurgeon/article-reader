@@ -1,6 +1,6 @@
 import React, { useState, useMemo, memo, useEffect } from "react";
 import NoUIFound from "@/components/shared/emptyState/NoUIFound";
-import { syncEngine } from "@/database/sync/SyncEngine";
+import { useSync } from "@/database/provider/SyncProvider";
 import { withItems } from "@/database/hooks/withItems";
 import Item from "@/database/models/ItemModel";
 import { ItemFilter } from "@/database/hooks/withItems";
@@ -19,6 +19,7 @@ const ItemsListWithInitialSync = ({
   const [shouldFetchItems, setShouldFetchItems] = useState(false);
   const [isCheckingSync, setIsCheckingSync] = useState(true);
   const [isPerformingInitialSync, setIsPerformingInitialSync] = useState(false);
+  const { syncEngine } = useSync();
 
   const {
     completedFirstSync,

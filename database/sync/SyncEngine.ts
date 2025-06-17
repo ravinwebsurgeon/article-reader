@@ -4,7 +4,7 @@ import Constants from "expo-constants";
 import { debounce, DebouncedFunc } from "lodash-es";
 import { Subscription } from "rxjs";
 import ItemContentSyncer from "./ItemContentSyncer";
-import { ServerChangesListener } from "./ServerChangesListener";
+import { ServerChangesWatcher } from "./ServerChangesWatcher";
 
 // API URL from environment configuration.
 const API_URL = Constants.expoConfig?.extra?.apiUrl || "https://api.savewithfolio.com/v4";
@@ -19,13 +19,14 @@ const LOG_PREFIX = "[SyncEngine]";
  * 2. Multiple sync requests return the same promise
  * 3. Server notifications are debounced to prevent spam
  * 4. All state is managed through a single currentSyncPromise
+ * 5. Auth token must be provided by SyncProvider before sync operations
  */
-class SyncEngine {
+export class SyncEngine {
   // Core dependencies
-  private database: Database | null;
-  public token: string | null = null;
+  private database: Database;
+  private token: string;
   private itemContentSyncer: ItemContentSyncer;
-  private serverChangesListener: ServerChangesListener;
+  private serverChangesWatcher: ServerChangesWatcher;
 
   // Sync state - SINGLE SOURCE OF TRUTH
   private currentSyncPromise: Promise<boolean> | null = null;
@@ -38,15 +39,18 @@ class SyncEngine {
   // Change monitoring
   private subscription: Subscription | null = null;
 
-  constructor(database: Database | null = null) {
+  constructor(database: Database, token: string) {
     this.database = database;
+    this.token = token;
 
     // Initialize dependencies
     this.itemContentSyncer = new ItemContentSyncer();
-    if (database) {
-      this.itemContentSyncer.database = database;
-    }
-    this.serverChangesListener = new ServerChangesListener(API_URL as string);
+    this.itemContentSyncer.database = database;
+    this.itemContentSyncer.token = token;
+    this.serverChangesWatcher = new ServerChangesWatcher(API_URL as string);
+    this.serverChangesWatcher.setToken(token);
+
+    console.log(`${LOG_PREFIX} Initialized with database and token - ready for sync operations`);
 
     // Create debounced sync function - this is the core sync logic
     this.debouncedSync = debounce(() => this._performSync(), 250, {
@@ -67,6 +71,9 @@ class SyncEngine {
         trailing: false, // Don't need trailing for server notifications
       },
     );
+
+    // Start watching for changes automatically
+    this.watch();
   }
 
   /**
@@ -116,10 +123,6 @@ class SyncEngine {
     const syncStartTime = Date.now();
 
     try {
-      // Validate prerequisites
-      await this._ensureToken();
-      this._ensureDatabase();
-
       // Perform WatermelonDB sync
       await this._syncWithServer(isFirstSync);
 
@@ -137,30 +140,6 @@ class SyncEngine {
   }
 
   /**
-   * Ensure we have a valid auth token
-   */
-  private async _ensureToken(): Promise<void> {
-    if (!this.token) {
-      console.log(`${LOG_PREFIX} Loading auth token from auth store`);
-      // Import here to avoid circular dependency
-      const { useAuthStore } = await import("@/stores/authStore");
-      this.token = useAuthStore.getState().token;
-      if (!this.token) {
-        throw new Error("Authentication token not available");
-      }
-    }
-  }
-
-  /**
-   * Ensure database is available
-   */
-  private _ensureDatabase(): void {
-    if (!this.database) {
-      throw new Error("Database not initialized");
-    }
-  }
-
-  /**
    * Perform the actual WatermelonDB synchronization
    */
   private async _syncWithServer(isFirstSync = false): Promise<void> {
@@ -170,7 +149,7 @@ class SyncEngine {
     const useTurbo = isFirstSync;
 
     await synchronize({
-      database: this.database!,
+      database: this.database,
       pullChanges: async ({ lastPulledAt, schemaVersion, migration }) => {
         const params = new URLSearchParams();
         params.set("last_pulled_at", String(lastPulledAt || 0));
@@ -253,14 +232,9 @@ class SyncEngine {
   // DATABASE CHANGE MONITORING
   // ===========================================
 
-  watchForChanges(): void {
-    if (!this.database) {
-      console.error(`${LOG_PREFIX} Cannot watch for changes: Database not initialized`);
-      return;
-    }
-
+  private watchForDatabaseChanges(): void {
     if (this.subscription) {
-      this.stopWatchForChanges();
+      this.stopWatchingForDatabaseChanges();
     }
 
     const tables = ["items", "tags", "item_tags", "annotations"];
@@ -279,7 +253,7 @@ class SyncEngine {
     });
   }
 
-  stopWatchForChanges(): void {
+  private stopWatchingForDatabaseChanges(): void {
     if (this.subscription) {
       console.log(`${LOG_PREFIX} Stopping change monitoring`);
       this.subscription.unsubscribe();
@@ -291,12 +265,12 @@ class SyncEngine {
   // SERVER NOTIFICATION HANDLING
   // ===========================================
 
-  private listenForServerChanges(): void {
-    if (this.serverChangesListener.isConnectedOrConnecting()) {
+  private watchForServerChanges(): void {
+    if (this.serverChangesWatcher.isConnectedOrConnecting()) {
       return;
     }
 
-    this.serverChangesListener.connect({
+    this.serverChangesWatcher.connect({
       onConnected: () => {
         console.log(`${LOG_PREFIX} Connected to server notifications`);
       },
@@ -317,49 +291,30 @@ class SyncEngine {
     });
   }
 
-  private stopListeningForServerChanges(): void {
-    this.serverChangesListener.disconnect();
+  private stopWatchingForServerChanges(): void {
+    this.serverChangesWatcher.disconnect();
   }
 
   // ===========================================
   // CONFIGURATION AND LIFECYCLE
   // ===========================================
 
-  setDatabase(database: Database | null) {
-    this.database = database;
-    this.itemContentSyncer.database = database;
+  /**
+   * Start watching for both database changes and server notifications
+   */
+  watch(): void {
+    console.log(`${LOG_PREFIX} Starting to watch for database and server changes`);
+    this.watchForDatabaseChanges();
+    this.watchForServerChanges();
   }
 
-  setToken(token: string | null) {
-    this.token = token;
-    this.itemContentSyncer.token = token;
-    this.serverChangesListener.setToken(token);
-
-    if (token) {
-      this.listenForServerChanges();
-    } else {
-      this.stopListeningForServerChanges();
-    }
-  }
-
-  async loadToken(): Promise<string | null> {
-    try {
-      // Import here to avoid circular dependency
-      const { useAuthStore } = await import("@/stores/authStore");
-      const token = useAuthStore.getState().token;
-      this.setToken(token);
-      return token;
-    } catch (error) {
-      console.error(`${LOG_PREFIX} Failed to load token:`, error);
-      return null;
-    }
-  }
-
-  async getToken(): Promise<string | null> {
-    if (!this.token) {
-      return this.loadToken();
-    }
-    return this.token;
+  /**
+   * Stop watching for all changes
+   */
+  stopWatching(): void {
+    console.log(`${LOG_PREFIX} Stopping all change monitoring`);
+    this.stopWatchingForDatabaseChanges();
+    this.stopWatchingForServerChanges();
   }
 
   // Content sync methods
@@ -374,15 +329,10 @@ class SyncEngine {
   // Cleanup
   cleanup(): void {
     console.log(`${LOG_PREFIX} Cleaning up`);
-    this.stopWatchForChanges();
-    this.stopListeningForServerChanges();
+    this.stopWatching();
     this.debouncedSync.cancel();
     this.debouncedServerSync.cancel();
-    this.token = null;
     this.pendingFirstSync = false;
     // Note: Don't cancel currentSyncPromise - let it complete naturally
   }
 }
-
-// Export singleton instance
-export const syncEngine = new SyncEngine(null);
