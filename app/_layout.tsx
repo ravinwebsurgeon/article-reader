@@ -12,7 +12,8 @@ import { useAuthStore } from "@/stores/authStore";
 import { useThemeStore } from "@/stores/themeStore";
 import { ThemeProvider } from "@/theme";
 import { ThemeStatusBar } from "@/components/primitives";
-import { DatabaseProvider, useDatabase } from "@/database/provider/DatabaseProvider";
+import { DatabaseProvider, useDatabaseReady } from "@/database/provider/DatabaseProvider";
+import { SyncProvider, useSyncReady } from "@/database/provider/SyncProvider";
 import "@/i18n"; // Import i18n configuration
 import { AlertProvider } from "@/provider/AlertProvider";
 
@@ -87,17 +88,32 @@ const STACK_CONFIG = {
  * and the database is initialized.
  */
 function AppContent() {
-  const { isReady: isDatabaseReady } = useDatabase();
+  const isDatabaseReady = useDatabaseReady();
+  const isSyncReady = useSyncReady();
+  const { isAuthenticated } = useAuthStore();
   const [fontsLoaded] = useFonts(FONTS);
 
+  // For authenticated users, wait for both database and sync to be ready
+  // For unauthenticated users, only wait for database
+  const isAppReady = fontsLoaded && isDatabaseReady && (isAuthenticated ? isSyncReady : true);
+
   useEffect(() => {
-    console.log("fontsLoaded", fontsLoaded);
-    if (fontsLoaded && isDatabaseReady) {
+    console.log(
+      "fontsLoaded",
+      fontsLoaded,
+      "isDatabaseReady",
+      isDatabaseReady,
+      "isSyncReady",
+      isSyncReady,
+      "isAuthenticated",
+      isAuthenticated,
+    );
+    if (isAppReady) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, isDatabaseReady]);
+  }, [fontsLoaded, isDatabaseReady, isSyncReady, isAuthenticated, isAppReady]);
 
-  if (!fontsLoaded || !isDatabaseReady) {
+  if (!isAppReady) {
     return null;
   }
 
@@ -156,7 +172,9 @@ function RootLayoutNav() {
 export default function RootLayout() {
   return (
     <DatabaseProvider>
-      <AppContent />
+      <SyncProvider>
+        <AppContent />
+      </SyncProvider>
     </DatabaseProvider>
   );
 }

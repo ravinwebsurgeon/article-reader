@@ -6,15 +6,16 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "@/theme";
 import { useRouter } from "expo-router";
 import { useDatabase } from "@/database/provider/DatabaseProvider";
+import { useSync } from "@/database/provider/SyncProvider";
 import { useAuthStore } from "@/stores/authStore";
 import { useState } from "react";
-import { syncEngine } from "@/database/sync/SyncEngine";
 
 export default function AccountSettingsScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
   const { database } = useDatabase();
+  const { syncEngine } = useSync();
   const { deleteAccount } = useAuthStore();
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
@@ -44,7 +45,7 @@ export default function AccountSettingsScreen() {
 
     try {
       // 1. Stop watching for database changes FIRST
-      syncEngine.stopWatchForChanges();
+      syncEngine.stopWatching();
 
       // 2. Wait a moment for subscriptions to fully stop
       await new Promise((resolve) => setTimeout(resolve, 100));

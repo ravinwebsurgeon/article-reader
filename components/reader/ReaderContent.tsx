@@ -12,7 +12,7 @@ import Item, { ExtractStatus } from "@/database/models/ItemModel";
 import ItemContent from "@/database/models/ItemContentModel";
 import Annotation from "@/database/models/AnnotationModel";
 import ReaderSkeleton from "./ReaderSkeleton";
-import { useDatabase } from "@/database/provider/DatabaseProvider";
+import { useSync } from "@/database/provider/SyncProvider";
 import { leterataFontBase64 } from "@/constants/leterataFontBase64";
 import { literataBold18base64 } from "@/constants/literateBold18Base64";
 import {
@@ -41,7 +41,7 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
 }) => {
   const theme = useTheme();
   const spacing = useSpacing();
-  const { syncEngine } = useDatabase();
+  const { syncEngine } = useSync();
   const { t } = useTranslation();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const highlightsPluginRef = useRef<HighlightsPlugin | null>(null);
