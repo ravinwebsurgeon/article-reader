@@ -5,21 +5,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/theme";
 import { useRouter } from "expo-router";
-import { useDatabase } from "@/database/provider/DatabaseProvider";
-import { useSync } from "@/database/provider/SyncProvider";
-import { useAuthStore } from "@/stores/authStore";
-import { useState } from "react";
 
 export default function AccountSettingsScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
-  const { database } = useDatabase();
-  const { syncEngine } = useSync();
-  const { deleteAccount } = useAuthStore();
-  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
-  const handleDeleteAccount = async () => {
+  const handleDeleteAccount = () => {
+    console.log("Delete account button pressed - showing confirmation dialog");
     Alert.alert(
       t("settings.deleteAccount") || "Delete Account",
       t("settings.deleteAccountConfirmMessage") ||
@@ -28,51 +21,18 @@ export default function AccountSettingsScreen() {
         {
           text: t("common.cancel") || "Cancel",
           style: "cancel",
+          onPress: () => console.log("Delete account cancelled"),
         },
         {
           text: t("settings.deleteAccount") || "Delete Account",
           style: "destructive",
-          onPress: performDeleteAccount,
+          onPress: () => {
+            console.log("Delete account confirmed - navigating to delete page");
+            router.replace("/delete-account");
+          },
         },
       ],
     );
-  };
-
-  const performDeleteAccount = async () => {
-    if (isDeletingAccount) return;
-
-    setIsDeletingAccount(true);
-
-    try {
-      // 1. Stop watching for database changes FIRST
-      syncEngine.stopWatching();
-
-      // 2. Wait a moment for subscriptions to fully stop
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      // 3. Reset the WatermelonDB database
-      if (database) {
-        await database.write(async () => {
-          await database.unsafeResetDatabase();
-        });
-      }
-
-      // 4. Delete account (this will also logout)
-      await deleteAccount();
-
-      // 5. Navigate back to auth flow
-      router.replace("/(auth)/login");
-    } catch (error) {
-      console.error("Delete account error:", error);
-      Alert.alert(
-        t("common.error") || "Error",
-        t("settings.deleteAccountError") ||
-          "An error occurred while deleting your account. Please try again.",
-        [{ text: t("common.ok") || "OK" }],
-      );
-    } finally {
-      setIsDeletingAccount(false);
-    }
   };
 
   return (
@@ -99,7 +59,6 @@ export default function AccountSettingsScreen() {
           <Pressable
             style={[styles.settingItem, { borderBottomColor: "transparent" }]}
             onPress={handleDeleteAccount}
-            disabled={isDeletingAccount}
           >
             <ThemeView style={styles.settingContent}>
               <Ionicons name="trash-outline" size={24} color={theme.colors.error.main} />

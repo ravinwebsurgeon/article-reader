@@ -131,7 +131,11 @@
     "help": "Ayuda y soporte",
     "about": "Acerca de",
     "logout": "Cerrar sesión",
-    "logoutConfirmMessage": "¿Estás seguro de que quieres cerrar sesión?"
+    "logoutConfirmMessage": "¿Estás seguro de que quieres cerrar sesión?",
+    "deleteAccount": "Eliminar cuenta",
+    "deleteAccountConfirmMessage": "¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer y eliminará permanentemente todos tus datos.",
+    "deleteAccountError": "Ocurrió un error al eliminar tu cuenta. Por favor, inténtalo de nuevo.",
+    "deletingAccount": "Eliminando tu cuenta..."
   },
   "import": {
     "pocket": {

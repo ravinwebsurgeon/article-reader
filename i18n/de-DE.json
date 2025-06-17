@@ -131,7 +131,11 @@
     "help": "Hilfe & Support",
     "about": "Über",
     "logout": "Abmelden",
-    "logoutConfirmMessage": "Sind Sie sicher, dass Sie sich abmelden möchten?"
+    "logoutConfirmMessage": "Sind Sie sicher, dass Sie sich abmelden möchten?",
+    "deleteAccount": "Konto löschen",
+    "deleteAccountConfirmMessage": "Sind Sie sicher, dass Sie Ihr Konto löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden und löscht alle Ihre Daten dauerhaft.",
+    "deleteAccountError": "Beim Löschen Ihres Kontos ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+    "deletingAccount": "Konto wird gelöscht..."
   },
   "import": {
     "pocket": {

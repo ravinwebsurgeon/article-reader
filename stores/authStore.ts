@@ -1,25 +1,7 @@
-import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { NativeModules } from "react-native";
 import { sendExtensionAuthToken, sendExtensionLogout } from "@/utils/extension";
-import { mmkvJSONStateStorage, clearAllStorage } from "./mmkvStateStorage";
-
-const { TokenManager } = NativeModules;
-
-// Helper functions for token management with native bridge
-const setTokenInNative = (token: string) => {
-  if (TokenManager) {
-    TokenManager.saveToken(token);
-  } else {
-    console.warn("⚠️ TokenManager not available - extension won't have token access");
-  }
-};
-
-const deleteTokenFromNative = () => {
-  if (TokenManager) {
-    TokenManager.removeToken();
-  }
-};
+import { mmkvJSONStateStorage, clearEverything, setTokenInNative, create } from "./stateStorage";
+import database from "@/database";
 
 interface User {
   id: string;
@@ -27,35 +9,67 @@ interface User {
   name?: string;
 }
 
-interface AuthState {
-  // State
+type State = {
   token: string | null;
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+};
 
-  // Actions
+type Actions = {
   login: (credentials: { email: string; password: string }) => Promise<void>;
   register: (credentials: { email: string; password: string }) => Promise<void>;
-  logout: () => Promise<void>;
-  deleteAccount: () => Promise<void>;
+  logout: (syncEngine?: any) => Promise<void>;
+  deleteAccount: (syncEngine?: any) => Promise<void>;
   clearError: () => void;
   setToken: (token: string, user: User) => void;
-}
+  reset: () => void;
+};
+
+const initialState: State = {
+  token: null,
+  user: null,
+  isAuthenticated: false,
+  isLoading: false,
+  error: null,
+};
 
 // API base URL
 const API_URL = "https://api.savewithfolio.com/v4";
 
-export const useAuthStore = create<AuthState>()(
+// Private cleanup function for logout and delete account
+const performCompleteCleanup = async (syncEngine?: any) => {
+  // 1. Stop sync engine if provided
+  try {
+    if (syncEngine && typeof syncEngine.stopWatching === "function") {
+      syncEngine.stopWatching();
+      // Wait for subscriptions to clean up
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+  } catch (error) {
+    console.warn("Could not stop sync engine:", error);
+  }
+
+  // 2. Reset database to first-run state BEFORE clearing storage
+  try {
+    if (database) {
+      await database.write(async () => {
+        await database.unsafeResetDatabase();
+      });
+    }
+  } catch (error) {
+    console.error("Failed to reset database:", error);
+  }
+
+  // 3. Clear all storage and state AFTER database reset
+  clearEverything();
+};
+
+export const useAuthStore = create<State & Actions>()(
   persist(
     (set, get) => ({
-      // Initial state
-      token: null,
-      user: null,
-      isAuthenticated: false,
-      isLoading: false,
-      error: null,
+      ...initialState,
 
       // Actions
       login: async (credentials) => {
@@ -141,7 +155,7 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      logout: async () => {
+      logout: async (syncEngine?: any) => {
         const { token } = get();
 
         try {
@@ -160,24 +174,13 @@ export const useAuthStore = create<AuthState>()(
         }
 
         // Always clear local state regardless of API success
-        deleteTokenFromNative();
         sendExtensionLogout();
 
-        // Clear all MMKV storage (including other Zustand stores)
-        clearAllStorage();
-
-        // Setup flags will be cleared with MMKV clearAll()
-
-        set({
-          token: null,
-          user: null,
-          isAuthenticated: false,
-          isLoading: false,
-          error: null,
-        });
+        // Perform complete cleanup including database reset
+        await performCompleteCleanup(syncEngine);
       },
 
-      deleteAccount: async () => {
+      deleteAccount: async (syncEngine?: any) => {
         const { token } = get();
 
         if (!token) {
@@ -198,8 +201,9 @@ export const useAuthStore = create<AuthState>()(
             throw new Error(errorData.error || "Account deletion failed");
           }
 
-          // After successful deletion, logout
-          await get().logout();
+          // After successful deletion, perform complete cleanup
+          sendExtensionLogout();
+          await performCompleteCleanup(syncEngine);
         } catch (error) {
           throw error;
         }
@@ -216,6 +220,8 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: true,
         });
       },
+
+      reset: () => set(initialState),
     }),
     {
       name: "auth-store",

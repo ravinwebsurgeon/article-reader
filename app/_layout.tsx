@@ -107,6 +107,8 @@ function AppContent() {
       isSyncReady,
       "isAuthenticated",
       isAuthenticated,
+      "isAppReady",
+      isAppReady,
     );
     if (isAppReady) {
       SplashScreen.hideAsync();
