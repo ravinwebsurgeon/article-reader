@@ -13,7 +13,6 @@ import { useThemeStore } from "@/stores/themeStore";
 import { ThemeProvider } from "@/theme";
 import { ThemeStatusBar } from "@/components/primitives";
 import { DatabaseProvider, useDatabase } from "@/database/provider/DatabaseProvider";
-import { NetworkProvider } from "@/provider/NetworkProvider";
 import "@/i18n"; // Import i18n configuration
 import { AlertProvider } from "@/provider/AlertProvider";
 
@@ -153,14 +152,11 @@ function RootLayoutNav() {
  * The main entry point for the app's component tree.
  * Sets up the core providers:
  * - DatabaseProvider: Local database and sync
- * - NetworkProvider: Network connectivity monitoring
  */
 export default function RootLayout() {
   return (
     <DatabaseProvider>
-      <NetworkProvider>
-        <AppContent />
-      </NetworkProvider>
+      <AppContent />
     </DatabaseProvider>
   );
 }
