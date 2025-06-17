@@ -56,6 +56,10 @@ class ShareActivity : Activity() {
     private var dialogIconView: ImageView? = null
     private var dialogTextView: TextView? = null
     private var animationRect: View? = null
+    
+    // Timing constants
+    private val DIALOG_SHOW_DELAY = 100L  // 100ms delay for dialog appearance
+    private val SAVING_UI_DELAY = DIALOG_SHOW_DELAY + 250L  // 350ms total: dialog appears + 250ms visible before API request
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -111,7 +115,11 @@ class ShareActivity : Activity() {
         
         Log.d(TAG, "Extracted URL: $url")
         showUnifiedDialog(DialogState.LOADING, "Saving...")
-        saveUrlToDatabase(url, sharedSubject)
+        
+        // Delay API request to let user see the UI
+        Handler(Looper.getMainLooper()).postDelayed({
+            saveUrlToDatabase(url, sharedSubject)
+        }, SAVING_UI_DELAY)
     }
     
     private fun extractUrl(text: String): String? {
@@ -318,7 +326,7 @@ private fun showUnifiedDialog(state: DialogState, message: String) {
             }
         }
 
-    }, 100)
+    }, DIALOG_SHOW_DELAY)
 }
 
     
