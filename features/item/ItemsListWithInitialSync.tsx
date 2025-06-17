@@ -5,9 +5,9 @@ import { withItems } from "@/database/hooks/withItems";
 import Item from "@/database/models/ItemModel";
 import { ItemFilter } from "@/types/item";
 import { SortOption } from "@/components/shared/menu/SortMenu";
-import { storage } from "@/utils/storage";
 import ItemsFlatList from "@/components/item/ItemsFlatList";
 import { router } from "expo-router";
+import { storage } from "@/stores/mmkvStateStorage";
 
 const ItemsListWithInitialSync = ({
   filter,
@@ -19,6 +19,7 @@ const ItemsListWithInitialSync = ({
   const [shouldFetchItems, setShouldFetchItems] = useState(false);
   const [isCheckingSync, setIsCheckingSync] = useState(true);
   const [isPerformingInitialSync, setIsPerformingInitialSync] = useState(false);
+
   const ObservableItemsPresenter = memo(
     ({
       items,
@@ -41,8 +42,6 @@ const ItemsListWithInitialSync = ({
       try {
         const completedFirstSync = storage.getBoolean("completed_first_sync");
         const isFirstSync = !completedFirstSync;
-
-        console.log("First sync needed:", isFirstSync);
 
         if (isFirstSync) {
           // For first sync: show UI, await sync, then show items

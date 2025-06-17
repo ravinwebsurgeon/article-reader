@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useAppSelector } from "@/redux/hook";
+import { useAuthStore } from "@/stores/authStore";
 import { useAlert } from "@/provider/AlertProvider";
 import { AlertPresets } from "@/utils/alert";
 
@@ -8,9 +8,7 @@ import { AlertPresets } from "@/utils/alert";
  */
 export const useAuthAlerts = () => {
   const alert = useAlert();
-  const authError = useAppSelector((state) => state.auth.error);
-  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
-  const user = useAppSelector((state) => state.auth.user);
+  const { error: authError, isAuthenticated, user } = useAuthStore();
 
   useEffect(() => {
     if (authError) {

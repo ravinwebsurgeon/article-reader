@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   StyleSheet,
   TouchableOpacity,
@@ -10,17 +10,14 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { resetAuthError } from "@/redux/slices/authSlice";
-import { useAppDispatch, useAppSelector } from "@/redux/hook";
 import { useForm } from "react-hook-form";
 import { useTheme } from "@/theme";
-import { useLoginMutation } from "@/redux/services/authApi";
+import { useAuthStore } from "@/stores/authStore";
 import { ThemeText, ThemeView } from "@/components";
 import { Input } from "@/components/ui/TextInput/input";
 import { SvgIcon } from "@/components/SvgIcon";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
-import { sendExtensionAuthToken } from "@/utils/extension";
 import { useAlert } from "@/provider/AlertProvider";
 import { AlertPresets } from "@/utils/alert";
 
@@ -30,12 +27,10 @@ interface LoginFormData {
 }
 
 function LoginScreen() {
-  const dispatch = useAppDispatch();
   const theme = useTheme();
   const { t } = useTranslation();
   const alert = useAlert();
-  const { error } = useAppSelector((state) => state.auth);
-  const [login] = useLoginMutation();
+  const { login, isLoading } = useAuthStore();
   const { control, handleSubmit, setFocus } = useForm<LoginFormData>({
     defaultValues: {
       email: "",
@@ -45,25 +40,17 @@ function LoginScreen() {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      const result = await login({
-        user: {
-          email: data.email,
-          password: data.password,
-        },
-      }).unwrap();
-
-      // Send auth token to extension if login was successful
-      if (result.token) {
-        sendExtensionAuthToken(result.token);
-      }
+      await login({
+        email: data.email,
+        password: data.password,
+      });
+      // Login success - Zustand will handle navigation via auth state change
     } catch (err) {
       console.error("Login failed", err);
       alert.show(
         AlertPresets.error(
           "Login Failed",
-          typeof err === "object" && err !== null && "error" in err
-            ? (err as { error: string }).error
-            : "An error occurred",
+          err instanceof Error ? err.message : "An error occurred",
         ),
       );
     }
@@ -76,13 +63,6 @@ function LoginScreen() {
   const navigateToForgotPassword = () => {
     // navigation.navigate("ForgotPassword");
   };
-
-  // Show error alert if needed
-  useEffect(() => {
-    if (error) {
-      dispatch(resetAuthError());
-    }
-  }, [error, dispatch]);
 
   const dynamicStyles: {
     container: ViewStyle;
@@ -232,6 +212,7 @@ function LoginScreen() {
               onPress={handleSubmit(onSubmit)}
               style={dynamicStyles.signInButton}
               rightIcon={null}
+              loading={isLoading}
             />
           </ThemeView>
 

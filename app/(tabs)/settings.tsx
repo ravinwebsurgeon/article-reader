@@ -6,17 +6,16 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "@/theme";
 import { useRouter } from "expo-router";
 import { useDatabase } from "@/database/provider/DatabaseProvider";
-import { useLogoutMutation } from "@/redux/services/authApi";
+import { useAuthStore } from "@/stores/authStore";
 import { useState } from "react";
 import { syncEngine } from "@/database/sync/SyncEngine";
-import { storage } from "@/utils/storage";
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
   const { database } = useDatabase();
-  const [logout] = useLogoutMutation();
+  const { logout } = useAuthStore();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
@@ -48,25 +47,18 @@ export default function SettingsScreen() {
       // 1. Stop watching for database changes
       syncEngine.stopWatchForChanges();
 
-      // 2. Call logout API (this will also clear the auth token via authApi)
-      await logout().unwrap();
-
-      // 3. Reset the WatermelonDB database
+      // 2. Reset the WatermelonDB database
       if (database) {
         await database.write(async () => {
           await database.unsafeResetDatabase();
         });
       }
 
-      // 4. Clear all storage data
-      storage.clearAll();
-
-      // 5. Reset sync engine state
+      // 3. Reset sync engine state
       syncEngine.setToken(null);
 
-      // The app will automatically redirect to auth screen due to Redux state change
-      // from the logout mutation, but we can also manually navigate if needed
-      router.replace("/auth-start");
+      // 4. Logout (this handles API call, storage clearing, and should trigger navigation)
+      await logout();
     } catch (error) {
       console.error("Logout error:", error);
       Alert.alert(
@@ -90,31 +82,14 @@ export default function SettingsScreen() {
           style={[styles.section, { backgroundColor: theme.colors.background.paper }]}
           rounded="md"
         >
-          <Pressable style={[styles.settingItem, { borderBottomColor: theme.colors.divider }]}>
+          <Pressable
+            style={[styles.settingItem, { borderBottomColor: theme.colors.divider }]}
+            onPress={() => router.push("/account-settings")}
+          >
             <ThemeView style={styles.settingContent}>
               <Ionicons name="person-outline" size={24} color={theme.colors.primary.main} />
               <ThemeText style={[styles.settingText, { color: theme.colors.text.primary }]}>
                 {t("settings.account")}
-              </ThemeText>
-            </ThemeView>
-            <Ionicons name="chevron-forward" size={20} color={theme.colors.text.secondary} />
-          </Pressable>
-
-          <Pressable style={[styles.settingItem, { borderBottomColor: theme.colors.divider }]}>
-            <ThemeView style={styles.settingContent}>
-              <Ionicons name="notifications-outline" size={24} color={theme.colors.primary.main} />
-              <ThemeText style={[styles.settingText, { color: theme.colors.text.primary }]}>
-                {t("settings.notifications")}
-              </ThemeText>
-            </ThemeView>
-            <Ionicons name="chevron-forward" size={20} color={theme.colors.text.secondary} />
-          </Pressable>
-
-          <Pressable style={[styles.settingItem, { borderBottomColor: theme.colors.divider }]}>
-            <ThemeView style={styles.settingContent}>
-              <Ionicons name="moon-outline" size={24} color={theme.colors.primary.main} />
-              <ThemeText style={[styles.settingText, { color: theme.colors.text.primary }]}>
-                {t("settings.appearance")}
               </ThemeText>
             </ThemeView>
             <Ionicons name="chevron-forward" size={20} color={theme.colors.text.secondary} />
@@ -130,44 +105,10 @@ export default function SettingsScreen() {
                 {t("settings.importFromPocket")}
               </ThemeText>
             </ThemeView>
-            <Ionicons name="chevron-forward" size={20} color={theme.colors.text.secondary} />
-          </Pressable>
-        </ThemeView>
-
-        <ThemeView
-          style={[
-            styles.section,
-            styles.secondSection,
-            { backgroundColor: theme.colors.background.paper },
-          ]}
-          rounded="md"
-        >
-          <Pressable style={[styles.settingItem, { borderBottomColor: theme.colors.divider }]}>
-            <ThemeView style={styles.settingContent}>
-              <Ionicons name="help-circle-outline" size={24} color={theme.colors.primary.main} />
-              <ThemeText style={[styles.settingText, { color: theme.colors.text.primary }]}>
-                {t("settings.help")}
-              </ThemeText>
-            </ThemeView>
-            <Ionicons name="chevron-forward" size={20} color={theme.colors.text.secondary} />
-          </Pressable>
-
-          <Pressable style={[styles.settingItem, { borderBottomColor: theme.colors.divider }]}>
-            <ThemeView style={styles.settingContent}>
-              <Ionicons
-                name="information-circle-outline"
-                size={24}
-                color={theme.colors.primary.main}
-              />
-              <ThemeText style={[styles.settingText, { color: theme.colors.text.primary }]}>
-                {t("settings.about")}
-              </ThemeText>
-            </ThemeView>
-            <Ionicons name="chevron-forward" size={20} color={theme.colors.text.secondary} />
           </Pressable>
 
           <Pressable
-            style={[styles.settingItem, { borderBottomColor: theme.colors.divider }]}
+            style={[styles.settingItem, { borderBottomColor: "transparent" }]}
             onPress={handleLogout}
             disabled={isLoggingOut}
           >
@@ -177,7 +118,6 @@ export default function SettingsScreen() {
                 {t("settings.logout")}
               </ThemeText>
             </ThemeView>
-            <Ionicons name="chevron-forward" size={20} color={theme.colors.text.secondary} />
           </Pressable>
         </ThemeView>
       </ThemeView>
@@ -197,9 +137,6 @@ const styles = StyleSheet.create({
   },
   section: {
     overflow: "hidden",
-  },
-  secondSection: {
-    marginTop: 16,
   },
   settingItem: {
     flexDirection: "row",

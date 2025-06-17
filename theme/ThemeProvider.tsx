@@ -1,14 +1,12 @@
-import React, { createContext, useEffect, useCallback, useMemo } from "react";
+import React, { createContext, useEffect, useMemo } from "react";
 import { useColorScheme } from "react-native";
-import { useAppSelector, useAppDispatch } from "@/redux/hook";
-import { setSystemPrefersDark } from "@/redux/slices/themeSlice";
-import { selectThemeMode, selectSystemPrefersDark } from "@/redux/utils";
+import { useThemeStore, ThemeMode } from "@/stores/themeStore";
 import { Theme, createTheme } from "./theme";
 
 interface ThemeContextType {
   theme: Theme;
   toggleTheme: () => void;
-  setThemeMode: (mode: "light" | "dark" | "system") => void;
+  setThemeMode: (mode: ThemeMode) => void;
 }
 
 // Create context with default values
@@ -19,18 +17,22 @@ export const ThemeContext = createContext<ThemeContextType>({
 });
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const dispatch = useAppDispatch();
   const deviceColorScheme = useColorScheme();
-  const themePreference = useAppSelector(selectThemeMode);
-  const systemPrefersDark = useAppSelector(selectSystemPrefersDark);
+  const {
+    mode: themeMode,
+    systemPrefersDark,
+    setSystemPrefersDark,
+    setThemeMode,
+    toggleTheme,
+  } = useThemeStore();
 
   // Determine which theme mode to use
   const resolvedMode = useMemo(() => {
-    if (themePreference === "system") {
+    if (themeMode === "system") {
       return systemPrefersDark ? "dark" : "light";
     }
-    return themePreference;
-  }, [themePreference, systemPrefersDark]);
+    return themeMode;
+  }, [themeMode, systemPrefersDark]);
 
   // Create theme object based on resolved mode
   const theme = useMemo(() => {
@@ -40,32 +42,18 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Update system preference when device theme changes
   useEffect(() => {
     if (deviceColorScheme) {
-      dispatch(setSystemPrefersDark(deviceColorScheme === "dark"));
+      setSystemPrefersDark(deviceColorScheme === "dark");
     }
-  }, [deviceColorScheme, dispatch]);
-
-  // Toggle between light and dark mode
-  const toggleTheme = useCallback(() => {
-    const newMode = resolvedMode === "light" ? "dark" : "light";
-    dispatch({ type: "theme/setThemeMode", payload: newMode });
-  }, [resolvedMode, dispatch]);
-
-  // Set specific theme mode
-  const setMode = useCallback(
-    (mode: "light" | "dark" | "system") => {
-      dispatch({ type: "theme/setThemeMode", payload: mode });
-    },
-    [dispatch],
-  );
+  }, [deviceColorScheme, setSystemPrefersDark]);
 
   // Context value
   const contextValue = useMemo(
     () => ({
       theme,
       toggleTheme,
-      setThemeMode: setMode,
+      setThemeMode,
     }),
-    [theme, toggleTheme, setMode],
+    [theme, toggleTheme, setThemeMode],
   );
 
   return <ThemeContext.Provider value={contextValue}>{children}</ThemeContext.Provider>;

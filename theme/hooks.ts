@@ -1,7 +1,6 @@
 import { useContext } from "react";
 import { ThemeContext } from "./ThemeProvider";
-import { useAppSelector } from "@/redux/hook";
-import { selectActiveTheme } from "@/redux/utils";
+import { useThemeStore } from "@/stores/themeStore";
 import { ColorPalette } from "./tokens/colors";
 
 // Hook to access the entire theme
@@ -60,7 +59,8 @@ export const useShadows = () => {
 // Standalone hook to get current active theme mode without using context
 // Useful for components that just need to know the theme but don't need other theme properties
 export const useActiveThemeMode = (): "light" | "dark" => {
-  return useAppSelector(selectActiveTheme);
+  const { mode, systemPrefersDark } = useThemeStore();
+  return mode === "system" ? (systemPrefersDark ? "dark" : "light") : mode;
 };
 
 // Props type for useThemeColor
