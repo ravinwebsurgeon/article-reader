@@ -5,7 +5,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/theme";
 import { useRouter } from "expo-router";
-import { useDatabase } from "@/database/provider/DatabaseProvider";
 import { useSync } from "@/database/provider/SyncProvider";
 import { useAuthStore } from "@/stores/authStore";
 import { useState } from "react";
@@ -14,7 +13,6 @@ export default function SettingsScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
-  const { database } = useDatabase();
   const { syncEngine } = useSync();
   const { logout } = useAuthStore();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -45,18 +43,11 @@ export default function SettingsScreen() {
     setIsLoggingOut(true);
 
     try {
-      // 1. Stop watching for database changes
-      syncEngine.stopWatching();
+      // Auth store handles everything: API call, sync stopping, storage clearing, database reset
+      await logout(syncEngine);
 
-      // 2. Reset the WatermelonDB database
-      if (database) {
-        await database.write(async () => {
-          await database.unsafeResetDatabase();
-        });
-      }
-
-      // 3. Logout (this handles API call, storage clearing, and should trigger navigation)
-      await logout();
+      // Navigate to login screen
+      router.replace("/(auth)/login");
     } catch (error) {
       console.error("Logout error:", error);
       Alert.alert(

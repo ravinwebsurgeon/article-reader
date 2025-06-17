@@ -1,27 +1,30 @@
-import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { Appearance } from "react-native";
-import { mmkvJSONStateStorage } from "./mmkvStateStorage";
+import { mmkvJSONStateStorage, create } from "./stateStorage";
 
 export type ThemeMode = "light" | "dark" | "system";
 
-interface ThemeState {
-  // State
+type State = {
   mode: ThemeMode;
   systemPrefersDark: boolean;
+};
 
-  // Actions
+type Actions = {
   setThemeMode: (mode: ThemeMode) => void;
   toggleTheme: () => void;
   setSystemPrefersDark: (prefersDark: boolean) => void;
-}
+  reset: () => void;
+};
 
-export const useThemeStore = create<ThemeState>()(
+const initialState: State = {
+  mode: "system",
+  systemPrefersDark: Appearance.getColorScheme() === "dark",
+};
+
+export const useThemeStore = create<State & Actions>()(
   persist(
     (set, get) => ({
-      // Initial state
-      mode: "system",
-      systemPrefersDark: Appearance.getColorScheme() === "dark",
+      ...initialState,
 
       // Actions
       setThemeMode: (mode) => set({ mode }),
@@ -40,6 +43,8 @@ export const useThemeStore = create<ThemeState>()(
       },
 
       setSystemPrefersDark: (prefersDark) => set({ systemPrefersDark: prefersDark }),
+
+      reset: () => set(initialState),
     }),
     {
       name: "theme-store",

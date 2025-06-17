@@ -131,7 +131,11 @@
     "help": "Ajuda e suporte",
     "about": "Sobre",
     "logout": "Sair",
-    "logoutConfirmMessage": "Tem certeza de que deseja sair?"
+    "logoutConfirmMessage": "Tem certeza de que deseja sair?",
+    "deleteAccount": "Excluir conta",
+    "deleteAccountConfirmMessage": "Tem certeza de que deseja excluir sua conta? Esta ação não pode ser desfeita e excluirá permanentemente todos os seus dados.",
+    "deleteAccountError": "Ocorreu um erro ao excluir sua conta. Tente novamente.",
+    "deletingAccount": "Excluindo sua conta..."
   },
   "import": {
     "pocket": {

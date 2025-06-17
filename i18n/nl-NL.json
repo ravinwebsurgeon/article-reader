@@ -131,7 +131,11 @@
     "help": "Hulp & Ondersteuning",
     "about": "Over",
     "logout": "Uitloggen",
-    "logoutConfirmMessage": "Weet je zeker dat je wilt uitloggen?"
+    "logoutConfirmMessage": "Weet je zeker dat je wilt uitloggen?",
+    "deleteAccount": "Account verwijderen",
+    "deleteAccountConfirmMessage": "Weet je zeker dat je je account wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt en zal al je gegevens permanent verwijderen.",
+    "deleteAccountError": "Er is een fout opgetreden bij het verwijderen van je account. Probeer het opnieuw.",
+    "deletingAccount": "Account wordt verwijderd..."
   },
   "import": {
     "pocket": {

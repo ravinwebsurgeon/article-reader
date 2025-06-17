@@ -131,7 +131,11 @@
     "help": "Pomoc i wsparcie",
     "about": "O aplikacji",
     "logout": "Wyloguj",
-    "logoutConfirmMessage": "Czy na pewno chcesz się wylogować?"
+    "logoutConfirmMessage": "Czy na pewno chcesz się wylogować?",
+    "deleteAccount": "Usuń konto",
+    "deleteAccountConfirmMessage": "Czy na pewno chcesz usunąć swoje konto? Ta czynność nie może zostać cofnięta i trwale usunie wszystkie Twoje dane.",
+    "deleteAccountError": "Wystąpił błąd podczas usuwania Twojego konta. Spróbuj ponownie.",
+    "deletingAccount": "Usuwanie konta..."
   },
   "import": {
     "pocket": {

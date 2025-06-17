@@ -1,27 +1,30 @@
-import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { mmkvJSONStateStorage } from "./mmkvStateStorage";
+import { mmkvJSONStateStorage, create } from "./stateStorage";
 
-interface FirstRunState {
-  // State
+type State = {
   completedFirstSync: boolean | undefined;
   showPocketImport: boolean | undefined;
   isLoaded: boolean;
+};
 
-  // Actions
+type Actions = {
   setCompletedFirstSync: (value: boolean) => void;
   setShowPocketImport: (value: boolean) => void;
   clearShowPocketImport: () => void;
   markAsLoaded: () => void;
-}
+  reset: () => void;
+};
 
-export const useFirstRunStore = create<FirstRunState>()(
+const initialState: State = {
+  completedFirstSync: false,
+  showPocketImport: false,
+  isLoaded: true,
+};
+
+export const useFirstRunStore = create<State & Actions>()(
   persist(
     (set) => ({
-      // Initial state - undefined means not loaded yet
-      completedFirstSync: undefined,
-      showPocketImport: undefined,
-      isLoaded: false,
+      ...initialState,
 
       // Actions
       setCompletedFirstSync: (value) => {
@@ -39,6 +42,8 @@ export const useFirstRunStore = create<FirstRunState>()(
       markAsLoaded: () => {
         set({ isLoaded: true });
       },
+
+      reset: () => set(initialState),
     }),
     {
       name: "first-run-store",
@@ -47,22 +52,6 @@ export const useFirstRunStore = create<FirstRunState>()(
         completedFirstSync: state.completedFirstSync,
         showPocketImport: state.showPocketImport,
       }),
-      onRehydrateStorage: () => {
-        return (state) => {
-          if (state) {
-            // Mark as loaded after hydration
-            state.isLoaded = true;
-
-            // Set defaults if values are undefined (first time ever)
-            if (state.completedFirstSync === undefined) {
-              state.completedFirstSync = false;
-            }
-            if (state.showPocketImport === undefined) {
-              state.showPocketImport = false;
-            }
-          }
-        };
-      },
     },
   ),
 );
