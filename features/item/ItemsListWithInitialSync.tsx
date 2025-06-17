@@ -7,7 +7,7 @@ import { ItemFilter } from "@/types/item";
 import { SortOption } from "@/components/shared/menu/SortMenu";
 import ItemsFlatList from "@/components/item/ItemsFlatList";
 import { router } from "expo-router";
-import { useSetupStore } from "@/stores/setupStore";
+import { storage } from "@/stores/mmkvStateStorage";
 
 const ItemsListWithInitialSync = ({
   filter,
@@ -20,12 +20,6 @@ const ItemsListWithInitialSync = ({
   const [isCheckingSync, setIsCheckingSync] = useState(true);
   const [isPerformingInitialSync, setIsPerformingInitialSync] = useState(false);
 
-  const {
-    hasCompletedFirstSync,
-    shouldShowPocketImport,
-    markFirstSyncCompleted,
-    completePocketImport,
-  } = useSetupStore();
   const ObservableItemsPresenter = memo(
     ({
       items,
@@ -46,9 +40,8 @@ const ItemsListWithInitialSync = ({
 
     const performInitialSync = async () => {
       try {
-        const isFirstSync = !hasCompletedFirstSync;
-
-        console.log("First sync needed:", isFirstSync);
+        const completedFirstSync = storage.getBoolean("completed_first_sync");
+        const isFirstSync = !completedFirstSync;
 
         if (isFirstSync) {
           // For first sync: show UI, await sync, then show items
@@ -58,16 +51,17 @@ const ItemsListWithInitialSync = ({
           }
 
           await syncEngine.sync(true);
-          markFirstSyncCompleted();
+          storage.set("completed_first_sync", true);
 
           if (isMounted) {
             setShouldFetchItems(true);
           }
 
           // Check if we should show Pocket import prompt for new users
-          if (shouldShowPocketImport) {
+          const showPocketImport = storage.getBoolean("show_pocket_import");
+          if (showPocketImport) {
             // Remove the flag immediately to prevent showing again
-            completePocketImport();
+            storage.delete("show_pocket_import");
             // Wait for main screen to load, then show import modal
             setTimeout(() => {
               router.push("/import-pocket");
