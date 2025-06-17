@@ -3,7 +3,7 @@ import { FlatList, StyleSheet, RefreshControl } from "react-native";
 import { useRouter } from "expo-router";
 import NoUIFound from "@/components/shared/emptyState/NoUIFound";
 import Item from "@/database/models/ItemModel";
-import { ItemFilter } from "@/types/item";
+import { ItemFilter } from "@/database/hooks/withItems";
 import { syncEngine } from "@/database/sync/SyncEngine";
 import ItemCard, { ITEM_CARD_HEIGHT } from "@/components/item/ItemCard";
 

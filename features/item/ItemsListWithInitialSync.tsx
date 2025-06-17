@@ -3,7 +3,7 @@ import NoUIFound from "@/components/shared/emptyState/NoUIFound";
 import { syncEngine } from "@/database/sync/SyncEngine";
 import { withItems } from "@/database/hooks/withItems";
 import Item from "@/database/models/ItemModel";
-import { ItemFilter } from "@/types/item";
+import { ItemFilter } from "@/database/hooks/withItems";
 import { SortOption } from "@/components/shared/menu/SortMenu";
 import ItemsFlatList from "@/components/item/ItemsFlatList";
 import { router } from "expo-router";
