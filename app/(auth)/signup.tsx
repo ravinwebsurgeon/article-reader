@@ -13,13 +13,13 @@ import { router } from "expo-router";
 import { useForm } from "react-hook-form";
 import { useTheme } from "@/theme";
 import { useAuthStore } from "@/stores/authStore";
+import { useSetupStore } from "@/stores/setupStore";
 import { ThemeText, ThemeView } from "@/components";
 import { Input } from "@/components/ui/TextInput/input";
 import { SvgIcon } from "@/components/SvgIcon";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import zxcvbn from "zxcvbn";
-import { storage } from "@/utils/storage";
 
 interface SignUpFormData {
   email: string;
@@ -31,6 +31,7 @@ function SignUpScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const { register, isLoading } = useAuthStore();
+  const { setShouldShowPocketImport } = useSetupStore();
   const { control, handleSubmit, setFocus, getValues } = useForm<SignUpFormData>({
     mode: "onSubmit",
     reValidateMode: "onSubmit",
@@ -50,7 +51,7 @@ function SignUpScreen() {
       });
 
       // Set flag to show Pocket import prompt for new users
-      storage.set("show_pocket_import", true);
+      setShouldShowPocketImport(true);
       // Registration success - Zustand will handle navigation via auth state change
     } catch (error: unknown) {
       console.error(error);

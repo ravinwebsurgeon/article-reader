@@ -1,29 +1,24 @@
 import { create } from "zustand";
-import { persist, createJSONStorage, StateStorage } from "zustand/middleware";
-import { storage, TokenStorage } from "@/utils/storage";
+import { persist } from "zustand/middleware";
+import { NativeModules } from "react-native";
 import { sendExtensionAuthToken, sendExtensionLogout } from "@/utils/extension";
+import { mmkvJSONStateStorage } from "./mmkvStateStorage";
 
-// Custom MMKV storage adapter for Zustand following StateStorage interface
-const mmkvStorage: StateStorage = {
-  getItem: (name: string): string | null => {
-    try {
-      return storage.getString(name) ?? null;
-    } catch (error) {
-      console.warn(`Failed to get data for key "${name}":`, error);
-      storage.delete(name);
-      return null;
-    }
-  },
-  setItem: (name: string, value: string): void => {
-    try {
-      storage.set(name, value);
-    } catch (error) {
-      console.error(`Failed to store data for key "${name}":`, error);
-    }
-  },
-  removeItem: (name: string): void => {
-    storage.delete(name);
-  },
+const { TokenManager } = NativeModules;
+
+// Helper functions for token management with native bridge
+const setTokenInNative = (token: string) => {
+  if (TokenManager) {
+    TokenManager.saveToken(token);
+  } else {
+    console.warn("⚠️ TokenManager not available - extension won't have token access");
+  }
+};
+
+const deleteTokenFromNative = () => {
+  if (TokenManager) {
+    TokenManager.removeToken();
+  }
 };
 
 interface User {
@@ -87,8 +82,8 @@ export const useAuthStore = create<AuthState>()(
 
           const data = await response.json();
 
-          // Store token in both places
-          TokenStorage.set(data.token);
+          // Store token in native modules and notify extension
+          setTokenInNative(data.token);
           sendExtensionAuthToken(data.token);
 
           set({
@@ -126,8 +121,8 @@ export const useAuthStore = create<AuthState>()(
 
           const data = await response.json();
 
-          // Store token in both places
-          TokenStorage.set(data.token);
+          // Store token in native modules and notify extension
+          setTokenInNative(data.token);
           sendExtensionAuthToken(data.token);
 
           set({
@@ -165,8 +160,7 @@ export const useAuthStore = create<AuthState>()(
         }
 
         // Always clear local state regardless of API success
-        TokenStorage.delete();
-        storage.clearAll();
+        deleteTokenFromNative();
         sendExtensionLogout();
 
         set({
@@ -209,7 +203,7 @@ export const useAuthStore = create<AuthState>()(
       clearError: () => set({ error: null }),
 
       setToken: (token, user) => {
-        TokenStorage.set(token);
+        setTokenInNative(token);
         sendExtensionAuthToken(token);
         set({
           token,
@@ -220,7 +214,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: "auth-store",
-      storage: createJSONStorage(() => mmkvStorage),
+      storage: mmkvJSONStateStorage,
       partialize: (state) => ({
         token: state.token,
         user: state.user,
