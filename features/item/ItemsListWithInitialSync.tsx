@@ -7,7 +7,7 @@ import { ItemFilter } from "@/database/hooks/withItems";
 import { SortOption } from "@/components/shared/menu/SortMenu";
 import ItemsFlatList from "@/components/item/ItemsFlatList";
 import { router } from "expo-router";
-import { storage } from "@/stores/mmkvStateStorage";
+import { useFirstRunStore } from "@/stores/firstRunStore";
 
 const ItemsListWithInitialSync = ({
   filter,
@@ -19,6 +19,14 @@ const ItemsListWithInitialSync = ({
   const [shouldFetchItems, setShouldFetchItems] = useState(false);
   const [isCheckingSync, setIsCheckingSync] = useState(true);
   const [isPerformingInitialSync, setIsPerformingInitialSync] = useState(false);
+
+  const {
+    completedFirstSync,
+    showPocketImport,
+    isLoaded,
+    setCompletedFirstSync,
+    clearShowPocketImport,
+  } = useFirstRunStore();
 
   const ObservableItemsPresenter = memo(
     ({
@@ -39,8 +47,12 @@ const ItemsListWithInitialSync = ({
     let isMounted = true;
 
     const performInitialSync = async () => {
+      // Wait for store to be loaded from storage
+      if (!isLoaded) {
+        return;
+      }
+
       try {
-        const completedFirstSync = storage.getBoolean("completed_first_sync");
         const isFirstSync = !completedFirstSync;
 
         if (isFirstSync) {
@@ -51,17 +63,16 @@ const ItemsListWithInitialSync = ({
           }
 
           await syncEngine.sync(true);
-          storage.set("completed_first_sync", true);
+          setCompletedFirstSync(true);
 
           if (isMounted) {
             setShouldFetchItems(true);
           }
 
           // Check if we should show Pocket import prompt for new users
-          const showPocketImport = storage.getBoolean("show_pocket_import");
           if (showPocketImport) {
             // Remove the flag immediately to prevent showing again
-            storage.delete("show_pocket_import");
+            clearShowPocketImport();
             // Wait for main screen to load, then show import modal
             setTimeout(() => {
               router.push("/import-pocket");
@@ -96,7 +107,13 @@ const ItemsListWithInitialSync = ({
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [
+    isLoaded,
+    completedFirstSync,
+    showPocketImport,
+    setCompletedFirstSync,
+    clearShowPocketImport,
+  ]);
 
   const DataConnectedPresenter = useMemo(() => {
     return withItems({ filter, sorted })(ObservableItemsPresenter);
