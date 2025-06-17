@@ -237,10 +237,7 @@ private fun showUnifiedDialog(state: DialogState, message: String) {
             }
             DialogState.ERROR -> {
                 stopLoadingAnimation()
-                Handler(Looper.getMainLooper()).postDelayed({
-                    unifiedDialog?.dismiss()
-                    finish()
-                }, 3000)
+                // No auto-close - user can tap background to dismiss
             }
             else -> {
                 // LOADING: stay until next state
@@ -303,14 +300,11 @@ private fun showUnifiedDialog(state: DialogState, message: String) {
                 Handler(Looper.getMainLooper()).postDelayed({
                     unifiedDialog?.dismiss()
                     finish()
-                }, 3000)
+                }, 2000)
             }
             DialogState.ERROR -> {
                 stopLoadingAnimation()
-                Handler(Looper.getMainLooper()).postDelayed({
-                    unifiedDialog?.dismiss()
-                    finish()
-                }, 3000)
+                // No auto-close - user can tap background to dismiss
             }
             else -> {
                 // LOADING: stay until next state
