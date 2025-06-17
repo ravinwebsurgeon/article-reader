@@ -29,6 +29,7 @@ class SyncEngine {
 
   // Sync state - SINGLE SOURCE OF TRUTH
   private currentSyncPromise: Promise<boolean> | null = null;
+  private pendingFirstSync: boolean = false;
 
   // Debounced functions
   private debouncedSync: DebouncedFunc<() => Promise<boolean>>;
@@ -48,7 +49,7 @@ class SyncEngine {
     this.serverChangesListener = new ServerChangesListener(API_URL as string);
 
     // Create debounced sync function - this is the core sync logic
-    this.debouncedSync = debounce(this._performSync.bind(this), 250, {
+    this.debouncedSync = debounce(() => this._performSync(), 250, {
       leading: true,
       trailing: true,
     });
@@ -71,11 +72,15 @@ class SyncEngine {
   /**
    * Main sync method - always returns the same promise if sync is in progress
    */
-  sync(_isFirstSync = false): Promise<boolean> {
-    // If sync is already running, return the existing promise
+  sync(isFirstSync = false): Promise<boolean> {
+    // Set first sync flag if requested
+    if (isFirstSync) {
+      this.pendingFirstSync = true;
+    }
+
+    // If sync is already running, return the existing promise but extend debounce
     if (this.currentSyncPromise) {
-      console.log(`${LOG_PREFIX} Sync already in progress, returning existing promise`);
-      // Trigger debounced sync to extend debounce period
+      console.log(`${LOG_PREFIX} Sync already in progress, extending debounce period`);
       this.debouncedSync();
       return this.currentSyncPromise;
     }
@@ -104,7 +109,10 @@ class SyncEngine {
    * The actual sync implementation - called by debounced function
    */
   private async _performSync(): Promise<boolean> {
-    console.log(`${LOG_PREFIX} Executing sync operation`);
+    const isFirstSync = this.pendingFirstSync;
+    this.pendingFirstSync = false; // Reset flag
+
+    console.log(`${LOG_PREFIX} Executing sync operation (turbo: ${isFirstSync})`);
     const syncStartTime = Date.now();
 
     try {
@@ -113,7 +121,7 @@ class SyncEngine {
       this._ensureDatabase();
 
       // Perform WatermelonDB sync
-      await this._syncWithServer();
+      await this._syncWithServer(isFirstSync);
 
       // Start content sync (async, don't wait)
       this._startContentSync();
@@ -155,10 +163,11 @@ class SyncEngine {
   /**
    * Perform the actual WatermelonDB synchronization
    */
-  private async _syncWithServer(): Promise<void> {
+  private async _syncWithServer(isFirstSync = false): Promise<void> {
     console.log(`${LOG_PREFIX} Syncing with server`);
 
-    const useTurbo = false; // Disable turbo for now to avoid complications
+    // Enable turbo sync for first sync to improve performance
+    const useTurbo = isFirstSync;
 
     await synchronize({
       database: this.database!,
@@ -181,9 +190,18 @@ class SyncEngine {
           throw new Error(`Pull failed: ${await response.text()}`);
         }
 
-        const { changes, timestamp } = await response.json();
-        console.log(`${LOG_PREFIX} Pull successful`);
-        return { changes, timestamp };
+        if (useTurbo) {
+          // For turbo sync, return raw JSON text
+          const syncJson = await response.text();
+          console.log(`${LOG_PREFIX} Pull successful (turbo mode)`);
+          return { syncJson };
+        } else {
+          // For normal sync, return parsed data
+          const responseData = await response.json();
+          const { changes, timestamp } = responseData;
+          console.log(`${LOG_PREFIX} Pull successful`);
+          return { changes, timestamp };
+        }
       },
       pushChanges: async ({ changes, lastPulledAt }) => {
         // Exclude item_contents from sync (handled separately)
@@ -361,6 +379,7 @@ class SyncEngine {
     this.debouncedSync.cancel();
     this.debouncedServerSync.cancel();
     this.token = null;
+    this.pendingFirstSync = false;
     // Note: Don't cancel currentSyncPromise - let it complete naturally
   }
 }
