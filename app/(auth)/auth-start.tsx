@@ -11,8 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { resetAuthError } from "@/redux/slices/authSlice";
-import { useAppDispatch, useAppSelector } from "@/redux/hook";
+import { useAuthStore } from "@/stores/authStore";
 import { useForm } from "react-hook-form";
 import { useTheme } from "@/theme";
 import { ThemeButton, ThemeText, ThemeView } from "@/components";
@@ -25,11 +24,9 @@ interface LoginFormData {
 }
 
 function AuthStart() {
-  const dispatch = useAppDispatch();
   const theme = useTheme();
   const { t } = useTranslation();
-
-  const { error } = useAppSelector((state) => state.auth);
+  const { error, clearError } = useAuthStore();
   const { handleSubmit } = useForm<LoginFormData>({
     defaultValues: {
       email: "",
@@ -53,9 +50,9 @@ function AuthStart() {
   useEffect(() => {
     if (error) {
       Alert.alert(t("auth.authStart.loginError"), error);
-      dispatch(resetAuthError());
+      clearError();
     }
-  }, [error, dispatch, t]);
+  }, [error, clearError, t]);
 
   const dynamicStyles: {
     container: ViewStyle;

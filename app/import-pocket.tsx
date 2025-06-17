@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { ThemeText, ThemeView } from "@/components/primitives";
 import { Button } from "@/components/shared/button/Button";
 import { useColors } from "@/theme/hooks";
-import { useAppSelector } from "@/redux/hook";
+import { useAuthStore } from "@/stores/authStore";
 import { Ionicons } from "@expo/vector-icons";
 import Svg, { Path, Circle } from "react-native-svg";
 
@@ -21,8 +21,8 @@ export default function ImportPocketScreen() {
 
   const [currentStep, setCurrentStep] = useState<ImportStep>("explanation");
 
-  // Get auth token from Redux
-  const authToken = useAppSelector((state) => state.auth.token);
+  // Get auth token from Zustand store
+  const { token: authToken } = useAuthStore();
 
   const handleStartImport = useCallback(() => {
     setCurrentStep("webview");

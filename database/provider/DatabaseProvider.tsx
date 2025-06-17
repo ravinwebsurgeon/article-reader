@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useAppSelector } from "@/redux/hook";
-import { selectAuthToken } from "@/redux/utils";
+import { useAuthStore } from "@/stores/authStore";
 import { syncEngine } from "../sync/SyncEngine";
 import database from "@/database";
 
@@ -20,7 +19,7 @@ export const DatabaseContext = React.createContext<{
 export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const token = useAppSelector(selectAuthToken);
+  const { token } = useAuthStore();
 
   // Initialize database
   useEffect(() => {

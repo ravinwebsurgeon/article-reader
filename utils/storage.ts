@@ -41,18 +41,3 @@ export const TokenStorage = {
     }
   },
 };
-
-/**
- * AsyncStorage-compatible interface for Redux Persist
- */
-export const reduxStorage = {
-  setItem: async (key: string, value: string): Promise<void> => {
-    storage.set(key, value);
-  },
-  getItem: async (key: string): Promise<string | null> => {
-    return storage.getString(key) ?? null;
-  },
-  removeItem: async (key: string): Promise<void> => {
-    storage.delete(key);
-  },
-};
