@@ -1,27 +1,25 @@
-import React, { useState } from "react";
+import React from "react";
 import {
-  View,
   StyleSheet,
+  TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   ViewStyle,
   TextStyle,
-  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useForm } from "react-hook-form";
-import { Input } from "@/components/ui/TextInput/input";
-import { Button } from "@/components/ui/button";
 import { router } from "expo-router";
-import { useRegisterMutation } from "@/redux/services/authApi";
+import { useForm } from "react-hook-form";
 import { useTheme } from "@/theme";
+import { useAuthStore } from "@/stores/authStore";
+import { storage } from "@/stores/mmkvStateStorage";
 import { ThemeText, ThemeView } from "@/components";
+import { Input } from "@/components/ui/TextInput/input";
 import { SvgIcon } from "@/components/SvgIcon";
+import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
-import { sendExtensionAuthToken } from "@/utils/extension";
 import zxcvbn from "zxcvbn";
-import { storage } from "@/utils/storage";
 
 interface SignUpFormData {
   email: string;
@@ -29,14 +27,13 @@ interface SignUpFormData {
   confirmPassword: string;
 }
 
-const SignUpScreen = () => {
-  const [loader, setLoader] = useState(false);
-  const [register] = useRegisterMutation();
+function SignUpScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
-
-  const { control, handleSubmit, watch, setFocus } = useForm<SignUpFormData>({
+  const { register, isLoading } = useAuthStore();
+  const { control, handleSubmit, setFocus, getValues } = useForm<SignUpFormData>({
     mode: "onSubmit",
+    reValidateMode: "onSubmit",
     defaultValues: {
       email: "",
       password: "",
@@ -44,30 +41,19 @@ const SignUpScreen = () => {
     },
   });
 
-  const password = watch("password");
-
   const onSubmit = async (data: SignUpFormData) => {
-    console.log(data);
-    setLoader(true);
     try {
-      const result = await register({
-        user: {
-          email: data.email,
-          password: data.password,
-        },
-      }).unwrap();
-
-      // Send auth token to extension if registration was successful
-      if (result.token) {
-        sendExtensionAuthToken(result.token);
-      }
+      await register({
+        email: data.email,
+        password: data.password,
+      });
 
       // Set flag to show Pocket import prompt for new users
       storage.set("show_pocket_import", true);
+      // Registration success - Zustand will handle navigation via auth state change
     } catch (error: unknown) {
       console.error(error);
-    } finally {
-      setLoader(false);
+      // Error handling is done in the store, error will be shown via alert
     }
   };
 
@@ -86,7 +72,9 @@ const SignUpScreen = () => {
       backgroundColor: theme.colors.background.default,
     },
     subtitle: {
-      fontSize: 16,
+      fontSize: 17,
+      lineHeight: 26,
+      fontWeight: "400" as const,
       color: theme.colors.text.disabled,
       marginBottom: 16,
     },
@@ -126,7 +114,7 @@ const SignUpScreen = () => {
             <ThemeText style={dynamicStyles.subtitle}>{t("auth.signup.subtitle")}</ThemeText>
           </ThemeView>
 
-          <View style={styles.formContainer}>
+          <ThemeView style={styles.formContainer}>
             <Input
               control={control}
               name="email"
@@ -149,7 +137,6 @@ const SignUpScreen = () => {
               autoComplete="email"
               textContentType="emailAddress"
             />
-
             <Input
               control={control}
               name="password"
@@ -172,14 +159,15 @@ const SignUpScreen = () => {
               autoComplete="new-password"
               textContentType="newPassword"
             />
-
             <Input
               control={control}
               name="confirmPassword"
               rules={{
                 required: t("errors.validation.confirmPassword.required"),
-                validate: (value: string) =>
-                  value === password || t("errors.validation.confirmPassword.mismatch"),
+                validate: (value: string) => {
+                  const password = getValues("password");
+                  return value === password || t("errors.validation.confirmPassword.mismatch");
+                },
               }}
               placeholder={t("auth.signup.confirmPassword")}
               secureTextEntry
@@ -196,21 +184,21 @@ const SignUpScreen = () => {
               onPress={handleSubmit(onSubmit)}
               style={dynamicStyles.signUpButton}
               rightIcon={null}
-              loading={loader}
+              loading={isLoading}
             />
-          </View>
+          </ThemeView>
 
-          <View style={styles.loginContainer}>
+          <ThemeView style={styles.loginContainer}>
             <ThemeText style={styles.loginText}>{t("auth.signup.hasAccount")} </ThemeText>
             <TouchableOpacity onPress={navigateToLogin}>
               <ThemeText style={dynamicStyles.loginLinkText}>{t("auth.signup.logIn")}</ThemeText>
             </TouchableOpacity>
-          </View>
+          </ThemeView>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -233,13 +221,14 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     marginTop: 20,
   },
+  logoContainer: {
+    marginBottom: 24,
+  },
   title: {
     fontSize: 28,
     fontWeight: "bold",
+    textAlign: "left",
     marginBottom: 8,
-  },
-  logoContainer: {
-    marginBottom: 24,
   },
   formContainer: {
     marginTop: 32,

@@ -23,7 +23,6 @@ import {
   annotationToHighlightData,
   HighlightData,
 } from "@/database/hooks/withAnnotations";
-import { useLazyCheckWaybackAvailableQuery } from "@/redux/services/waybackApi";
 
 interface ContentProps {
   item: Item;
@@ -51,10 +50,7 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
   const [isHtmlLoaded, setIsHtmlLoaded] = useState(false);
   const [isFetchingContent, setIsFetchingContent] = useState(false);
   const [waybackData, setWaybackData] = useState<{ available: boolean; url?: string } | null>(null);
-
-  // Wayback API
-  const [checkWaybackAvailable, { isLoading: isCheckingWayback }] =
-    useLazyCheckWaybackAvailableQuery();
+  const [isCheckingWayback, setIsCheckingWayback] = useState(false);
 
   // Create styles using theme values
   const styles = StyleSheet.create({
@@ -356,16 +352,30 @@ const ReaderContentComponent: React.FC<ContentProps> = ({
 
   // Check wayback availability when needed
   const checkWayback = useCallback(async () => {
-    if (!item.url || waybackData !== null) return;
+    if (!item.url || waybackData !== null || isCheckingWayback) return;
 
+    setIsCheckingWayback(true);
     try {
-      const result = await checkWaybackAvailable(item.url).unwrap();
-      setWaybackData(result);
+      const response = await fetch(
+        `https://archive.org/wayback/available?url=${encodeURIComponent(item.url)}`,
+      );
+      const data = await response.json();
+
+      if (data.archived_snapshots?.closest?.available) {
+        setWaybackData({
+          available: true,
+          url: data.archived_snapshots.closest.url,
+        });
+      } else {
+        setWaybackData({ available: false });
+      }
     } catch (error) {
       console.error("Failed to check wayback availability:", error);
       setWaybackData({ available: false });
+    } finally {
+      setIsCheckingWayback(false);
     }
-  }, [item.url, waybackData, checkWaybackAvailable]);
+  }, [item.url, waybackData, isCheckingWayback]);
 
   // Handle different content states
   const extractStatus = item.extractStatus;

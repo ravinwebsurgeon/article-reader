@@ -1,7 +1,6 @@
 import { synchronize } from "@nozbe/watermelondb/sync";
 import { Database } from "@nozbe/watermelondb";
 import Constants from "expo-constants";
-import { TokenStorage } from "@/utils/storage";
 import { debounce, DebouncedFunc } from "lodash-es";
 import { Subscription } from "rxjs";
 import ItemContentSyncer from "./ItemContentSyncer";
@@ -134,8 +133,10 @@ class SyncEngine {
    */
   private async _ensureToken(): Promise<void> {
     if (!this.token) {
-      console.log(`${LOG_PREFIX} Loading auth token from storage`);
-      this.token = TokenStorage.get() ?? null;
+      console.log(`${LOG_PREFIX} Loading auth token from auth store`);
+      // Import here to avoid circular dependency
+      const { useAuthStore } = await import("@/stores/authStore");
+      this.token = useAuthStore.getState().token;
       if (!this.token) {
         throw new Error("Authentication token not available");
       }
@@ -325,7 +326,9 @@ class SyncEngine {
 
   async loadToken(): Promise<string | null> {
     try {
-      const token = TokenStorage.get() ?? null;
+      // Import here to avoid circular dependency
+      const { useAuthStore } = await import("@/stores/authStore");
+      const token = useAuthStore.getState().token;
       this.setToken(token);
       return token;
     } catch (error) {
