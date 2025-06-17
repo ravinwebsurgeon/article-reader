@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { NativeModules } from "react-native";
 import { sendExtensionAuthToken, sendExtensionLogout } from "@/utils/extension";
-import { mmkvJSONStateStorage } from "./mmkvStateStorage";
+import { mmkvJSONStateStorage, clearAllStorage } from "./mmkvStateStorage";
 
 const { TokenManager } = NativeModules;
 
@@ -162,6 +162,11 @@ export const useAuthStore = create<AuthState>()(
         // Always clear local state regardless of API success
         deleteTokenFromNative();
         sendExtensionLogout();
+
+        // Clear all MMKV storage (including other Zustand stores)
+        clearAllStorage();
+
+        // Setup flags will be cleared with MMKV clearAll()
 
         set({
           token: null,

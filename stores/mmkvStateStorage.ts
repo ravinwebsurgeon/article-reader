@@ -2,7 +2,7 @@ import { StateStorage, createJSONStorage } from "zustand/middleware";
 import { MMKV } from "react-native-mmkv";
 
 // MMKV instance for Zustand stores
-const storage = new MMKV({
+export const storage = new MMKV({
   id: "folio-shared",
 });
 
@@ -31,3 +31,8 @@ const mmkvStateStorage: StateStorage = {
 
 // Ready-to-use JSON storage for Zustand persist middleware
 export const mmkvJSONStateStorage = createJSONStorage(() => mmkvStateStorage);
+
+// Clear all MMKV storage
+export const clearAllStorage = () => {
+  storage.clearAll();
+};
