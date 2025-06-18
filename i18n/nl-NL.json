@@ -43,7 +43,13 @@
       "button": "Account aanmaken",
       "submitting": "Account aanmaken...",
       "hasAccount": "Heb je al een account?",
-      "logIn": "Inloggen"
+      "logIn": "Inloggen",
+      "legal": {
+        "agreement": "Door je aan te melden, ga je akkoord met onze",
+        "termsOfService": "Servicevoorwaarden",
+        "and": "en",
+        "privacyPolicy": "Privacybeleid"
+      }
     },
     "authStart": {
       "title": "Welkom bij Folio",

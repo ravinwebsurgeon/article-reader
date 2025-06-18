@@ -43,7 +43,13 @@
       "button": "Utwórz konto",
       "submitting": "Tworzenie konta...",
       "hasAccount": "Masz już konto?",
-      "logIn": "Zaloguj się"
+      "logIn": "Zaloguj się",
+      "legal": {
+        "agreement": "Rejestrując się, akceptujesz nasze",
+        "termsOfService": "Warunki korzystania z usługi",
+        "and": "i",
+        "privacyPolicy": "Polityka prywatności"
+      }
     },
     "authStart": {
       "title": "Witaj w Folio",

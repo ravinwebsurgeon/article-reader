@@ -43,7 +43,13 @@
       "button": "Create Account",
       "submitting": "Creating account...",
       "hasAccount": "Already have an account?",
-      "logIn": "Sign In"
+      "logIn": "Sign In",
+      "legal": {
+        "agreement": "By signing up, you agree to our",
+        "termsOfService": "Terms of Service",
+        "and": "and",
+        "privacyPolicy": "Privacy Policy"
+      }
     },
     "authStart": {
       "title": "Welcome to Folio",
