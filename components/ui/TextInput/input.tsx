@@ -53,7 +53,7 @@ export const Input = <T extends FieldValues>({
   numberOfLines = 1,
   style,
   onSubmitEditing,
-  returnKeyType = "next",
+  returnKeyType = "default",
   autoComplete,
   textContentType,
 }: InputProps<T>) => {
@@ -104,7 +104,7 @@ export const Input = <T extends FieldValues>({
                 onPress={() => setIsSecureTextVisible(!isSecureTextVisible)}
                 accessibilityLabel={isSecureTextVisible ? "Hide password" : "Show password"}
                 accessibilityRole="button"
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
                 <Ionicons
                   name={isSecureTextVisible ? "eye-off-outline" : "eye-outline"}
@@ -147,21 +147,21 @@ const makeStyles = (theme: Theme) =>
       paddingBottom: 12,
       textAlignVertical: "top",
     },
-    inputWithIcon: { paddingLeft: 44 },
-    inputWithSecureToggle: { paddingRight: 44 },
+    inputWithIcon: { paddingLeft: 48 },
+    inputWithSecureToggle: { paddingRight: 48 },
     inputError: { borderColor: theme.colors.error.main },
     iconContainer: {
       position: "absolute",
       left: 16,
       top: "50%",
-      transform: [{ translateY: -10 }],
+      transform: [{ translateY: -12 }],
       zIndex: 1,
     },
     secureTextToggle: {
       position: "absolute",
-      right: 8,
+      right: 12,
       top: "50%",
-      transform: [{ translateY: -12 }],
+      transform: [{ translateY: -16 }],
       zIndex: 1,
       width: 32,
       height: 32,

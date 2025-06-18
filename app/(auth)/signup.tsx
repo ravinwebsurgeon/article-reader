@@ -19,6 +19,8 @@ import { Input } from "@/components/ui/TextInput/input";
 import { SvgIcon } from "@/components/SvgIcon";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
+import { useAlert } from "@/provider/AlertProvider";
+import { AlertPresets } from "@/utils/alert";
 import zxcvbn from "zxcvbn";
 
 interface SignUpFormData {
@@ -30,6 +32,7 @@ interface SignUpFormData {
 function SignUpScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
+  const alert = useAlert();
   const { register, isLoading } = useAuthStore();
   const { setShowPocketImport } = useFirstRunStore();
   const { control, handleSubmit, setFocus, getValues } = useForm<SignUpFormData>({
@@ -52,9 +55,14 @@ function SignUpScreen() {
       // Set flag to show Pocket import prompt for new users
       setShowPocketImport(true);
       // Registration success - Zustand will handle navigation via auth state change
-    } catch (error: unknown) {
-      console.error(error);
-      // Error handling is done in the store, error will be shown via alert
+    } catch (err) {
+      console.error("Registration failed", err);
+      alert.show(
+        AlertPresets.error(
+          "Registration Failed",
+          err instanceof Error ? err.message : "An error occurred",
+        ),
+      );
     }
   };
 
@@ -186,6 +194,7 @@ function SignUpScreen() {
               style={dynamicStyles.signUpButton}
               rightIcon={null}
               loading={isLoading}
+              disabled={isLoading}
             />
           </ThemeView>
 

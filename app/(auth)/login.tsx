@@ -60,9 +60,9 @@ function LoginScreen() {
     router.push("/(auth)/signup");
   };
 
-  const navigateToForgotPassword = () => {
-    // navigation.navigate("ForgotPassword");
-  };
+  // const navigateToForgotPassword = () => {
+  //   // navigation.navigate("ForgotPassword");
+  // };
 
   const dynamicStyles: {
     container: ViewStyle;
@@ -198,6 +198,7 @@ function LoginScreen() {
               textContentType="password"
             />
 
+            {/* Temporarily hidden - forgot password functionality not implemented
             <TouchableOpacity
               style={styles.forgotPasswordContainer}
               onPress={navigateToForgotPassword}
@@ -206,6 +207,7 @@ function LoginScreen() {
                 {t("auth.login.forgotPassword")}
               </ThemeText>
             </TouchableOpacity>
+            */}
 
             <Button
               title={t("auth.login.button")}
@@ -213,6 +215,7 @@ function LoginScreen() {
               style={dynamicStyles.signInButton}
               rightIcon={null}
               loading={isLoading}
+              disabled={isLoading}
             />
           </ThemeView>
 
