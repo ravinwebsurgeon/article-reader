@@ -39,8 +39,8 @@ export default function AccountSettingsScreen() {
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background.default }]}>
       <ThemeView style={styles.container} padded="lg">
         <ThemeView style={styles.header}>
-          <TouchableOpacity 
-            style={styles.backButton} 
+          <TouchableOpacity
+            style={styles.backButton}
             onPress={() => router.back()}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
