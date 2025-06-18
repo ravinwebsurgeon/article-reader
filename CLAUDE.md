@@ -182,6 +182,53 @@ App supports receiving shared URLs via `ShareHandler` - handles both cold starts
 
 iOS and Android share extensions are available for saving articles directly from other apps. Extension code is located in `/ios/FolioShare/` and uses a separate build process. The `postprebuild:ios` script restores share extension code after prebuild.
 
+## Critical Configuration Changes
+
+### Web Platform Fixes (Required for Expo SDK 53+)
+
+The following configuration changes are **REQUIRED** to make the web platform work with Expo SDK 53+ and Zustand:
+
+#### 1. Metro Configuration (`metro.config.js`) - **CRITICAL**
+
+```js
+const { getDefaultConfig } = require("expo/metro-config");
+const config = getDefaultConfig(__dirname);
+
+// Fix for import.meta issues with Zustand in Expo SDK 53
+config.resolver.unstable_enablePackageExports = false;
+
+module.exports = config;
+```
+
+#### 2. App Configuration (`app.json`) - **RECOMMENDED**
+
+```json
+{
+  "expo": {
+    "web": {
+      "bundler": "metro",
+      "output": "single", // SPA mode - recommended for this app
+      "favicon": "./assets/images/favicon.png"
+    }
+  }
+}
+```
+
+**Why These Changes Are Needed:**
+
+- **Metro config** (`unstable_enablePackageExports = false`) is the **critical fix** for Zustand's `import.meta` issues in Expo SDK 53+
+- **SPA mode** (`"output": "single"`) is **recommended** for this app architecture because:
+  - Eliminates potential SSR issues with MMKV storage hydration
+  - Better suited for authentication-heavy apps with client-side state
+  - Simpler deployment and hosting (single HTML file + assets)
+  - No SEO requirements since it's a user-authenticated app
+
+**Note:** While `"output": "static"` also works with the Metro fix, `"single"` is the better architectural choice for this type of application.
+
+**Reference:** [Expo GitHub Issue #36384](https://github.com/expo/expo/issues/36384)
+
+⚠️ **IMPORTANT**: These configurations are critical for web platform functionality. Do not modify without understanding the implications.
+
 ## Development Guidelines
 
 ### File Creation Policy
