@@ -1,4 +1,4 @@
-import { StyleSheet, Pressable, Alert } from "react-native";
+import { StyleSheet, Pressable, Alert, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemeText, ThemeView } from "@/components";
 import { Ionicons } from "@expo/vector-icons";
@@ -39,9 +39,13 @@ export default function AccountSettingsScreen() {
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background.default }]}>
       <ThemeView style={styles.container} padded="lg">
         <ThemeView style={styles.header}>
-          <Pressable style={styles.backButton} onPress={() => router.back()}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
             <Ionicons name="chevron-back" size={24} color={theme.colors.primary.main} />
-          </Pressable>
+          </TouchableOpacity>
           <ThemeText variant="body1" style={[styles.headerTitle, { fontWeight: "600" }]}>
             {t("settings.account") || "Account"}
           </ThemeText>
@@ -98,9 +102,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     marginBottom: 16,
   },
-  dangerSection: {
-    marginTop: 32,
-  },
+  dangerSection: {},
   settingItem: {
     flexDirection: "row",
     alignItems: "center",
