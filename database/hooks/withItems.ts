@@ -3,8 +3,11 @@ import { withObservables } from "@nozbe/watermelondb/react";
 import { map } from "rxjs/operators";
 import Item from "../models/ItemModel";
 import database from "@/database";
-import { ItemFilter } from "@/types/item";
 import { SortOption } from "@/components/shared/menu/SortMenu";
+import { api } from "@/utils/api";
+
+// Filter types
+export type ItemFilter = "all" | "favorites" | "tagged" | "short" | "long" | "archived";
 
 /**
  * Access to the items collection in the WatermelonDB database
@@ -27,6 +30,15 @@ export const createItem = async (url: string) => {
     });
     return newItem;
   });
+};
+
+/**
+ * Creates a new item via API call
+ * @param url - The URL to be saved
+ * @returns Promise that resolves when item is created on server
+ */
+export const createItemViaAPI = async (url: string) => {
+  return api.post("/items", { item: { url } });
 };
 
 /**

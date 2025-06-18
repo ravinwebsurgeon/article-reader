@@ -3,8 +3,8 @@ import { FlatList, StyleSheet, RefreshControl } from "react-native";
 import { useRouter } from "expo-router";
 import NoUIFound from "@/components/shared/emptyState/NoUIFound";
 import Item from "@/database/models/ItemModel";
-import { ItemFilter } from "@/types/item";
-import { syncEngine } from "@/database/sync/SyncEngine";
+import { ItemFilter } from "@/database/hooks/withItems";
+import { useSync } from "@/database/provider/SyncProvider";
 import ItemCard, { ITEM_CARD_HEIGHT } from "@/components/item/ItemCard";
 
 interface ItemsFlatListProps {
@@ -15,6 +15,7 @@ interface ItemsFlatListProps {
 
 const ItemsFlatList = memo(({ items, filter, archivedCount }: ItemsFlatListProps) => {
   const router = useRouter();
+  const { syncEngine } = useSync();
   const [isSyncing, setIsSyncing] = useState(false);
 
   const handleRefresh = useCallback(async () => {
@@ -26,7 +27,7 @@ const ItemsFlatList = memo(({ items, filter, archivedCount }: ItemsFlatListProps
     } finally {
       setIsSyncing(false);
     }
-  }, []);
+  }, [syncEngine]);
 
   const navigateToArticle = useCallback(
     (item: Item) => {

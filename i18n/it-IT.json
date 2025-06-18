@@ -131,7 +131,11 @@
     "help": "Aiuto e Supporto",
     "about": "Informazioni",
     "logout": "Disconnetti",
-    "logoutConfirmMessage": "Sei sicuro di voler disconnetterti?"
+    "logoutConfirmMessage": "Sei sicuro di voler disconnetterti?",
+    "deleteAccount": "Elimina account",
+    "deleteAccountConfirmMessage": "Sei sicuro di voler eliminare il tuo account? Questa azione non può essere annullata e cancellerà permanentemente tutti i tuoi dati.",
+    "deleteAccountError": "Si è verificato un errore durante l'eliminazione del tuo account. Riprova.",
+    "deletingAccount": "Eliminazione del tuo account..."
   },
   "import": {
     "pocket": {

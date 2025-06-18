@@ -8,13 +8,12 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useMemo } from "react";
 import "react-native-reanimated";
-import { useAppSelector } from "@/redux/hook";
-import { ReduxProvider } from "@/provider/ReduxProvider";
-import { selectActiveTheme } from "@/redux/utils";
+import { useAuthStore } from "@/stores/authStore";
+import { useThemeStore } from "@/stores/themeStore";
 import { ThemeProvider } from "@/theme";
 import { ThemeStatusBar } from "@/components/primitives";
-import { DatabaseProvider, useDatabase } from "@/database/provider/DatabaseProvider";
-import { NetworkProvider } from "@/provider/NetworkProvider";
+import { DatabaseProvider, useDatabaseReady } from "@/database/provider/DatabaseProvider";
+import { SyncProvider, useSyncReady } from "@/database/provider/SyncProvider";
 import "@/i18n"; // Import i18n configuration
 import { AlertProvider } from "@/provider/AlertProvider";
 
@@ -75,6 +74,12 @@ const STACK_CONFIG = {
         presentation: "modal" as const,
       },
     },
+    {
+      name: "add-article",
+      options: {
+        presentation: "modal" as const,
+      },
+    },
   ],
 };
 
@@ -89,17 +94,34 @@ const STACK_CONFIG = {
  * and the database is initialized.
  */
 function AppContent() {
-  const { isReady: isDatabaseReady } = useDatabase();
+  const isDatabaseReady = useDatabaseReady();
+  const isSyncReady = useSyncReady();
+  const { isAuthenticated } = useAuthStore();
   const [fontsLoaded] = useFonts(FONTS);
 
+  // For authenticated users, wait for both database and sync to be ready
+  // For unauthenticated users, only wait for database
+  const isAppReady = fontsLoaded && isDatabaseReady && (isAuthenticated ? isSyncReady : true);
+
   useEffect(() => {
-    console.log("fontsLoaded", fontsLoaded);
-    if (fontsLoaded && isDatabaseReady) {
+    console.log(
+      "fontsLoaded",
+      fontsLoaded,
+      "isDatabaseReady",
+      isDatabaseReady,
+      "isSyncReady",
+      isSyncReady,
+      "isAuthenticated",
+      isAuthenticated,
+      "isAppReady",
+      isAppReady,
+    );
+    if (isAppReady) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, isDatabaseReady]);
+  }, [fontsLoaded, isDatabaseReady, isSyncReady, isAuthenticated, isAppReady]);
 
-  if (!fontsLoaded || !isDatabaseReady) {
+  if (!isAppReady) {
     return null;
   }
 
@@ -116,8 +138,11 @@ function AppContent() {
  * - Status bar configuration
  */
 function RootLayoutNav() {
-  const activeTheme = useAppSelector(selectActiveTheme);
-  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  const { isAuthenticated } = useAuthStore();
+  const { mode: themeMode, systemPrefersDark } = useThemeStore();
+
+  // Calculate active theme
+  const activeTheme = themeMode === "system" ? (systemPrefersDark ? "dark" : "light") : themeMode;
 
   // Memoize theme value to prevent unnecessary re-renders
   const themeValue = useMemo(
@@ -150,18 +175,14 @@ function RootLayoutNav() {
  * RootLayout component
  * The main entry point for the app's component tree.
  * Sets up the core providers:
- * - ReduxProvider: Global state management
  * - DatabaseProvider: Local database and sync
- * - NetworkProvider: Network connectivity monitoring
  */
 export default function RootLayout() {
   return (
-    <ReduxProvider>
-      <DatabaseProvider>
-        <NetworkProvider>
-          <AppContent />
-        </NetworkProvider>
-      </DatabaseProvider>
-    </ReduxProvider>
+    <DatabaseProvider>
+      <SyncProvider>
+        <AppContent />
+      </SyncProvider>
+    </DatabaseProvider>
   );
 }

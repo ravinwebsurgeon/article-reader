@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet, Platform, ActivityIndicator } from "react-native";
 import { useTheme, type Theme } from "@/theme";
-import { ItemFilter } from "@/types/item";
+import { ItemFilter } from "@/database/hooks/withItems";
 import { ThemeText } from "@/components/primitives";
 import Svg, { Path } from "react-native-svg";
 import { useTranslation } from "react-i18next";

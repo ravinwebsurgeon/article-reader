@@ -1,9 +1,9 @@
 import { Redirect } from "expo-router";
-import { useAppSelector } from "@/redux/hook";
+import { useAuthStore } from "@/stores/authStore";
 
 export default function Index() {
-  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
-  const path = isAuthenticated ? "/" : "/signup";
+  const { isAuthenticated } = useAuthStore();
+  const path = isAuthenticated ? "/(tabs)" : "/signup";
 
   // Redirect to tabs if authenticated, otherwise to auth signup screen
   return <Redirect href={path} />;

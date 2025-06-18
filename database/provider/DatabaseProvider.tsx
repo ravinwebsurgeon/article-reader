@@ -1,35 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { useAppSelector } from "@/redux/hook";
-import { selectAuthToken } from "@/redux/utils";
-import { syncEngine } from "../sync/SyncEngine";
 import database from "@/database";
-
-// Set the database instance in the sync engine
-syncEngine.setDatabase(database);
-
-// Automatically sync changes from the database
-syncEngine.watchForChanges();
 
 // Create a context for database access
 export const DatabaseContext = React.createContext<{
   database: typeof database;
-  syncEngine: typeof syncEngine;
   isReady: boolean;
-}>({ database, syncEngine, isReady: false });
+}>({ database, isReady: false });
 
 export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const token = useAppSelector(selectAuthToken);
 
   // Initialize database
   useEffect(() => {
     const initialize = async () => {
       try {
-        // Set token in sync engine if available
-        if (token) {
-          syncEngine.setToken(token);
-        }
+        // Database initialization is now purely local
         setIsReady(true);
       } catch (err) {
         console.error("Database initialization error:", err);
@@ -39,21 +25,14 @@ export const DatabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
 
     initialize();
-  }, [token]);
-
-  // Update token in sync engine when it changes
-  useEffect(() => {
-    syncEngine.setToken(token);
-  }, [token]);
+  }, []);
 
   if (error) {
     console.warn("Database initialized with errors, continuing in offline mode");
   }
 
   return (
-    <DatabaseContext.Provider value={{ database, syncEngine, isReady }}>
-      {children}
-    </DatabaseContext.Provider>
+    <DatabaseContext.Provider value={{ database, isReady }}>{children}</DatabaseContext.Provider>
   );
 };
 
@@ -64,4 +43,12 @@ export const useDatabase = () => {
     throw new Error("useDatabase must be used within a DatabaseProvider");
   }
   return context;
+};
+
+export const useDatabaseReady = () => {
+  const context = React.useContext(DatabaseContext);
+  if (!context) {
+    throw new Error("useDatabaseReady must be used within a DatabaseProvider");
+  }
+  return context.isReady;
 };
