@@ -1,6 +1,7 @@
 import { synchronize } from "@nozbe/watermelondb/sync";
 import { Database } from "@nozbe/watermelondb";
 import Constants from "expo-constants";
+import { Platform } from "react-native";
 import { debounce, throttle, DebouncedFunc } from "lodash-es";
 import { Subscription } from "rxjs";
 import ItemContentSyncer from "./ItemContentSyncer";
@@ -145,8 +146,8 @@ export class SyncEngine {
   private async _syncWithServer(isFirstSync = false): Promise<void> {
     console.log(`${LOG_PREFIX} Syncing with server`);
 
-    // Enable turbo sync for first sync to improve performance
-    const useTurbo = isFirstSync;
+    // Enable turbo sync for first sync to improve performance (not on web)
+    const useTurbo = isFirstSync && Platform.OS !== "web";
 
     await synchronize({
       database: this.database,
