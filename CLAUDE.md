@@ -18,6 +18,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `yarn lint-type-check` - Run both lint and type check (run before commits)
 - `yarn format` - Format code with Prettier
 - `yarn format:check` - Check formatting without writing
+- `yarn claude:check` - Format, lint, and type check (recommended for Claude Code)
 
 ### Build and Deploy Commands
 
@@ -49,12 +50,12 @@ This is an Expo React Native app using:
 - **Content Syncing**: Separate `ItemContentSyncer` for article content
 - **Database Provider**: React context providing database access throughout app
 
-#### 2. State Management (Redux + RTK Query)
+#### 2. State Management (Zustand)
 
-- **Store**: Persisted with Redux Persist (auth, theme)
-- **API Services**: `authApi`, `userApi`, main `api` service
-- **Slices**: `authSlice`, `themeSlice`, `networkSlice`
-- **Middleware**: Custom token refresh middleware
+- **Auth Store**: `authStore.ts` - Authentication state with MMKV persistence
+- **Theme Store**: `themeStore.ts` - Theme preferences with MMKV persistence
+- **Storage**: MMKV-based persistence with `mmkvStateStorage.ts`
+- **API Calls**: Direct fetch calls via `utils/api.ts`
 
 #### 3. Theme System
 
@@ -88,9 +89,9 @@ This is an Expo React Native app using:
 
 #### Authentication Flow
 
-- Token stored in Redux (persisted) and AsyncStorage
-- Token refresh middleware handles expired tokens
-- SyncEngine automatically uses current auth token
+- Token stored in Zustand auth store with MMKV persistence
+- Token refresh handled in API utility functions
+- SyncEngine automatically uses current auth token from store
 
 ### File-based Routing
 
@@ -132,10 +133,11 @@ import { ThemeView, ThemeText } from "@/components/primitives";
 
 ### API Calls
 
-Use RTK Query hooks from `/redux/services/`:
+Use API utilities from `/utils/api.ts`:
 
 ```tsx
-import { useGetUserQuery } from "@/redux/services/userApi";
+import { apiCall } from "@/utils/api";
+// API calls are handled directly with fetch, no RTK Query
 ```
 
 ### Path Aliases
@@ -152,9 +154,13 @@ import { useGetUserQuery } from "@/redux/services/userApi";
 
 ## Development Notes
 
+### Recent Architecture Changes
+
+**Redux to Zustand Migration**: The codebase recently migrated from Redux Toolkit + RTK Query to Zustand with MMKV persistence. Auth and theme state are now managed in separate Zustand stores (`authStore.ts`, `themeStore.ts`). API calls are handled directly via fetch utilities rather than RTK Query hooks.
+
 ### Running Linting/Type Checking
 
-Always run `yarn lint-type-check` before committing changes. The project uses TypeScript strict mode.
+Always run `yarn claude:check` after making changes. This command formats, lints, and type-checks the code in one step. For manual operations, use `yarn lint-type-check` before committing changes. The project uses TypeScript strict mode.
 
 ### Database Migrations
 
@@ -176,6 +182,53 @@ App supports receiving shared URLs via `ShareHandler` - handles both cold starts
 
 iOS and Android share extensions are available for saving articles directly from other apps. Extension code is located in `/ios/FolioShare/` and uses a separate build process. The `postprebuild:ios` script restores share extension code after prebuild.
 
+## Critical Configuration Changes
+
+### Web Platform Fixes (Required for Expo SDK 53+)
+
+The following configuration changes are **REQUIRED** to make the web platform work with Expo SDK 53+ and Zustand:
+
+#### 1. Metro Configuration (`metro.config.js`) - **CRITICAL**
+
+```js
+const { getDefaultConfig } = require("expo/metro-config");
+const config = getDefaultConfig(__dirname);
+
+// Fix for import.meta issues with Zustand in Expo SDK 53
+config.resolver.unstable_enablePackageExports = false;
+
+module.exports = config;
+```
+
+#### 2. App Configuration (`app.json`) - **RECOMMENDED**
+
+```json
+{
+  "expo": {
+    "web": {
+      "bundler": "metro",
+      "output": "single", // SPA mode - recommended for this app
+      "favicon": "./assets/images/favicon.png"
+    }
+  }
+}
+```
+
+**Why These Changes Are Needed:**
+
+- **Metro config** (`unstable_enablePackageExports = false`) is the **critical fix** for Zustand's `import.meta` issues in Expo SDK 53+
+- **SPA mode** (`"output": "single"`) is **recommended** for this app architecture because:
+  - Eliminates potential SSR issues with MMKV storage hydration
+  - Better suited for authentication-heavy apps with client-side state
+  - Simpler deployment and hosting (single HTML file + assets)
+  - No SEO requirements since it's a user-authenticated app
+
+**Note:** While `"output": "static"` also works with the Metro fix, `"single"` is the better architectural choice for this type of application.
+
+**Reference:** [Expo GitHub Issue #36384](https://github.com/expo/expo/issues/36384)
+
+⚠️ **IMPORTANT**: These configurations are critical for web platform functionality. Do not modify without understanding the implications.
+
 ## Development Guidelines
 
 ### File Creation Policy
@@ -186,7 +239,7 @@ iOS and Android share extensions are available for saving articles directly from
 
 ### Code Standards
 
-- Always run `yarn lint-type-check` before committing changes
+- Always run `yarn claude:check` after making changes
 - Follow existing code patterns and conventions in the codebase
 - Use theme system components and tokens instead of hardcoded values
 - Maintain TypeScript strict mode compliance

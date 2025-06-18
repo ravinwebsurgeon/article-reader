@@ -1,13 +1,13 @@
 import React, { useState, useMemo, memo, useEffect } from "react";
 import NoUIFound from "@/components/shared/emptyState/NoUIFound";
-import { syncEngine } from "@/database/sync/SyncEngine";
+import { useSync } from "@/database/provider/SyncProvider";
 import { withItems } from "@/database/hooks/withItems";
 import Item from "@/database/models/ItemModel";
-import { ItemFilter } from "@/types/item";
+import { ItemFilter } from "@/database/hooks/withItems";
 import { SortOption } from "@/components/shared/menu/SortMenu";
-import { storage } from "@/utils/storage";
 import ItemsFlatList from "@/components/item/ItemsFlatList";
 import { router } from "expo-router";
+import { useFirstRunStore } from "@/stores/firstRunStore";
 
 const ItemsListWithInitialSync = ({
   filter,
@@ -19,6 +19,16 @@ const ItemsListWithInitialSync = ({
   const [shouldFetchItems, setShouldFetchItems] = useState(false);
   const [isCheckingSync, setIsCheckingSync] = useState(true);
   const [isPerformingInitialSync, setIsPerformingInitialSync] = useState(false);
+  const { syncEngine } = useSync();
+
+  const {
+    completedFirstSync,
+    showPocketImport,
+    isLoaded,
+    setCompletedFirstSync,
+    clearShowPocketImport,
+  } = useFirstRunStore();
+
   const ObservableItemsPresenter = memo(
     ({
       items,
@@ -38,11 +48,13 @@ const ItemsListWithInitialSync = ({
     let isMounted = true;
 
     const performInitialSync = async () => {
-      try {
-        const completedFirstSync = storage.getBoolean("completed_first_sync");
-        const isFirstSync = !completedFirstSync;
+      // Wait for store to be loaded from storage
+      if (!isLoaded) {
+        return;
+      }
 
-        console.log("First sync needed:", isFirstSync);
+      try {
+        const isFirstSync = !completedFirstSync;
 
         if (isFirstSync) {
           // For first sync: show UI, await sync, then show items
@@ -52,17 +64,16 @@ const ItemsListWithInitialSync = ({
           }
 
           await syncEngine.sync(true);
-          storage.set("completed_first_sync", true);
+          setCompletedFirstSync(true);
 
           if (isMounted) {
             setShouldFetchItems(true);
           }
 
           // Check if we should show Pocket import prompt for new users
-          const showPocketImport = storage.getBoolean("show_pocket_import");
           if (showPocketImport) {
             // Remove the flag immediately to prevent showing again
-            storage.delete("show_pocket_import");
+            clearShowPocketImport();
             // Wait for main screen to load, then show import modal
             setTimeout(() => {
               router.push("/import-pocket");
@@ -97,7 +108,13 @@ const ItemsListWithInitialSync = ({
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [
+    isLoaded,
+    completedFirstSync,
+    showPocketImport,
+    setCompletedFirstSync,
+    clearShowPocketImport,
+  ]);
 
   const DataConnectedPresenter = useMemo(() => {
     return withItems({ filter, sorted })(ObservableItemsPresenter);

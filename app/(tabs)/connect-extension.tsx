@@ -6,19 +6,19 @@ import { ThemeText, ThemeView } from "@/components";
 import { SvgIcon } from "@/components/SvgIcon";
 import { useTranslation } from "react-i18next";
 import { sendExtensionAuthToken } from "@/utils/extension";
-import { TokenStorage } from "@/utils/storage";
+import { useAuthStore } from "@/stores/authStore";
 
 function ConnectExtension() {
   const theme = useTheme();
   const { t } = useTranslation();
+  const { token } = useAuthStore();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const storedToken = TokenStorage.get();
-        if (storedToken) {
-          sendExtensionAuthToken(storedToken);
+        if (token) {
+          sendExtensionAuthToken(token);
         }
       } catch {
         // Silent error handling
@@ -28,7 +28,7 @@ function ConnectExtension() {
     };
 
     checkAuth();
-  }, []);
+  }, [token]);
 
   const dynamicStyles: {
     container: ViewStyle;

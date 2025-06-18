@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import FilterTabs from "@/components/shared/tabBar/FilterTabs";
-import { ItemFilter } from "@/types/item";
+import { ItemFilter } from "@/database/hooks/withItems";
 import { SortOption } from "@/components/shared/menu/SortMenu";
 
 interface ItemFilterTabsProps {

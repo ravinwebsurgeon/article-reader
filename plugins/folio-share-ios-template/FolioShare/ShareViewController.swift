@@ -8,6 +8,9 @@ class ShareViewController: UIViewController {
     let contentContainer = UIView()
     let iconView = UIImageView()
     let messageLabel = UILabel()
+    
+    // Timing constants
+    private let SAVING_UI_DELAY: TimeInterval = 0.25  // 250ms delay before API request
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -129,7 +132,7 @@ class ShareViewController: UIViewController {
             if itemProvider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
                 if let url = await loadURL(from: itemProvider) {
                     await MainActor.run {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + SAVING_UI_DELAY) {
                             self.saveUrlToServer(url)
                         }
                     }

@@ -131,7 +131,11 @@
     "help": "Aide et support",
     "about": "À propos",
     "logout": "Se déconnecter",
-    "logoutConfirmMessage": "Êtes-vous sûr de vouloir vous déconnecter ?"
+    "logoutConfirmMessage": "Êtes-vous sûr de vouloir vous déconnecter ?",
+    "deleteAccount": "Supprimer le compte",
+    "deleteAccountConfirmMessage": "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action ne peut pas être annulée et supprimera définitivement toutes vos données.",
+    "deleteAccountError": "Une erreur s'est produite lors de la suppression de votre compte. Veuillez réessayer.",
+    "deletingAccount": "Suppression de votre compte..."
   },
   "import": {
     "pocket": {

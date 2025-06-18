@@ -131,7 +131,11 @@
     "help": "ヘルプとサポート",
     "about": "このアプリについて",
     "logout": "ログアウト",
-    "logoutConfirmMessage": "ログアウトしますか？"
+    "logoutConfirmMessage": "ログアウトしますか？",
+    "deleteAccount": "アカウントを削除",
+    "deleteAccountConfirmMessage": "アカウントを削除してもよろしいですか？この操作は元に戻すことができず、すべてのデータが完全に削除されます。",
+    "deleteAccountError": "アカウントの削除中にエラーが発生しました。もう一度お試しください。",
+    "deletingAccount": "アカウントを削除中..."
   },
   "import": {
     "pocket": {
