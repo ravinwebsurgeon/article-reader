@@ -18,7 +18,7 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/theme";
 import { isValidUrl } from "@/utils/validation";
-import { createItem } from "@/database/hooks/withItems";
+import { createItemViaAPI } from "@/database/hooks/withItems";
 import { useTranslation } from "react-i18next";
 
 export default function AddArticleScreen() {
@@ -61,22 +61,11 @@ export default function AddArticleScreen() {
 
     try {
       setIsLoading(true);
-      // Create item in WatermelonDB
-      await createItem(formattedUrl);
+      // Create item via API
+      await createItemViaAPI(formattedUrl);
 
-      // Show success alert with options
-      Alert.alert("Article Saved", "The article has been saved to your Folio.", [
-        {
-          text: "Add Another",
-          onPress: () => setUrl(""),
-          style: "default",
-        },
-        {
-          text: "View List",
-          onPress: handleBack,
-          style: "default",
-        },
-      ]);
+      // Close the screen after successful save
+      handleBack();
     } catch {
       Alert.alert("Error", "There was a problem saving this article. Please try again.");
     } finally {
@@ -190,7 +179,7 @@ export default function AddArticleScreen() {
             {isLoading ? (
               <ActivityIndicator color={theme.colors.primary.contrast} size="small" />
             ) : (
-              <Text style={dynamicStyles.saveButtonText}>{t("addArticle.saveButton")}</Text>
+              <Text style={dynamicStyles.saveButtonText}>{t("common.save")}</Text>
             )}
           </TouchableOpacity>
 

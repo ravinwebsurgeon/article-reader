@@ -74,6 +74,12 @@ const STACK_CONFIG = {
         presentation: "modal" as const,
       },
     },
+    {
+      name: "add-article",
+      options: {
+        presentation: "modal" as const,
+      },
+    },
   ],
 };
 
