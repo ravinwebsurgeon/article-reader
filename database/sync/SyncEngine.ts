@@ -1,7 +1,7 @@
 import { synchronize } from "@nozbe/watermelondb/sync";
 import { Database } from "@nozbe/watermelondb";
 import Constants from "expo-constants";
-import { debounce, DebouncedFunc } from "lodash-es";
+import { debounce, throttle, DebouncedFunc } from "lodash-es";
 import { Subscription } from "rxjs";
 import ItemContentSyncer from "./ItemContentSyncer";
 import { ServerChangesWatcher } from "./ServerChangesWatcher";
@@ -58,17 +58,17 @@ export class SyncEngine {
       trailing: true,
     });
 
-    // Create debounced server notification handler - prevents notification spam
-    this.debouncedServerSync = debounce(
+    // Create throttled server notification handler - prevents notification spam
+    this.debouncedServerSync = throttle(
       () => {
         this.sync().catch((error: Error) => {
           console.error(`${LOG_PREFIX} Server notification sync failed:`, error);
         });
       },
-      1000,
+      5000,
       {
         leading: true,
-        trailing: false, // Don't need trailing for server notifications
+        trailing: true, // Ensure we don't miss final state of server changes
       },
     );
 
