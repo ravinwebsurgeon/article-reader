@@ -43,7 +43,13 @@
       "button": "アカウントを作成",
       "submitting": "アカウントを作成中...",
       "hasAccount": "すでにアカウントをお持ちですか？",
-      "logIn": "サインイン"
+      "logIn": "サインイン",
+      "legal": {
+        "agreement": "登録することで、当社の",
+        "termsOfService": "利用規約",
+        "and": "および",
+        "privacyPolicy": "プライバシーポリシー"
+      }
     },
     "authStart": {
       "title": "Folioへようこそ",

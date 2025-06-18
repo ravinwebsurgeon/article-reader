@@ -43,7 +43,13 @@
       "button": "Criar conta",
       "submitting": "Criando conta...",
       "hasAccount": "Já tem uma conta?",
-      "logIn": "Entrar"
+      "logIn": "Entrar",
+      "legal": {
+        "agreement": "Ao se cadastrar, você concorda com nossos",
+        "termsOfService": "Termos de Serviço",
+        "and": "e",
+        "privacyPolicy": "Política de Privacidade"
+      }
     },
     "authStart": {
       "title": "Bem-vindo ao Folio",

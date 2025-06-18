@@ -8,6 +8,7 @@ import {
   ViewStyle,
   TextStyle,
 } from "react-native";
+import * as WebBrowser from "expo-web-browser";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { useForm } from "react-hook-form";
@@ -70,11 +71,21 @@ function SignUpScreen() {
     router.push("/(auth)/login");
   };
 
+  const openTermsOfService = async () => {
+    await WebBrowser.openBrowserAsync("https://savewithfolio.com/legal/terms/");
+  };
+
+  const openPrivacyPolicy = async () => {
+    await WebBrowser.openBrowserAsync("https://savewithfolio.com/legal/privacy/");
+  };
+
   const dynamicStyles: {
     container: ViewStyle;
     subtitle: TextStyle;
     signUpButton: ViewStyle;
     loginLinkText: TextStyle;
+    legalText: TextStyle;
+    legalLink: TextStyle;
   } = {
     container: {
       flex: 1,
@@ -103,6 +114,17 @@ function SignUpScreen() {
       color: theme.colors.primary.main,
       fontSize: 16,
       fontWeight: "600" as const,
+    },
+    legalText: {
+      fontSize: 14,
+      lineHeight: 20,
+      color: theme.colors.text.primary,
+      textAlign: "center" as const,
+    },
+    legalLink: {
+      color: theme.colors.primary.main,
+      fontSize: 14,
+      fontWeight: "500" as const,
     },
   };
 
@@ -198,6 +220,25 @@ function SignUpScreen() {
             />
           </ThemeView>
 
+          <ThemeView style={styles.legalContainer}>
+            <ThemeText style={dynamicStyles.legalText}>
+              {t("auth.signup.legal.agreement")}
+            </ThemeText>
+            <ThemeView style={styles.legalLinksRow}>
+              <TouchableOpacity onPress={openTermsOfService}>
+                <ThemeText style={dynamicStyles.legalLink}>
+                  {t("auth.signup.legal.termsOfService")}
+                </ThemeText>
+              </TouchableOpacity>
+              <ThemeText style={dynamicStyles.legalText}> {t("auth.signup.legal.and")} </ThemeText>
+              <TouchableOpacity onPress={openPrivacyPolicy}>
+                <ThemeText style={dynamicStyles.legalLink}>
+                  {t("auth.signup.legal.privacyPolicy")}
+                </ThemeText>
+              </TouchableOpacity>
+            </ThemeView>
+          </ThemeView>
+
           <ThemeView style={styles.loginContainer}>
             <ThemeText style={styles.loginText}>{t("auth.signup.hasAccount")} </ThemeText>
             <TouchableOpacity onPress={navigateToLogin}>
@@ -245,6 +286,17 @@ const styles = StyleSheet.create({
   },
   input: {
     marginBottom: 16,
+  },
+  legalContainer: {
+    marginTop: 24,
+    paddingHorizontal: 16,
+    alignItems: "center",
+  },
+  legalLinksRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 4,
   },
   loginContainer: {
     flexDirection: "row",

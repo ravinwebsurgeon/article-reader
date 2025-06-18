@@ -43,7 +43,13 @@
       "button": "创建账户",
       "submitting": "正在创建账户...",
       "hasAccount": "已有账户？",
-      "logIn": "登录"
+      "logIn": "登录",
+      "legal": {
+        "agreement": "注册后，您同意我们的",
+        "termsOfService": "服务条款",
+        "and": "和",
+        "privacyPolicy": "隐私政策"
+      }
     },
     "authStart": {
       "title": "欢迎使用 Folio",
