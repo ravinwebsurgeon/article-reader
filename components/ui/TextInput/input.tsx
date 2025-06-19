@@ -10,7 +10,7 @@ import {
   TextInputProps,
 } from "react-native";
 import { Controller, Control, FieldValues, Path, RegisterOptions } from "react-hook-form";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useTheme, type Theme } from "@/theme";
 import { ThemeText } from "@/components/primitives";
 import { useTranslation } from "react-i18next";

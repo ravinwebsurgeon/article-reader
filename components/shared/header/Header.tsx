@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 // Import themed components and hooks
 import { ThemeView, ThemeText, ThemeTouchable } from "@/components/primitives";
@@ -50,7 +50,7 @@ export const Header: React.FC<HeaderProps> = ({
     if (showBack) {
       return (
         <ThemeTouchable style={styles.iconButton} onPress={onBackPress}>
-          <Ionicons name="arrow-back" size={24} color={theme.colors.text.primary} />
+          <Ionicons name="arrow-back-outline" size={24} color={theme.colors.text.primary} />
         </ThemeTouchable>
       );
     }
@@ -67,13 +67,17 @@ export const Header: React.FC<HeaderProps> = ({
       <ThemeView style={styles.rightContainer} row>
         {showSearch && (
           <ThemeTouchable style={styles.iconButton} onPress={onSearchPress}>
-            <Ionicons name="search" size={24} color={theme.colors.text.primary} />
+            <Ionicons name="search-outline" size={24} color={theme.colors.text.primary} />
           </ThemeTouchable>
         )}
 
         {showMenu && (
           <ThemeTouchable style={styles.iconButton} onPress={onMenuPress}>
-            <Ionicons name="ellipsis-horizontal" size={24} color={theme.colors.text.primary} />
+            <Ionicons
+              name="ellipsis-horizontal-outline"
+              size={24}
+              color={theme.colors.text.primary}
+            />
           </ThemeTouchable>
         )}
       </ThemeView>

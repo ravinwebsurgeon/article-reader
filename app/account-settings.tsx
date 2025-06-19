@@ -1,7 +1,7 @@
 import { StyleSheet, Pressable, Alert, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemeText, ThemeView } from "@/components";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/theme";
 import { useRouter } from "expo-router";
@@ -44,7 +44,7 @@ export default function AccountSettingsScreen() {
             onPress={() => router.back()}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Ionicons name="chevron-back" size={24} color={theme.colors.primary.main} />
+            <Ionicons name="arrow-back-outline" size={24} color={theme.colors.primary.main} />
           </TouchableOpacity>
           <ThemeText variant="body1" style={[styles.headerTitle, { fontWeight: "600" }]}>
             {t("settings.account") || "Account"}

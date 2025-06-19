@@ -8,7 +8,7 @@ import { ThemeText, ThemeView } from "@/components/primitives";
 import { Button } from "@/components/shared/button/Button";
 import { useColors } from "@/theme/hooks";
 import { useAuthStore } from "@/stores/authStore";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import Svg, { Path, Circle } from "react-native-svg";
 
 type ImportStep = "explanation" | "webview" | "success";
@@ -63,19 +63,19 @@ export default function ImportPocketScreen() {
 
       <View style={styles.bulletPoints}>
         <View style={styles.bulletPoint}>
-          <Ionicons name="checkmark" size={20} color={colors.success.main} />
+          <Ionicons name="checkmark-outline" size={20} color={colors.success.main} />
           <ThemeText variant="body2" style={[styles.bulletText, { color: colors.text.primary }]}>
             {t("import.pocket.benefits.importArticles")}
           </ThemeText>
         </View>
         <View style={styles.bulletPoint}>
-          <Ionicons name="checkmark" size={20} color={colors.success.main} />
+          <Ionicons name="checkmark-outline" size={20} color={colors.success.main} />
           <ThemeText variant="body2" style={[styles.bulletText, { color: colors.text.primary }]}>
             {t("import.pocket.benefits.preserveProgress")}
           </ThemeText>
         </View>
         <View style={styles.bulletPoint}>
-          <Ionicons name="checkmark" size={20} color={colors.success.main} />
+          <Ionicons name="checkmark-outline" size={20} color={colors.success.main} />
           <ThemeText variant="body2" style={[styles.bulletText, { color: colors.text.primary }]}>
             {t("import.pocket.benefits.keepAccount")}
           </ThemeText>

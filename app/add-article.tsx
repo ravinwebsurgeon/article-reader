@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useTheme } from "@/theme";
 import { isValidUrl } from "@/utils/validation";
 import { createItemViaAPI } from "@/database/hooks/withItems";
@@ -162,7 +162,11 @@ export default function AddArticleScreen() {
 
             {url.length > 0 && (
               <TouchableOpacity style={styles.clearButton} onPress={handleClear}>
-                <Ionicons name="close-circle" size={20} color={theme.colors.text.secondary} />
+                <Ionicons
+                  name="close-circle-outline"
+                  size={20}
+                  color={theme.colors.text.secondary}
+                />
               </TouchableOpacity>
             )}
           </View>

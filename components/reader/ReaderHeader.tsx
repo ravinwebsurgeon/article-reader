@@ -1,6 +1,6 @@
 import React, { useRef, useCallback } from "react";
 import { TouchableOpacity, View, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { ThemeView, ThemeText } from "@/components/primitives";
 import { SvgIcon } from "@/components/SvgIcon";
 import { useTheme, useSpacing } from "@/theme/hooks";
@@ -108,7 +108,11 @@ export const ReaderHeader: React.FC<HeaderProps> = ({
             accessibilityLabel="Go back to saves"
             accessibilityHint="Returns to the previous screen and saves reading progress"
           >
-            <Ionicons name="chevron-back" size={CHEVRON_SIZE} color={theme.colors.text.primary} />
+            <Ionicons
+              name="chevron-back-outline"
+              size={CHEVRON_SIZE}
+              color={theme.colors.text.primary}
+            />
             <ThemeText variant="body1" style={styles.savesText}>
               Saves
             </ThemeText>
@@ -147,7 +151,11 @@ export const ReaderHeader: React.FC<HeaderProps> = ({
             accessibilityLabel="More options"
             accessibilityHint="Open menu with additional article options"
           >
-            <Ionicons name="ellipsis-horizontal" size={ICON_SIZE} color={theme.colors.icon} />
+            <Ionicons
+              name="ellipsis-horizontal-outline"
+              size={ICON_SIZE}
+              color={theme.colors.icon}
+            />
           </TouchableOpacity>
         </ThemeView>
       </ThemeView>
