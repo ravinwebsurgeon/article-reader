@@ -1,4 +1,5 @@
-import { StyleSheet, Pressable, Alert } from "react-native";
+import { StyleSheet, Pressable } from "react-native";
+import crossPlatformAlert from "@/utils/crossPlatformAlert";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemeText, ThemeView } from "@/components";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -19,7 +20,7 @@ export default function SettingsScreen() {
 
   const handleLogout = async () => {
     // Show confirmation alert
-    Alert.alert(
+    crossPlatformAlert(
       t("settings.logout") || "Logout",
       t("settings.logoutConfirmMessage") ||
         "Are you sure you want to logout? This will clear all your local data.",
@@ -50,7 +51,7 @@ export default function SettingsScreen() {
       router.replace("/(auth)/login");
     } catch (error) {
       console.error("Logout error:", error);
-      Alert.alert(
+      crossPlatformAlert(
         t("common.error") || "Error",
         t("settings.logoutError") || "An error occurred while logging out. Please try again.",
         [{ text: t("common.ok") || "OK" }],

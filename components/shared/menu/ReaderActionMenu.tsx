@@ -2,7 +2,8 @@
 import React, { useCallback } from "react";
 import Item from "@/database/models/ItemModel";
 import ReusableActionMenu, { ActionMenuItem, ActionMenuPosition } from "./ReusableActionMenu";
-import { Linking, Share, Alert } from "react-native";
+import { Linking, Share } from "react-native";
+import crossPlatformAlert from "@/utils/crossPlatformAlert";
 import { useTheme } from "@/theme";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "expo-router";
@@ -61,7 +62,7 @@ const ReaderActionMenu: React.FC<ReaderActionMenuProps> = ({
     onClose();
 
     // Show confirmation alert
-    Alert.alert(
+    crossPlatformAlert(
       t("menu.deleteConfirmation.title"),
       t("menu.deleteConfirmation.message"),
       [

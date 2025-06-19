@@ -8,11 +8,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
   ActivityIndicator,
   ViewStyle,
   TextStyle,
 } from "react-native";
+import crossPlatformAlert from "@/utils/crossPlatformAlert";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -44,7 +44,7 @@ export default function AddArticleScreen() {
   const handleSaveArticle = async () => {
     // Validate URL
     if (!url.trim()) {
-      Alert.alert("Error", "Please enter a URL");
+      crossPlatformAlert("Error", "Please enter a URL");
       return;
     }
 
@@ -55,7 +55,7 @@ export default function AddArticleScreen() {
     }
 
     if (!isValidUrl(formattedUrl)) {
-      Alert.alert("Error", "Please enter a valid URL");
+      crossPlatformAlert("Error", "Please enter a valid URL");
       return;
     }
 
@@ -67,7 +67,7 @@ export default function AddArticleScreen() {
       // Close the screen after successful save
       handleBack();
     } catch {
-      Alert.alert("Error", "There was a problem saving this article. Please try again.");
+      crossPlatformAlert("Error", "There was a problem saving this article. Please try again.");
     } finally {
       setIsLoading(false);
     }
