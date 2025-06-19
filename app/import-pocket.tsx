@@ -5,7 +5,7 @@ import WebView from "react-native-webview";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { ThemeText, ThemeView } from "@/components/primitives";
-import { Button } from "@/components/shared/button/Button";
+import { Button } from "@/components/ui/button";
 import { useColors } from "@/theme/hooks";
 import { useAuthStore } from "@/stores/authStore";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -88,14 +88,27 @@ export default function ImportPocketScreen() {
 
       <View style={styles.buttonContainer}>
         <Button
-          variant="primary"
-          size="large"
-          onPress={handleStartImport}
-          buttonStyle={styles.primaryButton}
           title={t("import.pocket.startImport")}
+          onPress={handleStartImport}
+          style={[
+            styles.primaryButton,
+            {
+              backgroundColor: colors.primary.main,
+              height: 56,
+              borderRadius: 28,
+              justifyContent: "center",
+              alignItems: "center",
+              shadowColor: colors.primary.main,
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.25,
+              shadowRadius: 4,
+              elevation: 5,
+            },
+          ]}
+          rightIcon={null}
         />
         <TouchableOpacity onPress={handleClose} style={styles.skipButton}>
-          <ThemeText variant="body2" style={[styles.skipText, { color: colors.text.secondary }]}>
+          <ThemeText style={[styles.skipText, { color: colors.text.primary, fontSize: 16 }]}>
             {t("import.pocket.notNow")}
           </ThemeText>
         </TouchableOpacity>
@@ -200,11 +213,24 @@ export default function ImportPocketScreen() {
 
       <View style={styles.buttonContainer}>
         <Button
-          variant="primary"
-          size="large"
-          onPress={handleClose}
-          buttonStyle={styles.primaryButton}
           title={t("import.pocket.done")}
+          onPress={handleClose}
+          style={[
+            styles.primaryButton,
+            {
+              backgroundColor: colors.primary.main,
+              height: 56,
+              borderRadius: 28,
+              justifyContent: "center",
+              alignItems: "center",
+              shadowColor: colors.primary.main,
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.25,
+              shadowRadius: 4,
+              elevation: 5,
+            },
+          ]}
+          rightIcon={null}
         />
       </View>
     </ThemeView>
@@ -283,6 +309,9 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
     alignItems: "center",
     justifyContent: "center",
+    maxWidth: 400,
+    alignSelf: "center",
+    width: "100%",
   },
   iconContainer: {
     marginBottom: 24,
