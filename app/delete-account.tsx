@@ -52,7 +52,7 @@ export default function DeleteAccountScreen() {
       <ThemeView style={{ flex: 1, justifyContent: "center", alignItems: "center" }} padded="lg">
         <ActivityIndicator size="large" color={theme.colors.primary.main} />
         <ThemeText style={{ marginTop: 16, textAlign: "center" }}>
-          {t("settings.deletingAccount") || "Deleting your account..."}
+          {t("settings.deletingAccount")}
         </ThemeText>
       </ThemeView>
     </SafeAreaView>
