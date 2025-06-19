@@ -82,6 +82,7 @@ class ShareViewController: UIViewController {
 
     func setStateSaving() {
         // Load and display the folio.loading image
+        let savingTranslation = getTranslationFromAppGroup(from: "folio_share_t_common_saving")
         if let image = UIImage(named: "folio.loading") {
             iconView.image = image
         } else {
@@ -90,12 +91,12 @@ class ShareViewController: UIViewController {
                 .systemBlue, renderingMode: .alwaysOriginal)
         }
         iconView.isHidden = false
-        messageLabel.text = "Saving..."
+        messageLabel.text = savingTranslation
     }
 
     func setStateSaved() {
         iconView.isHidden = false
-        
+        let savedTranslation = getTranslationFromAppGroup(from: "folio_share_t_common_saved")
         // Try to load custom image, fallback to system icon
         if let image = UIImage(named: "folio.success") {
             iconView.image = image
@@ -104,7 +105,7 @@ class ShareViewController: UIViewController {
                 .systemGreen, renderingMode: .alwaysOriginal)
         }
         
-        messageLabel.text = "Saved to Folio."
+        messageLabel.text = savedTranslation
     }
 
     private func handleSharedContent() {
@@ -231,5 +232,14 @@ class ShareViewController: UIViewController {
         print("🔑 Token from App Group: \(token ?? "nil")")
 
         return token
+    }
+
+    // Get Translation based on key
+    private func getTranslationFromAppGroup(from key: String) -> String? {
+        let userDefaults = UserDefaults(suiteName: "group.co.lessisbetter.folio.share")
+        let translation = userDefaults?.string(forKey: key)
+        print("translation from App Group: \(translation ?? "nil")")
+
+        return translation
     }
 }

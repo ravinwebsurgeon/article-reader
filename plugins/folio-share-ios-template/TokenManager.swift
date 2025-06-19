@@ -29,6 +29,14 @@ class TokenManager: NSObject {
     userDefaults?.synchronize()
     print("✅ Token removed from App Group")
   }
+
+  @objc
+  func saveTranslation(_ key: String, translation: String) {
+    let userDefaults = UserDefaults(suiteName: "group.co.lessisbetter.folio.share")
+    userDefaults?.set(translation, forKey: key)
+    userDefaults?.synchronize()
+    print("✅ Translation saved to App Group")
+  }
   
   @objc
   static func requiresMainQueueSetup() -> Bool {

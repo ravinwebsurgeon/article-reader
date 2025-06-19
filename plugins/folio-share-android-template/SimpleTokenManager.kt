@@ -12,7 +12,10 @@ class SimpleTokenManager(private val context: Context) {
         return try {
             val sharedPref = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             val token = sharedPref.getString(TOKEN_KEY, null)
-            Log.d(TAG, "Token read from SharedPreferences: ${if (token?.isNotEmpty() == true) token.take(10) + "..." else "null"}")
+            Log.d(
+                    TAG,
+                    "Token read from SharedPreferences: ${if (token?.isNotEmpty() == true) token.take(10) + "..." else "null"}"
+            )
             token
         } catch (e: Exception) {
             Log.e(TAG, "Failed to read token from SharedPreferences", e)
@@ -35,5 +38,15 @@ class SimpleTokenManager(private val context: Context) {
         Log.d(TAG, "Has token: ${hasToken()}")
         Log.d(TAG, "All keys: ${sharedPref.all.keys}")
         Log.d(TAG, "========================")
+    }
+
+    fun getTranslation(key: String): String? {
+        return try {
+            val sharedPref = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            sharedPref.getString(key, null)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to get translation for key: $key", e)
+            null
+        }
     }
 }

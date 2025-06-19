@@ -21,7 +21,9 @@
     "loading": "Loading...",
     "error": "Error",
     "success": "Success",
-    "logout": "Logout"
+    "logout": "Logout",
+    "saving": "Saving...",
+    "saved": "Saved to Folio."
   },
   "auth": {
     "login": {
