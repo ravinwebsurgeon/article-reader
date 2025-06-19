@@ -1,8 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Keyboard, AppState, View } from "react-native";
+import { Keyboard, AppState, View, NativeModules } from "react-native";
 import NetInfo from "@react-native-community/netinfo";
 
 import { ActionMenuItem, ActionMenuPosition } from "@/components/shared/menu/ReusableActionMenu";
+import { useTranslation } from "react-i18next";
+
+const { TokenManager } = NativeModules;
 
 /**
  * Custom hook for keyboard visibility
@@ -243,4 +246,23 @@ export const useActionMenu = () => {
     showMenuFromEvent,
     hideMenu,
   };
+};
+
+/**
+ * Hook to pass the translation Native
+ */
+export const usePassTranslationsToNative = () => {
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    if (TokenManager) {
+      const savedStr = t("common.saved");
+      const savingStr = t("common.saving");
+
+      TokenManager.saveTranslation("folio_share_t_common_saved", savedStr);
+      TokenManager.saveTranslation("folio_share_t_common_saving", savingStr);
+    } else {
+      console.warn("⚠️ TokenManager not available - extension won't have translation");
+    }
+  }, [t]);
 };
