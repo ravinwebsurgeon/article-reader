@@ -14,26 +14,21 @@ export default function AccountSettingsScreen() {
 
   const handleDeleteAccount = () => {
     console.log("Delete account button pressed - showing confirmation dialog");
-    crossPlatformAlert(
-      t("settings.deleteAccount") || "Delete Account",
-      t("settings.deleteAccountConfirmMessage") ||
-        "Are you sure you want to delete your account? This action cannot be undone and will permanently delete all your data.",
-      [
-        {
-          text: t("common.cancel") || "Cancel",
-          style: "cancel",
-          onPress: () => console.log("Delete account cancelled"),
+    crossPlatformAlert(t("settings.deleteAccount"), t("settings.deleteAccountConfirmMessage"), [
+      {
+        text: t("common.cancel"),
+        style: "cancel",
+        onPress: () => console.log("Delete account cancelled"),
+      },
+      {
+        text: t("settings.deleteAccount"),
+        style: "destructive",
+        onPress: () => {
+          console.log("Delete account confirmed - navigating to delete page");
+          router.replace("/delete-account");
         },
-        {
-          text: t("settings.deleteAccount") || "Delete Account",
-          style: "destructive",
-          onPress: () => {
-            console.log("Delete account confirmed - navigating to delete page");
-            router.replace("/delete-account");
-          },
-        },
-      ],
-    );
+      },
+    ]);
   };
 
   return (
@@ -48,7 +43,7 @@ export default function AccountSettingsScreen() {
             <Ionicons name="arrow-back-outline" size={24} color={theme.colors.primary.main} />
           </TouchableOpacity>
           <ThemeText variant="body1" style={[styles.headerTitle, { fontWeight: "600" }]}>
-            {t("settings.account") || "Account"}
+            {t("settings.account")}
           </ThemeText>
           <ThemeView style={styles.headerSpacer} />
         </ThemeView>
@@ -68,7 +63,7 @@ export default function AccountSettingsScreen() {
             <ThemeView style={styles.settingContent}>
               <Ionicons name="trash-outline" size={24} color={theme.colors.error.main} />
               <ThemeText style={[styles.settingText, { color: theme.colors.error.main }]}>
-                {t("settings.deleteAccount") || "Delete Account"}
+                {t("settings.deleteAccount")}
               </ThemeText>
             </ThemeView>
           </Pressable>

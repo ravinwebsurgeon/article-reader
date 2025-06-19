@@ -20,22 +20,17 @@ export default function SettingsScreen() {
 
   const handleLogout = async () => {
     // Show confirmation alert
-    crossPlatformAlert(
-      t("settings.logout") || "Logout",
-      t("settings.logoutConfirmMessage") ||
-        "Are you sure you want to logout? This will clear all your local data.",
-      [
-        {
-          text: t("common.cancel") || "Cancel",
-          style: "cancel",
-        },
-        {
-          text: t("common.logout") || "Logout",
-          style: "destructive",
-          onPress: performLogout,
-        },
-      ],
-    );
+    crossPlatformAlert(t("settings.logout"), t("settings.logoutConfirmMessage"), [
+      {
+        text: t("common.cancel"),
+        style: "cancel",
+      },
+      {
+        text: t("common.logout"),
+        style: "destructive",
+        onPress: performLogout,
+      },
+    ]);
   };
 
   const performLogout = async () => {
@@ -51,11 +46,7 @@ export default function SettingsScreen() {
       router.replace("/(auth)/login");
     } catch (error) {
       console.error("Logout error:", error);
-      crossPlatformAlert(
-        t("common.error") || "Error",
-        t("settings.logoutError") || "An error occurred while logging out. Please try again.",
-        [{ text: t("common.ok") || "OK" }],
-      );
+      crossPlatformAlert(t("common.error"), t("settings.logoutError"), [{ text: t("common.ok") }]);
     } finally {
       setIsLoggingOut(false);
     }
