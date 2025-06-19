@@ -5,10 +5,10 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
   ViewStyle,
   TextStyle,
 } from "react-native";
+import crossPlatformAlert from "@/utils/crossPlatformAlert";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { useAuthStore } from "@/stores/authStore";
@@ -49,7 +49,7 @@ function AuthStart() {
   // Show error alert if needed
   useEffect(() => {
     if (error) {
-      Alert.alert(t("auth.authStart.loginError"), error);
+      crossPlatformAlert(t("auth.authStart.loginError"), error);
       clearError();
     }
   }, [error, clearError, t]);

@@ -1,4 +1,5 @@
-import { StyleSheet, Pressable, Alert, TouchableOpacity } from "react-native";
+import { StyleSheet, Pressable, TouchableOpacity } from "react-native";
+import crossPlatformAlert from "@/utils/crossPlatformAlert";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemeText, ThemeView } from "@/components";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -13,7 +14,7 @@ export default function AccountSettingsScreen() {
 
   const handleDeleteAccount = () => {
     console.log("Delete account button pressed - showing confirmation dialog");
-    Alert.alert(
+    crossPlatformAlert(
       t("settings.deleteAccount") || "Delete Account",
       t("settings.deleteAccountConfirmMessage") ||
         "Are you sure you want to delete your account? This action cannot be undone and will permanently delete all your data.",
