@@ -1,7 +1,7 @@
 import { StyleSheet, Pressable, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemeText, ThemeView } from "@/components";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/theme";
 import { useRouter } from "expo-router";
@@ -81,7 +81,11 @@ export default function SettingsScreen() {
                 {t("settings.account")}
               </ThemeText>
             </ThemeView>
-            <Ionicons name="chevron-forward" size={20} color={theme.colors.text.secondary} />
+            <Ionicons
+              name="chevron-forward-outline"
+              size={20}
+              color={theme.colors.text.secondary}
+            />
           </Pressable>
 
           <Pressable

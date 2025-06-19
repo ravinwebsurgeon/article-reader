@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useTheme } from "@/theme";
 import ItemCard from "@/components/item/ItemCard";
 import ItemModel from "@/database/models/ItemModel";
@@ -89,7 +89,7 @@ const SearchScreenComponent = ({
       <View style={styles.searchHeader}>
         <View style={styles.searchInputContainer}>
           <Ionicons
-            name="search"
+            name="search-outline"
             size={20}
             color={theme.colors.text.secondary}
             style={styles.searchIcon}
@@ -107,7 +107,7 @@ const SearchScreenComponent = ({
 
           {searchQuery.length > 0 && (
             <TouchableOpacity onPress={handleClearSearch} style={styles.clearButton}>
-              <Ionicons name="close-circle" size={20} color={theme.colors.text.secondary} />
+              <Ionicons name="close-circle-outline" size={20} color={theme.colors.text.secondary} />
             </TouchableOpacity>
           )}
         </View>

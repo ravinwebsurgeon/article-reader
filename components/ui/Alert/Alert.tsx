@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/theme/hooks";
-import { Feather } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { AlertConfig, AlertStyles } from "@/types/alert";
 import { ALERT_COLORS, ALERT_CONSTANTS, ALERT_ICONS } from "@/constants/alert";
 import { ThemeText, ThemeView } from "@/components/primitives";
@@ -181,8 +181,8 @@ export const Alert: React.FC<AlertProps> = ({
           {showIcon && (
             <View style={styles.iconContainer}>
               {customIcon ?? (
-                <Feather
-                  name={ALERT_ICONS[type] as keyof typeof Feather.glyphMap}
+                <Ionicons
+                  name={ALERT_ICONS[type] as keyof typeof Ionicons.glyphMap}
                   size={24}
                   color={iconColor}
                 />
@@ -233,7 +233,7 @@ export const Alert: React.FC<AlertProps> = ({
               onPress={dismissAlert}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Feather name="x" size={20} color={theme.colors.white} />
+              <Ionicons name="close-outline" size={20} color={theme.colors.white} />
             </Pressable>
           )}
         </ThemeView>

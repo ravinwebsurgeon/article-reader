@@ -11,10 +11,10 @@ export const ALERT_CONSTANTS = {
 } as const;
 
 export const ALERT_ICONS: Record<AlertType, string> = {
-  success: "check-circle",
-  error: "x-circle",
-  warning: "alert-triangle",
-  info: "info",
+  success: "checkmark-circle-outline",
+  error: "close-circle-outline",
+  warning: "warning-outline",
+  info: "information-circle-outline",
 };
 
 // Color mappings for each alert type
